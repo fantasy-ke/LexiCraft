@@ -1,0 +1,6 @@
+@LexiCraft.Host_HostAddress = http://localhost:5273
+
+GET {{LexiCraft.Host_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###
