@@ -1,9 +1,19 @@
+using LexiCraft.Infrastructure.Extensions;
+using Microsoft.OpenApi.Models;
+
 var builder = WebApplication.CreateBuilder(args);
 
 builder.AddServiceDefaults();
 // Add services to the container.
 // Learn more about configuring OpenAPI at https://aka.ms/aspnet/openapi
-builder.Services.AddOpenApi();
+builder.Services.WithScalar(new OpenApiInfo()
+{
+    Title = "词汇技艺 Web Api",
+    Version = "v1",
+    Description = "词汇技艺相关接口",
+}).AddEndpointsApiExplorer();;
+
+
 
 var app = builder.Build();
 
@@ -11,7 +21,7 @@ app.MapDefaultEndpoints();
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
 {
-    app.MapOpenApi();
+    app.UseScalar("EarthChat Auth Server");
 }
 
 app.UseHttpsRedirection();
@@ -20,6 +30,12 @@ var summaries = new[]
 {
     "Freezing", "Bracing", "Chilly", "Cool", "Mild", "Warm", "Balmy", "Hot", "Sweltering", "Scorching"
 };
+
+app.MapGet("/", context =>
+{
+    context.Response.Redirect("/scalar");
+    return Task.CompletedTask;
+});
 
 app.MapGet("/weatherforecast", () =>
     {
@@ -35,7 +51,7 @@ app.MapGet("/weatherforecast", () =>
     })
     .WithName("GetWeatherForecast");
 
-app.Run();
+await app.RunAsync();
 
 record WeatherForecast(DateOnly Date, int TemperatureC, string? Summary)
 {

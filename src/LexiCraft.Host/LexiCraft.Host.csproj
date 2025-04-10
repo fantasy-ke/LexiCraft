@@ -4,6 +4,8 @@
         <TargetFramework>net9.0</TargetFramework>
         <Nullable>enable</Nullable>
         <ImplicitUsings>enable</ImplicitUsings>
+        <OpenApiDocumentsDirectory>$(MSBuildProjectDirectory)</OpenApiDocumentsDirectory>
+        <OpenApiGenerateDocuments>true</OpenApiGenerateDocuments>
     </PropertyGroup>
 
     <ItemGroup>
@@ -13,6 +15,7 @@
     <ItemGroup>
       <ProjectReference Include="..\..\LexiCraft.Aspire.ServiceDefaults\LexiCraft.Aspire.ServiceDefaults.csproj" />
       <ProjectReference Include="..\LexiCraft.Application\LexiCraft.Application.csproj" />
+      <ProjectReference Include="..\LexiCraft.Infrastructure\LexiCraft.Infrastructure.csproj" />
     </ItemGroup>
 
 </Project>
