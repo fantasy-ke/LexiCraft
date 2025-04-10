@@ -14,7 +14,7 @@ public interface ICreatable
     /// <summary>
     /// 创建人
     /// </summary>
-    public string CreateByName { get; set; }
+    public string? CreateByName { get; set; }
     
     /// <summary>
     /// 创建时间

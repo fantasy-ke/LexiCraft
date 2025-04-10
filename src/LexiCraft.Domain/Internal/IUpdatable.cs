@@ -14,7 +14,7 @@ public interface IUpdatable
     /// <summary>
     /// 更新人
     /// </summary>
-    public string UpdateByName { get; set; }
+    public string? UpdateByName { get; set; }
 
     /// <summary>
     /// 更新时间
