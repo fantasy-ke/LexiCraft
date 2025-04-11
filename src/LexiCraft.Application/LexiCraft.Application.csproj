@@ -7,7 +7,14 @@
     </PropertyGroup>
 
     <ItemGroup>
+      <ProjectReference Include="..\LexiCraft.Application.Contract\LexiCraft.Application.Contract.csproj" />
       <ProjectReference Include="..\LexiCraft.Domain\LexiCraft.Domain.csproj" />
+    </ItemGroup>
+
+    <ItemGroup>
+		<FrameworkReference Include="Microsoft.AspNetCore.App"/>
+
+		<PackageReference Include="FastService" Version="0.1.3" />
     </ItemGroup>
 
 </Project>

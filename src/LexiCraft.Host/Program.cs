@@ -25,6 +25,9 @@ builder.Services.WithIdGen();
 var app = builder.Build();
 
 app.MapDefaultEndpoints();
+
+app.MapFast();
+
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
 {
@@ -33,10 +36,5 @@ if (app.Environment.IsDevelopment())
 
 app.UseHttpsRedirection();
 
-app.MapGet("/", context =>
-{
-    context.Response.Redirect("/scalar");
-    return Task.CompletedTask;
-});
 
 await app.RunAsync();

@@ -9,6 +9,7 @@
     </PropertyGroup>
 
     <ItemGroup>
+        <PackageReference Include="FastService.Analyzers" Version="0.1.3" />
         <PackageReference Include="Microsoft.AspNetCore.OpenApi" Version="9.0.4"/>
     </ItemGroup>
 
