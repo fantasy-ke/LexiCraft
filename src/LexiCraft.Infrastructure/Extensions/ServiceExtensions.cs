@@ -146,6 +146,29 @@ public static class ServiceExtensions
         services.AddIdGen(123, () => new IdGeneratorOptions());  // Where 123 is the generator-id
         return services;
     }
+    
+    /// <summary>
+    /// 跨域
+    /// </summary>
+    /// <param name="services"></param>
+    /// <param name="corsOptions"></param>
+    public static void ServicesCors(this IServiceCollection services, Action<CorsOptions> corsOptions)
+    {
+        var optionCor = new CorsOptions();
+        corsOptions.Invoke(optionCor);
+        services.AddCors(
+            builder =>
+                builder.AddPolicy(
+                    name: optionCor.CorsName,
+                    policyBuilder =>
+                        policyBuilder
+                            .AllowAnyHeader()
+                            .AllowAnyMethod()
+                            .AllowCredentials()
+                            .WithOrigins(optionCor.CorsArr)
+                )
+        );
+    }
 
 
     public static IServiceCollection WithRedis(this IServiceCollection services,
