@@ -26,7 +26,7 @@ public static partial class StringExtensions
     /// <param name="str"></param>
     /// <param name="postFixes"></param>
     /// <returns></returns>
-    public static string RemoveFix(this string str, params string[] postFixes)
+    public static string? RemoveFix(this string? str, params string[]? postFixes)
     {
         if (str == null)
         {
@@ -63,7 +63,7 @@ public static partial class StringExtensions
     /// <returns></returns>
     /// <exception cref="ArgumentNullException"></exception>
     /// <exception cref="ArgumentException"></exception>
-    public static string Left(this string str, int len)
+    public static string? Left(this string? str, int len)
     {
         if (str == null)
         {
@@ -107,7 +107,7 @@ public static partial class StringExtensions
     /// <param name="str">字符串</param>
     /// <param name="maxLength">最大长度</param>
     /// <returns></returns>
-    public static string TruncateWithPostfix(this string str, int maxLength)
+    public static string? TruncateWithPostfix(this string str, int maxLength)
     {
         return str.TruncateWithPostfix(maxLength, "...");
     }
@@ -119,7 +119,7 @@ public static partial class StringExtensions
     /// <param name="maxLength">指定的最大长度</param>
     /// <param name="postfix">后缀</param>
     /// <returns></returns>
-    public static string TruncateWithPostfix(this string str, int maxLength, string postfix)
+    public static string? TruncateWithPostfix(this string? str, int maxLength, string postfix)
     {
         if (str == null)
         {
