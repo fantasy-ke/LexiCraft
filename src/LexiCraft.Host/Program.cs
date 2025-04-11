@@ -6,15 +6,17 @@ var builder = WebApplication.CreateBuilder(args);
 builder.AddServiceDefaults();
 // Add services to the container.
 // Learn more about configuring OpenAPI at https://aka.ms/aspnet/openapi
-builder.Services.WithScalar(new OpenApiInfo()
-{
-    Title = "词汇技艺 Web Api",
-    Version = "v1",
-    Description = "词汇技艺相关接口",
-})
-.WithJwt(builder.Configuration)
-.WithLexiCraftDbAccess(builder.Configuration)
-.WithRedis(builder.Configuration);
+builder.Services
+    .WithFast()
+    .WithScalar(new OpenApiInfo()
+    {
+        Title = "词汇技艺 Web Api",
+        Version = "v1",
+        Description = "词汇技艺相关接口",
+    })
+    .WithJwt(builder.Configuration)
+    .WithLexiCraftDbAccess(builder.Configuration)
+    .WithRedis(builder.Configuration);
 
 builder.Services.AddHttpContextAccessor();
 

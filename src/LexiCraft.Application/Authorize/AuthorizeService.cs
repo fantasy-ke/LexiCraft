@@ -3,10 +3,12 @@ using LexiCraft.Application.Contract.Authorize;
 using LexiCraft.Application.Contract.Authorize.Input;
 using LexiCraft.Domain;
 using LexiCraft.Domain.Users;
+using LexiCraft.Infrastructure.Filters;
 using Microsoft.AspNetCore.Http;
 
 namespace LexiCraft.Application.Authorize;
 
+[Filter(typeof(ResultEndPointFilter))]
 [Route("/api/v1/Authorize")]
 [Tags("Authorize")]
 public class AuthorizeService(IRepository<User> userRepository):FastApi, IAuthorizeService

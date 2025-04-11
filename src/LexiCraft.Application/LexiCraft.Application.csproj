@@ -9,6 +9,7 @@
     <ItemGroup>
       <ProjectReference Include="..\LexiCraft.Application.Contract\LexiCraft.Application.Contract.csproj" />
       <ProjectReference Include="..\LexiCraft.Domain\LexiCraft.Domain.csproj" />
+      <ProjectReference Include="..\LexiCraft.Infrastructure\LexiCraft.Infrastructure.csproj" />
     </ItemGroup>
 
     <ItemGroup>
