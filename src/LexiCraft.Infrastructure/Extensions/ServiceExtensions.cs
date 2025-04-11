@@ -6,6 +6,7 @@ using LexiCraft.Infrastructure.Contract;
 using LexiCraft.Infrastructure.EntityFrameworkCore;
 using LexiCraft.Infrastructure.EntityFrameworkCore.Extensions;
 using LexiCraft.Infrastructure.Shared;
+using LexiCraft.Redis;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Routing;
@@ -145,8 +146,34 @@ public static class ServiceExtensions
         services.AddIdGen(123, () => new IdGeneratorOptions());  // Where 123 is the generator-id
         return services;
     }
-    
 
+
+    public static IServiceCollection WithRedis(this IServiceCollection services,
+        IConfiguration configuration)
+    {
+        //使用CsRedis
+        var cacheOption = configuration.GetSection("App:RedisCache").Get<RedisCacheOptions>()!;
+
+        if (cacheOption == null)
+        {
+            throw new Exception("无法获取App:Cache  redis缓存配置");
+        }
+
+        if (!cacheOption.Enable)
+            return services;
+        services.AddZRedis(cacheOption,options =>
+        {
+            options.Capacity = 6;
+        });
+        return services;
+    }
+    
+    /// <summary>
+    /// 添加Scalar
+    /// </summary>
+    /// <param name="builder"></param>
+    /// <param name="title"></param>
+    /// <returns></returns>
     public static IEndpointRouteBuilder UseScalar(this IEndpointRouteBuilder builder, string title)
     {
         builder.MapOpenApi();

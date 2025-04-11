@@ -22,11 +22,8 @@ public static class ServiceExtensions
         AppContext.SetSwitch("Npgsql.DisableDateTimeInfinityConversions", true);
 
         services.AddDbContext<TDbContext>(optionsAction);
-
         services.AddDbContextFactory<TDbContext>(optionsAction);
-
         services.AddScoped<IUnitOfWork, UnitOfWork<TDbContext>>();
-
         services.AddScoped(typeof(IRepository<,>), typeof(Repository<,>));
 
         return services;
