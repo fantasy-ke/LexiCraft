@@ -1,4 +1,5 @@
-﻿using LexiCraft.Domain.Internal;
+﻿using IdGen;
+using LexiCraft.Domain.Internal;
 using LexiCraft.Infrastructure.Contract;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Diagnostics;
@@ -35,11 +36,22 @@ public class LexiCraftDbContext(DbContextOptions options,IServiceProvider servic
     {
         var entries = ChangeTracker.Entries()
             .Where(x => x.State is EntityState.Added or EntityState.Modified);
+        var userContext = serviceProvider.GetService<IUserContext>();
+        var idGenerator = serviceProvider.GetService<IdGenerator>();
         foreach (var entry in entries)
         {
-            var userContext = serviceProvider.GetService<IUserContext>();
             if (entry.State == EntityState.Added)
             {
+                switch (entry.Entity)
+                {
+                    case IEntity<Guid> guidId:
+                        guidId.Id = new Guid();
+                        break;
+                    case IEntity<long> longId:
+                        longId.Id = idGenerator?.CreateId() ?? 0;
+                        break;
+                }
+
                 if (entry.Entity is ICreatable entity)
                 {
                     entity.CreateAt = DateTime.Now;

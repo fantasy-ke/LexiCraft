@@ -1,4 +1,6 @@
 ﻿using System.Text;
+using IdGen;
+using IdGen.DependencyInjection;
 using LexiCraft.Infrastructure.Authorization;
 using LexiCraft.Infrastructure.Contract;
 using LexiCraft.Infrastructure.EntityFrameworkCore;
@@ -109,6 +111,12 @@ public static class ServiceExtensions
     }
 
 
+    /// <summary>
+    /// 添加数据库访问
+    /// </summary>
+    /// <param name="services"></param>
+    /// <param name="configuration"></param>
+    /// <returns></returns>
     public static IServiceCollection WithLexiCraftDbAccess(this IServiceCollection services,
         IConfiguration configuration)
     {
@@ -122,6 +130,22 @@ public static class ServiceExtensions
         });
         return services;
     }
+
+
+    /// <summary>
+    /// 添加IdGen
+    /// </summary>
+    /// <param name="services"></param>
+    /// <returns></returns>
+    public static IServiceCollection WithIdGen(this IServiceCollection services)
+    {
+        // <idGenerator name="foo" id="123"  epoch="2016-01-02T12:34:56" timestampBits="39" generatorIdBits="11" sequenceBits="13" tickDuration="0:00:00.001" />
+        //  <idGenerator name="bar" id="987"  epoch="2016-02-01 01:23:45" timestampBits="20" generatorIdBits="21" sequenceBits="22" />
+        //  <idGenerator name="baz" id="2047" epoch="2016-02-29" timestampBits="21" generatorIdBits="21" sequenceBits="21" sequenceOverflowStrategy="SpinWait" />
+        services.AddIdGen(123, () => new IdGeneratorOptions());  // Where 123 is the generator-id
+        return services;
+    }
+    
 
     public static IEndpointRouteBuilder UseScalar(this IEndpointRouteBuilder builder, string title)
     {

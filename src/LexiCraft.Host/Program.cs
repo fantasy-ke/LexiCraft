@@ -19,6 +19,7 @@ builder.Services.AddHttpContextAccessor();
 
 builder.Services.AddEndpointsApiExplorer();
 
+builder.Services.WithIdGen();
 
 var app = builder.Build();
 
