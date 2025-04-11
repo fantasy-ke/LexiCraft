@@ -1,6 +1,16 @@
-﻿using Microsoft.AspNetCore.Builder;
+﻿using System.Text;
+using LexiCraft.Infrastructure.Authorization;
+using LexiCraft.Infrastructure.Contract;
+using LexiCraft.Infrastructure.EntityFrameworkCore;
+using LexiCraft.Infrastructure.EntityFrameworkCore.Extensions;
+using LexiCraft.Infrastructure.Shared;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Routing;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Any;
 using Microsoft.OpenApi.Models;
 using Scalar.AspNetCore;
@@ -9,6 +19,12 @@ namespace LexiCraft.Infrastructure.Extensions;
 
 public static class ServiceExtensions
 {
+    /// <summary>
+    /// 添加Scalar
+    /// </summary>
+    /// <param name="services"></param>
+    /// <param name="openApiInfo"></param>
+    /// <returns></returns>
     public static IServiceCollection WithScalar(this IServiceCollection services,OpenApiInfo openApiInfo)
     {
         services.AddOpenApi(options =>
@@ -47,6 +63,63 @@ public static class ServiceExtensions
             });
         });
 
+        return services;
+    }
+    
+    
+    /// <summary>
+    /// 添加Jwt访问
+    /// </summary>
+    /// <param name="services"></param>
+    /// <param name="configuration"></param>
+    /// <returns></returns>
+    public static IServiceCollection WithJwt(this IServiceCollection services, IConfiguration configuration)
+    {
+        services.AddHttpContextAccessor();
+        services.AddSingleton<IJwtTokenProvider, JwtTokenProvider>();
+        services.AddScoped<IUserContext, UserContext>();
+
+        var option = configuration.GetSection(JwtOptions.Name);
+
+        var jwtOption = option.Get<JwtOptions>();
+
+        services.Configure<JwtOptions>(option);
+
+        services.AddAuthorization()
+            .AddAuthentication(options =>
+            {
+                options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
+                options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
+            })
+            .AddJwtBearer(options =>
+            {
+                options.TokenValidationParameters = new TokenValidationParameters
+                {
+                    ValidateIssuer = true,
+                    ValidateAudience = true,
+                    ValidateLifetime = true,
+                    ValidateIssuerSigningKey = true,
+                    ValidIssuer = jwtOption!.Issuer,
+                    ValidAudience = jwtOption.Audience,
+                    IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(jwtOption.Secret))
+                };
+            });
+
+        return services;
+    }
+
+
+    public static IServiceCollection WithLexiCraftDbAccess(this IServiceCollection services,
+        IConfiguration configuration)
+    {
+        services.WithDbAccess<LexiCraftDbContext>(options =>
+        {
+            options.UseNpgsql(configuration.GetConnectionString("LexiCraftDb"));
+#if DEBUG
+         options.EnableSensitiveDataLogging();
+         options.EnableDetailedErrors();
+#endif
+        });
         return services;
     }
 
