@@ -61,7 +61,7 @@ public class LexiCraftDbContext(DbContextOptions options,IServiceProvider? servi
                 switch (entry.Entity)
                 {
                     case IEntity<Guid> guidId:
-                        guidId.Id = new Guid();
+                        guidId.Id = Guid.NewGuid();
                         break;
                     case IEntity<long> longId:
                         longId.Id = idGenerator?.CreateId() ?? 0;
