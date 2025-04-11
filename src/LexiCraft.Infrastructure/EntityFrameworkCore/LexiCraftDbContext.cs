@@ -1,14 +1,42 @@
 ﻿using IdGen;
 using LexiCraft.Domain.Internal;
+using LexiCraft.Domain.Users;
 using LexiCraft.Infrastructure.Contract;
+using LexiCraft.Infrastructure.EntityFrameworkCore.Extensions;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace LexiCraft.Infrastructure.EntityFrameworkCore;
 
-public class LexiCraftDbContext(DbContextOptions options,IServiceProvider serviceProvider): DbContext(options)
+public class LexiCraftDbContext: DbContext
 {
+    public DbSet<User> Users { get; set; }
+    
+    public DbSet<UserSetting> UserSettings { get; set; }
+    
+    public DbSet<UserOAuth> UserOAuths { get; set; }
+    
+    
+    public LexiCraftDbContext(DbContextOptions<LexiCraftDbContext> options) : base(options)
+    {
+
+    }
+    
+    private readonly IServiceProvider _serviceProvider;
+    public LexiCraftDbContext(DbContextOptions options,IServiceProvider serviceProvider) : base(options)
+    {
+        _serviceProvider = serviceProvider;
+    }
+    
+    protected override void OnModelCreating(ModelBuilder modelBuilder)
+    {
+        base.OnModelCreating(modelBuilder);
+
+        modelBuilder.ConfigureAuth();
+    }
+    
+    
     protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
     {
         base.OnConfiguring(optionsBuilder);
@@ -36,8 +64,8 @@ public class LexiCraftDbContext(DbContextOptions options,IServiceProvider servic
     {
         var entries = ChangeTracker.Entries()
             .Where(x => x.State is EntityState.Added or EntityState.Modified);
-        var userContext = serviceProvider.GetService<IUserContext>();
-        var idGenerator = serviceProvider.GetService<IdGenerator>();
+        var userContext = _serviceProvider.GetService<IUserContext>();
+        var idGenerator = _serviceProvider.GetService<IdGenerator>();
         foreach (var entry in entries)
         {
             if (entry.State == EntityState.Added)
