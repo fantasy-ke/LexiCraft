@@ -4,18 +4,20 @@
         <TargetFramework>net9.0</TargetFramework>
         <ImplicitUsings>enable</ImplicitUsings>
         <Nullable>enable</Nullable>
+        <OutputType>Library</OutputType>
     </PropertyGroup>
 
+    <ItemGroup>
+        <FrameworkReference Include="Microsoft.AspNetCore.App"/>
+        <PackageReference Include="FastService" Version="0.1.3" />
+    </ItemGroup>
+    
     <ItemGroup>
       <ProjectReference Include="..\LexiCraft.Application.Contract\LexiCraft.Application.Contract.csproj" />
       <ProjectReference Include="..\LexiCraft.Domain\LexiCraft.Domain.csproj" />
       <ProjectReference Include="..\LexiCraft.Infrastructure\LexiCraft.Infrastructure.csproj" />
     </ItemGroup>
 
-    <ItemGroup>
-		<FrameworkReference Include="Microsoft.AspNetCore.App"/>
-
-		<PackageReference Include="FastService" Version="0.1.3" />
-    </ItemGroup>
+    
 
 </Project>
