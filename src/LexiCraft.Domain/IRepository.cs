@@ -9,7 +9,7 @@ namespace LexiCraft.Domain;
 /// <typeparam name="TEntity">实体类型</typeparam>
 public interface IRepository<TDbContext, TEntity> : IRepository<TEntity>
 {
-    
+    TDbContext DbContext { get; set; }
 }
 
 /// <summary>
@@ -18,6 +18,9 @@ public interface IRepository<TDbContext, TEntity> : IRepository<TEntity>
 /// <typeparam name="TEntity">实体类型</typeparam>
 public interface IRepository<TEntity>
 {
+
+    IQueryable<TTemp> Select<TTemp>() where TTemp : class;
+    
     /// <summary>
     /// 获取符合条件的实体列表
     /// </summary>
@@ -120,6 +123,14 @@ public interface IRepository<TEntity>
     /// </summary>
     /// <returns>受影响的行数</returns>
     Task<int> SaveChangesAsync();
+    
+    
+    /// <summary>
+    ///  非跟踪查询
+    /// </summary>
+    /// <typeparam name="T"></typeparam>
+    /// <returns></returns>
+    IQueryable<T> QueryNoTracking<T>() where T : class;
 
     /// <summary>
     /// 获取分页列表

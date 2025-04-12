@@ -123,7 +123,7 @@ public static class ServiceExtensions
     {
         services.WithDbAccess<LexiCraftDbContext>(options =>
         {
-            options.UseNpgsql(configuration.GetConnectionString("LexiCraftDb"));
+            options.UseNpgsql(configuration.GetConnectionString("DefaultConnection"));
 #if DEBUG
          options.EnableSensitiveDataLogging();
          options.EnableDetailedErrors();

@@ -1,3 +1,5 @@
+using LexiCraft.Host;
+using LexiCraft.Host.RouterMap;
 using LexiCraft.Infrastructure.Extensions;
 using LexiCraft.Infrastructure.Middleware;
 using Microsoft.OpenApi.Models;
@@ -8,7 +10,6 @@ builder.AddServiceDefaults();
 // Add services to the container.
 // Learn more about configuring OpenAPI at https://aka.ms/aspnet/openapi
 builder.Services
-    .WithFast()
     .WithScalar(new OpenApiInfo()
     {
         Title = "词汇技艺 Web Api",
@@ -36,13 +37,15 @@ builder.Services.ServicesCors(options =>
 
 builder.Services.WithIdGen();
 
+builder.Services.WithServiceLifetime();
+
 var app = builder.Build();
 
 app.MapDefaultEndpoints();
 
 app.UseCors("LexiCraft.Cors");
 
-app.MapFast();
+app.MapAuthEndpoint();
 
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())

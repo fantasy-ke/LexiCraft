@@ -13,8 +13,16 @@ namespace LexiCraft.Infrastructure.EntityFrameworkCore;
 public class Repository<TDbContext, TEntity>(TDbContext dbContext) : IRepository<TDbContext, TEntity>
 	where TEntity : class where TDbContext : DbContext
 {
-	protected DbSet<TEntity> Entity => dbContext.Set<TEntity>();
+	
+	public TDbContext DbContext { get; set; } = dbContext;
+	
+	private DbSet<TEntity> Entity => DbContext.Set<TEntity>();
 
+	public IQueryable<TTemp> Select<TTemp>() where TTemp : class
+	{
+		return DbContext.Set<TTemp>();
+	}
+	
 	public Task<List<TEntity>> GetListAsync(Expression<Func<TEntity, bool>> predicate)
 	{
 		return Entity.Where(predicate).ToListAsync();
@@ -89,9 +97,19 @@ public class Repository<TDbContext, TEntity>(TDbContext dbContext) : IRepository
 
 	public Task<int> SaveChangesAsync()
 	{
-		return dbContext.SaveChangesAsync();
+		return DbContext.SaveChangesAsync();
 	}
 
+	/// <summary>
+	/// 查询无跟踪
+	/// </summary>
+	/// <typeparam name="T"></typeparam>
+	/// <returns></returns>
+	public IQueryable<T> QueryNoTracking<T>() where T : class
+	{
+		return DbContext.Set<T>().AsNoTracking();
+	}
+	
 	public async Task<(int total, IEnumerable<TEntity> result)> GetPageListAsync(
 		Expression<Func<TEntity, bool>> predicate, int pageIndex,
 		int pageSize, Expression<Func<TEntity, object>>? orderBy = null, bool isAsc = true)

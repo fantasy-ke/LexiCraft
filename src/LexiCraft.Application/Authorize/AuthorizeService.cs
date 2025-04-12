@@ -1,22 +1,19 @@
-﻿using FastService;
-using LexiCraft.Application.Contract.Authorize;
+﻿using LexiCraft.Application.Contract.Authorize;
 using LexiCraft.Application.Contract.Authorize.Input;
-using LexiCraft.Domain;
+using LexiCraft.Domain.Repository;
 using LexiCraft.Domain.Users;
-using LexiCraft.Infrastructure.Filters;
+using LexiCraft.Infrastructure.EntityFrameworkCore;
 using Microsoft.AspNetCore.Http;
+using Microsoft.EntityFrameworkCore;
 
 namespace LexiCraft.Application.Authorize;
 
-[Filter(typeof(ResultEndPointFilter))]
-[Route("/api/v1/Authorize")]
-[Tags("Authorize")]
-public class AuthorizeService(IRepository<User> userRepository):FastApi, IAuthorizeService
+public class AuthorizeService(IUserRepository<LexiCraftDbContext> userRepository): IAuthorizeService
 {
     [EndpointSummary("用户注册")]
     public async Task<bool> RegisterAsync(CreateUserRequest request)
     {
-        var user = userRepository.GetListAsync();
+        var user = await userRepository.DbContext.Set<UserSetting>().FirstOrDefaultAsync();
         return await Task.FromResult(true);
     }
 
