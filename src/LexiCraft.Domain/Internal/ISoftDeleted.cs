@@ -18,7 +18,7 @@ public interface ISoftDeleted
     /// <summary>
     /// 删除人
     /// </summary>
-    public string DeleteByName { get; set; }
+    public string? DeleteByName { get; set; }
     
     /// <summary>
     /// 删除时间

@@ -129,6 +129,8 @@ public static class ServiceExtensions
          options.EnableDetailedErrors();
 #endif
         });
+        services.Configure<ContextOption>(configuration.GetSection("DbContextOptions"));
+        services.WithRepository<LexiCraftDbContext>();
         return services;
     }
 

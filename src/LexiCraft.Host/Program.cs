@@ -37,6 +37,7 @@ builder.Services.ServicesCors(options =>
 
 builder.Services.WithIdGen();
 
+
 builder.Services.WithServiceLifetime();
 
 var app = builder.Build();

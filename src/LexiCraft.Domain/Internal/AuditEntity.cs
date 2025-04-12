@@ -17,7 +17,7 @@ public abstract class AuditEntity<TKey,TUserKey> : Entity<TKey>,
     
     public bool IsDeleted { get; set; }
     
-    public string DeleteByName { get; set; }
+    public string? DeleteByName { get; set; }
     
     public DateTime? DeleteAt { get; set; }
     

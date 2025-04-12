@@ -1,6 +1,9 @@
-﻿using LexiCraft.Domain;
+﻿using System.Reflection;
+using LexiCraft.Domain;
+using LexiCraft.Domain.Internal;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.DependencyInjection.Extensions;
 
 namespace LexiCraft.Infrastructure.EntityFrameworkCore.Extensions;
 
@@ -24,8 +27,63 @@ public static class ServiceExtensions
         services.AddDbContext<TDbContext>(optionsAction);
         // services.AddDbContextPool<TDbContext>(optionsAction);
         services.AddScoped<IUnitOfWork, UnitOfWork<TDbContext>>();
-        services.AddScoped(typeof(IRepository<,>), typeof(Repository<,>));
+        // services.AddScoped(typeof(IRepository<,>), typeof(Repository<,>));
 
         return services;
     }
+    
+    public static IServiceCollection WithRepository<TDbContext>(
+        this IServiceCollection services)
+        where TDbContext : DbContext
+    {
+        // 获取当前类所在的程序集
+        var currentAssembly = Assembly.GetExecutingAssembly();
+        // 获取当前程序集引用的所有程序集名称
+        var referencedAssemblyNames = currentAssembly.GetReferencedAssemblies().ToList();
+    
+        // 存储当前程序集和引用的程序集
+        var assemblies = new List<Assembly> { currentAssembly };
+    
+        referencedAssemblyNames.ForEach(assemblyName =>
+        {
+            // 加载引用的程序集
+            var referencedAssembly = Assembly.Load(assemblyName);
+            assemblies.Add(referencedAssembly);
+        });
+        services.TryAddRepository<TDbContext>(assemblies.Distinct());
+        return services;
+    }
+    
+    public static IServiceCollection TryAddRepository<TDbContext>(
+        this IServiceCollection services,
+        IEnumerable<Assembly> assemblies)
+        where TDbContext : DbContext
+    {
+
+        var allTypes = assemblies.SelectMany(assembly => assembly.GetExportedTypes()).ToList();
+        var entityTypes = allTypes.Where(type => type.IsEntity());
+        foreach (var entityType in entityTypes)
+        {
+            var repositoryInterfaceType = typeof(IRepository<>).MakeGenericType(entityType);
+            services.TryAddAddDefaultRepository(repositoryInterfaceType, GetRepositoryImplementationType(typeof(TDbContext), entityType));
+        }
+
+        return services;
+    }
+
+    private static bool IsEntity(this Type type)
+        => type.IsClass && !type.IsGenericType && !type.IsAbstract && typeof(IEntity).IsAssignableFrom(type);
+
+    private static void TryAddAddDefaultRepository(this IServiceCollection services, Type repositoryInterfaceType,
+        Type repositoryImplementationType)
+    {
+        if (repositoryInterfaceType.IsAssignableFrom(repositoryImplementationType))
+        {
+            services.TryAddScoped(repositoryInterfaceType, repositoryImplementationType);
+        }
+    }
+
+    private static Type GetRepositoryImplementationType(Type dbContextType, Type entityType)
+        => typeof(Repository<,>).MakeGenericType(dbContextType, entityType);
+
 }

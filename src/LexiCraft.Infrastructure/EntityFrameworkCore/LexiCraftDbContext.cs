@@ -1,27 +1,43 @@
-﻿using IdGen;
+﻿#nullable enable
+using System.Linq.Expressions;
+using System.Reflection;
+using IdGen;
 using LexiCraft.Domain.Internal;
 using LexiCraft.Domain.Users;
 using LexiCraft.Infrastructure.Contract;
 using LexiCraft.Infrastructure.EntityFrameworkCore.Extensions;
+using LexiCraft.Infrastructure.Shared;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Diagnostics;
+using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Options;
 
 namespace LexiCraft.Infrastructure.EntityFrameworkCore;
 
-public class LexiCraftDbContext(DbContextOptions options,IServiceProvider? serviceProvider = null): DbContext(options)
+public class LexiCraftDbContext(DbContextOptions options,IServiceProvider serviceProvider = null): DbContext(options)
 {
     public DbSet<User> Users { get; set; }
     
     public DbSet<UserSetting> UserSettings { get; set; }
     
     public DbSet<UserOAuth> UserOAuths { get; set; }
+
+    private ContextOption ContextOption { get; } = 
+        serviceProvider.GetService<IOptionsSnapshot<ContextOption>>()!.Value;
+    
+    
+    protected virtual bool IsSoftDeleteFilterEnabled
+        => ContextOption is { EnableSoftDelete: true };
     
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         base.OnModelCreating(modelBuilder);
 
         modelBuilder.ConfigureAuth();
+        
+        //软删除查询过滤
+        OnModelCreatingConfigureGlobalFilters(modelBuilder);
     }
     
     
@@ -51,59 +67,139 @@ public class LexiCraftDbContext(DbContextOptions options,IServiceProvider? servi
     private void BeforeSaveChanges()
     {
         var entries = ChangeTracker.Entries()
-            .Where(x => x.State is EntityState.Added or EntityState.Modified);
+            .Where(x => x.State is EntityState.Added or EntityState.Modified or EntityState.Deleted);
         var userContext = serviceProvider.GetService<IUserContext>();
         var idGenerator = serviceProvider.GetService<IdGenerator>();
         foreach (var entry in entries)
         {
-            if (entry.State == EntityState.Added)
+            switch (entry.State)
             {
-                switch (entry.Entity)
+                case EntityState.Added:
                 {
-                    case IEntity<Guid> guidId:
-                        guidId.Id = Guid.NewGuid();
-                        break;
-                    case IEntity<long> longId:
-                        longId.Id = idGenerator?.CreateId() ?? 0;
-                        break;
-                }
+                    switch (entry.Entity)
+                    {
+                        case IEntity<Guid> guidId:
+                            guidId.Id = Guid.NewGuid();
+                            break;
+                        case IEntity<long> longId:
+                            longId.Id = idGenerator?.CreateId() ?? 0;
+                            break;
+                    }
 
-                if (entry.Entity is ICreatable entity)
-                {
-                    entity.CreateAt = DateTime.Now;
-                }
+                    if (entry.Entity is ICreatable entity)
+                    {
+                        entity.CreateAt = DateTime.Now;
+                    }
 
-                switch (entry.Entity)
-                {
-                    case ICreatable<Guid?> creatable:
-                        creatable.CreateById = userContext?.UserId;
-                        creatable.CreateByName = userContext?.UserName;
-                        break;
-                    case ICreatable<Guid> creatableValue:
-                        creatableValue.CreateById = userContext?.UserId ?? Guid.Empty;
-                        creatableValue.CreateByName = userContext?.UserName;
-                        break;
-                }
-            }
-            else
-            {
-                if (entry.Entity is IUpdatable entity)
-                {
-                    entity.UpdateAt = DateTime.Now;
-                }
+                    switch (entry.Entity)
+                    {
+                        case ICreatable<Guid?> creatable:
+                            creatable.CreateById = userContext?.UserId;
+                            creatable.CreateByName = userContext?.UserName;
+                            break;
+                        case ICreatable<Guid> creatableValue:
+                            creatableValue.CreateById = userContext?.UserId ?? Guid.Empty;
+                            creatableValue.CreateByName = userContext?.UserName;
+                            break;
+                    }
 
-                switch (entry.Entity)
+                    break;
+                }
+                case EntityState.Modified:
                 {
-                    case IUpdatable<Guid?> updatable:
-                        updatable.UpdateById = userContext?.UserId;
-                        updatable.UpdateByName = userContext?.UserName;
-                        break;
-                    case IUpdatable<Guid> updatableValue:
-                        updatableValue.UpdateById = userContext?.UserId ?? Guid.Empty;
-                        updatableValue.UpdateByName = userContext?.UserName;
-                        break;
+                    if (entry.Entity is IUpdatable entity)
+                    {
+                        entity.UpdateAt = DateTime.Now;
+                    }
+
+                    switch (entry.Entity)
+                    {
+                        case IUpdatable<Guid?> updatable:
+                            updatable.UpdateById = userContext?.UserId;
+                            updatable.UpdateByName = userContext?.UserName;
+                            break;
+                        case IUpdatable<Guid> updatableValue:
+                            updatableValue.UpdateById = userContext?.UserId ?? Guid.Empty;
+                            updatableValue.UpdateByName = userContext?.UserName;
+                            break;
+                    }
+
+                    break;
+                }
+                case EntityState.Deleted:
+                {
+                    if (entry.Entity is not ISoftDeleted)
+                    {
+                        return;
+                    }
+                    entry.Reload();
+                    if (entry.Entity is ISoftDeleted entity)
+                    {
+                        entity.DeleteAt = DateTime.Now;
+                    }
+
+                    switch (entry.Entity)
+                    {
+                        case ISoftDeleted<Guid?> updatable:
+                            updatable.DeleteById = userContext?.UserId;
+                            updatable.DeleteByName = userContext?.UserName;
+                            break;
+                        case ISoftDeleted<Guid> updatableValue:
+                            updatableValue.DeleteById = userContext?.UserId ?? Guid.Empty;
+                            updatableValue.DeleteByName = userContext?.UserName;
+                            break;
+                    }
+
+                    break;
                 }
             }
         }
     }
+    
+    protected virtual void OnModelCreatingConfigureGlobalFilters(ModelBuilder modelBuilder)
+    {
+        var methodInfo = GetType().GetMethod(nameof(ConfigureGlobalFilters), BindingFlags.NonPublic | BindingFlags.Instance);
+
+        foreach (var entityType in modelBuilder.Model.GetEntityTypes())
+        {
+            methodInfo!.MakeGenericMethod(entityType.ClrType).Invoke(this, new object?[]
+            {
+                modelBuilder, entityType
+            });
+        }
+    }
+
+    /// <summary>
+    /// Filters
+    /// </summary>
+    /// <typeparam name="TEntity"></typeparam>
+    /// <param name="modelBuilder"></param>
+    /// <param name="mutableEntityType"></param>
+
+    protected virtual void ConfigureGlobalFilters<TEntity>(ModelBuilder modelBuilder, IMutableEntityType mutableEntityType)
+        where TEntity : class
+    {
+        if (mutableEntityType.BaseType != null) return;
+        var filterExpression = CreateFilterExpression<TEntity>();
+        if (filterExpression != null)
+            modelBuilder.Entity<TEntity>().HasQueryFilter(filterExpression);
+    }
+
+    /// <summary>
+    /// 过滤Expression 软删除
+    /// </summary>
+    /// <typeparam name="TEntity"></typeparam>
+    /// <returns></returns>
+    protected virtual Expression<Func<TEntity, bool>>? CreateFilterExpression<TEntity>()
+        where TEntity : class
+    {
+        Expression<Func<TEntity, bool>>? expression = null;
+
+        if (typeof(ISoftDeleted).IsAssignableFrom(typeof(TEntity)))
+        {
+            expression = entity => !IsSoftDeleteFilterEnabled || !EF.Property<bool>(entity, nameof(ISoftDeleted.IsDeleted));
+        }
+        return expression;
+    }
+
 }
