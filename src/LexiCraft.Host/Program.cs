@@ -49,6 +49,8 @@ builder.Services.ServicesCors(options =>
         .ToArray();
 });
 
+builder.Services.AddCaptcha(builder.Configuration);
+
 builder.Services.WithIdGen();
 
 

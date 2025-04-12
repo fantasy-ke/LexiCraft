@@ -25,6 +25,10 @@ public static class AuthRouterMap
         aAuthorize.MapPost("/Register",
             async (IAuthorizeService authorize, CreateUserRequest input) => await authorize.RegisterAsync(input))
             .WithSummary("用户注册"); 
+        
+        aAuthorize.MapGet("/GetCaptcha",
+                async (IAuthorizeService authorize, string type) => await authorize.GetCaptchaAsync(type))
+            .WithSummary("获取验证码"); 
 
 
         return app;
