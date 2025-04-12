@@ -1,0 +1,93 @@
+﻿{
+  "Serilog": {
+    // 配置日志的最小记录等级
+    "MinimumLevel": {
+      // 默认记录等级
+      "Default": "Information",
+      // 重写各类包的日志记录等级
+      "Override": {
+        "Microsoft": "Information",
+        "System": "Warning",
+        "Microsoft.AspNetCore": "Warning",
+        "Microsoft.EntityFrameworkCore": "Warning",
+        "Microsoft.Hosting.Lifetime": "Information",
+        "Microsoft.EntityFrameworkCore.Database.Command": "Information"
+      }
+    },
+    "Properties": {
+      "ApplicationName": "Z.SunBlog"
+    },
+    "Enrich": [
+      "FromLogContext",
+      "WithMachineName",
+      "WithProcessId",
+      "WithThreadId",
+      "ApplicationContext"
+    ],
+    "Using": [
+      "Serilog.Sinks.Console",
+      "Serilog.Sinks.Async"
+    ],
+    "WriteTo": [
+      {
+        "Name": "Console",
+        "Args": {
+          "outputTemplate": "[{Timestamp:HH:mm:ss:fffff} {Level:u3}] {Message:lj}{NewLine}{Exception}"
+        }
+      },
+      {
+        "Name": "Async",
+        "Args": {
+          "configure": [
+            {
+              "Name": "File",
+              "Args": {
+                "path": "App_Data/Logs/Information.txt",
+                "restrictedToMinimumLevel": "Information",//日志等级
+                "rollingInterval": "Day",
+                "outputTemplate": "{Timestamp:yyyy-MM-dd HH:mm:ss.fff zzz} [{Level:u3}] {Message:lj}{NewLine}{Exception}"
+              }
+            },
+            {
+              "Name": "File",
+              "Args": {
+                "path": "App_Data/Logs/Warning.txt",
+                "restrictedToMinimumLevel": "Warning",//日志等级
+                "rollingInterval": "Day",
+                "outputTemplate": "{Timestamp:yyyy-MM-dd HH:mm:ss.fff zzz} [{Level:u3}] {Message:lj}{NewLine}{Exception}"
+              }
+            },
+            {
+              "Name": "File",
+              "Args": {
+                "path": "App_Data/Logs/Error.txt",
+                "restrictedToMinimumLevel": "Error",//日志等级
+                "rollingInterval": "Day",
+                "outputTemplate": "{Timestamp:yyyy-MM-dd HH:mm:ss.fff zzz} [{Level:u3}] {Message:lj}{NewLine}{Exception}"
+              }
+            }
+          ]
+        }
+      }
+//      {
+//        "Name": "File",
+//        "Args": {
+//          "path": "App_Data/Logs/log.txt",
+//          "rollingInterval": "Day",
+//          "retainedFileCountLimit": 31,
+//          "outputTemplate": "[{Timestamp:HH:mm:ss:fffff} {Level:u3}] {Message:lj}{NewLine}{Exception}"
+//        }
+//      },
+//      {
+//        "Name": "Seq",
+//        "Args": {
+//          "serverUrl": "http://47.96.234.210:5341/", // 日志中心收集器的链接地址
+//          "restrictedToMinimumLevel": "Verbose",//日志等级
+//          "apiKey": "b8ueTcbAyumLam5hfuUu",//密钥key
+//          "queueSizeLimit": 100000,//最大删除值
+//          "batchPostingLimit": 100 //批量最多
+//        }
+//      }
+    ]
+  }
+}

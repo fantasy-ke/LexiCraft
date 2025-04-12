@@ -2,13 +2,27 @@ using LexiCraft.Host;
 using LexiCraft.Host.RouterMap;
 using LexiCraft.Infrastructure.Extensions;
 using LexiCraft.Infrastructure.Middleware;
+using LexiCraft.Infrastructure.Serilog;
 using Microsoft.OpenApi.Models;
+using Serilog;
+
 
 var builder = WebApplication.CreateBuilder(args);
+
+var configuration = new ConfigurationBuilder()
+    .SetBasePath(AppContext.BaseDirectory)
+    .AddJsonFile(path: "serilog.json", optional: false, reloadOnChange: true)
+    .Build();
+
+Log.Logger = new LoggerConfiguration()
+        .ReadFrom.Configuration(configuration)
+        .CreateLogger();
 
 builder.AddServiceDefaults();
 // Add services to the container.
 // Learn more about configuring OpenAPI at https://aka.ms/aspnet/openapi
+builder.Host.UseSerilog();
+
 builder.Services
     .WithScalar(new OpenApiInfo()
     {
@@ -41,6 +55,14 @@ builder.Services.WithIdGen();
 builder.Services.WithServiceLifetime();
 
 var app = builder.Build();
+
+// Configure the HTTP request pipeline.
+app.UseSerilogRequestLogging(options =>
+{
+    options.MessageTemplate = SerilogRequestUtility.HttpMessageTemplate;
+    options.GetLevel = SerilogRequestUtility.GetRequestLevel;
+    options.EnrichDiagnosticContext = SerilogRequestUtility.EnrichFromRequest;
+});
 
 app.MapDefaultEndpoints();
 
