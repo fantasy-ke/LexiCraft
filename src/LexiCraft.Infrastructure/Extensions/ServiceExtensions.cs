@@ -191,7 +191,9 @@ public static class ServiceExtensions
         {
             options.Capacity = 6;
         });
-        services.AddScoped<ICacheManager, CacheManager>();
+        
+        services.AddSingleton<ICacheManager, CacheManager>();
+        
         return services;
     }
     
