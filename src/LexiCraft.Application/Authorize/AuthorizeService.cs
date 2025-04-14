@@ -60,12 +60,13 @@ public partial class AuthorizeService(IRepository<User> userRepository,
         try
         {
             var user = new User(request.UserAccount, request.Email);
-            user.SetPassword("Aa123456.");
+            user.SetPassword(request.Password);
             user.Avatar = "🦜";
             user.Roles.Add(RoleConstant.User);
             user.UpdateLastLogin();
             user.UpdateSource(SourceEnum.Register);
             await userRepository.InsertAsync(user);
+            await userRepository.SaveChangesAsync();
             return true;
         }
         catch (Exception e)
