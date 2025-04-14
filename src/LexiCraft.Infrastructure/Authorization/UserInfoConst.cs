@@ -11,6 +11,11 @@ public class UserInfoConst
     /// claim type for user name
     /// </summary>
     public const string UserName = "USER_NAME";
+    
+    /// <summary>
+    /// UserAllPermissions
+    /// </summary>
+    public const string UserAllPermissions = "User_All_Permissions";
       
     /// <summary>
     /// claim type for user account

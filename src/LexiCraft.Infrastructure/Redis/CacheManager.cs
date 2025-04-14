@@ -22,7 +22,7 @@ public class CacheManager : RedisCacheBaseService, ICacheManager
     /// </summary>
     /// <param name="idKey"></param>
     /// <returns></returns>
-    protected string BuildKey(string idKey)
+    private string BuildKey(string idKey)
     {
         return $"Cache_{GetType().FullName}_{idKey}";
     }

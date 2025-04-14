@@ -8,6 +8,8 @@ public interface IUserContext
 
     public string UserName { get; }
     
+    public string[] UserAllPermissions { get; }
+    
     public string UserAccount { get; }
 
     bool IsAuthenticated { get; }

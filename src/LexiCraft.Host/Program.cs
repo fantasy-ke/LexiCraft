@@ -1,5 +1,6 @@
 using LexiCraft.Host;
 using LexiCraft.Host.RouterMap;
+using LexiCraft.Infrastructure.Authorization;
 using LexiCraft.Infrastructure.Extensions;
 using LexiCraft.Infrastructure.Middleware;
 using LexiCraft.Infrastructure.Serilog;
@@ -35,13 +36,14 @@ builder.Services
     .WithLexiCraftDbAccess(builder.Configuration)
     .WithRedis(builder.Configuration);
 
-builder.Services.AddHttpContextAccessor();
-
 builder.Services.Configure<OAuthOption>(configuration.GetSection("OAuthOptions"));
 
 builder.Services.AddEndpointsApiExplorer();
 
 builder.Services.AddScoped<ExceptionMiddleware>();
+
+builder.Services.RegisterAuthorization();
+builder.Services.AddAuthorization();
 
 builder.Services.ServicesCors(options =>
 {

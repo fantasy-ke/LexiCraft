@@ -80,9 +80,6 @@ public static class ServiceExtensions
     public static IServiceCollection WithJwt(this IServiceCollection services, IConfiguration configuration)
     {
         services.AddHttpContextAccessor();
-        services.AddSingleton<IJwtTokenProvider, JwtTokenProvider>();
-        services.AddScoped<IUserContext, UserContext>();
-
         var option = configuration.GetSection(JwtOptions.Name);
 
         var jwtOption = option.Get<JwtOptions>();

@@ -17,6 +17,17 @@ public class UserContext(IHttpContextAccessor httpContextAccessor): IUserContext
     /// </summary>
     public virtual string UserName => FindClaimValue<string>(UserInfoConst.UserName);
 
+    
+    
+    public string[] UserAllPermissions
+    {
+        get
+        {
+            var permClaim = FindClaimValue<string[]>(UserInfoConst.UserAllPermissions);
+            return permClaim;
+        }
+    }
+
     /// <summary>
     /// 用户账号
     /// </summary>
