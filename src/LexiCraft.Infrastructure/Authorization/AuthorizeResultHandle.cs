@@ -19,6 +19,7 @@ public class AuthorizeResultHandle(ILogger<IAuthorizationMiddlewareResultHandler
         if (authorizeResult.Challenged)
         {
             context!.Response.StatusCode = (int)HttpStatusCode.Unauthorized;
+            context.Response.ContentType = "application/json";
             var response = ResultDto.Fail("Authentication failed, token invalid", 401);
             await context.Response.WriteAsync(JsonSerializer.Serialize(response, options.Value.SerializerOptions));
 

@@ -1,4 +1,5 @@
 ﻿using LexiCraft.Infrastructure.Contract;
+using LexiCraft.Infrastructure.Extensions;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.DependencyInjection;
@@ -33,9 +34,9 @@ public class AuthorizeHandler(
             return;
         }
 
-        var authorizeData = currentEndpoint.Metadata.GetMetadata<IAuthorizeData>();
+        var authorizeData = currentEndpoint.Metadata.GetOrderedMetadata<IAuthorizeData>().ToList();
         //默认授权策略
-        if (authorizeData is null)
+        if (!authorizeData.Any())
         {
             context.Succeed(requirement);
             return;
@@ -49,7 +50,7 @@ public class AuthorizeHandler(
             return;
         }
 
-        if (!await permissionCheck.IsGranted(authorizeData.Policy))
+        if (!await permissionCheck.IsGranted(requirement.AuthorizeName.JoinAsString(",")))
         {
             failureReason = new AuthorizationFailureReason(this,
                 $"Insufficient permissions, unable to request - request interface{contextAccessor.HttpContext?.Request?.Path ?? string.Empty}");
