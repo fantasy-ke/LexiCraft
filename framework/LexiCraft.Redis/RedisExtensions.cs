@@ -10,7 +10,7 @@ namespace LexiCraft.Redis;
 public static class RedisExtensions
 {
     public static void AddZRedis(this IServiceCollection services,RedisCacheOptions cacheOption
-        , Action<ClientSideCachingOptions>? clientChahingOptions = null)
+        , Action<ClientSideCachingOptions>? clientCacheOptions = null)
     {
         
         services.TryAddSingleton(x =>
@@ -26,7 +26,7 @@ public static class RedisExtensions
                 logger.LogInformation($"RedisClient_Connected：{e.Host}");
             };
             redisClient.Unavailable += (_, e) =>
-                   logger.LogInformation($"RedisClient_Connected：{e.Host}");
+                   logger.LogInformation($"RedisClient_Unavailable：{e.Host}");
             if (!cacheOption.SideCache.Enable) return redisClient;
             var options = new ClientSideCachingOptions
             {
@@ -37,7 +37,7 @@ public static class RedisExtensions
                 //检查长期未使用的缓存
                 CheckExpired = (_, dt) => DateTime.Now.Subtract(dt) > TimeSpan.FromMinutes(cacheOption.SideCache.ExpiredMinutes)
             };
-            clientChahingOptions?.Invoke(options);
+            clientCacheOptions?.Invoke(options);
             redisClient.UseClientSideCaching(options);
             return redisClient;
         });

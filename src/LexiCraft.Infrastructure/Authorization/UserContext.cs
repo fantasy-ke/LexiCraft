@@ -48,7 +48,11 @@ public class UserContext(IHttpContextAccessor httpContextAccessor): IUserContext
     private TType FindClaimValue<TType>(string claimType)
     {
         var claimValue = FindClaim(claimType)?.Value;
-        
+
+        if (claimValue == null)
+        {
+            return default;
+        }
         try
         {
             // 处理可空类型（Nullable<T>）

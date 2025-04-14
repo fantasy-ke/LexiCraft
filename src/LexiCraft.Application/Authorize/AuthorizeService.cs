@@ -2,6 +2,7 @@
 using System.Net.Http.Json;
 using System.Text.Json;
 using System.Text.RegularExpressions;
+using FreeRedis;
 using Lazy.Captcha.Core;
 using LexiCraft.Application.Contract.Authorize;
 using LexiCraft.Application.Contract.Authorize.Dto;
@@ -129,7 +130,7 @@ public partial class AuthorizeService(IRepository<User> userRepository,
             RefreshToken = refreshToken
         };
 
-        await redisManager.SetAsync(string.Format(UserInfoConst.RedisTokenKey, user.Id), res, TimeSpan.FromDays(7).Seconds);
+        await redisManager.SetAsync(string.Format(UserInfoConst.RedisTokenKey, user.Id.ToString("N")), res, TimeSpan.FromDays(7).Seconds);
         
         return res;
     }
@@ -140,9 +141,10 @@ public partial class AuthorizeService(IRepository<User> userRepository,
     [EndpointSummary("退出登录")]
     public async Task LoginOutAsync()
     {
-        var userId = userContext.UserId;
+        var userAccount = userContext.UserAccount;
         
-        await redisManager.DelAsync(string.Format(UserInfoConst.RedisTokenKey, userId));
+        var cacheKey = string.Format(UserInfoConst.RedisTokenKey, userAccount);
+        await redisManager.DelAsync(cacheKey);
     }
 
     [EndpointSummary("第三方授权登录")]

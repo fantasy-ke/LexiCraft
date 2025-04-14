@@ -15,7 +15,7 @@ public static class AuthRouterMap
 
         var aAuthorize = app
             .MapGroup("/api/v1/Authorize")
-            .WithDescription("授权鉴权")
+            .WithDescription("授权登入登出")
             .WithTags("auth")
             .AddEndpointFilter<ResultEndPointFilter>();
 
