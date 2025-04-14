@@ -62,7 +62,7 @@ public class User: AuditEntity<Guid,Guid?>
     /// <summary>
     /// 用户设置
     /// </summary>
-    public UserSetting Settings { get; set; }
+    public UserSetting? Settings { get; set; }
     
     /// <summary>
     /// 用户构造函数，初始化用户的基本信息。

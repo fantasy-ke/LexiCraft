@@ -5,7 +5,7 @@ public interface ISoftDeleted<TUserKey> : ISoftDeleted
     /// <summary>
     /// 删除人id
     /// </summary>
-    public TUserKey DeleteById { get; set; }
+    public TUserKey? DeleteById { get; set; }
 }
 
 public interface ISoftDeleted

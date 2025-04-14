@@ -6,7 +6,7 @@ public interface ICreatable<TUserKey> : ICreatable
     /// <summary>
     /// 创建人id
     /// </summary>
-    public TUserKey CreateById { get; set; }
+    public TUserKey? CreateById { get; set; }
 }
 
 public interface ICreatable

@@ -23,7 +23,7 @@ public class LexiCraftDbContext(DbContextOptions options,IServiceProvider? servi
     
     public DbSet<UserOAuth> UserOAuths { get; set; }
 
-    private ContextOption ContextOption { get; } = 
+    private ContextOption? ContextOption { get; } = 
         serviceProvider?.GetService<IOptionsSnapshot<ContextOption>>()!.Value;
     
     
@@ -78,10 +78,14 @@ public class LexiCraftDbContext(DbContextOptions options,IServiceProvider? servi
                 {
                     switch (entry.Entity)
                     {
-                        case IEntity<Guid> guidId:
+                        case IEntity<Guid?> guidId:
+                            if (guidId.Id != null || guidId.Id != Guid.Empty)
+                                return;
                             guidId.Id = Guid.NewGuid();
                             break;
-                        case IEntity<long> longId:
+                        case IEntity<long?> longId:
+                            if (longId.Id != null || longId.Id > 0)
+                                return;
                             longId.Id = idGenerator?.CreateId() ?? 0;
                             break;
                     }
@@ -91,11 +95,16 @@ public class LexiCraftDbContext(DbContextOptions options,IServiceProvider? servi
                         entity.CreateAt = DateTime.Now;
                     }
 
+                    if (entry.Entity is ISoftDeleted { IsDeleted: false } softDeleted)
+                    {
+                        softDeleted.IsDeleted = false;
+                    }
+
                     switch (entry.Entity)
                     {
                         case ICreatable<Guid?> creatable:
-                            creatable.CreateById = userContext?.UserId;
-                            creatable.CreateByName = userContext?.UserName;
+                            creatable.CreateById = userContext?.UserId ?? null;
+                            creatable.CreateByName = userContext?.UserName ?? "systemUser";
                             break;
                         case ICreatable<Guid> creatableValue:
                             creatableValue.CreateById = userContext?.UserId ?? Guid.Empty;
@@ -115,8 +124,8 @@ public class LexiCraftDbContext(DbContextOptions options,IServiceProvider? servi
                     switch (entry.Entity)
                     {
                         case IUpdatable<Guid?> updatable:
-                            updatable.UpdateById = userContext?.UserId;
-                            updatable.UpdateByName = userContext?.UserName;
+                            updatable.UpdateById = userContext?.UserId ?? null;
+                            updatable.UpdateByName = userContext?.UserName ?? "systemUser";
                             break;
                         case IUpdatable<Guid> updatableValue:
                             updatableValue.UpdateById = userContext?.UserId ?? Guid.Empty;
