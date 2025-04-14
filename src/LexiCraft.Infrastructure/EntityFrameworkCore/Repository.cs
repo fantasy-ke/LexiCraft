@@ -32,6 +32,7 @@ public class Repository<TDbContext, TEntity>(TDbContext dbContext) : IRepository
 	{
 		return (await Entity.AddAsync(entity)).Entity;
 	}
+	
 
 	public async Task InsertAsync(IEnumerable<TEntity> entities)
 	{

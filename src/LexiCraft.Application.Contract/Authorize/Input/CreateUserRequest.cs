@@ -6,6 +6,12 @@ public class CreateUserRequest
     /// 昵称
     /// </summary>
     public string UserName { get; set; }
+    
+    /// <summary>
+    /// 昵称
+    /// </summary>
+    public string UserAccount { get; set; }
+
 
     /// <summary>
     /// 用户密码
@@ -20,7 +26,7 @@ public class CreateUserRequest
     /// <summary>
     /// 验证码
     /// </summary>
-    public string VerificationCode { get; set; }
+    public string CaptchaCode { get; set; }
 
     /// <summary>
     /// Captcha key

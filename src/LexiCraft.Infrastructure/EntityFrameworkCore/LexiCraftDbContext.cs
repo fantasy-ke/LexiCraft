@@ -15,7 +15,7 @@ using Microsoft.Extensions.Options;
 
 namespace LexiCraft.Infrastructure.EntityFrameworkCore;
 
-public class LexiCraftDbContext(DbContextOptions options,IServiceProvider serviceProvider = null): DbContext(options)
+public class LexiCraftDbContext(DbContextOptions options,IServiceProvider? serviceProvider = null): DbContext(options)
 {
     public DbSet<User> Users { get; set; }
     
@@ -24,7 +24,7 @@ public class LexiCraftDbContext(DbContextOptions options,IServiceProvider servic
     public DbSet<UserOAuth> UserOAuths { get; set; }
 
     private ContextOption ContextOption { get; } = 
-        serviceProvider.GetService<IOptionsSnapshot<ContextOption>>()!.Value;
+        serviceProvider?.GetService<IOptionsSnapshot<ContextOption>>()!.Value;
     
     
     protected virtual bool IsSoftDeleteFilterEnabled
@@ -68,8 +68,8 @@ public class LexiCraftDbContext(DbContextOptions options,IServiceProvider servic
     {
         var entries = ChangeTracker.Entries()
             .Where(x => x.State is EntityState.Added or EntityState.Modified or EntityState.Deleted);
-        var userContext = serviceProvider.GetService<IUserContext>();
-        var idGenerator = serviceProvider.GetService<IdGenerator>();
+        var userContext = serviceProvider?.GetService<IUserContext>();
+        var idGenerator = serviceProvider?.GetService<IdGenerator>();
         foreach (var entry in entries)
         {
             switch (entry.State)

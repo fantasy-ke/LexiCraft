@@ -3,6 +3,7 @@ using LexiCraft.Host.RouterMap;
 using LexiCraft.Infrastructure.Extensions;
 using LexiCraft.Infrastructure.Middleware;
 using LexiCraft.Infrastructure.Serilog;
+using LexiCraft.Infrastructure.Shared;
 using Microsoft.OpenApi.Models;
 using Serilog;
 
@@ -35,6 +36,8 @@ builder.Services
     .WithRedis(builder.Configuration);
 
 builder.Services.AddHttpContextAccessor();
+
+builder.Services.Configure<OAuthOption>(configuration.GetSection("OAuthOptions"));
 
 builder.Services.AddEndpointsApiExplorer();
 

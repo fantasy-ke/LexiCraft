@@ -105,6 +105,16 @@ public partial interface IRedisCacheBaseService
     /// <returns></returns>
     Task SetAsync(string key, string value, int expireSeconds = -1);
 
+    /// <summary>
+    /// 设置指定key的值，所有写入参数object都支持string | byte[]| 数值 | 对象
+    /// </summary>
+    /// <typeparam name="TData">消息对象类型</typeparam>
+    /// <param name="key">键名（不含prefix前辍）</param>
+    /// <param name="data">实体对象</param>
+    /// <param name="timeoutSeconds">过期时间（单位：秒）</param>
+    /// <returns></returns>
+    Task SetAsync<TData>(string key, TData data, int timeoutSeconds = 0);
+
     #endregion
 
     #region 哈希表（Hash）

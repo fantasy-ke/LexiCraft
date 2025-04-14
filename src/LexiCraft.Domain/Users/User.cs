@@ -10,6 +10,11 @@ public class User: AuditEntity<Guid,Guid?>
     public string Avatar { get; set; }
 
     /// <summary>
+    /// 用户账号
+    /// </summary>
+    public string UserAccount { get; private set; }
+    
+    /// <summary>
     /// 用户的用户名，必须唯一。
     /// </summary>
     public string Username { get; private set; }
@@ -62,14 +67,14 @@ public class User: AuditEntity<Guid,Guid?>
     /// <summary>
     /// 用户构造函数，初始化用户的基本信息。
     /// </summary>
-    /// <param name="username">用户名</param>
+    /// <param name="userAccount">用户名</param>
     /// <param name="email">电子邮件地址</param>
-    public User(string username, string email)
+    public User(string userAccount, string email)
     {
         Id = Guid.NewGuid();
-        Username = username;
+        Username = userAccount;
+        UserAccount = userAccount;
         Email = email;
-        CreateAt = DateTime.UtcNow;
         Roles = new List<string>();
     }
 
@@ -134,5 +139,13 @@ public class User: AuditEntity<Guid,Guid?>
     public void UpdateLastLogin()
     {
         LastLoginAt = DateTime.UtcNow;
+    }
+    
+    /// <summary>
+    /// 来源
+    /// </summary>
+    public void UpdateSource(SourceEnum source)
+    {
+        Source = source;
     }
 }

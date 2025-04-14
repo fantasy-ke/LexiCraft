@@ -18,8 +18,13 @@ public static class ModelBuilderExtensions
             builder.Property(x => x.Username)
                 .IsRequired()
                 .HasMaxLength(32)
-                .HasComment("用户名");
+                .HasComment("昵称");
 
+            builder.Property(x => x.UserAccount)
+                .IsRequired()
+                .HasMaxLength(32)
+                .HasComment("用户名");
+            
             builder.Property(x => x.PasswordHash)
                 .IsRequired()
                 .HasMaxLength(64)

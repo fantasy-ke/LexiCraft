@@ -15,8 +15,14 @@ public class UserContext(IHttpContextAccessor httpContextAccessor): IUserContext
     /// <summary>
     /// 用户名称
     /// </summary>
-    public virtual string UserName => httpContextAccessor.HttpContext?.User?.Identity?.Name;
-    
+    public virtual string UserName => FindClaimValue<string>(UserInfoConst.UserName);
+
+    /// <summary>
+    /// 用户账号
+    /// </summary>
+    public string UserAccount => FindClaimValue<string>(UserInfoConst.UserAccount);
+
+
     /// <summary>
     /// 是否授权
     /// </summary>

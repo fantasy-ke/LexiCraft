@@ -5,12 +5,12 @@ public class LoginTokenInput
     /// <summary>
     /// Username
     /// </summary>
-    public string Username { get; set; }
+    public string UserAccount { get; set; }
 
     /// <summary>
     /// Password
     /// </summary>
-    public string Password { get; set; }
+    public string PassWord { get; set; }
     
 
     /// <summary>

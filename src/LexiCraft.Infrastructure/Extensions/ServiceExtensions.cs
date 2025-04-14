@@ -5,6 +5,7 @@ using LexiCraft.Infrastructure.Authorization;
 using LexiCraft.Infrastructure.Contract;
 using LexiCraft.Infrastructure.EntityFrameworkCore;
 using LexiCraft.Infrastructure.EntityFrameworkCore.Extensions;
+using LexiCraft.Infrastructure.Redis;
 using LexiCraft.Infrastructure.Shared;
 using LexiCraft.Redis;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
@@ -190,6 +191,7 @@ public static class ServiceExtensions
         {
             options.Capacity = 6;
         });
+        services.AddScoped<ICacheManager, CacheManager>();
         return services;
     }
     

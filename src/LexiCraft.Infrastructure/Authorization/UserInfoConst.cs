@@ -1,0 +1,29 @@
+﻿namespace LexiCraft.Infrastructure.Authorization;
+
+public class UserInfoConst
+{
+    /// <summary>
+    /// claim type for user id
+    /// </summary>
+    public const string UserId = "USER_ID";
+      
+    /// <summary>
+    /// claim type for user name
+    /// </summary>
+    public const string UserName = "USER_NAME";
+      
+    /// <summary>
+    /// claim type for user account
+    /// </summary>
+    public const string UserAccount = "USER_ACCOUNT";
+
+    /// <summary>
+    /// token redis 键值对
+    /// </summary>
+    public const string RedisTokenKey = "RedisToken_{0}";
+
+    /// <summary>
+    /// 获取权限请求头
+    /// </summary>
+    public const string AuthorizationHeader = "Authorization";
+}
