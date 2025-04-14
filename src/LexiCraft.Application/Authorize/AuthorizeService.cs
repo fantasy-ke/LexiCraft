@@ -30,7 +30,7 @@ public partial class AuthorizeService(IRepository<User> userRepository,
     ICaptcha captcha,IJwtTokenProvider jwtTokenProvider,
     ICacheManager redisManager,ILogger<IAuthorizeService> logger,
     IHttpClientFactory httpClientFactory,
-    IOptionsSnapshot<OAuthOption> oauthOption): IAuthorizeService
+    IOptionsSnapshot<OAuthOption> oauthOption,IUserContext userContext): IAuthorizeService
 {
     [EndpointSummary("用户注册")]
     public async Task<bool> RegisterAsync(CreateUserRequest request)
@@ -132,6 +132,17 @@ public partial class AuthorizeService(IRepository<User> userRepository,
         await redisManager.SetAsync(string.Format(UserInfoConst.RedisTokenKey, user.Id), res, TimeSpan.FromDays(7).Seconds);
         
         return res;
+    }
+
+    /// <summary>
+    /// 退出登录
+    /// </summary>
+    [EndpointSummary("退出登录")]
+    public async Task LoginOutAsync()
+    {
+        var userId = userContext.UserId;
+        
+        await redisManager.DelAsync(string.Format(UserInfoConst.RedisTokenKey, userId));
     }
 
     [EndpointSummary("第三方授权登录")]

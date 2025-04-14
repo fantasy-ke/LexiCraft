@@ -19,6 +19,13 @@ public interface IAuthorizeService
     /// <param name="input"></param>
     /// <returns></returns>
     Task<TokenResponse> LoginAsync(LoginTokenInput input);
+    
+    
+    /// <summary>
+    /// 退出登录
+    /// </summary>
+    /// <returns></returns>
+    Task LoginOutAsync();
 
     /// <summary>
     /// 第三方平台登录

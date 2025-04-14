@@ -30,6 +30,10 @@ public static class AuthRouterMap
         aAuthorize.MapPost("/Register",
                 async (IAuthorizeService authorize, CreateUserRequest input) => await authorize.RegisterAsync(input))
             .WithSummary("用户注册"); 
+        
+        aAuthorize.MapGet("/LoginOut",
+                async (IAuthorizeService authorize) => await authorize.LoginOutAsync())
+            .WithSummary("退出登录"); 
 
         #endregion
 

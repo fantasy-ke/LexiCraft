@@ -1,6 +1,7 @@
 ﻿using Lazy.Captcha.Core;
 using LexiCraft.Application.Contract.Verification;
 using LexiCraft.Application.Contract.Verification.Dto;
+using Microsoft.AspNetCore.Http;
 
 namespace LexiCraft.Application.Verification;
 
@@ -11,6 +12,7 @@ public class VerificationService(ICaptcha captcha): IVerificationService
     /// </summary>
     /// <param name="key"></param>
     /// <returns></returns>
+    [EndpointSummary("获取验证码")]
     public Task<VerificationDto> GetCaptchaCodeAsync(string key)
     {
         var uuid = key + ":" + Guid.NewGuid().ToString("N");
