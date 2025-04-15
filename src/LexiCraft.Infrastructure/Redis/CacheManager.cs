@@ -1,6 +1,6 @@
 ﻿using FreeRedis;
 using LexiCraft.Infrastructure.Extensions;
-using LexiCraft.Redis;
+using Z.FreeRedis;
 using Microsoft.Extensions.Options;
 
 namespace LexiCraft.Infrastructure.Redis;

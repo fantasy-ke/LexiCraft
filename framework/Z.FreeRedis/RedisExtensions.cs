@@ -5,7 +5,7 @@ using Microsoft.Extensions.DependencyInjection.Extensions;
 using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
 
-namespace LexiCraft.Redis;
+namespace Z.FreeRedis;
 
 public static class RedisExtensions
 {

@@ -1,4 +1,4 @@
-﻿namespace LexiCraft.Redis;
+﻿namespace Z.FreeRedis;
 
 public class RedisCacheOptions
 {

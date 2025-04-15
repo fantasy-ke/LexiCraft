@@ -1,6 +1,6 @@
 ﻿using FreeRedis;
 
-namespace LexiCraft.Redis;
+namespace Z.FreeRedis;
 
 public partial class RedisCacheBaseService
 {

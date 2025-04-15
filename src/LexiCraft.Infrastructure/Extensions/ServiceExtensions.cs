@@ -7,7 +7,7 @@ using LexiCraft.Infrastructure.EntityFrameworkCore;
 using LexiCraft.Infrastructure.EntityFrameworkCore.Extensions;
 using LexiCraft.Infrastructure.Redis;
 using LexiCraft.Infrastructure.Shared;
-using LexiCraft.Redis;
+using Z.FreeRedis;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Builder;

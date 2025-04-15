@@ -1,5 +1,5 @@
 ﻿using FreeRedis;
-using LexiCraft.Redis;
+using Z.FreeRedis;
 
 namespace LexiCraft.Infrastructure.Redis;
 

@@ -1,7 +1,7 @@
 ﻿using FreeRedis;
 using Microsoft.Extensions.Options;
 
-namespace LexiCraft.Redis;
+namespace Z.FreeRedis;
 
 public partial class RedisCacheBaseService
 {

@@ -18,7 +18,7 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "LexiCraft.Application.Contr
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "framework", "framework", "{BD3122C1-5B01-4D48-96CE-E5B9166F3E7D}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "LexiCraft.Redis", "framework\LexiCraft.Redis\LexiCraft.Redis.csproj", "{001E35B4-78E3-4A9C-AE7F-D7E91CD72205}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Z.FreeRedis", "framework\Z.FreeRedis\Z.FreeRedis.csproj", "{001E35B4-78E3-4A9C-AE7F-D7E91CD72205}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
