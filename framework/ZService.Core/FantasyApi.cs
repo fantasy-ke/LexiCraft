@@ -1,6 +1,4 @@
-﻿using System;
-
-namespace ZService.Analyzers
+﻿namespace ZService.Core
 {
     public abstract class FantasyApi
     {

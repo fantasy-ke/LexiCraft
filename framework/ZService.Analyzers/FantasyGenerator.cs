@@ -126,7 +126,7 @@ namespace ZService.Analyzers
 
         private static bool IsCandidateClass(SyntaxNode node, CancellationToken _)
         {
-            return node is ClassDeclarationSyntax c && c.BaseList != null;
+            return node is ClassDeclarationSyntax { BaseList: not null };
         }
 
         private static ClassInfo? GetSemanticTargetForGeneration(GeneratorSyntaxContext context,

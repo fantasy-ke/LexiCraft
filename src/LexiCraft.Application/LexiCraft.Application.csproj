@@ -13,9 +13,10 @@
     </ItemGroup>
     
     <ItemGroup>
-      <ProjectReference Include="..\LexiCraft.Application.Contract\LexiCraft.Application.Contract.csproj" />
-      <ProjectReference Include="..\LexiCraft.Domain\LexiCraft.Domain.csproj" />
-      <ProjectReference Include="..\LexiCraft.Infrastructure\LexiCraft.Infrastructure.csproj" />
+         <ProjectReference Include="..\..\framework\ZService.Core\ZService.Core.csproj" />
+         <ProjectReference Include="..\LexiCraft.Application.Contract\LexiCraft.Application.Contract.csproj" />
+        <ProjectReference Include="..\LexiCraft.Domain\LexiCraft.Domain.csproj" />
+        <ProjectReference Include="..\LexiCraft.Infrastructure\LexiCraft.Infrastructure.csproj" />
     </ItemGroup>
 
     

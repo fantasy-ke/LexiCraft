@@ -19,6 +19,7 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
+using ZService.Core;
 
 namespace LexiCraft.Application.Authorize;
 
@@ -27,7 +28,7 @@ public partial class AuthorizeService(IRepository<User> userRepository,
     ICaptcha captcha,IJwtTokenProvider jwtTokenProvider,
     ICacheManager redisManager,ILogger<IAuthorizeService> logger,
     IHttpClientFactory httpClientFactory,
-    IOptionsSnapshot<OAuthOption> oauthOption,IUserContext userContext): IAuthorizeService
+    IOptionsSnapshot<OAuthOption> oauthOption,IUserContext userContext): FantasyApi, IAuthorizeService
 {
     [EndpointSummary("用户注册")]
     public async Task<bool> RegisterAsync(CreateUserRequest request)

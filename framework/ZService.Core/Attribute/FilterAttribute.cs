@@ -1,6 +1,4 @@
-﻿using System;
-
-namespace ZService.Analyzers.Attribute
+﻿namespace ZService.Core.Attribute
 {
 	[AttributeUsage(AttributeTargets.Method | AttributeTargets.Class)]
 	public class FilterAttribute : System.Attribute

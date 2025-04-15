@@ -2,10 +2,13 @@
 using LexiCraft.Application.Contract.Verification;
 using LexiCraft.Application.Contract.Verification.Dto;
 using Microsoft.AspNetCore.Http;
+using ZService.Core;
+using ZService.Core.Attribute;
 
 namespace LexiCraft.Application.Verification;
 
-public class VerificationService(ICaptcha captcha): IVerificationService
+[Route("api/verification")]
+public class VerificationService(ICaptcha captcha): FantasyApi, IVerificationService
 {
     /// <summary>
     /// 获取验证码, 返回验证码图片base64
