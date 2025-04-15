@@ -44,7 +44,7 @@ public class AuthorizeHandler(
 
         var permissionCheck = _scope.ServiceProvider.GetRequiredService<IPermissionCheck>();
 
-        if (!contextAccessor.HttpContext.User.Identity?.IsAuthenticated ?? true)
+        if (!context.User.Identity?.IsAuthenticated ?? true)
         {
             context.Fail();
             return;
