@@ -6,7 +6,7 @@ namespace LexiCraft.Infrastructure.Authorization;
 [AttributeUsage(AttributeTargets.Class | AttributeTargets.Method)]
 public class ZAuthorizeAttribute: AuthorizeAttribute
 {
-    private string[] AuthorizeName { get; }
+    public string[] AuthorizeName { get; set; }
     public ZAuthorizeAttribute(params string[] policyNames)
     {
         AuthorizeName = policyNames;

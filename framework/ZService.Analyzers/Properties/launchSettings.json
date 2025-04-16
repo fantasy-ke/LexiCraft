@@ -2,7 +2,7 @@
   "profiles": {
     "ZService.Analyzers": {
       "commandName": "DebugRoslynComponent",
-      "targetProject": "..\\..\\..\\framework\\LexiCraft.Host\\LexiCraft.Host.csproj"
+      "targetProject": "..\\..\\src\\LexiCraft.Host\\LexiCraft.Host.csproj"
     }
   },
   "$schema": "https://json.schemastore.org/launchsettings.json"

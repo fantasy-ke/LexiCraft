@@ -13,6 +13,7 @@ using LexiCraft.Infrastructure.Authorization;
 using LexiCraft.Infrastructure.Contract;
 using LexiCraft.Infrastructure.Exceptions;
 using LexiCraft.Infrastructure.Extensions;
+using LexiCraft.Infrastructure.Filters;
 using LexiCraft.Infrastructure.Redis;
 using LexiCraft.Infrastructure.Shared;
 using Microsoft.AspNetCore.Http;
@@ -20,9 +21,13 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using ZService.Core;
+using ZService.Core.Attribute;
 
 namespace LexiCraft.Application.Authorize;
 
+[Route("/api/v1/authorize")]
+[Tags("Auth")]
+[Filter(typeof(ResultEndPointFilter))]
 public partial class AuthorizeService(IRepository<User> userRepository,
     IRepository<UserOAuth> userOAuthRepository,
     ICaptcha captcha,IJwtTokenProvider jwtTokenProvider,
@@ -99,7 +104,8 @@ public partial class AuthorizeService(IRepository<User> userRepository,
             ThrowUserFriendlyException.ThrowException("验证码错误!");
         }
 
-        var user = await userRepository.QueryNoTracking<User>().FirstOrDefaultAsync(x => x.UserAccount == input.UserAccount);
+        var user = await userRepository.QueryNoTracking<User>()
+            .FirstOrDefaultAsync(x => x.UserAccount == input.UserAccount);
 
         if(user is null)
         {

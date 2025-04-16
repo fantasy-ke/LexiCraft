@@ -73,6 +73,7 @@ namespace ZService.Analyzers
             // 获取 Tags 属性
             var tagsAttr = attributes.FirstOrDefault(a => a.AttributeClass?.Name == "TagsAttribute");
             var tags = tagsAttr?.ConstructorArguments.FirstOrDefault().Values.FirstOrDefault();
+            var tagsStr = tags!= null? tags.Value.Value.ToString() : null;
 
             // 获取 FilterAttributes
             var filterAttributes = attributes.Where(a =>
@@ -82,14 +83,19 @@ namespace ZService.Analyzers
             var authorizeAttributes = attributes.Where(a => 
                 a.AttributeClass?.Name?.StartsWith("Authorize") == true).ToList();
 
+            // 获取 AuthorizeAttributes
+            var zAuthorizeAttributes = attributes.Where(a =>
+                a.AttributeClass?.Name?.StartsWith("ZAuthorize") == true).ToList();
+
             return new ClassInfo
             {
                 Namespace = namespaceName,
                 ClassName = className,
                 Route = route,
-                Tags = tags.Value.Value.ToString(),
+                Tags = tagsStr,
                 FilterAttributes = filterAttributes,
                 AuthorizeAttributes = authorizeAttributes,
+                ZAuthorizeAttributes = zAuthorizeAttributes,
                 Methods = methods
             };
         }
@@ -406,14 +412,19 @@ namespace ZService.Analyzers
 
             if (classInfo.ZAuthorizeAttributes.Any())
             {
-                // 获取 ZAuthorizeAttribute 的 AuthorizeName 属性
-                var policyArg = classInfo.ZAuthorizeAttributes
-                    .SelectMany(a => a.NamedArguments)
-                    .FirstOrDefault(n => n.Key == "AuthorizeName");
-
-                if (!policyArg.Equals(default) && policyArg.Value.Value is string[] policyArr)
+                var zAuthArr = new List<string>();
+                foreach (var zAuth in classInfo.ZAuthorizeAttributes)
                 {
-                    sb.AppendLine($".RequireAuthorization(\"{string.Join(",", policyArr)}\")");
+                    // 从 ConstructorArguments 获取值
+                    if (zAuth.ConstructorArguments.Length > 0 && zAuth.ConstructorArguments[0].Values is { } values)
+                    {
+                        zAuthArr.AddRange(values.Select(v => v.Value?.ToString()).ToArray());
+                    }
+                }
+
+                if (zAuthArr.Any())
+                {
+                    sb.AppendLine($".RequireAuthorization(\"{string.Join(",", zAuthArr)}\")");
                 }
                 else
                 {
@@ -439,9 +450,10 @@ namespace ZService.Analyzers
             // 确定 HTTP 方法和路由
             var (httpMethod, route) = DetermineHttpMethodAndRoute(method);
 
-            // 获取方法级别的属性，排除 FilterAttribute
+            // 获取方法级别的属性，排除 FilterAttribute ZAuthorizeAttribute
+            var ignoreAttributes = new[] {"FilterAttribute", "ZAuthorizeAttribute"};
             var methodAttributes =
-                method.GetAttributes().Where(a => a.AttributeClass?.Name != "FilterAttribute").ToList();
+                method.GetAttributes().Where(a => !ignoreAttributes.Contains(a.AttributeClass?.Name)).ToList();
 
             // 构建属性字符串
             var attributesString = string.Join("\n", methodAttributes.Select(a => $"                [{a}]"));
@@ -460,8 +472,7 @@ namespace ZService.Analyzers
             {
                 if (filter.Value is INamedTypeSymbol filterType)
                 {
-                    filterExtensions.AppendLine(
-                        $"                .AddEndpointFilter<{filterType.ToDisplayString()}>()");
+                    filterExtensions.AppendLine($"\r\n.AddEndpointFilter<{filterType.ToDisplayString()}>()");
                 }
             }
             
@@ -472,17 +483,22 @@ namespace ZService.Analyzers
             
             if (zAuthorizeAttributes.Any())
             {
-                foreach (var zAuthArrName in from zAuth in zAuthorizeAttributes where zAuth.ConstructorArguments.Length > 0 select zAuth.NamedArguments.FirstOrDefault(n => n.Key == "AuthorizeName"))
+                var zAuthArr = new List<string>();
+                foreach (var zAuth in zAuthorizeAttributes)
                 {
-                    ;
-                    if (!zAuthArrName.Equals(default) && zAuthArrName.Value.Value is string[] zAuthArr)
+                    if (zAuth.ConstructorArguments.Length > 0 && zAuth.ConstructorArguments[0].Values is { } values)
                     {
-                        zAuthExtensions.AppendLine($".RequireAuthorization(\"{string.Join(",", zAuthArr)}\")");
+                        zAuthArr.AddRange(values.Select(v => v.Value?.ToString()).ToArray());
                     }
-                    else
-                    {
-                        zAuthExtensions.AppendLine(".RequireAuthorization()");
-                    }
+                }
+
+                if (zAuthArr.Any())
+                {
+                    zAuthExtensions.AppendLine($"\r\n.RequireAuthorization(\"{string.Join(",", zAuthArr)}\")");
+                }
+                else
+                {
+                    zAuthExtensions.AppendLine("\r\n.RequireAuthorization()");
                 }
             }
             
@@ -512,7 +528,7 @@ namespace ZService.Analyzers
 
             // 组合所有部分生成方法代码
             var methodCode = $@"            {instanceName}.Map{httpMethod}(""{route}"",{attributesString}
-                {lambda}){filterExtensions};";
+                {lambda}){zAuthExtensions}{filterExtensions};";
 
             return methodCode;
         }
