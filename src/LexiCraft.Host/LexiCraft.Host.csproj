@@ -12,7 +12,7 @@
     </ItemGroup>
 
     <ItemGroup>
-        <ProjectReference Include="..\..\framework\ZService.Analyzers\ZService.Analyzers.csproj" OutputItemType="Analyzer" ReferenceOutputAssembly="false" />
+        <!--<ProjectReference Include="..\..\framework\ZService.Analyzers\ZService.Analyzers.csproj" OutputItemType="Analyzer" ReferenceOutputAssembly="false" />-->
       <ProjectReference Include="..\..\LexiCraft.Aspire.ServiceDefaults\LexiCraft.Aspire.ServiceDefaults.csproj" />
       <ProjectReference Include="..\LexiCraft.Application\LexiCraft.Application.csproj" />
       <ProjectReference Include="..\LexiCraft.Infrastructure\LexiCraft.Infrastructure.csproj" />
