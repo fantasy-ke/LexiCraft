@@ -1,9 +1,7 @@
 ﻿using LexiCraft.Application.Contract.Authorize;
 using LexiCraft.Application.Contract.Authorize.Input;
 using LexiCraft.Application.Contract.Verification;
-using LexiCraft.Application.Verification;
 using LexiCraft.Infrastructure.Filters;
-using Microsoft.AspNetCore.Mvc;
 
 namespace LexiCraft.Host.RouterMap;
 
@@ -21,19 +19,19 @@ public static class AuthRouterMap
 
         aAuthorize.MapPost("/Login",
                 async (IAuthorizeService authorize, LoginTokenInput input) => await authorize.LoginAsync(input))
-            .WithSummary("登录接口"); 
+            .WithSummary("登录接口");
 
         aAuthorize.MapPost("/OAuthToken",
                 async (IAuthorizeService authorize, string type, string code, string state, string? redirectUri) => await authorize.OAuthTokenAsync(type, code, state, redirectUri))
-            .WithSummary("第三方授权登录"); 
+            .WithSummary("第三方授权登录");
 
         aAuthorize.MapPost("/Register",
                 async (IAuthorizeService authorize, CreateUserRequest input) => await authorize.RegisterAsync(input))
-            .WithSummary("用户注册"); 
-        
+            .WithSummary("用户注册");
+
         aAuthorize.MapGet("/LoginOut",
                 async (IAuthorizeService authorize) => await authorize.LoginOutAsync())
-            .WithSummary("退出登录"); 
+            .WithSummary("退出登录");
 
         #endregion
 
@@ -46,8 +44,8 @@ public static class AuthRouterMap
             .AddEndpointFilter<ResultEndPointFilter>();
 
         verification.MapGet("/GetCaptchaCode",
-                async (IVerificationService verificationService,string key) => await verificationService.GetCaptchaCodeAsync(key))
-            .WithSummary("获取验证码"); 
+                async (IVerificationService verificationService, string key) => await verificationService.GetCaptchaCodeAsync(key))
+            .WithSummary("获取验证码");
 
         #endregion
 
