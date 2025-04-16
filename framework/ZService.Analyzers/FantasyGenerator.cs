@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Collections.Immutable;
+using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading;
@@ -81,21 +82,25 @@ namespace ZService.Analyzers
 
             // 获取 AuthorizeAttributes
             var authorizeAttributes = attributes.Where(a => 
-                a.AttributeClass?.Name?.StartsWith("Authorize") == true).ToList();
+                a.AttributeClass?.Name?.EndsWith("AuthorizeAttribute") == true).ToList();
 
-            // 获取 AuthorizeAttributes
-            var zAuthorizeAttributes = attributes.Where(a =>
-                a.AttributeClass?.Name?.StartsWith("ZAuthorize") == true).ToList();
+            // 获取继承的接口并匹配名称
+            var interfaces = classSymbol.AllInterfaces
+                .Where(i => i.Name.StartsWith("I") && i.Name.Substring(1) == className)
+                .FirstOrDefault();
+
+            var interFacesNamespace = GetFullNamespace(interfaces.ContainingNamespace);
 
             return new ClassInfo
             {
                 Namespace = namespaceName,
                 ClassName = className,
+                InterName = interfaces?.Name,
+                InterNamespace = interFacesNamespace,
                 Route = route,
                 Tags = tagsStr,
                 FilterAttributes = filterAttributes,
                 AuthorizeAttributes = authorizeAttributes,
-                ZAuthorizeAttributes = zAuthorizeAttributes,
                 Methods = methods
             };
         }
@@ -145,13 +150,13 @@ namespace ZService.Analyzers
             if (model.GetDeclaredSymbol(classDeclaration) is not INamedTypeSymbol classSymbol)
                 return null;
 
+
             // 检查类是否继承自 FantasyService
             if (!InheritsFromFantasyService(classSymbol))
                 return null;
 
             // 获取命名空间
             var namespaceName = GetFullNamespace(classSymbol.ContainingNamespace);
-
             // 获取类名
             var className = classSymbol.Name;
 
@@ -172,10 +177,7 @@ namespace ZService.Analyzers
                 a.AttributeClass?.Name == "FilterAttribute" || a.AttributeClass?.Name == "Filter").ToList();
 
             var authorizeAttributes = attributes.Where(a => 
-                a.AttributeClass?.Name?.StartsWith("Authorize") == true).ToList();
-
-            var zAuthorizeAttributes = attributes.Where(a => 
-                a.AttributeClass?.Name?.StartsWith("ZAuthorize") == true).ToList();
+                a.AttributeClass?.Name?.EndsWith("AuthorizeAttribute") == true).ToList();
             
             // 获取所有公共非静态方法
             var methods = classSymbol.GetMembers().OfType<IMethodSymbol>()
@@ -184,13 +186,21 @@ namespace ZService.Analyzers
                            m.MethodKind == MethodKind.Ordinary)
                 .ToList();
 
+            // 获取继承的接口并匹配名称
+            var interfaces = classSymbol.AllInterfaces
+                .Where(i => i.Name.StartsWith("I") && i.Name.Substring(1) == className)
+                .FirstOrDefault();
+
+            var interFacesNamespace = GetFullNamespace(interfaces.ContainingNamespace);
+
             return new ClassInfo
             {
                 Namespace = namespaceName,
                 ClassName = className,
+                InterName = interfaces?.Name,
+                InterNamespace = interFacesNamespace,
                 Route = route,
                 AuthorizeAttributes = authorizeAttributes,
-                ZAuthorizeAttributes = zAuthorizeAttributes,
                 Tags = tags,
                 FilterAttributes = filterAttributes,
                 Methods = methods
@@ -290,7 +300,12 @@ namespace ZService.Analyzers
                 
                 foreach (var classInfo in group)
                 {
-                    sb.AppendLine($"                    services.AddSingleton<{classInfo.Namespace}.{classInfo.ClassName}>();");
+                    if (string.IsNullOrWhiteSpace(classInfo.InterName))
+                    {
+                        sb.AppendLine($"                    services.AddSingleton<{classInfo.Namespace}.{classInfo.ClassName}>();");
+                        continue;
+                    }
+                    sb.AppendLine($"                    services.AddSingleton<{classInfo.InterNamespace}.{classInfo.InterName}, {classInfo.Namespace}.{classInfo.ClassName}>();");
                 }
             }
             sb.AppendLine("                    break;");
@@ -305,7 +320,12 @@ namespace ZService.Analyzers
                 
                 foreach (var classInfo in group)
                 {
-                    sb.AppendLine($"                    services.AddScoped<{classInfo.Namespace}.{classInfo.ClassName}>();");
+                    if (string.IsNullOrWhiteSpace(classInfo.InterName))
+                    {
+                        sb.AppendLine($"                    services.AddScoped<{classInfo.Namespace}.{classInfo.ClassName}>();");
+                        continue;
+                    }
+                    sb.AppendLine($"                    services.AddScoped<{classInfo.InterNamespace}.{classInfo.InterName}, {classInfo.Namespace}.{classInfo.ClassName}>();");
                 }
             }
             sb.AppendLine("                    break;");
@@ -320,7 +340,12 @@ namespace ZService.Analyzers
                 
                 foreach (var classInfo in group)
                 {
-                    sb.AppendLine($"                    services.AddTransient<{classInfo.Namespace}.{classInfo.ClassName}>();");
+                    if (string.IsNullOrWhiteSpace(classInfo.InterName))
+                    {
+                        sb.AppendLine($"                    services.AddTransient<{classInfo.Namespace}.{classInfo.ClassName}>();");
+                        continue;
+                    }
+                    sb.AppendLine($"                    services.AddTransient<{classInfo.InterNamespace}.{classInfo.InterName}, {classInfo.Namespace}.{classInfo.ClassName}>();");
                 }
             }
             sb.AppendLine("                    break;");
@@ -391,6 +416,14 @@ namespace ZService.Analyzers
                     .SelectMany(a => a.NamedArguments)
                     .FirstOrDefault(n => n.Key == "Policy");
 
+                var zAuthArr = classInfo.AuthorizeAttributes
+                    .SelectMany(attribute => attribute.ConstructorArguments)
+                    .Where(argument => argument.Kind == TypedConstantKind.Array && argument.Values.Length > 0)
+                    .SelectMany(argument => argument.Values) // 展开数组中的值
+                    .Where(value => value.Value is string) // 筛选出 string 类型的值
+                    .Select(value => value.Value as string) // 转换为 string
+                    .ToArray();
+
                 if (!rolesArg.Equals(default) && !policyArg.Equals(default) && 
                     rolesArg.Value.Value is string roles && policyArg.Value.Value is string policy)
                 {
@@ -400,31 +433,13 @@ namespace ZService.Analyzers
                 {
                     sb.AppendLine($".RequireAuthorization(p => p.RequireRole(\"{role}\"))");
                 }
+                else if (!zAuthArr.Equals(default) && zAuthArr.Length>0)
+                {
+                    sb.AppendLine($".RequireAuthorization(\"{string.Join(",", zAuthArr)}\")");
+                }
                 else if (!policyArg.Equals(default) && policyArg.Value.Value is string policyValue)
                 {
                     sb.AppendLine($".RequireAuthorization(\"{policyValue}\")");
-                }
-                else
-                {
-                    sb.AppendLine(".RequireAuthorization()");
-                }
-            }
-
-            if (classInfo.ZAuthorizeAttributes.Any())
-            {
-                var zAuthArr = new List<string>();
-                foreach (var zAuth in classInfo.ZAuthorizeAttributes)
-                {
-                    // 从 ConstructorArguments 获取值
-                    if (zAuth.ConstructorArguments.Length > 0 && zAuth.ConstructorArguments[0].Values is { } values)
-                    {
-                        zAuthArr.AddRange(values.Select(v => v.Value?.ToString()).ToArray());
-                    }
-                }
-
-                if (zAuthArr.Any())
-                {
-                    sb.AppendLine($".RequireAuthorization(\"{string.Join(",", zAuthArr)}\")");
                 }
                 else
                 {
@@ -451,9 +466,9 @@ namespace ZService.Analyzers
             var (httpMethod, route) = DetermineHttpMethodAndRoute(method);
 
             // 获取方法级别的属性，排除 FilterAttribute ZAuthorizeAttribute
-            var ignoreAttributes = new[] {"FilterAttribute", "ZAuthorizeAttribute"};
+            var ignoreAttributes = new[] {"FilterAttribute", "AuthorizeAttribute"};
             var methodAttributes =
-                method.GetAttributes().Where(a => !ignoreAttributes.Contains(a.AttributeClass?.Name)).ToList();
+                method.GetAttributes().Where(a => !ignoreAttributes.Any(v=> a.AttributeClass?.Name.EndsWith(v) ?? false)).ToList();
 
             // 构建属性字符串
             var attributesString = string.Join("\n", methodAttributes.Select(a => $"                [{a}]"));
@@ -479,29 +494,51 @@ namespace ZService.Analyzers
             // 获取方法级别的权限
             var zAuthExtensions = new StringBuilder();
             var zAuthorizeAttributes =
-                method.GetAttributes().Where(a => a.AttributeClass?.Name == "ZAuthorizeAttribute").ToList();
-            
+                method.GetAttributes()
+                .Where(a => a.AttributeClass?.Name
+                .EndsWith("AuthorizeAttribute") ?? false).ToList();
             if (zAuthorizeAttributes.Any())
             {
-                var zAuthArr = new List<string>();
-                foreach (var zAuth in zAuthorizeAttributes)
-                {
-                    if (zAuth.ConstructorArguments.Length > 0 && zAuth.ConstructorArguments[0].Values is { } values)
-                    {
-                        zAuthArr.AddRange(values.Select(v => v.Value?.ToString()).ToArray());
-                    }
-                }
+                // 获取 AuthorizeAttribute 的 Roles 属性
+                var rolesArg = zAuthorizeAttributes
+                    .SelectMany(a => a.NamedArguments)
+                    .FirstOrDefault(n => n.Key == "Roles");
 
-                if (zAuthArr.Any())
+                // 获取 AuthorizeAttribute 的 Policy 属性
+                var policyArg = zAuthorizeAttributes
+                    .SelectMany(a => a.NamedArguments)
+                    .FirstOrDefault(n => n.Key == "Policy");
+
+                var zAuthArr = zAuthorizeAttributes
+                    .SelectMany(attribute => attribute.ConstructorArguments)
+                    .Where(argument => argument.Kind == TypedConstantKind.Array && argument.Values.Length > 0)
+                    .SelectMany(argument => argument.Values) // 展开数组中的值
+                    .Where(value => value.Value is string) // 筛选出 string 类型的值
+                    .Select(value => value.Value as string) // 转换为 string
+                    .ToArray();
+
+                if (!rolesArg.Equals(default) && !policyArg.Equals(default) &&
+                    rolesArg.Value.Value is string roles && policyArg.Value.Value is string policy)
+                {
+                    zAuthExtensions.AppendLine($"\r\n.RequireAuthorization(p => p.RequireRole(\"{roles}\").RequirePolicy(\"{policy}\"))");
+                }
+                else if (!rolesArg.Equals(default) && rolesArg.Value.Value is string role)
+                {
+                    zAuthExtensions.AppendLine($"\r\n.RequireAuthorization(p => p.RequireRole(\"{role}\"))");
+                }
+                else if (!zAuthArr.Equals(default) && zAuthArr.Length > 0)
                 {
                     zAuthExtensions.AppendLine($"\r\n.RequireAuthorization(\"{string.Join(",", zAuthArr)}\")");
+                }
+                else if (!policyArg.Equals(default) && policyArg.Value.Value is string policyValue)
+                {
+                    zAuthExtensions.AppendLine($"\r\n.RequireAuthorization(\"{policyValue}\")");
                 }
                 else
                 {
                     zAuthExtensions.AppendLine("\r\n.RequireAuthorization()");
                 }
             }
-            
 
             // 获取方法参数
             var parameters = method.Parameters;
@@ -515,13 +552,25 @@ namespace ZService.Analyzers
             string lambda;
             if (parameters.Length > 0)
             {
-                lambda =
+                if (string.IsNullOrWhiteSpace(classInfo.InterName))
+                    lambda =
                     $"async ({classInfo.Namespace}.{classInfo.ClassName} {serviceInstance}, {parameterList}) => await {serviceInstance}.{method.Name}({parameterNames})";
+                
+                else
+                    lambda =
+                        $"async ({classInfo.InterNamespace}.{classInfo.InterName} {serviceInstance}, {parameterList}) => await {serviceInstance}.{method.Name}({parameterNames})";
+                
+                    
             }
             else
             {
-                lambda =
+                if (string.IsNullOrWhiteSpace(classInfo.InterName))
+                    lambda =
                     $"async ({classInfo.Namespace}.{classInfo.ClassName} {serviceInstance}) => await {serviceInstance}.{method.Name}()";
+
+                else
+                    lambda =
+                    $"async ({classInfo.InterNamespace}.{classInfo.InterName} {serviceInstance}) => await {serviceInstance}.{method.Name}()";
             }
             
             
@@ -660,12 +709,15 @@ namespace ZService.Analyzers
         private class ClassInfo
         {
             public string Namespace { get; set; } = string.Empty;
+
+            public string InterNamespace { get; set; } = string.Empty;
+
+            public string InterName { get; set; } = string.Empty;
+
             public string ClassName { get; set; } = string.Empty;
             public string Route { get; set; } = string.Empty;
             public string? Tags { get; set; }
             public List<AttributeData> AuthorizeAttributes { get; set; } = [];
-            
-            public List<AttributeData> ZAuthorizeAttributes { get; set; } = [];
             public List<AttributeData> FilterAttributes { get; set; } = [];
             public List<IMethodSymbol> Methods { get; set; } = [];
         }
