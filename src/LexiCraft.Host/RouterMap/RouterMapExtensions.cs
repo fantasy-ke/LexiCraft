@@ -5,7 +5,7 @@ using LexiCraft.Infrastructure.Filters;
 
 namespace LexiCraft.Host.RouterMap;
 
-public static class AuthRouterMap
+public static class RouterMapExtensions
 {
     public static WebApplication MapAuthEndpoint(this WebApplication app)
     {
