@@ -213,7 +213,7 @@ public class EventLocalClient(
         {
             try
             {
-                // 从缓存获取或创建委托
+                // 通过表达式树来获取HandleAsync方法的委托
                 var handlerDelegate = _handlerCache.GetOrAdd(eventType, type =>
                 {
                     // 创建委托参数
