@@ -7,6 +7,7 @@ using LexiCraft.Infrastructure.Serilog;
 using LexiCraft.Infrastructure.Shared;
 using Microsoft.OpenApi.Models;
 using Serilog;
+using Z.Local.EventBus;
 
 
 var builder = WebApplication.CreateBuilder(args);
@@ -53,6 +54,10 @@ builder.Services.ServicesCors(options =>
         .Select(o => o.RemoveFix("/"))
         .ToArray();
 });
+
+
+
+builder.Services.AddLocalEventBus();
 
 builder.Services.AddCaptcha(builder.Configuration);
 

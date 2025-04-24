@@ -14,6 +14,7 @@
     
     <ItemGroup>
          <!--<ProjectReference Include="..\..\framework\ZService.Core\ZService.Core.csproj" />-->
+         <ProjectReference Include="..\..\framework\Z.Local.EventBus\Z.Local.EventBus.csproj" />
          <ProjectReference Include="..\LexiCraft.Application.Contract\LexiCraft.Application.Contract.csproj" />
         <ProjectReference Include="..\LexiCraft.Domain\LexiCraft.Domain.csproj" />
         <ProjectReference Include="..\LexiCraft.Infrastructure\LexiCraft.Infrastructure.csproj" />

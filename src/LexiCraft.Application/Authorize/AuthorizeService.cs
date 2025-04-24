@@ -6,6 +6,7 @@ using Lazy.Captcha.Core;
 using LexiCraft.Application.Contract.Authorize;
 using LexiCraft.Application.Contract.Authorize.Dto;
 using LexiCraft.Application.Contract.Authorize.Input;
+using LexiCraft.Application.Contract.Events;
 using LexiCraft.Domain;
 using LexiCraft.Domain.Users;
 using LexiCraft.Domain.Users.Enum;
@@ -20,6 +21,7 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
+using Z.EventBus;
 
 namespace LexiCraft.Application.Authorize;
 
@@ -31,7 +33,7 @@ public partial class AuthorizeService(IRepository<User> userRepository,
     ICaptcha captcha,IJwtTokenProvider jwtTokenProvider,
     ICacheManager redisManager,ILogger<IAuthorizeService> logger,
     IHttpClientFactory httpClientFactory,
-    IOptionsSnapshot<OAuthOption> oauthOption,IUserContext userContext): IAuthorizeService
+    IOptionsSnapshot<OAuthOption> oauthOption,IUserContext userContext,IEventBus<CreateUserEto> eventBus): IAuthorizeService
 {
     [EndpointSummary("用户注册")]
     public async Task<bool> RegisterAsync(CreateUserRequest request)
@@ -143,6 +145,8 @@ public partial class AuthorizeService(IRepository<User> userRepository,
     [EndpointSummary("退出登录")]
     public async Task LoginOutAsync()
     {
+        await eventBus.PublishAsync(new CreateUserEto(Guid.NewGuid()));
+        
         var userAccount = userContext.UserAccount;
         
         var cacheKey = string.Format(UserInfoConst.RedisTokenKey, userAccount);
