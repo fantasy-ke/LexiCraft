@@ -24,7 +24,6 @@ public class EventLocalClient(
     private readonly ConcurrentDictionary<string, Type?> _types = new();
     private readonly ConcurrentDictionary<Type, Func<object, object, CancellationToken, Task>> _handlerCache = new();
     private readonly CancellationTokenSource _cts = new();
-    private bool isInitConsumer = true;
 
     /// <summary>
     /// 获取所有已注册的Channel
@@ -52,6 +51,8 @@ public class EventLocalClient(
             var data = handlerSerializer.SerializeJson(eventDto);
 
             await channel.Writer.WriteAsync(data, _cts.Token);
+            
+            break;
         }
     }
 
@@ -89,22 +90,21 @@ public class EventLocalClient(
         return channel;
     }
 
-    public async Task ConsumeStart()
+    public async Task ConsumeStartAsync(CancellationToken stoppingToken)
     {
-        if (!isInitConsumer)
+        
+        while (!stoppingToken.IsCancellationRequested)
         {
-            return;
-        }
-
-        foreach (var channel in _channels)
-        {
-            _ = Task.Factory.StartNew(async () =>
+            foreach (var channel in _channels)
             {
-                await ConsumeChannelAsync(channel.Key, channel.Value, _cts.Token);
-            });
+                _ = Task.Factory.StartNew(async () =>
+                {
+                    await ConsumeChannelAsync(channel.Key, channel.Value, _cts.Token);
+                }, stoppingToken);
+            }
+            //周期性任务，于上次任务执行完成后，等待5秒，执行下一次任务
+            await Task.Delay(5000, stoppingToken);
         }
-        isInitConsumer = false;
-        await Task.CompletedTask;
     }
 
 
@@ -115,14 +115,14 @@ public class EventLocalClient(
     /// <param name="channel">Channel实例</param>
     /// <param name="cancellationToken">取消令牌</param>
     /// <returns></returns>
-    public async Task ConsumeChannelAsync(string channelName, Channel<string> channel,
+    private async Task ConsumeChannelAsync(string channelName, Channel<string> channel,
         CancellationToken cancellationToken)
     {
         logger.LogInformation($"开始消费Channel: {channelName}");
 
         try
         {
-            while (await channel.Reader.WaitToReadAsync(cancellationToken))
+            while (channel.Reader.TryPeek(out _) && await channel.Reader.WaitToReadAsync(cancellationToken))
             {
                 if (!channel.Reader.TryRead(out var message)) continue;
 
@@ -158,15 +158,27 @@ public class EventLocalClient(
                 }
 
                 await ProcessEventAsync(eventType, eventData, cancellationToken);
+                
+                logger.LogWarning($"无法反序列化事件数据为类型 {eventType.FullName}");
             }
         }
         catch (OperationCanceledException) when (cancellationToken.IsCancellationRequested)
         {
             // 正常取消，不需要特殊处理
+            logger.LogInformation($"Channel {channelName} 的消费任务已取消");
         }
         catch (Exception ex)
         {
             logger.LogError(ex, $"消费Channel {channelName} 时发生错误");
+        }
+        finally
+        {
+            // 如果 Channel 已经为空，清理它
+            if (!channel.Reader.TryPeek(out _))
+            {
+                _channels.TryRemove(channelName, out _);
+                logger.LogInformation($"Channel {channelName} 已被清理");
+            }
         }
 
         logger.LogInformation($"停止消费Channel: {channelName}");
@@ -240,13 +252,13 @@ public class EventLocalClient(
                 });
 
                 // 使用编译后的委托调用处理方法
-                await handlerDelegate(handler, eventData, cancellationToken);
+                await handlerDelegate(handler!, eventData, cancellationToken);
 
-                logger.LogInformation($"处理程序 {handler.GetType().FullName} 成功处理事件 {eventType.FullName}");
+                logger.LogInformation($"处理程序 {handler!.GetType().FullName} 成功处理事件 {eventType.FullName}");
             }
             catch (Exception ex)
             {
-                logger.LogError(ex, $"处理程序 {handler.GetType().FullName} 处理事件 {eventType.FullName} 时发生错误");
+                logger.LogError(ex, $"处理程序 {handler!.GetType().FullName} 处理事件 {eventType.FullName} 时发生错误");
             }
         }
     }
@@ -267,7 +279,6 @@ public class EventLocalClient(
     public void Dispose()
     {
         _cts.Dispose();
-        isInitConsumer = false;
         GC.SuppressFinalize(this);
     }
 }

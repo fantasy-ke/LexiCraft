@@ -18,7 +18,7 @@ public class EventLocalConsumerService(ILogger<EventLocalConsumerService> logger
     protected override async Task ExecuteAsync(CancellationToken stoppingToken)
     {
         logger.LogInformation("事件总线消费者服务已启动");
-        await eventLocalClient.ConsumeStart();
+        await eventLocalClient.ConsumeStartAsync(stoppingToken);
     }
 
     
