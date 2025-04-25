@@ -19,7 +19,7 @@ public static class ServiceExtensions
         services.AddScoped<IAuthorizeService,AuthorizeService>();
         services.AddScoped<IVerificationService,VerificationService>();
 
-        services.AddScoped<IEventHandler<CreateUserEto>, CreateUserHandler>();
+        services.AddScoped<IEventHandler<LoginEto>, LoginHandler>();
         return services;
     }
 }

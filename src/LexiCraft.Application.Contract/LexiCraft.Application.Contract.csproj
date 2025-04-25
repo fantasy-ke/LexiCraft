@@ -8,6 +8,12 @@
 
     <ItemGroup>
       <PackageReference Include="Mapster" Version="7.4.0" />
+      <PackageReference Include="Microsoft.Extensions.Logging.Abstractions" Version="9.0.4" />
+    </ItemGroup>
+
+    <ItemGroup>
+        <ProjectReference Include="..\..\framework\Z.Local.EventBus\Z.Local.EventBus.csproj" />
+      <ProjectReference Include="..\LexiCraft.Infrastructure\LexiCraft.Infrastructure.csproj" />
     </ItemGroup>
 
 </Project>

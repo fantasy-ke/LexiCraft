@@ -3,6 +3,7 @@ using System.Linq.Expressions;
 using System.Reflection;
 using IdGen;
 using LexiCraft.Domain.Internal;
+using LexiCraft.Domain.LoginLogs;
 using LexiCraft.Domain.Users;
 using LexiCraft.Infrastructure.Contract;
 using LexiCraft.Infrastructure.EntityFrameworkCore.Extensions;
@@ -22,6 +23,8 @@ public class LexiCraftDbContext(DbContextOptions options,IServiceProvider? servi
     public DbSet<UserSetting> UserSettings { get; set; }
     
     public DbSet<UserOAuth> UserOAuths { get; set; }
+    
+    public DbSet<LoginLog> LoginLogs { get; set; }
 
     private ContextOption? ContextOption { get; } = 
         serviceProvider?.GetService<IOptionsSnapshot<ContextOption>>()!.Value;

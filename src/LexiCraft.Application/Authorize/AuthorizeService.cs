@@ -7,6 +7,7 @@ using LexiCraft.Application.Contract.Authorize;
 using LexiCraft.Application.Contract.Authorize.Dto;
 using LexiCraft.Application.Contract.Authorize.Input;
 using LexiCraft.Application.Contract.Events;
+using LexiCraft.Application.Contract.Middleware.Dto;
 using LexiCraft.Domain;
 using LexiCraft.Domain.Users;
 using LexiCraft.Domain.Users.Enum;
@@ -28,12 +29,13 @@ namespace LexiCraft.Application.Authorize;
 // [Route("/api/v1/authorize")]
 // [Tags("Auth")]
 // [Filter(typeof(ResultEndPointFilter))]
-public partial class AuthorizeService(IRepository<User> userRepository,
+public partial class AuthorizeService(
+    IRepository<User> userRepository,
     IRepository<UserOAuth> userOAuthRepository,
     ICaptcha captcha,IJwtTokenProvider jwtTokenProvider,
     ICacheManager redisManager,ILogger<IAuthorizeService> logger,
     IHttpClientFactory httpClientFactory,
-    IOptionsSnapshot<OAuthOption> oauthOption,IUserContext userContext,IEventBus<CreateUserEto> eventBus): IAuthorizeService
+    IOptionsSnapshot<OAuthOption> oauthOption,IUserContext userContext): IAuthorizeService
 {
     [EndpointSummary("用户注册")]
     public async Task<bool> RegisterAsync(CreateUserRequest request)
@@ -86,22 +88,30 @@ public partial class AuthorizeService(IRepository<User> userRepository,
             || input.PassWord.Length < 6 ||
             !MyRegexPd().IsMatch(input.PassWord))
         {
-            ThrowUserFriendlyException.ThrowException("密码长度至少6位，且必须包含字母和数字");
+            
+            ThrowAuthLoginException.ThrowException(JsonSerializer.Serialize(
+                new ExceptionLoginDto("密码长度至少6位，且必须包含字母和数字",input.UserAccount, "Password")
+                ));
         }
 
         if (input.UserAccount.IsNullEmpty())
         {
-            ThrowUserFriendlyException.ThrowException("请输入账号");
+            ThrowAuthLoginException.ThrowException(JsonSerializer.Serialize(
+                new ExceptionLoginDto("请输入账号",input.UserAccount, "Password")
+            ));
         }
 
         if (input.CaptchaCode.IsNullEmpty())
         {
-            ThrowUserFriendlyException.ThrowException("请输入验证码");
+            ThrowAuthLoginException.ThrowException(JsonSerializer.Serialize(
+                new ExceptionLoginDto("请输入验证码",input.UserAccount, "Password")
+            ));
         }
         if (!captcha.Validate(input.CaptchaKey, input.CaptchaCode))
         {
-            // 发布登录事件
-            ThrowUserFriendlyException.ThrowException("验证码错误!");
+            ThrowAuthLoginException.ThrowException(JsonSerializer.Serialize(
+                new ExceptionLoginDto("验证码错误!",input.UserAccount, "Password")
+            ));
         }
 
         var user = await userRepository.QueryNoTracking<User>()
@@ -109,12 +119,16 @@ public partial class AuthorizeService(IRepository<User> userRepository,
 
         if(user is null)
         {
-            ThrowUserFriendlyException.ThrowException("用户不存在");
+            ThrowAuthLoginException.ThrowException(JsonSerializer.Serialize(
+                new ExceptionLoginDto("用户不存在",input.UserAccount, "Password")
+            ));
         }
 
         if (!user.VerifyPassword(input.PassWord))
         {
-            ThrowUserFriendlyException.ThrowException("密码错误");
+            ThrowAuthLoginException.ThrowException(JsonSerializer.Serialize(
+                new ExceptionLoginDto("密码错误",input.UserAccount, "Password")
+            ));
         }
 
         var userDit = new Dictionary<string, string>();
@@ -145,8 +159,6 @@ public partial class AuthorizeService(IRepository<User> userRepository,
     [EndpointSummary("退出登录")]
     public async Task LoginOutAsync()
     {
-        await eventBus.PublishAsync(new CreateUserEto(Guid.NewGuid()));
-        
         var userAccount = userContext.UserAccount;
         
         var cacheKey = string.Format(UserInfoConst.RedisTokenKey, userAccount);
@@ -176,7 +188,9 @@ public partial class AuthorizeService(IRepository<User> userRepository,
             var result = await response.Content.ReadFromJsonAsync<OAuthTokenDto>();
             if (result is null)
             {
-                throw new Exception("Github授权失败");
+                ThrowAuthLoginException.ThrowException(JsonSerializer.Serialize(
+                    new ExceptionLoginDto("Github授权失败","", "OAuth")
+                ));
             }
 
             var request = new HttpRequestMessage(HttpMethod.Get,
@@ -207,7 +221,9 @@ public partial class AuthorizeService(IRepository<User> userRepository,
             var result = await response.Content.ReadFromJsonAsync<OAuthTokenDto>();
             if (result?.AccessToken is null)
             {
-                throw new Exception("Gitee授权失败");
+                ThrowAuthLoginException.ThrowException(JsonSerializer.Serialize(
+                    new ExceptionLoginDto("Gitee授权失败","", "OAuth")
+                ));
             }
 
 
@@ -230,7 +246,7 @@ public partial class AuthorizeService(IRepository<User> userRepository,
             // 如果邮箱是空则随机生成
             if (string.IsNullOrEmpty(userDto.Email))
             {
-                userDto.Email = "oauth_" + userDto.Id + "@token-ai.cn";
+                userDto.Email = "oauth_" + userDto.Id + "@fantasyke.cn";
             }
 
 
@@ -274,6 +290,7 @@ public partial class AuthorizeService(IRepository<User> userRepository,
 
         return token;
     }
+    
 
     [GeneratedRegex(@"^(?=.*[0-9])(?=.*[a-zA-Z]).*$")]
     private static partial Regex MyRegexPd();

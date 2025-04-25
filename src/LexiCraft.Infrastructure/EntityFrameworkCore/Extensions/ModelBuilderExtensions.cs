@@ -1,4 +1,5 @@
-﻿using LexiCraft.Domain.Users;
+﻿using LexiCraft.Domain.LoginLogs;
+using LexiCraft.Domain.Users;
 using LexiCraft.Domain.Users.Enum;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
@@ -121,6 +122,16 @@ public static class ModelBuilderExtensions
                 .IsRequired()
                 .HasDefaultValue(false)
                 .HasComment("账户是否激活");
+        });
+        
+        model.Entity<LoginLog>(builder =>
+        {
+            builder.ToTable("login-log");
+
+            builder.HasKey(x => x.Id);
+            
+            builder.HasIndex(x => x.UserId);
+
         });
 
 
