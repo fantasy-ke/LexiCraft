@@ -1,3 +1,4 @@
+using LexiCraft.Application.Contract.Middleware;
 using LexiCraft.Host;
 using LexiCraft.Host.RouterMap;
 using LexiCraft.Infrastructure.Authorization;
@@ -37,11 +38,13 @@ builder.Services
     .WithLexiCraftDbAccess(builder.Configuration)
     .WithRedis(builder.Configuration);
 
-builder.Services.Configure<OAuthOption>(configuration.GetSection("OAuthOptions"));
+builder.Services.Configure<OAuthOption>(
+    builder.Configuration.GetSection("OAuthOptions"));
 
 builder.Services.AddEndpointsApiExplorer();
 
 builder.Services.AddScoped<ExceptionMiddleware>();
+builder.Services.AddScoped<LoginExceptionMiddleware>();
 
 builder.Services.RegisterAuthorization();
 builder.Services.AddAuthorization();
@@ -90,6 +93,7 @@ if (app.Environment.IsDevelopment())
 }
 
 app.UseMiddleware<ExceptionMiddleware>();
+app.UseMiddleware<LoginExceptionMiddleware>();
 
 app.UseHttpsRedirection();
 
