@@ -29,6 +29,6 @@ public class JsonHandlerSerializer : IHandlerSerializer
 
     public string SerializeJson(object @event)
     {
-        return JsonSerializer.Serialize(@event,_jsonSerializerOptions);
+        return JsonSerializer.Serialize(@event, _jsonSerializerOptions);
     }
 }

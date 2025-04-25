@@ -158,8 +158,6 @@ public class EventLocalClient(
                 }
 
                 await ProcessEventAsync(eventType, eventData, cancellationToken);
-                
-                logger.LogWarning($"无法反序列化事件数据为类型 {eventType.FullName}");
             }
         }
         catch (OperationCanceledException) when (cancellationToken.IsCancellationRequested)
