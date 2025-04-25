@@ -45,7 +45,6 @@ public abstract class SimpleAuditEntity<TKey,TUserKey> : Entity<TKey>,
     public TUserKey? UpdateById { get; set; }
 }
 
-public abstract class SimpleAuditEntity<TKey> : SimpleAuditEntity<TKey, TKey>
+public abstract class SimpleAuditEntity<TKey> : SimpleAuditEntity<TKey,Guid?>
 {
-    
 }

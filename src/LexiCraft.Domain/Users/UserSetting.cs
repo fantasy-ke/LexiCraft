@@ -2,7 +2,7 @@
 
 namespace LexiCraft.Domain.Users;
 
-public class UserSetting : SimpleAuditEntity<Guid, Guid?>
+public class UserSetting : SimpleAuditEntity<Guid>
 {
     /// <summary>
     /// 用户ID

@@ -2,7 +2,7 @@
 
 namespace LexiCraft.Domain.Users;
 
-public class UserOAuth : SimpleAuditEntity<Guid, Guid?>
+public class UserOAuth : SimpleAuditEntity<Guid>
 {
     /// <summary>
     /// 获取或设置用户的唯一标识符
