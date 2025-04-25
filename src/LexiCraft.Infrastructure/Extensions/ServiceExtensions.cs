@@ -1,4 +1,5 @@
-﻿using System.Text;
+﻿using System.Reflection;
+using System.Text;
 using IdGen;
 using IdGen.DependencyInjection;
 using LexiCraft.Infrastructure.Authorization;
@@ -7,6 +8,8 @@ using LexiCraft.Infrastructure.EntityFrameworkCore;
 using LexiCraft.Infrastructure.EntityFrameworkCore.Extensions;
 using LexiCraft.Infrastructure.Redis;
 using LexiCraft.Infrastructure.Shared;
+using Mapster;
+using MapsterMapper;
 using Z.FreeRedis;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
@@ -235,6 +238,20 @@ public static class ServiceExtensions
         
         services.AddSingleton<ICacheManager, CacheManager>();
         
+        return services;
+    }
+    
+    /// <summary>
+    /// 添加Mapster映射
+    /// </summary>
+    /// <param name="services"></param>
+    /// <returns></returns>
+    public static IServiceCollection WithMapster(this IServiceCollection services)
+    {
+        var config = TypeAdapterConfig.GlobalSettings;
+        config.Scan(Assembly.GetExecutingAssembly());
+        var mapperConfig = new Mapper(config);
+        services.AddSingleton<IMapper>(mapperConfig);
         return services;
     }
     

@@ -61,8 +61,9 @@ builder.Services.AddLocalEventBus();
 
 builder.Services.AddCaptcha(builder.Configuration);
 
-builder.Services.WithIdGen();
+builder.Services.WithMapster();
 
+builder.Services.WithIdGen();
 
 builder.Services.WithServiceLifetime();
 
