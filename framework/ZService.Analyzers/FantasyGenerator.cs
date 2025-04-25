@@ -89,7 +89,7 @@ namespace ZService.Analyzers
                 .Where(i => i.Name.StartsWith("I") && i.Name.Substring(1) == className)
                 .FirstOrDefault();
 
-            var interFacesNamespace = GetFullNamespace(interfaces.ContainingNamespace);
+            var interFacesNamespace = GetFullNamespace(interfaces?.ContainingNamespace);
 
             return new ClassInfo
             {
@@ -191,7 +191,7 @@ namespace ZService.Analyzers
                 .Where(i => i.Name.StartsWith("I") && i.Name.Substring(1) == className)
                 .FirstOrDefault();
 
-            var interFacesNamespace = GetFullNamespace(interfaces.ContainingNamespace);
+            var interFacesNamespace = GetFullNamespace(interfaces?.ContainingNamespace);
 
             return new ClassInfo
             {
@@ -372,8 +372,8 @@ namespace ZService.Analyzers
                 
                 foreach (var classInfo in group)
                 {
-                    var instanceName = char.ToLowerInvariant(classInfo.ClassName[0]) +
-                                     classInfo.ClassName.TrimEnd(ServiceSuffix);
+                    // 确定服务实例名称
+                    var instanceName = RemoveServiceSuffixAndLowercaseFirstLetter(classInfo.ClassName);
 
                     sb.AppendLine(
                         $"            var {instanceName} = app.MapGroup(\"{classInfo.Route}\"){GenerateClassAttributes(classInfo)};");
