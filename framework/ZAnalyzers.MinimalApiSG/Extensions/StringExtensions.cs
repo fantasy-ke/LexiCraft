@@ -1,4 +1,4 @@
-﻿namespace ZService.Analyzers.Extensions
+﻿namespace ZAnalyzers.MinimalApiSG.Extensions
 {
 	public static class StringExtensions
 	{

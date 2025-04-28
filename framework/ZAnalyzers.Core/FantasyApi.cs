@@ -1,4 +1,4 @@
-﻿namespace ZService.Core
+﻿namespace ZAnalyzers.Core
 {
     public abstract class FantasyApi
     {

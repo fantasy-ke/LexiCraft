@@ -1,7 +1,7 @@
 using System.Collections.Generic;
 using Microsoft.CodeAnalysis;
 
-namespace ZService.Analyzers.Extensions;
+namespace ZAnalyzers.MinimalApiSG.Extensions;
 
 public static class SymbolExtensions
 {

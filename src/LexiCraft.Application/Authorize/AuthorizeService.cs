@@ -23,8 +23,8 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using Z.EventBus;
-using ZService.Core;
-using ZService.Core.Attribute;
+using ZAnalyzers.Core;
+using ZAnalyzers.Core.Attribute;
 
 namespace LexiCraft.Application.Authorize;
 

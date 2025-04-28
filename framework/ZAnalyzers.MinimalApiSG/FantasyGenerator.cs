@@ -8,9 +8,9 @@ using System.Threading;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 using Microsoft.CodeAnalysis.Text;
-using ZService.Analyzers.Extensions;
+using ZAnalyzers.MinimalApiSG.Extensions;
 
-namespace ZService.Analyzers
+namespace ZAnalyzers.MinimalApiSG
 {
     [Generator(LanguageNames.CSharp)]
     public class FantasyGenerator : IIncrementalGenerator

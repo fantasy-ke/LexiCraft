@@ -4,8 +4,8 @@ using LexiCraft.Application.Contract.Verification.Dto;
 using LexiCraft.Infrastructure.Authorization;
 using LexiCraft.Infrastructure.Filters;
 using Microsoft.AspNetCore.Http;
-using ZService.Core;
-using ZService.Core.Attribute;
+using ZAnalyzers.Core;
+using ZAnalyzers.Core.Attribute;
 
 namespace LexiCraft.Application.Verification;
 
