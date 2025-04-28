@@ -23,9 +23,9 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "framework", "framework", "{
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Z.FreeRedis", "framework\Z.FreeRedis\Z.FreeRedis.csproj", "{001E35B4-78E3-4A9C-AE7F-D7E91CD72205}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ZService.Analyzers", "framework\ZService.Analyzers\ZService.Analyzers.csproj", "{1A3464FF-385E-45F7-828E-4FBC3D16C432}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ZAnalyzers.MinimalApiSG", "framework\ZAnalyzers.MinimalApiSG\ZAnalyzers.MinimalApiSG.csproj", "{1A3464FF-385E-45F7-828E-4FBC3D16C432}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ZService.Core", "framework\ZService.Core\ZService.Core.csproj", "{B2BF1FD8-46A0-4305-8BD2-934EB9580017}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ZAnalyzers.Core", "framework\ZAnalyzers.Core\ZAnalyzers.Core.csproj", "{B2BF1FD8-46A0-4305-8BD2-934EB9580017}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{02EA681E-C7D8-13C7-8484-4AC65E1B71E8}"
 	ProjectSection(SolutionItems) = preProject
