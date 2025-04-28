@@ -69,6 +69,7 @@ builder.Services.WithMapster();
 builder.Services.WithIdGen();
 
 builder.Services.WithServiceLifetime();
+builder.Services.WithFantasyLife();
 
 var app = builder.Build();
 
@@ -84,7 +85,9 @@ app.MapDefaultEndpoints();
 
 app.UseCors("LexiCraft.Cors");
 
-app.MapAuthEndpoint();
+// app.MapAuthEndpoint();
+
+app.MapFantasyApi();
 
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())

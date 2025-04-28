@@ -23,19 +23,21 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using Z.EventBus;
+using ZService.Core;
+using ZService.Core.Attribute;
 
 namespace LexiCraft.Application.Authorize;
 
-// [Route("/api/v1/authorize")]
-// [Tags("Auth")]
-// [Filter(typeof(ResultEndPointFilter))]
+[Route("/api/v1/authorize")]
+[Tags("Auth")]
+[Filter(typeof(ResultEndPointFilter))]
 public partial class AuthorizeService(
     IRepository<User> userRepository,
     IRepository<UserOAuth> userOAuthRepository,
     ICaptcha captcha,IJwtTokenProvider jwtTokenProvider,
     ICacheManager redisManager,ILogger<IAuthorizeService> logger,
     IHttpClientFactory httpClientFactory,
-    IOptionsSnapshot<OAuthOption> oauthOption,IUserContext userContext): IAuthorizeService
+    IOptionsSnapshot<OAuthOption> oauthOption,IUserContext userContext):FantasyApi, IAuthorizeService
 {
     [EndpointSummary("用户注册")]
     public async Task<bool> RegisterAsync(CreateUserRequest request)

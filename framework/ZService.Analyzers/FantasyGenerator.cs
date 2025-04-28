@@ -466,7 +466,7 @@ namespace ZService.Analyzers
             var (httpMethod, route) = DetermineHttpMethodAndRoute(method);
 
             // 获取方法级别的属性，排除 FilterAttribute ZAuthorizeAttribute
-            var ignoreAttributes = new[] {"FilterAttribute", "AuthorizeAttribute"};
+            var ignoreAttributes = new[] {"FilterAttribute", "AuthorizeAttribute", "AsyncStateMachineAttribute" };
             var methodAttributes =
                 method.GetAttributes().Where(a => !ignoreAttributes.Any(v=> a.AttributeClass?.Name.EndsWith(v) ?? false)).ToList();
 

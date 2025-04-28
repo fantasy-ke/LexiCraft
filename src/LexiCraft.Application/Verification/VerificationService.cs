@@ -1,15 +1,19 @@
 ﻿using Lazy.Captcha.Core;
 using LexiCraft.Application.Contract.Verification;
 using LexiCraft.Application.Contract.Verification.Dto;
+using LexiCraft.Infrastructure.Authorization;
+using LexiCraft.Infrastructure.Filters;
 using Microsoft.AspNetCore.Http;
+using ZService.Core;
+using ZService.Core.Attribute;
 
 namespace LexiCraft.Application.Verification;
 
-// [Route("/api/v1/Verification")]
-// [Tags("verification")]
-// [Filter(typeof(ResultEndPointFilter))]
+[Route("/api/v1/Verification")]
+[Tags("verification")]
+[Filter(typeof(ResultEndPointFilter))]
 // [ZAuthorize("Verification.Page")]
-public class VerificationService(ICaptcha captcha): IVerificationService
+public class VerificationService(ICaptcha captcha):FantasyApi, IVerificationService
 {
     /// <summary>
     /// 获取验证码, 返回验证码图片base64
