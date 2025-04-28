@@ -1,9 +1,0 @@
-{
-  "profiles": {
-    "ZService.Analyzers": {
-      "commandName": "DebugRoslynComponent",
-      "targetProject": "..\\..\\src\\LexiCraft.Host\\LexiCraft.Host.csproj"
-    }
-  },
-  "$schema": "https://json.schemastore.org/launchsettings.json"
-}

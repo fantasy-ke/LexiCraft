@@ -10,10 +10,10 @@
     <ItemGroup>
         <FrameworkReference Include="Microsoft.AspNetCore.App"/>
         <PackageReference Include="Lazy.Captcha.Core" Version="2.1.0" />
+        <PackageReference Include="ZAnalyzers.Core" Version="0.1.1" />
     </ItemGroup>
     
     <ItemGroup>
-         <ProjectReference Include="..\..\framework\ZAnalyzers.Core\ZAnalyzers.Core.csproj" />
          <ProjectReference Include="..\LexiCraft.Application.Contract\LexiCraft.Application.Contract.csproj" />
     </ItemGroup>
 
