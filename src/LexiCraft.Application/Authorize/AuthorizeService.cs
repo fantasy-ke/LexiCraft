@@ -43,25 +43,48 @@ public partial class AuthorizeService(
     public async Task<bool> RegisterAsync(CreateUserRequest request)
     {
         if (request.Email.IsNullEmpty() || !MyRegexEmail().IsMatch(request.Email))
-            ThrowUserFriendlyException.ThrowException("邮箱格式不正确");
+        {
+            ThrowAuthLoginException.ThrowException(JsonSerializer.Serialize(
+                                        new ExceptionLoginDto("邮箱格式不正确","", "Register")
+                                        ));
+        }
 
         if (request.Password.IsNullEmpty() 
             || request.Password.Length < 6 ||
-           !MyRegexPd().IsMatch(request.Password))
-            ThrowUserFriendlyException.ThrowException("密码长度至少6位，且必须包含字母和数字");
+            !MyRegexPd().IsMatch(request.Password)){
+            ThrowAuthLoginException.ThrowException(JsonSerializer.Serialize(
+                            new ExceptionLoginDto("密码长度至少6位，且必须包含字母和数字","", "Register")
+                            ));
+        }
 
         if (request.CaptchaKey.IsNullEmpty() || request.CaptchaCode.IsNullEmpty())
-            ThrowUserFriendlyException.ThrowException("请输入验证码");
+        {
+            ThrowAuthLoginException.ThrowException(JsonSerializer.Serialize(
+                            new ExceptionLoginDto("请输入验证码","", "Register")
+                            ));
+        }
 
         if (request.UserAccount.IsNullEmpty() || request.UserAccount.IsNullEmpty())
-            ThrowUserFriendlyException.ThrowException("请输入账号和用户名");
+        {
+            ThrowAuthLoginException.ThrowException(JsonSerializer.Serialize(
+                            new ExceptionLoginDto("请输入账号和用户名","", "Register")
+                            ));
+        }
 
         if (!captcha.Validate(request.CaptchaKey, request.CaptchaCode))
-            ThrowUserFriendlyException.ThrowException("验证码校验错误");
+        {
+            ThrowAuthLoginException.ThrowException(JsonSerializer.Serialize(
+                            new ExceptionLoginDto("验证码校验错误","", "Register")
+                            ));
+        }
 
         var any = await userRepository.AnyAsync(p=>p.UserAccount == request.UserAccount);
         if (any)
-            ThrowUserFriendlyException.ThrowException("当前用户名已存在，请重新输入");
+        {
+            ThrowAuthLoginException.ThrowException(JsonSerializer.Serialize(
+                            new ExceptionLoginDto("当前用户名已存在，请重新输入","", "Register")
+                            ));
+        }
 
         try
         {
@@ -77,7 +100,6 @@ public partial class AuthorizeService(
         }
         catch (Exception e)
         {
-            Console.WriteLine(e);
             logger.LogError(e, $"{e.Message}用户注册失败");
             throw;
         }
