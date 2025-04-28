@@ -15,10 +15,9 @@ public static class ServiceExtensions
 {
     public static IServiceCollection WithServiceLifetime(this IServiceCollection services)
     {
-        services.AddScoped<IUserRepository<LexiCraftDbContext>, UserRepository>();
         //services.AddScoped<IAuthorizeService,AuthorizeService>();
         //services.AddScoped<IVerificationService,VerificationService>();
-
+        services.AddScoped<IUserRepository<LexiCraftDbContext>, UserRepository>();
         services.AddScoped<IEventHandler<LoginEto>, LoginHandler>();
         return services;
     }
