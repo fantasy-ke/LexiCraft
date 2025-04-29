@@ -10,7 +10,7 @@ public static class RoleConstant
     /// <summary>
     /// 用户角色。
     /// </summary>
-    public const string User = "User";
+    public const string User = "Users";
 
     /// <summary>
     /// AI角色

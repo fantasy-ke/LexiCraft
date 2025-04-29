@@ -68,12 +68,51 @@ public class UserContext(IHttpContextAccessor httpContextAccessor): IUserContext
         {
             // 处理可空类型（Nullable<T>）
             var targetType = typeof(TType);
+            bool isNullable = false;
+            Type underlyingType = targetType;
             if (targetType.IsGenericType && targetType.GetGenericTypeDefinition() == typeof(Nullable<>))
             {
                 targetType = Nullable.GetUnderlyingType(targetType);
             }
+            // 如果原始值为空且目标类型可空，返回 null
+            if (string.IsNullOrEmpty(claimValue) && isNullable)
+                return default;
+            
 
-            return (TType)Convert.ChangeType(claimValue, targetType);
+            object result = null;
+
+            // 特殊处理 Guid 类型
+            if (underlyingType == typeof(Guid))
+            {
+                if (Guid.TryParse(claimValue, out Guid guid))
+                    result = guid;
+                else if (!isNullable)
+                    throw new InvalidCastException("字符串格式不符合 Guid");
+            }
+            // 其他基础值类型使用 Convert.ChangeType
+            else if (underlyingType.IsValueType)
+            {
+                try
+                {
+                    result = Convert.ChangeType(claimValue, underlyingType);
+                }
+                catch
+                {
+                    if (!isNullable)
+                        throw new InvalidCastException($"无法将 '{claimValue}' 转换为 {underlyingType.FullName}");
+                    return default;
+                }
+            }
+            // 字符串类型直接赋值
+            else if (underlyingType == typeof(string))
+            {
+                result = claimValue;
+            }
+            else
+            {
+                throw new InvalidCastException($"不支持从字符串转换为 {underlyingType.FullName}");
+            }
+            return (TType)result;
         }
         catch (Exception ex)
         {

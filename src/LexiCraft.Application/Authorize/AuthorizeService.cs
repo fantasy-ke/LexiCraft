@@ -28,7 +28,7 @@ using ZAnalyzers.Core.Attribute;
 
 namespace LexiCraft.Application.Authorize;
 
-[Route("/api/v1/authorize")]
+[Route("/api/authorize")]
 [Tags("Auth")]
 [Filter(typeof(ResultEndPointFilter))]
 public partial class AuthorizeService(

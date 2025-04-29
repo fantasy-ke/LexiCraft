@@ -6,7 +6,7 @@ public class ResponseBase
     /// <summary>
     /// 是否成功
     /// </summary>
-    public bool IsSuccess { get; protected set; }
+    public bool Status { get; protected set; }
 
     /// <summary>
     /// 错误信息
@@ -16,7 +16,7 @@ public class ResponseBase
     /// <summary>
     /// 状态码
     /// </summary>
-    public int Status { get; set; }
+    public int StatusCode { get; set; }
 }
 
 [Serializable]
@@ -27,15 +27,15 @@ public class ResultDto<TResult> : ResponseBase
     public ResultDto(TResult result)
     {
         Data = result;
-        IsSuccess = true;
-        Status = 200;
+        Status = true;
+        StatusCode = 200;
     }
 
     public ResultDto(string errorMessage = "", int code = 500)
     {
-        IsSuccess = false;
+        Status = false;
         Message = errorMessage;
-        Status = code;
+        StatusCode = code;
     }
 
     public ResultDto()

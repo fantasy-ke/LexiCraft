@@ -37,7 +37,7 @@ namespace LexiCraft.Infrastructure.Migrations
                     b.Property<string>("Ip")
                         .HasColumnType("text");
 
-                    b.Property<bool>("IsSuccess")
+                    b.Property<bool>("Status")
                         .HasColumnType("boolean");
 
                     b.Property<DateTime>("LoginTime")
@@ -69,7 +69,7 @@ namespace LexiCraft.Infrastructure.Migrations
                     b.ToTable("login-log", (string)null);
                 });
 
-            modelBuilder.Entity("LexiCraft.Domain.Users.User", b =>
+            modelBuilder.Entity("LexiCraft.Domain.Users.Users", b =>
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
@@ -321,7 +321,7 @@ namespace LexiCraft.Infrastructure.Migrations
                     b.ToTable("user-settings", (string)null);
                 });
 
-            modelBuilder.Entity("LexiCraft.Domain.Users.User", b =>
+            modelBuilder.Entity("LexiCraft.Domain.Users.Users", b =>
                 {
                     b.HasOne("LexiCraft.Domain.Users.UserSetting", "Settings")
                         .WithMany()

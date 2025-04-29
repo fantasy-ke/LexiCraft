@@ -37,7 +37,7 @@ public class LoginExceptionMiddleware(ILogger<LoginExceptionMiddleware> logger,
             var exDto = JsonSerializer.Deserialize<ExceptionLoginDto>(ex.Message);
             await loginEventBus.PublishAsync(new LoginEto(null, exDto?.UserAccount, null, DateTime.Now,
                 context.GetRequestProperty("Origin"), context.GetRequestIp(),
-                context.GetRequestProperty("User-Agent"), exDto?.LoginType, false, exDto?.Message));
+                context.GetRequestProperty("Users-Agent"), exDto?.LoginType, false, exDto?.Message));
             
             var response = ResultDto.Fail(exDto.Message, 499);
             await context.Response.WriteAsync(JsonSerializer.Serialize(response, options.Value.SerializerOptions));

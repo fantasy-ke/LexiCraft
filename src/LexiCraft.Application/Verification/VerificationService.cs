@@ -9,7 +9,7 @@ using ZAnalyzers.Core.Attribute;
 
 namespace LexiCraft.Application.Verification;
 
-[Route("/api/v1/Verification")]
+[Route("/api/Verification")]
 [Tags("verification")]
 [Filter(typeof(ResultEndPointFilter))]
 // [ZAuthorize("Verification.Page")]
