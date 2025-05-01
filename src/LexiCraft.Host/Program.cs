@@ -1,6 +1,5 @@
 using LexiCraft.Application.Contract.Middleware;
 using LexiCraft.Host;
-using LexiCraft.Host.RouterMap;
 using LexiCraft.Infrastructure.Authorization;
 using LexiCraft.Infrastructure.Extensions;
 using LexiCraft.Infrastructure.Middleware;

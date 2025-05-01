@@ -11,18 +11,16 @@ public interface IFileService
     /// <summary>
     /// 上传文件
     /// </summary>
-    /// <param name="file">文件</param>
-    /// <param name="fileUploadDto">上传参数</param>
+    /// <param name="request">上传请求，包含文件和参数</param>
     /// <returns>文件信息</returns>
-    Task<FileInfoDto> UploadFileAsync(IFormFile file, FileUploadDto fileUploadDto);
+    Task<FileInfoDto> UploadFileAsync(FileUploadRequestDto request);
 
     /// <summary>
     /// 批量上传文件
     /// </summary>
-    /// <param name="files">文件集合</param>
-    /// <param name="fileUploadDto">上传参数</param>
+    /// <param name="filesDto">文件集合</param>
     /// <returns>文件信息列表</returns>
-    Task<List<FileInfoDto>> UploadFilesAsync(IFormFileCollection files, FileUploadDto fileUploadDto);
+    Task<List<FileInfoDto>> UploadFilesAsync(List<FileUploadRequestDto> filesDto);
 
     /// <summary>
     /// 创建文件夹
@@ -64,4 +62,18 @@ public interface IFileService
     /// </summary>
     /// <returns>文件夹树结构</returns>
     Task<List<FileInfoDto>> GetDirectoryTreeAsync();
+    
+    /// <summary>
+    /// 通过相对路径获取文件
+    /// </summary>
+    /// <param name="relativePath">相对于App_Data的路径，例如："avatar/example.jpg"</param>
+    /// <returns>文件流、文件名和内容类型</returns>
+    Task<(Stream FileStream, string FileName, string ContentType)> GetFileByPathAsync(string relativePath);
+
+    /// <summary>
+    /// 直接获取文件
+    /// </summary>
+    /// <param name="relativePath"></param>
+    /// <returns></returns>
+    Task<IResult> GetFileDirectlyAsync(string relativePath);
 } 
