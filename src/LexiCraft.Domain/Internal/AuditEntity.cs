@@ -24,10 +24,12 @@ public abstract class AuditEntity<TKey,TUserKey> : Entity<TKey>,
     public TUserKey? DeleteById { get; set; }
 }
 
-public abstract class AuditEntity<TKey> : AuditEntity<TKey, TKey>
+
+
+public abstract class AuditEntity<TKey> : SimpleAuditEntity<TKey,Guid?>
 {
-    
 }
+
 
 public abstract class SimpleAuditEntity<TKey,TUserKey> : Entity<TKey>,
     ICreatable<TUserKey>, IUpdatable<TUserKey>
