@@ -44,13 +44,6 @@ public interface IFileService
     Task<(List<FileInfoDto> Items, int Total)> QueryFilesAsync(FileQueryDto queryDto);
 
     /// <summary>
-    /// 下载文件
-    /// </summary>
-    /// <param name="id">文件ID</param>
-    /// <returns>文件流信息</returns>
-    Task<(Stream FileStream, string FileName, string ContentType)> DownloadFileAsync(Guid id);
-
-    /// <summary>
     /// 删除文件或文件夹
     /// </summary>
     /// <param name="id">文件或文件夹ID</param>

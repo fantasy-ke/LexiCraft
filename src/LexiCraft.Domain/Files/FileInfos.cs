@@ -7,6 +7,7 @@ namespace LexiCraft.Domain.Files;
 /// <summary>
 /// 文件信息
 /// </summary>
+[Table("file-infos")]
 public class FileInfos : AuditEntity<Guid>
 {
     /// <summary>
@@ -86,22 +87,6 @@ public class FileInfos : AuditEntity<Guid>
     /// </summary>
     [MaxLength(255)]
     public string? Tags { get; set; }
-
-    /// <summary>
-    /// 删除人ID
-    /// </summary>
-    public Guid? DeleteById { get; set; }
-
-    /// <summary>
-    /// 删除人名称
-    /// </summary>
-    [MaxLength(50)]
-    public string? DeleteByName { get; set; }
-
-    /// <summary>
-    /// 删除时间
-    /// </summary>
-    public DateTime? DeleteAt { get; set; }
 
     /// <summary>
     /// 父目录（导航属性）

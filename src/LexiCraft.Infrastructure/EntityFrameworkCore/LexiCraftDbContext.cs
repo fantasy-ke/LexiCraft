@@ -27,7 +27,7 @@ public class LexiCraftDbContext(DbContextOptions options,IServiceProvider? servi
     
     public DbSet<LoginLog> LoginLogs { get; set; }
     
-    public DbSet<FileInfo> FileInfos { get; set; }
+    public DbSet<FileInfos> FileInfos { get; set; }
 
     private ContextOption? ContextOption { get; } = 
         serviceProvider?.GetService<IOptionsSnapshot<ContextOption>>()!.Value;

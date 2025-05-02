@@ -1,4 +1,6 @@
-﻿using LexiCraft.Domain.LoginLogs;
+﻿using LexiCraft.Domain;
+using LexiCraft.Domain.Files;
+using LexiCraft.Domain.LoginLogs;
 using LexiCraft.Domain.Users;
 using LexiCraft.Domain.Users.Enum;
 using Microsoft.EntityFrameworkCore;
@@ -10,12 +12,22 @@ public static class ModelBuilderExtensions
 {
     public static ModelBuilder ConfigureAuth(this ModelBuilder model)
     {
+        #region user
+
+        var user = new User("admin", "one@fatnasyke.fun");
+        user.SetPassword("bb123456");
+        user.Avatar = "🦜";
+        user.Roles.Add(RoleConstant.Admin);
+        user.UpdateLastLogin();
+        user.UpdateSource(SourceEnum.Register);
         model.Entity<User>(builder =>
         {
             builder.ToTable("users");
 
             builder.HasKey(x => x.Id);
 
+            builder.HasData(user);
+            
             builder.Property(x => x.Username)
                 .IsRequired()
                 .HasMaxLength(32)
@@ -44,8 +56,8 @@ public static class ModelBuilderExtensions
                 .HasComment("头像");
             
             builder.Property(p => p.Source).HasConversion(new ValueConverter<SourceEnum, int>(
-                v => ((int)v),
-                v => (SourceEnum)v))
+                    v => ((int)v),
+                    v => (SourceEnum)v))
                 .HasComment("注册来源");
 
             builder.HasIndex(x => x.Username)
@@ -58,6 +70,9 @@ public static class ModelBuilderExtensions
                 .HasMaxLength(500)
                 .HasComment("个性签名");
         });
+
+        #endregion
+        #region UserOAuth
 
         model.Entity<UserOAuth>(builder =>
         {
@@ -80,6 +95,9 @@ public static class ModelBuilderExtensions
 
             builder.HasIndex(x => new { x.Provider, x.ProviderUserId, x.UserId });
         });
+
+        #endregion
+        #region UserSetting
 
         model.Entity<UserSetting>(builder =>
         {
@@ -123,6 +141,8 @@ public static class ModelBuilderExtensions
                 .HasDefaultValue(false)
                 .HasComment("账户是否激活");
         });
+
+        #endregion
         
         model.Entity<LoginLog>(builder =>
         {
@@ -133,6 +153,12 @@ public static class ModelBuilderExtensions
             builder.HasIndex(x => x.UserId);
 
         });
+
+        //实体上定义
+        // model.Entity<FileInfos>(builder =>
+        // {
+        //     builder.ToTable("file-infos");
+        // });
 
 
         return model;

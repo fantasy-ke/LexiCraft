@@ -151,6 +151,7 @@ public class FileService :FantasyApi, IFileService
     /// <summary>
     /// 批量上传文件
     /// </summary>
+    [EndpointSummary("批量上传文件")]
     public async Task<List<FileInfoDto>> UploadFilesAsync(List<FileUploadRequestDto> filesDto)
     {
         var results = new List<FileInfoDto>();
@@ -165,6 +166,7 @@ public class FileService :FantasyApi, IFileService
     /// <summary>
     /// 创建文件夹
     /// </summary>
+    [EndpointSummary("创建文件夹")]
     public async Task<FileInfoDto> CreateFolderAsync(CreateFolderDto createFolderDto)
     {
         // 检查父目录是否存在
@@ -240,6 +242,7 @@ public class FileService :FantasyApi, IFileService
     /// <summary>
     /// 获取文件信息
     /// </summary>
+    [EndpointSummary("获取文件信息")]
     public async Task<FileInfoDto> GetFileInfoAsync(Guid id)
     {
         var fileInfo = await _fileRepository.FirstOrDefaultAsync(f => f.Id == id);
@@ -254,6 +257,7 @@ public class FileService :FantasyApi, IFileService
     /// <summary>
     /// 查询文件列表
     /// </summary>
+    [EndpointSummary("查询文件列表")]
     public async Task<(List<FileInfoDto> Items, int Total)> QueryFilesAsync(FileQueryDto queryDto)
     {
         // 构建查询条件
@@ -324,41 +328,9 @@ public class FileService :FantasyApi, IFileService
     }
 
     /// <summary>
-    /// 下载文件
-    /// </summary>
-    public async Task<(Stream FileStream, string FileName, string ContentType)> DownloadFileAsync(Guid id)
-    {
-        var fileInfo = await _fileRepository.FirstOrDefaultAsync(f => f.Id == id);
-        if (fileInfo == null)
-        {
-            throw new Exception($"文件不存在: {id}");
-        }
-
-        if (fileInfo.IsDirectory)
-        {
-            throw new Exception("无法下载文件夹");
-        }
-
-        // 检查文件是否存在
-        if (!File.Exists(fileInfo.FullPath))
-        {
-            throw new Exception($"文件不存在于磁盘: {fileInfo.FullPath}");
-        }
-
-        // 更新最后访问时间和下载次数
-        fileInfo.LastAccessTime = DateTime.Now;
-        fileInfo.DownloadCount++;
-        await _fileRepository.UpdateAsync(fileInfo);
-        await _unitOfWork.SaveChangesAsync();
-
-        // 返回文件流
-        var stream = new FileStream(fileInfo.FullPath, FileMode.Open, FileAccess.Read);
-        return (stream, fileInfo.FileName, fileInfo.ContentType ?? "application/octet-stream");
-    }
-
-    /// <summary>
     /// 删除文件或文件夹
     /// </summary>
+    [EndpointSummary("删除文件或文件夹")]
     public async Task<bool> DeleteAsync(Guid id)
     {
         var fileInfo = await _fileRepository.FirstOrDefaultAsync(f => f.Id == id);
@@ -404,6 +376,7 @@ public class FileService :FantasyApi, IFileService
     /// <summary>
     /// 获取目录树
     /// </summary>
+    [EndpointSummary("获取目录树")]
     public async Task<List<FileInfoDto>> GetDirectoryTreeAsync()
     {
         // 获取所有文件夹
