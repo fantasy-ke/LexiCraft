@@ -8,13 +8,14 @@ using LexiCraft.Infrastructure.Contract;
 using LexiCraft.Infrastructure.Filters;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using ZAnalyzers.Core;
 using ZAnalyzers.Core.Attribute;
 
 namespace LexiCraft.Application.Users;
 
-[Route("/api/user")]
+[ZAnalyzers.Core.Attribute.Route("/api/user")]
 [Tags("User")]
 [Filter(typeof(ResultEndPointFilter))]
 public class UserService(
@@ -40,6 +41,7 @@ public class UserService(
     }
 
     [EndpointSummary("上传头像")]
+    [IgnoreAntiforgeryToken]
     public async Task<AvatarUploadResultDto> UploadAvatarAsync(IFormFile avatar)
     {
         var userId = userContext.UserId;

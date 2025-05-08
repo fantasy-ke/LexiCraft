@@ -10,7 +10,7 @@
 
     <ItemGroup>
         <PackageReference Include="Microsoft.AspNetCore.OpenApi" Version="9.0.4" />
-        <PackageReference Include="ZAnalyzers.MinimalApiSG" Version="0.1.1" />
+        <PackageReference Include="ZAnalyzers.MinimalApiSG" Version="0.1.2" />
     </ItemGroup>
 
     <ItemGroup>
