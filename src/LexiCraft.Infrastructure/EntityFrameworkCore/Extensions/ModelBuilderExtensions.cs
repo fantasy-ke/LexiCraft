@@ -20,6 +20,7 @@ public static class ModelBuilderExtensions
         user.Roles.Add(RoleConstant.Admin);
         user.UpdateLastLogin();
         user.UpdateSource(SourceEnum.Register);
+        user.CreateAt  = DateTime.Now;
         model.Entity<User>(builder =>
         {
             builder.ToTable("users");

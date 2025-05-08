@@ -22,6 +22,9 @@ public class LexiCraftDesignTimeFactory: IDesignTimeDbContextFactory<LexiCraftDb
 
         var builder= new DbContextOptionsBuilder<LexiCraftDbContext>();
         builder.UseNpgsql(configuration.GetConnectionString("DefaultConnection"));
+        // Npgsql 6.0.0 之后的版本需要设置以下两个开关，否则会导致时间戳字段的值不正确
+        AppContext.SetSwitch("Npgsql.EnableLegacyTimestampBehavior", true);
+        AppContext.SetSwitch("Npgsql.DisableDateTimeInfinityConversions", true);
 
         return new LexiCraftDbContext(builder.Options);
     }
