@@ -7,4 +7,5 @@ riderModule.iml
 .idea
 .vs
 .vscode
-App_Data/
+AppData/
+uploads/
