@@ -267,7 +267,8 @@ public static class ServiceExtensions
 
         builder.MapScalarApiReference((options =>
         {
-            options.Title = title;
+            options.WithTitle(title);
+            options.WithTheme(ScalarTheme.BluePlanet);
             options.Authentication = new ScalarAuthenticationOptions()
             {
                 PreferredSecurityScheme = "Bearer",

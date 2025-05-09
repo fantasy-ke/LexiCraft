@@ -33,6 +33,7 @@ builder.Services
         Version = "v1",
         Description = "词汇技艺相关接口",
     })
+    .ConfigureJson()
     .WithJwt(builder.Configuration)
     .WithLexiCraftDbAccess(builder.Configuration)
     .WithRedis(builder.Configuration);
@@ -91,7 +92,7 @@ app.MapFantasyApi();
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
 {
-    app.UseScalar("EarthChat Auth Server");
+    app.UseScalar("LexiCraft Auth Server");
 }
 
 app.UseMiddleware<ExceptionMiddleware>();

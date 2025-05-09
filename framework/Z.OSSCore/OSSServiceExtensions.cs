@@ -18,7 +18,7 @@ namespace Z.OSSCore
         /// <param name="key">配置节点名称</param>
         /// <param name="oSSOptions">自定义配置操作</param>
         /// <returns>服务集合</returns>
-        public static IServiceCollection AddOSSService(this IServiceCollection services, string key = "App:SSOConfig", Action<OSSOptions> oSSOptions = null)
+        public static IServiceCollection AddOSSService(this IServiceCollection services, string key = "SSOConfig", Action<OSSOptions> oSSOptions = null)
         {
             using ServiceProvider provider = services.BuildServiceProvider();
             IConfiguration configuration = provider.GetRequiredService<IConfiguration>();

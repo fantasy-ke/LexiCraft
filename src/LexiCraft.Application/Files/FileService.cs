@@ -5,9 +5,9 @@ using LexiCraft.Domain;
 using LexiCraft.Domain.Files;
 using LexiCraft.Infrastructure.Contract;
 using LexiCraft.Infrastructure.Filters;
-using Mapster;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.StaticFiles;
 using Microsoft.Extensions.Logging;
 using ZAnalyzers.Core;
@@ -18,7 +18,7 @@ namespace LexiCraft.Application.Files;
 /// <summary>
 /// 文件服务实现
 /// </summary>
-[Route("/api/fileDeal")]
+[ZAnalyzers.Core.Attribute.Route("/api/fileDeal")]
 [Tags("File")]
 [Filter(typeof(ResultEndPointFilter))]
 public class FileService :FantasyApi, IFileService
@@ -465,6 +465,7 @@ public class FileService :FantasyApi, IFileService
     /// 直接获取文件（获取到文件流）
     /// </summary>
     [EndpointSummary("直接获取文件")]
+    [ActionName("GetFileDirectly")]
     public async Task<IResult> GetFileDirectlyAsync(string relativePath)
     {
         try
@@ -490,39 +491,3 @@ public class FileService :FantasyApi, IFileService
         }
     }
 }
-
-/// <summary>
-/// 表达式扩展方法
-/// </summary>
-public static class ExpressionExtensions
-{
-    public static Expression<Func<T, bool>> And<T>(this Expression<Func<T, bool>> expr1, Expression<Func<T, bool>> expr2)
-    {
-        var parameter = Expression.Parameter(typeof(T));
-        var leftVisitor = new ReplaceExpressionVisitor(expr1.Parameters[0], parameter);
-        var left = leftVisitor.Visit(expr1.Body);
-        var rightVisitor = new ReplaceExpressionVisitor(expr2.Parameters[0], parameter);
-        var right = rightVisitor.Visit(expr2.Body);
-        return Expression.Lambda<Func<T, bool>>(Expression.AndAlso(left, right), parameter);
-    }
-    
-    private class ReplaceExpressionVisitor : ExpressionVisitor
-    {
-        private readonly Expression _oldValue;
-        private readonly Expression _newValue;
-        
-        public ReplaceExpressionVisitor(Expression oldValue, Expression newValue)
-        {
-            _oldValue = oldValue;
-            _newValue = newValue;
-        }
-        
-        public override Expression Visit(Expression? node)
-        {
-            if (node == _oldValue)
-                return _newValue;
-                
-            return base.Visit(node)!;
-        }
-    }
-} 
