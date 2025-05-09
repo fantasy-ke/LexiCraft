@@ -5,6 +5,7 @@ using LexiCraft.Infrastructure.Extensions;
 using LexiCraft.Infrastructure.Middleware;
 using LexiCraft.Infrastructure.Serilog;
 using LexiCraft.Infrastructure.Shared;
+using Microsoft.Extensions.FileProviders;
 using Microsoft.OpenApi.Models;
 using Serilog;
 using Z.Local.EventBus;
@@ -83,12 +84,19 @@ app.UseSerilogRequestLogging(options =>
 
 app.MapDefaultEndpoints();
 
+var uploads = Path.Combine(builder.Environment.ContentRootPath, "uploads");
+if (!Directory.Exists(uploads)) Directory.CreateDirectory(uploads);
+app.UseStaticFiles(new StaticFileOptions()
+{
+    FileProvider = new PhysicalFileProvider(uploads),
+    RequestPath = new PathString("/uploads"),
+});
+
 app.UseCors("LexiCraft.Cors");
 
 // app.MapAuthEndpoint();
 
 app.MapFantasyApi();
-
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
 {

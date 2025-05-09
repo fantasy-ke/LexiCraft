@@ -42,7 +42,7 @@
             {
               "Name": "File",
               "Args": {
-                "path": "App_Data/Logs/Info.txt",
+                "path": "AppData/Logs/Info.txt",
                 "restrictedToMinimumLevel": "Information",//日志等级
                 "rollingInterval": "Day",
                 "rollOnFileSizeLimit": true, // 设置为 true，表示启用日志文件大小限制，当日志文件达到设定的大小后，会自动滚动到新的文件中。
@@ -55,7 +55,7 @@
             {
               "Name": "File",
               "Args": {
-                "path": "App_Data/Logs/Warn.txt",
+                "path": "AppData/Logs/Warn.txt",
                 "restrictedToMinimumLevel": "Warning",//日志等级
                 "rollingInterval": "Day",
                 "rollOnFileSizeLimit": true,
@@ -67,7 +67,7 @@
             {
               "Name": "File",
               "Args": {
-                "path": "App_Data/Logs/Error.txt",
+                "path": "AppData/Logs/Error.txt",
                 "restrictedToMinimumLevel": "Error",//日志等级
                 "rollingInterval": "Day",
                 "rollOnFileSizeLimit": true,

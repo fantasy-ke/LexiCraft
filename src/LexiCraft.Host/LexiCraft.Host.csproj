@@ -19,4 +19,8 @@
       <ProjectReference Include="..\LexiCraft.Infrastructure\LexiCraft.Infrastructure.csproj" />
     </ItemGroup>
 
+    <ItemGroup>
+      <Folder Include="uploads\" />
+    </ItemGroup>
+
 </Project>

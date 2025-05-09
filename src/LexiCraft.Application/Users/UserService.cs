@@ -52,7 +52,8 @@ public class UserService(
         }
 
         // 确保头像目录存在
-        var avatarDir = Path.Combine(hostEnvironment.ContentRootPath, "App_Data", "avatar");
+        var  appRootPath = Path.Combine("uploads", "avatar");
+        var avatarDir = Path.Combine(hostEnvironment.ContentRootPath, appRootPath);
         if (!Directory.Exists(avatarDir))
         {
             Directory.CreateDirectory(avatarDir);
@@ -62,8 +63,8 @@ public class UserService(
         var timestamp = DateTime.Now.ToString("yyyyMMddHHmmss");
         var fileExtension = Path.GetExtension(avatar.FileName);
         var fileName = $"{timestamp}_{userId}{fileExtension}";
-        var relativePath = Path.Combine("avatar", fileName);
-        var fullPath = Path.Combine(hostEnvironment.ContentRootPath, "App_Data", relativePath);
+        var relativePath = Path.Combine(appRootPath, fileName);
+        var fullPath = Path.Combine(hostEnvironment.ContentRootPath, relativePath);
 
         // 保存文件
         await using (var stream = new FileStream(fullPath, FileMode.Create))
