@@ -27,6 +27,7 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution 
 	ProjectSection(SolutionItems) = preProject
 		LICENSE = LICENSE
 		.gitignore = .gitignore
+		zversion.props = zversion.props
 	EndProjectSection
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Z.EventBus", "framework\Z.EventBus\Z.EventBus.csproj", "{3315920D-8401-4426-92C1-F33C80EFC10D}"

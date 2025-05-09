@@ -1,0 +1,12 @@
+<Project>
+
+    <PropertyGroup>
+        <ZAnalyzersVersion>0.1.2</ZAnalyzersVersion>
+        <LangVersion>latest</LangVersion>
+    </PropertyGroup>
+
+    <!-- 项目引入模式，src:源码  nuget:包 -->
+    <PropertyGroup>
+        <ZAnalyzersRefMode>nuget</ZAnalyzersRefMode>
+    </PropertyGroup>
+</Project>
