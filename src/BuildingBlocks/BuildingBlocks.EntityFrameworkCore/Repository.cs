@@ -1,9 +1,8 @@
 ﻿using System.Linq.Expressions;
 using BuildingBlocks.Domain;
-using LexiCraft.AuthServer.Domain;
 using Microsoft.EntityFrameworkCore;
 
-namespace LexiCraft.AuthServer.Infrastructure.EntityFrameworkCore;
+namespace BuildingBlocks.EntityFrameworkCore;
 
 /// <summary>
 /// 仓储基类

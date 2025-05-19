@@ -1,4 +1,5 @@
-﻿using Gnarly.Data;
+﻿using BuildingBlocks.EntityFrameworkCore;
+using Gnarly.Data;
 using LexiCraft.AuthServer.Domain.Repository;
 using LexiCraft.AuthServer.Domain.Users;
 

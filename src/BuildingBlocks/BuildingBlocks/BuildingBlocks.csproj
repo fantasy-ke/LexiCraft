@@ -19,14 +19,11 @@
         <PackageReference Include="Scalar.AspNetCore" Version="2.1.11" />
         <PackageReference Include="IdGen.DependencyInjection" Version="3.0.7" />
         <PackageReference Include="Microsoft.AspNetCore.OpenApi" Version="9.0.4" />
+        <PackageReference Include="Microsoft.EntityFrameworkCore" Version="9.0.4" />
     </ItemGroup>
 
     <ItemGroup>
       <ProjectReference Include="..\..\framework\Z.FreeRedis\Z.FreeRedis.csproj" />
-    </ItemGroup>
-
-    <ItemGroup>
-      <Folder Include="EntityFrameworkCore\" />
     </ItemGroup>
 
 </Project>

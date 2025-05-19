@@ -1,8 +1,7 @@
 ﻿using BuildingBlocks.Domain;
-using LexiCraft.AuthServer.Domain;
 using Microsoft.EntityFrameworkCore;
 
-namespace LexiCraft.AuthServer.Infrastructure.EntityFrameworkCore;
+namespace BuildingBlocks.EntityFrameworkCore;
 
 public class UnitOfWork<TDbContext>(TDbContext dbContext) : IUnitOfWork where TDbContext : DbContext
 {
