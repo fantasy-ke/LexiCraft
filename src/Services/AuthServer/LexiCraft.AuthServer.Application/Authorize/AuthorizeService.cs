@@ -60,26 +60,26 @@ public partial class AuthorizeService(
                             )));
         }
 
-        // if (request.CaptchaKey.IsNullEmpty() || request.CaptchaCode.IsNullEmpty())
-        // {
-        //     ThrowAuthLoginException.ThrowException(loginEventBus,JsonSerializer.Serialize(
-        //         GetLoginLogDto(httpContext!,new ExceptionLoginDto("请输入验证码","", "Register")
-        //                     )));
-        // }
-        //
-        // if (request.UserAccount.IsNullEmpty() || request.UserAccount.IsNullEmpty())
-        // {
-        //     ThrowAuthLoginException.ThrowException(loginEventBus,JsonSerializer.Serialize(
-        //         GetLoginLogDto(httpContext!,new ExceptionLoginDto("请输入账号和用户名","", "Register")
-        //                     )));
-        // }
-        //
-        // if (!captcha.Validate(request.CaptchaKey, request.CaptchaCode))
-        // {
-        //     ThrowAuthLoginException.ThrowException(loginEventBus,JsonSerializer.Serialize(
-        //         GetLoginLogDto(httpContext!,new ExceptionLoginDto("验证码校验错误","", "Register")
-        //                     )));
-        // }
+        if (request.CaptchaKey.IsNullEmpty() || request.CaptchaCode.IsNullEmpty())
+        {
+            ThrowAuthLoginException.ThrowException(loginEventBus,JsonSerializer.Serialize(
+                GetLoginLogDto(httpContext!,new ExceptionLoginDto("请输入验证码","", "Register")
+                            )));
+        }
+        
+        if (request.UserAccount.IsNullEmpty() || request.UserAccount.IsNullEmpty())
+        {
+            ThrowAuthLoginException.ThrowException(loginEventBus,JsonSerializer.Serialize(
+                GetLoginLogDto(httpContext!,new ExceptionLoginDto("请输入账号和用户名","", "Register")
+                            )));
+        }
+        
+        if (!captcha.Validate(request.CaptchaKey, request.CaptchaCode))
+        {
+            ThrowAuthLoginException.ThrowException(loginEventBus,JsonSerializer.Serialize(
+                GetLoginLogDto(httpContext!,new ExceptionLoginDto("验证码校验错误","", "Register")
+                            )));
+        }
 
         var any = await userRepository.AnyAsync(p=>p.UserAccount == request.UserAccount);
         if (any)
