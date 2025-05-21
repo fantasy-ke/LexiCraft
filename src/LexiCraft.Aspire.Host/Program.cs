@@ -7,4 +7,6 @@ builder.AddProject<Projects.LexiCraft_AuthServer_Api>("webapi")
     .WithReference(postgres)
     .WithReference(redis);
 
+builder.AddProject<Projects.LexiCraft_Files_Grpc>("fliesapi");
+
 builder.Build().Run();

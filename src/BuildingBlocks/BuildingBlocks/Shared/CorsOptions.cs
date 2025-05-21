@@ -4,5 +4,5 @@ public class CorsOptions
 {
     public string CorsName { get; set; }
 
-    public string[] CorsArr { get; set; }
+    public string?[] CorsArr { get; set; }
 }

@@ -136,18 +136,18 @@ public partial class AuthorizeService(
             )));
         }
 
-        if (input.CaptchaCode.IsNullEmpty())
-        {
-            ThrowAuthLoginException.ThrowException(loginEventBus,JsonSerializer.Serialize(
-                GetLoginLogDto(httpContext!,new ExceptionLoginDto("请输入验证码",input.UserAccount, "Password")
-            )));
-        }
-        if (!captcha.Validate(input.CaptchaKey, input.CaptchaCode))
-        {
-            ThrowAuthLoginException.ThrowException(loginEventBus,JsonSerializer.Serialize(
-                GetLoginLogDto(httpContext!,new ExceptionLoginDto("验证码错误!",input.UserAccount, "Password")
-            )));
-        }
+        // if (input.CaptchaCode.IsNullEmpty())
+        // {
+        //     ThrowAuthLoginException.ThrowException(loginEventBus,JsonSerializer.Serialize(
+        //         GetLoginLogDto(httpContext!,new ExceptionLoginDto("请输入验证码",input.UserAccount, "Password")
+        //     )));
+        // }
+        // if (!captcha.Validate(input.CaptchaKey, input.CaptchaCode))
+        // {
+        //     ThrowAuthLoginException.ThrowException(loginEventBus,JsonSerializer.Serialize(
+        //         GetLoginLogDto(httpContext!,new ExceptionLoginDto("验证码错误!",input.UserAccount, "Password")
+        //     )));
+        // }
 
         var user = await userRepository.QueryNoTracking<User>()
             .FirstOrDefaultAsync(x => x.UserAccount == input.UserAccount);

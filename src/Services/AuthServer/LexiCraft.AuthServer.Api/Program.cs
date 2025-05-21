@@ -67,6 +67,8 @@ builder.Services.AddLocalEventBus();
 
 builder.Services.AddCaptcha(builder.Configuration);
 
+builder.Services.AddGrpcService(builder.Configuration);
+
 builder.Services.WithMapster();
 
 builder.Services.WithIdGen();
@@ -85,14 +87,6 @@ app.UseSerilogRequestLogging(options =>
 });
 
 app.MapDefaultEndpoints();
-
-var uploads = Path.Combine(builder.Environment.ContentRootPath, "uploads");
-if (!Directory.Exists(uploads)) Directory.CreateDirectory(uploads);
-app.UseStaticFiles(new StaticFileOptions()
-{
-    FileProvider = new PhysicalFileProvider(uploads),
-    RequestPath = new PathString("/uploads"),
-});
 
 app.UseCors("LexiCraft.Cors");
 

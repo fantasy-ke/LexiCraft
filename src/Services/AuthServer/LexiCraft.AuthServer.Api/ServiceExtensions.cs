@@ -1,10 +1,12 @@
 ﻿using System.Text.Json;
 using System.Text.Json.Serialization;
+using BuildingBlocks.Grpc.Contracts.FileGrpc;
 using LexiCraf.AuthServer.Application.Contract.Events;
 using LexiCraft.AuthServer.Application.EventHandlers;
 using LexiCraft.AuthServer.Domain.Repository;
 using LexiCraft.AuthServer.Infrastructure.EntityFrameworkCore;
 using LexiCraft.AuthServer.Infrastructure.EntityFrameworkCore.Repository;
+using ProtoBuf.Grpc.ClientFactory;
 using Z.EventBus;
 
 namespace LexiCraft.AuthServer.Api;
@@ -21,6 +23,26 @@ public static class ServiceExtensions
                 options.JsonSerializerOptions.Converters.Add(new JsonStringEnumConverter());
                 options.JsonSerializerOptions.Converters.Add(new JsonStringEnumConverter(JsonNamingPolicy.CamelCase));
             });
+        return services;
+    }
+    
+    public static IServiceCollection AddGrpcService(this IServiceCollection services,  IConfiguration configuration)
+    {
+        //Grpc Services
+        services.AddCodeFirstGrpcClient<IFilesService>(options =>
+        {
+            options.Address = new Uri(configuration["GrpcSettings:FilesUrl"]!);
+        })
+        .ConfigurePrimaryHttpMessageHandler(() =>
+        {
+            var handler = new HttpClientHandler
+            {
+                ServerCertificateCustomValidationCallback =
+                    HttpClientHandler.DangerousAcceptAnyServerCertificateValidator
+            };
+
+            return handler;
+        });
         return services;
     }
     

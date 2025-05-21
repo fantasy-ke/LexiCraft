@@ -1,6 +1,7 @@
 ﻿using BuildingBlocks.Authentication.Contract;
 using BuildingBlocks.Domain;
 using BuildingBlocks.Filters;
+using BuildingBlocks.Grpc.Contracts.FileGrpc;
 using LexiCraf.AuthServer.Application.Contract.User;
 using LexiCraf.AuthServer.Application.Contract.User.Dto;
 using LexiCraf.AuthServer.Application.Contract.Users.Dto;
@@ -23,6 +24,7 @@ public class UserService(
     IRepository<User> userRepository, 
     IRepository<FileInfos> fileRepository, 
     IUserContext userContext,
+    IFilesService filesService,
     IUnitOfWork unitOfWork,
     IWebHostEnvironment hostEnvironment) : FantasyApi, IUserService
 {
@@ -51,72 +53,33 @@ public class UserService(
         {
             throw new Exception("用户不存在");
         }
-
-        // 确保头像目录存在
-        var  appRootPath = Path.Combine("uploads", "avatar");
-        var avatarDir = Path.Combine(hostEnvironment.ContentRootPath, appRootPath);
-        if (!Directory.Exists(avatarDir))
+        using var memoryStream = new MemoryStream();
+        await avatar.CopyToAsync(memoryStream);
+        var requestDto = new FileUploadRequestDto
         {
-            Directory.CreateDirectory(avatarDir);
-        }
-
-        // 为避免文件名冲突，在文件名前添加时间戳和用户ID
-        var timestamp = DateTime.Now.ToString("yyyyMMddHHmmss");
-        var fileExtension = Path.GetExtension(avatar.FileName);
-        var fileName = $"{timestamp}_{userId}{fileExtension}";
-        var relativePath = Path.Combine(appRootPath, fileName);
-        var fullPath = Path.Combine(hostEnvironment.ContentRootPath, relativePath);
-
-        // 保存文件
-        await using (var stream = new FileStream(fullPath, FileMode.Create))
-        {
-            await avatar.CopyToAsync(stream);
-        }
-
-        // 计算文件哈希
-        string? fileHash = null;
-        try
-        {
-            using var md5 = System.Security.Cryptography.MD5.Create();
-            await using var stream = new FileStream(fullPath, FileMode.Open, FileAccess.Read);
-            var hash = await md5.ComputeHashAsync(stream);
-            fileHash = BitConverter.ToString(hash).Replace("-", "").ToLowerInvariant();
-        }
-        catch (Exception ex)
-        {
-            // 忽略哈希计算错误
-        }
-
-        // 记录文件信息到FileInfos表
-        var fileInfo = new FileInfos
-        {
+            FileContent = memoryStream.ToArray(),
+            ParentId = null,
             FileName = avatar.FileName,
-            FilePath = relativePath,
-            FullPath = fullPath,
-            Extension = fileExtension.TrimStart('.'),
-            FileSize = avatar.Length,
             ContentType = avatar.ContentType,
-            IsDirectory = false,
-            FileHash = fileHash,
-            UploadTime = DateTime.Now,
-            LastAccessTime = DateTime.Now,
-            Description = $"用户 {userContext.UserName} 的头像"
+            FileSize = avatar.Length,
+            Description = $"用户 {userContext.UserName} 的头像",
+            Tags = null,
+            Directory = Path.Combine("uploads", "avatar")
         };
 
-        await fileRepository.InsertAsync(fileInfo);
+        var fileInfoDto = await filesService.UploadFileAsync(requestDto);
+
+       
 
         // 更新用户头像路径
         // 使用专门的文件API访问
-        var avatarUrl = $"/FileDirectly?relativePath={relativePath}";
+        var avatarUrl = $"/FileDirectly?relativePath={fileInfoDto.FilePath}";
         user.Avatar = avatarUrl;
-        await userRepository.UpdateAsync(user);
-        
-        await unitOfWork.SaveChangesAsync();
 
         return new AvatarUploadResultDto
         {
             AvatarUrl = avatarUrl,
-            FileId = fileInfo.Id
+            FileId = fileInfoDto.Id
         };
     }
 }
