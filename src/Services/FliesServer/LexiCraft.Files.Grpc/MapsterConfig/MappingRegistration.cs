@@ -1,8 +1,8 @@
-﻿using LexiCraf.AuthServer.Application.Contract.Files.Dtos;
-using LexiCraft.AuthServer.Domain.Files;
+﻿using BuildingBlocks.Grpc.Contracts.FileGrpc;
+using LexiCraft.Files.Grpc.Model;
 using Mapster;
 
-namespace LexiCraf.AuthServer.Application.Contract.MapsterConfig;
+namespace LexiCraft.Files.Grpc.MapsterConfig;
 
 public class MappingRegistration : IRegister
 {

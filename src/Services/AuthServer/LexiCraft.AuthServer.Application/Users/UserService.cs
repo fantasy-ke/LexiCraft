@@ -64,7 +64,7 @@ public class UserService(
             FileSize = avatar.Length,
             Description = $"用户 {userContext.UserName} 的头像",
             Tags = null,
-            Directory = Path.Combine("uploads", "avatar")
+            Directory = "avatar"
         };
 
         var fileInfoDto = await filesService.UploadFileAsync(requestDto);
