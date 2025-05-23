@@ -18,7 +18,7 @@ public class FilesService(
     IWebHostEnvironment hostEnvironment) : IFilesService
 {
     private readonly FileExtensionContentTypeProvider contentTypeProvider = new();
-    public async Task<FileInfoDto> UploadFileAsync(FileUploadRequestDto request, CallContext context = default)
+    public async Task<FileInfoDto> UploadFileAsync(FileUploadRequestDto request)
     {
         if (request.FileContent == null)
         {

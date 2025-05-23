@@ -8,6 +8,7 @@
     </PropertyGroup>
 
     <ItemGroup>
+        <PackageReference Include="Microsoft.AspNetCore.Grpc.HttpApi" Version="0.1.0-alpha.21317.5" />
         <PackageReference Include="Microsoft.AspNetCore.Grpc.Swagger" Version="0.9.5" />
         <PackageReference Include="Microsoft.EntityFrameworkCore.Sqlite" Version="9.0.4" />
         <PackageReference Include="Microsoft.EntityFrameworkCore.Tools" Version="9.0.4">
@@ -20,6 +21,7 @@
       <ProjectReference Include="..\..\..\BuildingBlocks\BuildingBlocks.EntityFrameworkCore\BuildingBlocks.EntityFrameworkCore.csproj" />
       <ProjectReference Include="..\..\..\BuildingBlocks\BuildingBlocks.Grpc.Contracts\BuildingBlocks.Grpc.Contracts.csproj" />
       <ProjectReference Include="..\..\..\BuildingBlocks\BuildingBlocks\BuildingBlocks.csproj" />
+      <ProjectReference Include="..\..\..\LexiCraft.Aspire.ServiceDefaults\LexiCraft.Aspire.ServiceDefaults.csproj" />
     </ItemGroup>
 
 </Project>

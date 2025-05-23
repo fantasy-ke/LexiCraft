@@ -1,6 +1,7 @@
 ﻿using System.Runtime.Serialization;
 using System.ServiceModel;
 using Microsoft.AspNetCore.Http;
+using ProtoBuf;
 using ProtoBuf.Grpc;
 
 namespace BuildingBlocks.Grpc.Contracts.FileGrpc;
@@ -267,8 +268,7 @@ public interface IFilesService
     /// <param name="context"></param>
     /// <returns></returns>
     [OperationContract]
-    Task<FileInfoDto> UploadFileAsync(FileUploadRequestDto request,
-        CallContext context = default);
+    Task<FileInfoDto> UploadFileAsync(FileUploadRequestDto request);
     
     /// <summary>
     /// 批量上传

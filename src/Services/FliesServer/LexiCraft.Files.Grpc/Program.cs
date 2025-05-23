@@ -1,15 +1,32 @@
 using BuildingBlocks.Extensions;
+using BuildingBlocks.Serilog;
 using LexiCraft.Files.Grpc.Data;
 using LexiCraft.Files.Grpc.Services;
 using Microsoft.Extensions.FileProviders;
 using Microsoft.OpenApi.Models;
 using ProtoBuf.Grpc.Server;
+using Serilog;
 
 var builder = WebApplication.CreateBuilder(args);
 
+var configuration = new ConfigurationBuilder()
+    .SetBasePath(AppContext.BaseDirectory)
+    .AddJsonFile(path: "serilog.json", optional: false, reloadOnChange: true)
+    .Build();
+
+Log.Logger = new LoggerConfiguration()
+    .ReadFrom.Configuration(configuration)
+    .CreateLogger();
+
+builder.AddServiceDefaults();
 // Add services to the container.
-builder.Services.AddGrpcSwagger();
-builder.Services.AddCodeFirstGrpc();
+// Learn more about configuring OpenAPI at https://aka.ms/aspnet/openapi
+builder.Host.UseSerilog();
+
+// Add services to the container.
+builder.Services.AddGrpcHttpApi()
+    .AddGrpcSwagger()
+    .AddCodeFirstGrpc();
 // builder.Services.WithScalar(new OpenApiInfo()
 // {
 //     Title = "词汇技艺 Files Api",
@@ -28,6 +45,13 @@ builder.Services.WithMapster();
 //     opts.UseSqlite(builder.Configuration.GetConnectionString("Database")));
 
 var app = builder.Build();
+
+app.UseSerilogRequestLogging(options =>
+{
+    options.MessageTemplate = SerilogRequestUtility.HttpMessageTemplate;
+    options.GetLevel = SerilogRequestUtility.GetRequestLevel;
+    options.EnrichDiagnosticContext = SerilogRequestUtility.EnrichFromRequest;
+});
 
 var uploads = Path.Combine(builder.Environment.ContentRootPath, "uploads");
 if (!Directory.Exists(uploads)) Directory.CreateDirectory(uploads);
