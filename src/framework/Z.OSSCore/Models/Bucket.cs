@@ -30,10 +30,7 @@ namespace Z.OSSCore
         /// </summary>
         public string CreationDate
         {
-            get
-            {
-                return _creationDate.ToString("yyyy-MM-dd HH:mm:ss");
-            }
+            get => _creationDate.ToString("yyyy-MM-dd HH:mm:ss");
             internal set
             {
                 if (DateTime.TryParse(value, out DateTime dt))

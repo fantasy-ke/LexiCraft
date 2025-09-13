@@ -12,5 +12,5 @@ public class GetObjectInput
     /// </summary>
     public string ObjectName { get; set; }
 
-    public CancellationToken CancellationToken { get; set; } = default;
+    public CancellationToken CancellationToken { get; set; } = CancellationToken.None;
 }

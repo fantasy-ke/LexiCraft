@@ -1,12 +1,12 @@
 ﻿namespace Z.Local.EventBus;
 
 [AttributeUsage(AttributeTargets.Class)]
-public class EventSchemeAttribute:Attribute
+public class EventSchemeAttribute(string eventName) : Attribute
 {
     /// <summary>
     /// 事件名称
     /// </summary>
-    public string? EventName { get; set; }
+    public string? EventName { get; set; } = eventName;
 
     /// <summary>
     ///   是否单读
@@ -22,10 +22,4 @@ public class EventSchemeAttribute:Attribute
     ///   是否允许同步 continuation
     /// </summary>
     public bool AllowSynchronousContinuations { get; set; } = true;
-
-    public EventSchemeAttribute(
-        string eventName)
-    {
-        EventName = eventName;
-    }
 }

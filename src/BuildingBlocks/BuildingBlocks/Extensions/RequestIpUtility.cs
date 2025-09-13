@@ -12,7 +12,7 @@ public static class RequestIpUtility
         if (string.IsNullOrWhiteSpace(ip))
             ip = SplitCsv(GetHeaderValueAs<string>(context, "X-Real-IP")).FirstOrDefault()!;
 
-        if (string.IsNullOrWhiteSpace(ip) && context.Connection?.RemoteIpAddress != null)
+        if (string.IsNullOrWhiteSpace(ip) && context.Connection.RemoteIpAddress != null)
             ip = context.Connection.RemoteIpAddress.ToString();
 
         if (string.IsNullOrWhiteSpace(ip))
@@ -23,13 +23,13 @@ public static class RequestIpUtility
 
     public static bool IsLocal(this HttpContext context)
     {
-        return context.GetRequestIp() is "127.0.0.1" or "::1" || context.Request?.IsLocal() == true;
+        return context.GetRequestIp() is "127.0.0.1" or "::1" || context.Request.IsLocal() == true;
     }
 
     
     public static string GetRequestProperty(this HttpContext context, string property)
     {
-        return context.Request.Headers[property].ToString();;
+        return context.Request.Headers[property].ToString();
     }
 
     private static bool IsLocal(this HttpRequest req)
@@ -46,7 +46,7 @@ public static class RequestIpUtility
 
     private static T GetHeaderValueAs<T>(HttpContext context, string headerName)
     {
-        if (!(context.Request?.Headers?.TryGetValue(headerName, out var values) ?? false)) return default;
+        if (!(context.Request.Headers?.TryGetValue(headerName, out var values) ?? false)) return default;
         string rawValues = values.ToString();
 
         if (!string.IsNullOrWhiteSpace(rawValues))
@@ -58,7 +58,7 @@ public static class RequestIpUtility
     private static List<string> SplitCsv(string csvList)
     {
         if (string.IsNullOrWhiteSpace(csvList))
-            return new List<string>();
+            return [];
 
         return csvList
             .TrimEnd(',')

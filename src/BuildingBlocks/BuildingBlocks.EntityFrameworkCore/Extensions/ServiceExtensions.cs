@@ -74,7 +74,7 @@ public static class ServiceExtensions
     }
 
     private static bool IsEntity(this Type type)
-        => type.IsClass && !type.IsGenericType && !type.IsAbstract && typeof(IEntity).IsAssignableFrom(type);
+        => type is { IsClass: true, IsGenericType: false, IsAbstract: false } && typeof(IEntity).IsAssignableFrom(type);
 
     private static void TryAddAddDefaultRepository(this IServiceCollection services, Type repositoryInterfaceType,
         Type repositoryImplementationType)

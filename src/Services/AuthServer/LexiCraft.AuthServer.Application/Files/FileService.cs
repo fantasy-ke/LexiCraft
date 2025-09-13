@@ -5,7 +5,6 @@ using BuildingBlocks.Extensions;
 using BuildingBlocks.Filters;
 using LexiCraf.AuthServer.Application.Contract.Files;
 using LexiCraf.AuthServer.Application.Contract.Files.Dtos;
-using LexiCraft.AuthServer.Domain;
 using LexiCraft.AuthServer.Domain.Files;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
@@ -23,29 +22,16 @@ namespace LexiCraft.AuthServer.Application.Files;
 [ZAnalyzers.Core.Attribute.Route("/api/fileDeal")]
 [Tags("File")]
 [Filter(typeof(ResultEndPointFilter))]
-public class FileService :FantasyApi, IFileService
+public class FileService(
+    IRepository<FileInfos> fileRepository,
+    IUnitOfWork unitOfWork,
+    IUserContext userContext,
+    IWebHostEnvironment hostEnvironment,
+    ILogger<FileService> logger)
+    : FantasyApi, IFileService
 {
-    private readonly IRepository<FileInfos> _fileRepository;
-    private readonly IUnitOfWork _unitOfWork;
-    private readonly IUserContext _userContext;
-    private readonly IWebHostEnvironment _hostEnvironment;
-    private readonly ILogger<FileService> _logger;
-    private readonly FileExtensionContentTypeProvider _contentTypeProvider;
-
-    public FileService(
-        IRepository<FileInfos> fileRepository,
-        IUnitOfWork unitOfWork,
-        IUserContext userContext,
-        IWebHostEnvironment hostEnvironment,
-        ILogger<FileService> logger)
-    {
-        _fileRepository = fileRepository;
-        _unitOfWork = unitOfWork;
-        _userContext = userContext;
-        _hostEnvironment = hostEnvironment;
-        _logger = logger;
-        _contentTypeProvider = new FileExtensionContentTypeProvider();
-    }
+    private readonly IUserContext _userContext = userContext;
+    private readonly FileExtensionContentTypeProvider _contentTypeProvider = new();
 
     /// <summary>
     /// 上传文件
@@ -61,7 +47,7 @@ public class FileService :FantasyApi, IFileService
         // 检查父目录是否存在
         if (request.ParentId.HasValue)
         {
-            var parentDir = await _fileRepository.FirstOrDefaultAsync(f => f.Id == request.ParentId);
+            var parentDir = await fileRepository.FirstOrDefaultAsync(f => f.Id == request.ParentId);
             if (parentDir == null)
             {
                 throw new Exception($"父目录不存在: {request.ParentId}");
@@ -74,7 +60,7 @@ public class FileService :FantasyApi, IFileService
         }
 
         // 获取上传路径，默认存放在App_Data目录
-        var appDataPath = Path.Combine(_hostEnvironment.ContentRootPath, "App_Data");
+        var appDataPath = Path.Combine(hostEnvironment.ContentRootPath, "App_Data");
         if (!Directory.Exists(appDataPath))
         {
             Directory.CreateDirectory(appDataPath);
@@ -88,8 +74,8 @@ public class FileService :FantasyApi, IFileService
         string relativePath;
         if (request.ParentId.HasValue)
         {
-            var parentDir = await _fileRepository.FirstOrDefaultAsync(f => f.Id == request.ParentId);
-            relativePath = Path.Combine(parentDir!.FilePath, fileName);
+            var parentDir = await fileRepository.FirstOrDefaultAsync(f => f.Id == request.ParentId);
+            relativePath = Path.Combine(parentDir.FilePath, fileName);
         }
         else
         {
@@ -122,7 +108,7 @@ public class FileService :FantasyApi, IFileService
         }
         catch (Exception ex)
         {
-            _logger.LogWarning(ex, "计算文件哈希值失败");
+            logger.LogWarning(ex, "计算文件哈希值失败");
         }
 
         // 创建文件信息实体
@@ -131,7 +117,7 @@ public class FileService :FantasyApi, IFileService
             FileName = request.File.FileName,
             FilePath = relativePath,
             FullPath = fullPath,
-            Extension = Path.GetExtension(request.File.FileName)?.TrimStart('.'),
+            Extension = Path.GetExtension(request.File.FileName).TrimStart('.'),
             FileSize = request.File.Length,
             ContentType = request.File.ContentType,
             IsDirectory = false,
@@ -144,8 +130,8 @@ public class FileService :FantasyApi, IFileService
         };
 
         // 保存到数据库
-        await _fileRepository.InsertAsync(fileInfo);
-        await _unitOfWork.SaveChangesAsync();
+        await fileRepository.InsertAsync(fileInfo);
+        await unitOfWork.SaveChangesAsync();
 
         return fileInfo.Adapt<FileInfoDto>();
     }
@@ -174,7 +160,7 @@ public class FileService :FantasyApi, IFileService
         // 检查父目录是否存在
         if (createFolderDto.ParentId.HasValue)
         {
-            var parentDir = await _fileRepository.FirstOrDefaultAsync(f => f.Id == createFolderDto.ParentId);
+            var parentDir = await fileRepository.FirstOrDefaultAsync(f => f.Id == createFolderDto.ParentId);
             if (parentDir == null)
             {
                 throw new Exception($"父目录不存在: {createFolderDto.ParentId}");
@@ -187,7 +173,7 @@ public class FileService :FantasyApi, IFileService
         }
 
         // 获取上传路径，默认存放在App_Data目录
-        var appDataPath = Path.Combine(_hostEnvironment.ContentRootPath, "App_Data");
+        var appDataPath = Path.Combine(hostEnvironment.ContentRootPath, "App_Data");
         if (!Directory.Exists(appDataPath))
         {
             Directory.CreateDirectory(appDataPath);
@@ -195,12 +181,11 @@ public class FileService :FantasyApi, IFileService
 
         // 创建相对路径，如果有父目录则放到对应目录下
         string relativePath;
-        string? parentPath = null;
-        
+
         if (createFolderDto.ParentId.HasValue)
         {
-            var parentDir = await _fileRepository.FirstOrDefaultAsync(f => f.Id == createFolderDto.ParentId);
-            parentPath = parentDir!.FilePath;
+            var parentDir = await fileRepository.FirstOrDefaultAsync(f => f.Id == createFolderDto.ParentId);
+            var parentPath = parentDir.FilePath;
             relativePath = Path.Combine(parentPath, createFolderDto.FolderName);
         }
         else
@@ -235,8 +220,8 @@ public class FileService :FantasyApi, IFileService
         };
 
         // 保存到数据库
-        await _fileRepository.InsertAsync(folderInfo);
-        await _unitOfWork.SaveChangesAsync();
+        await fileRepository.InsertAsync(folderInfo);
+        await unitOfWork.SaveChangesAsync();
 
         return folderInfo.Adapt<FileInfoDto>();
     }
@@ -247,7 +232,7 @@ public class FileService :FantasyApi, IFileService
     [EndpointSummary("获取文件信息")]
     public async Task<FileInfoDto> GetFileInfoAsync(Guid id)
     {
-        var fileInfo = await _fileRepository.FirstOrDefaultAsync(f => f.Id == id);
+        var fileInfo = await fileRepository.FirstOrDefaultAsync(f => f.Id == id);
         if (fileInfo == null)
         {
             throw new Exception($"文件不存在: {id}");
@@ -266,15 +251,9 @@ public class FileService :FantasyApi, IFileService
         Expression<Func<FileInfos, bool>> predicate = f => true;
 
         // 按目录查询
-        if (queryDto.DirectoryId.HasValue)
-        {
-            predicate = predicate.And(f => f.ParentId == queryDto.DirectoryId);
-        }
-        else
-        {
+        predicate = queryDto.DirectoryId.HasValue ? predicate.And(f => f.ParentId == queryDto.DirectoryId) :
             // 如果没有指定目录ID，则查询根目录下的文件
-            predicate = predicate.And(f => f.ParentId == null);
-        }
+            predicate.And(f => f.ParentId == null);
 
         // 按文件名查询
         if (!string.IsNullOrWhiteSpace(queryDto.FileName))
@@ -317,7 +296,7 @@ public class FileService :FantasyApi, IFileService
         }
 
         // 执行查询并分页
-        var result = await _fileRepository.GetPageListAsync(
+        var result = await fileRepository.GetPageListAsync(
             predicate,
             queryDto.PageIndex,
             queryDto.PageSize,
@@ -335,7 +314,7 @@ public class FileService :FantasyApi, IFileService
     [EndpointSummary("删除文件或文件夹")]
     public async Task<bool> DeleteAsync(Guid id)
     {
-        var fileInfo = await _fileRepository.FirstOrDefaultAsync(f => f.Id == id);
+        var fileInfo = await fileRepository.FirstOrDefaultAsync(f => f.Id == id);
         if (fileInfo == null)
         {
             throw new Exception($"文件不存在: {id}");
@@ -345,12 +324,12 @@ public class FileService :FantasyApi, IFileService
         if (fileInfo.IsDirectory)
         {
             // 获取所有子文件和子文件夹
-            var children = await _fileRepository.GetListAsync(f => f.ParentId == id);
+            var children = await fileRepository.GetListAsync(f => f.ParentId == id);
             
             // 递归删除所有子项
             foreach (var child in children)
             {
-                await DeleteAsync((Guid)child.Id!);
+                await DeleteAsync(child.Id);
             }
             
             // 删除物理文件夹
@@ -369,8 +348,8 @@ public class FileService :FantasyApi, IFileService
         }
 
         // 删除数据库中的记录
-        await _fileRepository.DeleteAsync(fileInfo);
-        await _unitOfWork.SaveChangesAsync();
+        await fileRepository.DeleteAsync(fileInfo);
+        await unitOfWork.SaveChangesAsync();
 
         return true;
     }
@@ -382,7 +361,7 @@ public class FileService :FantasyApi, IFileService
     public async Task<List<FileInfoDto>> GetDirectoryTreeAsync()
     {
         // 获取所有文件夹
-        var allDirectories = await _fileRepository.GetListAsync(f => f.IsDirectory);
+        var allDirectories = await fileRepository.GetListAsync(f => f.IsDirectory);
         
         // 创建根节点列表
         var rootDirectories = allDirectories.Where(d => d.ParentId == null).ToList();
@@ -407,7 +386,7 @@ public class FileService :FantasyApi, IFileService
             .Where(d => d.ParentId == parent.Id)
             .Adapt<List<FileInfoDto>>();
             
-        foreach (var child in parent.Children ?? new List<FileInfoDto>())
+        foreach (var child in parent.Children ?? [])
         {
             await BuildDirectoryTreeAsync(child, allDirectories);
         }
@@ -431,7 +410,7 @@ public class FileService :FantasyApi, IFileService
         }
         
         // 构建完整路径
-        var fullPath = Path.Combine(_hostEnvironment.ContentRootPath, "App_Data", relativePath);
+        var fullPath = Path.Combine(hostEnvironment.ContentRootPath, "App_Data", relativePath);
         
         // 检查文件是否存在
         if (!File.Exists(fullPath))
@@ -443,15 +422,12 @@ public class FileService :FantasyApi, IFileService
         var fileName = Path.GetFileName(fullPath);
         
         // 尝试从数据库中查找文件记录，更新访问时间和下载次数
-        var fileInfo = await _fileRepository.FirstOrDefaultAsync(f => f.FilePath == relativePath);
-        if (fileInfo != null)
-        {
-            fileInfo.LastAccessTime = DateTime.Now;
-            fileInfo.DownloadCount++;
-            await _fileRepository.UpdateAsync(fileInfo);
-            await _unitOfWork.SaveChangesAsync();
-        }
-        
+        var fileInfo = await fileRepository.FirstOrDefaultAsync(f => f.FilePath == relativePath);
+        fileInfo.LastAccessTime = DateTime.Now;
+        fileInfo.DownloadCount++;
+        await fileRepository.UpdateAsync(fileInfo);
+        await unitOfWork.SaveChangesAsync();
+
         // 使用FileExtensionContentTypeProvider获取MIME类型
         if (!_contentTypeProvider.TryGetContentType(fullPath, out var contentType))
         {
@@ -488,7 +464,7 @@ public class FileService :FantasyApi, IFileService
         }
         catch (Exception ex)
         {
-            _logger.LogError(ex, "获取文件时出错: {RelativePath}", relativePath);
+            logger.LogError(ex, "获取文件时出错: {RelativePath}", relativePath);
             return Results.Problem($"获取文件失败: {ex.Message}");
         }
     }

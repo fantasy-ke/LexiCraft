@@ -106,31 +106,29 @@ public class CacheManager : RedisCacheBaseService, ICacheManager
             return result;
         }
         string cacheKey = BuildKey(key);
-        using (var redisLock = _redisClient.Lock(cacheKey, 10))
+        using var redisLock = _redisClient.Lock(cacheKey, 10);
+        if (redisLock == null)
         {
-            if (redisLock == null)
-            {
-                throw new Exception("抢不到所");
-            }
-
-            Task<T> task = dataRetriever();
-            bool flag = !task.IsCompleted;
-            if (flag)
-            {
-                flag = await Task.WhenAny(task, Task.Delay(10)) != task;
-            }
-            //if (flag)
-            //{
-            //    throw new UserFriendlyException("任务执行错误");
-            //}
-            T item = await task;
-            if (item == null) { return result; }
-            await _redisClient.SetAsync(cacheKey, item.ToJson(), timeout.Seconds);
-
-            redisLock.Dispose();
-
-            result = item;
+            throw new Exception("抢不到所");
         }
+
+        Task<T> task = dataRetriever();
+        bool flag = !task.IsCompleted;
+        if (flag)
+        {
+            flag = await Task.WhenAny(task, Task.Delay(10)) != task;
+        }
+        //if (flag)
+        //{
+        //    throw new UserFriendlyException("任务执行错误");
+        //}
+        T item = await task;
+        if (item == null) { return result; }
+        await _redisClient.SetAsync(cacheKey, item.ToJson(), timeout.Seconds);
+
+        redisLock.Dispose();
+
+        result = item;
 
         return result;
     }

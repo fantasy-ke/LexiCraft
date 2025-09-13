@@ -1,6 +1,5 @@
 ﻿using System.Runtime.Serialization;
 using System.ServiceModel;
-using Microsoft.AspNetCore.Http;
 using ProtoBuf.Grpc;
 
 namespace BuildingBlocks.Grpc.Contracts.FileGrpc;

@@ -8,17 +8,11 @@ using Z.OSSCore.Services;
 
 namespace Z.OSSCore
 {
-    public class OSSServiceFactory<T> : IOSSServiceFactory<T>
+    public class OSSServiceFactory<T>(IOptions<OSSOptions> optionsMonitor, ICacheProvider provider)
+        : IOSSServiceFactory<T>
     {
-        private readonly OSSOptions _options;
-        private readonly ICacheProvider _cache;
-
-        public OSSServiceFactory(IOptions<OSSOptions> optionsMonitor
-            , ICacheProvider provider)
-        {
-            _options = optionsMonitor.Value ?? throw new ArgumentNullException();
-            _cache = provider ?? throw new ArgumentNullException(nameof(IMemoryCache));
-        }
+        private readonly OSSOptions _options = optionsMonitor.Value ?? throw new ArgumentNullException();
+        private readonly ICacheProvider _cache = provider ?? throw new ArgumentNullException(nameof(IMemoryCache));
 
         public IOSSService<T> Create()
         {

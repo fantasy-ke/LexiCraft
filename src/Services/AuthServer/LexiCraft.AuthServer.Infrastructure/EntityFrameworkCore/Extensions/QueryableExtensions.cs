@@ -40,7 +40,7 @@ public static class QueryableExtensions
     )
         where TQueryable : IQueryable<T>
     {
-        return !condition ? query : (TQueryable)query.Where<T>(predicate);
+        return !condition ? query : (TQueryable)query.Where(predicate);
     }
 
     public static IQueryable<T> WhereIf<T>(
@@ -59,7 +59,7 @@ public static class QueryableExtensions
     )
         where TQueryable : IQueryable<T>
     {
-        return !condition ? query : (TQueryable)query.Where<T>(predicate);
+        return !condition ? query : (TQueryable)query.Where(predicate);
     }
 
     public static IQueryable<T> Count<T>(this IQueryable<T> queryable, out long count)
@@ -70,7 +70,7 @@ public static class QueryableExtensions
     
     public static IQueryable<T> QueryNoTracking<T>(this IQueryable<T> queryable) where T : class
     {
-        return queryable.AsNoTracking<T>();
+        return queryable.AsNoTracking();
     }
 
     public static IQueryable<T> Page<T>(this IQueryable<T> queryable, int pageNumber, int pageSize)

@@ -75,7 +75,7 @@ public class User: AuditEntity<Guid,Guid?>
         Username = userAccount;
         UserAccount = userAccount;
         Email = email;
-        Roles = new List<string>();
+        Roles = [];
     }
 
     /// <summary>

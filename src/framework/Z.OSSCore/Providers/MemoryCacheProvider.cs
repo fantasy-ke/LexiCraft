@@ -6,16 +6,11 @@ namespace Z.OSSCore.Providers
     /// <summary>
     /// 默认实现的缓存提供
     /// </summary>
-    class MemoryCacheProvider : ICacheProvider
+    class MemoryCacheProvider(IMemoryCache cache) : ICacheProvider
     {
-        private readonly IMemoryCache _cache;
+        private readonly IMemoryCache _cache = cache ?? throw new ArgumentNullException(nameof(IMemoryCache));
 
-        public MemoryCacheProvider(IMemoryCache cache)
-        {
-            _cache = cache ?? throw new ArgumentNullException(nameof(IMemoryCache));
-        }
-
-        public T Get<T>(string key) where T : class
+        public T? Get<T>(string key) where T : class
         {
             return _cache.Get<T>(key);
         }

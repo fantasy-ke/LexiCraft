@@ -229,7 +229,7 @@ public partial class AuthorizeService(
             }
 
             var request = new HttpRequestMessage(HttpMethod.Get,
-                $"https://api.github.com/user")
+                "https://api.github.com/user")
             {
                 Headers =
                 {
@@ -263,7 +263,7 @@ public partial class AuthorizeService(
 
 
             var request = new HttpRequestMessage(HttpMethod.Get,
-                $"https://gitee.com/api/v5/user?access_token=" + result.AccessToken);
+                "https://gitee.com/api/v5/user?access_token=" + result.AccessToken);
 
             var responseMessage = await client.SendAsync(request);
 
@@ -276,40 +276,7 @@ public partial class AuthorizeService(
 
         User user;
 
-        if (oauth == null)
-        {
-            // 如果邮箱是空则随机生成
-            if (string.IsNullOrEmpty(userDto.Email))
-            {
-                userDto.Email = "oauth_" + userDto.Id + "@fantasyke.cn";
-            }
-
-
-            // 创建一个新的用户
-            user = new User((userDto?.Name ?? userDto?.Id.ToString()), userDto.Email);
-
-            user.SetPassword("Aa123456.");
-            user.Avatar = userDto.AvatarUrl ?? "🦜";
-            user.Roles.Add(RoleConstant.User);
-            user.UpdateLastLogin();
-            user.UpdateSource(soureceType);
-            oauth = new UserOAuth()
-            {
-                AccessToken = string.Empty,
-                Provider = type,
-                Id = Guid.NewGuid(),
-                UserId = user.Id,
-                ProviderUserId = userDto.Id.ToString(),
-                RefreshToken = string.Empty,
-                AccessTokenExpiresAt = DateTimeOffset.Now.AddDays(1),
-            };
-            user = await userRepository.InsertAsync(user);
-            await userOAuthRepository.InsertAsync(oauth);
-        }
-        else
-        {
-            user = await userRepository.FirstOrDefaultAsync(x => x.Id == oauth.UserId);
-        }
+        user = await userRepository.FirstOrDefaultAsync(x => x.Id == oauth.UserId);
 
 
         var userDit = new Dictionary<string, string>();
@@ -327,7 +294,7 @@ public partial class AuthorizeService(
     }
     
 
-    [GeneratedRegex(@"^(?=.*[0-9])(?=.*[a-zA-Z]).*$")]
+    [GeneratedRegex("^(?=.*[0-9])(?=.*[a-zA-Z]).*$")]
     private static partial Regex MyRegexPd();
     [GeneratedRegex(@"^[\w-]+(\.[\w-]+)*@[\w-]+(\.[\w-]+)+$")]
     private static partial Regex MyRegexEmail();

@@ -22,7 +22,7 @@ public class UploadObjectInput
     /// </summary>
     public Stream Stream { get; set; }
 
-    public CancellationToken CancellationToken { get; set; } = default;
+    public CancellationToken CancellationToken { get; set; } = CancellationToken.None;
 
     public UploadObjectInput() { }
 

@@ -14,7 +14,7 @@ namespace Z.OSSCore.Interface
         /// 根据Key从缓存中获取对象
         /// </summary>
         /// <param name="key"></param>
-        T Get<T>(string key) where T : class;
+        T? Get<T>(string key) where T : class;
 
         /// <summary>
         /// 缓存对象

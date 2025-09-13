@@ -1,5 +1,4 @@
 ﻿using LexiCraft.AuthServer.Domain;
-using LexiCraft.AuthServer.Domain.Files;
 using LexiCraft.AuthServer.Domain.LoginLogs;
 using LexiCraft.AuthServer.Domain.Users;
 using LexiCraft.AuthServer.Domain.Users.Enum;

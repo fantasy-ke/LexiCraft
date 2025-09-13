@@ -18,7 +18,7 @@ public class AuthorizeResultHandle(ILogger<IAuthorizationMiddlewareResultHandler
         //返回鉴权失败信息
         if (authorizeResult.Challenged)
         {
-            context!.Response.StatusCode = (int)HttpStatusCode.Unauthorized;
+            context.Response.StatusCode = (int)HttpStatusCode.Unauthorized;
             context.Response.ContentType = "application/json";
             var response = ResultDto.Fail("Authentication failed, token invalid", 401);
             await context.Response.WriteAsync(JsonSerializer.Serialize(response, options.Value.SerializerOptions));
@@ -32,7 +32,7 @@ public class AuthorizeResultHandle(ILogger<IAuthorizationMiddlewareResultHandler
             var reason = string.Join(",", authorizeResult.AuthorizationFailure?.FailureReasons.Select(p => p.Message) ?? []);
             logger.LogWarning($"Authorization failed  with reason: {reason}");
         
-            context!.Response.StatusCode = 599;
+            context.Response.StatusCode = 599;
             context.Response.ContentType = "application/json";
             var response =  ResultDto.Fail( reason, 599);
             await context.Response.WriteAsync(JsonSerializer.Serialize(response, options.Value.SerializerOptions));

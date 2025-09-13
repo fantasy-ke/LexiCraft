@@ -67,21 +67,8 @@ namespace Z.OSSCore
         /// </summary>
         public string Region
         {
-            get
-            {
-                return _region;
-            }
-            set
-            {
-                if (string.IsNullOrEmpty(value))
-                {
-                    _region = "us-east-1";
-                }
-                else
-                {
-                    _region = value;
-                }
-            }
+            get => _region;
+            set => _region = string.IsNullOrEmpty(value) ? "us-east-1" : value;
         }
 
         /// <summary>

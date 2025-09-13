@@ -1,6 +1,4 @@
-﻿using System.Threading.Tasks;
-
-namespace Z.EventBus;
+﻿namespace Z.EventBus;
 
 /// <summary>
 /// 请求处理者

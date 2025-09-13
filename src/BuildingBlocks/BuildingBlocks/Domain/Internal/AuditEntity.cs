@@ -26,9 +26,7 @@ public abstract class AuditEntity<TKey,TUserKey> : Entity<TKey>,
 
 
 
-public abstract class AuditEntity<TKey> : SimpleAuditEntity<TKey,Guid?>
-{
-}
+public abstract class AuditEntity<TKey> : SimpleAuditEntity<TKey,Guid?>;
 
 
 public abstract class SimpleAuditEntity<TKey,TUserKey> : Entity<TKey>,
@@ -47,6 +45,4 @@ public abstract class SimpleAuditEntity<TKey,TUserKey> : Entity<TKey>,
     public TUserKey? UpdateById { get; set; }
 }
 
-public abstract class SimpleAuditEntity<TKey> : SimpleAuditEntity<TKey,Guid?>
-{
-}
+public abstract class SimpleAuditEntity<TKey> : SimpleAuditEntity<TKey,Guid?>;

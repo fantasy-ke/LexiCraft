@@ -11,7 +11,7 @@ public static class SerilogRequestUtility
     public const string HttpMessageTemplate = "RequestIp:{RequestIp}  HTTP {RequestMethod} {RequestPath} QueryString:{QueryString} Body:{Body}  responded {StatusCode} in {Elapsed:0.0000} ms  LexiCraft";
 
 
-    public static LogEventLevel GetRequestLevel(HttpContext ctx, double _, Exception ex) =>
+    public static LogEventLevel GetRequestLevel(HttpContext ctx, double _, Exception? ex) =>
         ex is null && ctx.Response.StatusCode <= 499 ? IgnoreRequest(ctx) : LogEventLevel.Error;
 
 
@@ -71,7 +71,7 @@ public static class SerilogRequestUtility
             return null;
         }
 
-        var bodyStr = "";
+        string bodyStr;
         // 启用倒带功能，就可以让 Request.Body 可以再次读取
         request.Body.Seek(0, SeekOrigin.Begin);
         using (var reader

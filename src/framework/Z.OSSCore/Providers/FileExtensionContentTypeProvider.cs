@@ -7,10 +7,10 @@ namespace Z.OSSCore.Providers
     /// <summary>
     /// Given a file path, determine the MIME type. From Microsoft.AspNetCore.StaticFiles
     /// </summary>
-    internal class FileExtensionContentTypeProvider
+    internal class FileExtensionContentTypeProvider(IDictionary<string, string> mapping)
     {
 
-        public IDictionary<string, string> Mappings { get; private set; }
+        public IDictionary<string, string> Mappings { get; } = mapping ?? throw new ArgumentNullException("mapping");
 
 
         public FileExtensionContentTypeProvider()
@@ -396,16 +396,6 @@ namespace Z.OSSCore.Providers
                 { ".zip", "application/x-zip-compressed" }
             })
         {
-        }
-
-        public FileExtensionContentTypeProvider(IDictionary<string, string> mapping)
-        {
-            if (mapping == null)
-            {
-                throw new ArgumentNullException("mapping");
-            }
-
-            Mappings = mapping;
         }
 
         /// <summary>

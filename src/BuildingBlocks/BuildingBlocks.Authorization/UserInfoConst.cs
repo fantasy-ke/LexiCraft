@@ -8,7 +8,7 @@ public class UserInfoConst
     public const string UserId = "USER_ID";
       
     /// <summary>
-    /// claim type for user name
+    /// claim type for username
     /// </summary>
     public const string UserName = "USER_NAME";
     

@@ -3,14 +3,9 @@ using Microsoft.EntityFrameworkCore;
 
 namespace LexiCraft.Files.Grpc.Data;
 
-public class FilesDbContext : DbContext
+public class FilesDbContext(DbContextOptions<FilesDbContext> options) : DbContext(options)
 {
     public DbSet<FileInfos> FileInfos { get; set; } = null!;
-
-    public FilesDbContext(DbContextOptions<FilesDbContext> options)
-        : base(options)
-    {
-    }
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {

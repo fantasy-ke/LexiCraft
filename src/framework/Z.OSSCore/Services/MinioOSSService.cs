@@ -17,13 +17,10 @@ namespace Z.OSSCore.Services
 {
     public class MinioOssService : BaseOSSService, IMinioOssService
     {
-        private readonly MinioClient _client = null;
+        private readonly MinioClient _client;
         private readonly string _defaultPolicyVersion = "2012-10-17";
 
-        public MinioClient Context
-        {
-            get { return _client; }
-        }
+        public MinioClient Context => _client;
 
         public MinioOssService(ICacheProvider cache, OSSOptions options)
             : base(cache, options)
@@ -68,6 +65,7 @@ namespace Z.OSSCore.Services
         /// </summary>
         /// <param name="bucketName">存储桶名称。</param>
         /// <returns></returns>
+        [Obsolete("Obsolete")]
         public Task<List<ItemUploadInfo>> ListIncompleteUploads(string bucketName)
         {
             if (string.IsNullOrEmpty(bucketName))
@@ -80,9 +78,9 @@ namespace Z.OSSCore.Services
             IObservable<Upload> observable = _client.ListIncompleteUploads(args);
 
             bool isFinish = false;
-            List<ItemUploadInfo> result = new List<ItemUploadInfo>();
+            List<ItemUploadInfo> result = [];
 
-            IDisposable subscription = observable.Subscribe(
+            observable.Subscribe(
                 item =>
                 {
                     result.Add(new ItemUploadInfo()
@@ -138,17 +136,13 @@ namespace Z.OSSCore.Services
                     return new PolicyInfo()
                     {
                         Version = _defaultPolicyVersion,
-                        Statement = new List<StatementItem>()
+                        Statement = []
                     };
                 }
                 else
                 {
                     throw;
                 }
-            }
-            catch
-            {
-                throw;
             }
         }
 
@@ -170,19 +164,11 @@ namespace Z.OSSCore.Services
                 throw new ArgumentNullException(nameof(PolicyInfo));
             }
 
-            List<StatementItem> oldStatements = null;
             List<StatementItem> addStatements = statements;
-            List<StatementItem> tempStatements = new List<StatementItem>();
+            List<StatementItem> tempStatements = [];
             //获取原有的
             PolicyInfo info = await GetPolicyAsync(bucketName);
-            if (info.Statement == null)
-            {
-                info.Statement = new List<StatementItem>();
-            }
-            else
-            {
-                oldStatements = UnpackResource(info.Statement);
-            }
+            var oldStatements = UnpackResource(info.Statement);
 
             //解析要添加的条目，将包含多条Resource的条目解析为仅包含一条条目的数据
             statements = UnpackResource(statements);
@@ -205,19 +191,16 @@ namespace Z.OSSCore.Services
                     throw new Exception("Add statement resource can not null");
                 }
 
-                if (addItem.Principal == null || addItem.Principal.AWS == null || addItem.Principal.AWS.Count == 0)
+                if (addItem.Principal.AWS.Count == 0)
                 {
                     addItem.Principal = new Principal()
                     {
-                        AWS = new List<string>()
-                        {
-                            "*"
-                        }
+                        AWS = ["*"]
                     };
                 }
             }
 
-            if (oldStatements == null || oldStatements.Count == 0)
+            if (oldStatements.Count == 0)
             {
                 //没有Policy数据的情况，新建，修改或删除
                 foreach (var addItem in statements)
@@ -308,7 +291,7 @@ namespace Z.OSSCore.Services
             }
 
             PolicyInfo info = await GetPolicyAsync(bucketName);
-            if (info.Statement == null || info.Statement.Count == 0)
+            if (info.Statement.Count == 0)
             {
                 return false;
             }
@@ -420,7 +403,7 @@ namespace Z.OSSCore.Services
                 throw new Exception("List buckets failed, result obj is null");
             }
 
-            List<Bucket> result = new List<Bucket>();
+            List<Bucket> result = [];
             foreach (var item in list.Buckets)
             {
                 result.Add(new Bucket()
@@ -465,7 +448,7 @@ namespace Z.OSSCore.Services
                 throw new ArgumentNullException(nameof(bucketName));
             }
 
-            List<StatementItem> statementItems = new List<StatementItem>();
+            List<StatementItem> statementItems = [];
             switch (mode)
             {
                 case AccessMode.Private:
@@ -475,22 +458,19 @@ namespace Z.OSSCore.Services
                         Effect = "Deny",
                         Principal = new Principal()
                         {
-                            AWS = new List<string>()
-                            {
-                                "*"
-                            }
+                            AWS = ["*"]
                         },
-                        Action = new List<string>()
-                        {
+                        Action =
+                        [
                             "s3:DeleteObject",
                             "s3:GetObject",
                             "s3:ListBucket",
                             "s3:PutObject"
-                        },
-                        Resource = new List<string>()
-                        {
-                            "arn:aws:s3:::*",
-                        },
+                        ],
+                        Resource =
+                        [
+                            "arn:aws:s3:::*"
+                        ],
                         IsDelete = false
                     });
 
@@ -504,20 +484,17 @@ namespace Z.OSSCore.Services
                         Effect = "Allow",
                         Principal = new Principal()
                         {
-                            AWS = new List<string>()
-                            {
-                                "*"
-                            }
+                            AWS = ["*"]
                         },
-                        Action = new List<string>()
-                        {
+                        Action =
+                        [
                             "s3:GetObject",
                             "s3:ListBucket"
-                        },
-                        Resource = new List<string>()
-                        {
-                            "arn:aws:s3:::*",
-                        },
+                        ],
+                        Resource =
+                        [
+                            "arn:aws:s3:::*"
+                        ],
                         IsDelete = false
                     });
                     //禁止删除和修改
@@ -526,20 +503,17 @@ namespace Z.OSSCore.Services
                         Effect = "Deny",
                         Principal = new Principal()
                         {
-                            AWS = new List<string>()
-                            {
-                                "*"
-                            }
+                            AWS = ["*"]
                         },
-                        Action = new List<string>()
-                        {
+                        Action =
+                        [
                             "s3:DeleteObject",
                             "s3:PutObject"
-                        },
-                        Resource = new List<string>()
-                        {
-                            "arn:aws:s3:::*",
-                        },
+                        ],
+                        Resource =
+                        [
+                            "arn:aws:s3:::*"
+                        ],
                         IsDelete = false
                     });
                     return SetPolicyAsync(bucketName, statementItems);
@@ -551,22 +525,19 @@ namespace Z.OSSCore.Services
                         Effect = "Allow",
                         Principal = new Principal()
                         {
-                            AWS = new List<string>()
-                            {
-                                "*"
-                            }
+                            AWS = ["*"]
                         },
-                        Action = new List<string>()
-                        {
+                        Action =
+                        [
                             "s3:DeleteObject",
                             "s3:GetObject",
                             "s3:ListBucket",
                             "s3:PutObject"
-                        },
-                        Resource = new List<string>()
-                        {
-                            "arn:aws:s3:::*",
-                        },
+                        ],
+                        Resource =
+                        [
+                            "arn:aws:s3:::*"
+                        ],
                         IsDelete = false
                     });
                     return SetPolicyAsync(bucketName, statementItems);
@@ -581,24 +552,15 @@ namespace Z.OSSCore.Services
 
         public async Task<AccessMode> GetBucketAclAsync(string bucketName)
         {
-            bool FindAction(List<string> actions, string input)
+            bool FindAction(List<string>? actions, string input)
             {
-                if (actions != null && actions.Count > 0 &&
-                    actions.Exists(p => p.Equals(input, StringComparison.OrdinalIgnoreCase)))
-                {
-                    return true;
-                }
-
-                return false;
+                return actions is { Count: > 0 } &&
+                       actions.Exists(p => p.Equals(input, StringComparison.OrdinalIgnoreCase));
             }
 
             PolicyInfo info = await GetPolicyAsync(bucketName);
-            if (info == null)
-            {
-                return AccessMode.Default;
-            }
 
-            if (info.Statement == null || info.Statement.Count == 0)
+            if (info.Statement.Count == 0)
             {
                 return AccessMode.Private;
             }
@@ -614,7 +576,7 @@ namespace Z.OSSCore.Services
                     continue;
                 }
 
-                if (item.Action == null || item.Action.Count == 0)
+                if (item.Action.Count == 0)
                 {
                     continue;
                 }
@@ -676,20 +638,17 @@ namespace Z.OSSCore.Services
             objectName = FormatObjectName(objectName);
             try
             {
-                var result = await GetObjectMetadataAsync(bucketName, objectName);
-                return result != null;
+                await GetObjectMetadataAsync(bucketName, objectName);
+                return true;
             }
             catch (ObjectNotFoundException)
             {
                 return false;
             }
-            catch (Exception)
-            {
-                throw;
-            }
         }
 
-        public Task<List<Item>> ListObjectsAsync(string bucketName, string prefix = null)
+        [Obsolete("Obsolete")]
+        public Task<List<Item>> ListObjectsAsync(string bucketName, string? prefix = null)
         {
             if (string.IsNullOrEmpty(bucketName))
             {
@@ -701,10 +660,10 @@ namespace Z.OSSCore.Services
                     .WithBucket(bucketName)
                     .WithPrefix(prefix)
                     .WithRecursive(true));
-            List<Item> result = new List<Item>();
+            List<Item> result = [];
             bool isFinish = false;
 
-            IDisposable subscription = observable.Subscribe(
+            observable.Subscribe(
                 item =>
                 {
                     result.Add(new Item()
@@ -718,7 +677,7 @@ namespace Z.OSSCore.Services
                         LastModifiedDateTime = item.LastModifiedDateTime
                     });
                 },
-                ex => { isFinish = true; },
+                _ => { isFinish = true; },
                 () => { isFinish = true; });
 
             while (!isFinish)
@@ -741,7 +700,7 @@ namespace Z.OSSCore.Services
             GetObjectArgs args = new GetObjectArgs()
                 .WithBucket(bucketName)
                 .WithObject(objectName)
-                .WithCallbackStream((stream) => { callback(stream); });
+                .WithCallbackStream(callback);
             _ = await _client.GetObjectAsync(args, cancellationToken);
         }
 
@@ -754,7 +713,7 @@ namespace Z.OSSCore.Services
             }
 
             string fullPath = Path.GetFullPath(fileName);
-            string parentPath = Path.GetDirectoryName(fullPath);
+            string? parentPath = Path.GetDirectoryName(fullPath);
             if (!string.IsNullOrEmpty(parentPath) && !Directory.Exists(parentPath))
             {
                 Directory.CreateDirectory(parentPath);
@@ -766,12 +725,10 @@ namespace Z.OSSCore.Services
                 .WithObject(objectName)
                 .WithCallbackStream((stream) =>
                 {
-                    using (FileStream fs = new FileStream(fullPath, FileMode.Create, FileAccess.Write))
-                    {
-                        stream.CopyTo(fs);
-                        stream.Dispose();
-                        fs.Close();
-                    }
+                    using FileStream fs = new FileStream(fullPath, FileMode.Create, FileAccess.Write);
+                    stream.CopyTo(fs);
+                    stream.Dispose();
+                    fs.Close();
                 });
             _ = await _client.GetObjectAsync(args, cancellationToken);
         }
@@ -798,14 +755,17 @@ namespace Z.OSSCore.Services
                 .WithCallbackStream((stream) =>
                 {
                     //stream.CopyTo(Console.OpenStandardOutput());
-                    if (stream is null)
+                    if (stream is not null)
                     {
-                        throw new ArgumentNullException("Minio文件对象流为空");
+                        stream.CopyTo(objStream);
+                        objStream.Position = 0;
+                    }
+                    else
+                    {
+                        throw new ArgumentNullException($"Minio文件对象流为空{JsonUtil.SerializeObject(input)}");
                     }
 
                     //stream.CopyTo(objStream);
-                    stream.CopyTo(objStream);
-                    objStream.Position = 0;
                 });
             objStream.Position = 0;
 
@@ -869,8 +829,7 @@ namespace Z.OSSCore.Services
             }
 
             string fileName = Path.GetFileName(filePath);
-            string contentType = null;
-            if (!new FileExtensionContentTypeProvider().TryGetContentType(fileName, out contentType))
+            if (!new FileExtensionContentTypeProvider().TryGetContentType(fileName, out var contentType))
             {
                 contentType = "application/octet-stream";
             }
@@ -903,14 +862,14 @@ namespace Z.OSSCore.Services
                 .WithStreamData(input.Stream)
                 .WithContentType(input.ContentType)
                 .WithObjectSize(input.Stream.Length);
-            var c = await _client.PutObjectAsync(args);
+            await _client.PutObjectAsync(args);
             return true;
         }
 
         public async Task<ItemMeta> GetObjectMetadataAsync(string bucketName
             , string objectName
-            , string versionID = null
-            , string matchEtag = null
+            , string? versionId = null
+            , string? matchEtag = null
             , DateTime? modifiedSince = null)
         {
             if (string.IsNullOrEmpty(bucketName))
@@ -922,7 +881,7 @@ namespace Z.OSSCore.Services
             StatObjectArgs args = new StatObjectArgs()
                 .WithBucket(bucketName)
                 .WithObject(objectName)
-                .WithVersionId(versionID)
+                .WithVersionId(versionId)
                 .WithMatchETag(matchEtag);
             if (modifiedSince.HasValue)
             {
@@ -943,8 +902,8 @@ namespace Z.OSSCore.Services
             };
         }
 
-        public async Task<bool> CopyObjectAsync(string bucketName, string objectName, string destBucketName = null,
-            string destObjectName = null)
+        public async Task<bool> CopyObjectAsync(string bucketName, string objectName, string? destBucketName = null,
+            string? destObjectName = null)
         {
             if (string.IsNullOrEmpty(bucketName))
             {
@@ -957,15 +916,19 @@ namespace Z.OSSCore.Services
                 destBucketName = bucketName;
             }
 
-            destObjectName = FormatObjectName(destObjectName);
-            CopySourceObjectArgs cpSrcArgs = new CopySourceObjectArgs()
-                .WithBucket(bucketName)
-                .WithObject(objectName);
-            CopyObjectArgs args = new CopyObjectArgs()
-                .WithBucket(destBucketName)
-                .WithObject(destObjectName)
-                .WithCopyObjectSource(cpSrcArgs);
-            await _client.CopyObjectAsync(args);
+            if (destObjectName != null)
+            {
+                destObjectName = FormatObjectName(destObjectName);
+                CopySourceObjectArgs cpSrcArgs = new CopySourceObjectArgs()
+                    .WithBucket(bucketName)
+                    .WithObject(objectName);
+                CopyObjectArgs args = new CopyObjectArgs()
+                    .WithBucket(destBucketName)
+                    .WithObject(destObjectName)
+                    .WithCopyObjectSource(cpSrcArgs);
+                await _client.CopyObjectAsync(args);
+            }
+
             return true;
         }
 
@@ -996,7 +959,7 @@ namespace Z.OSSCore.Services
                 throw new ArgumentNullException(nameof(objectNames));
             }
 
-            List<string> delObjects = new List<string>();
+            List<string> delObjects = [];
             foreach (var item in objectNames)
             {
                 delObjects.Add(FormatObjectName(item));
@@ -1006,7 +969,7 @@ namespace Z.OSSCore.Services
                 .WithBucket(bucketName)
                 .WithObjects(delObjects);
             var deleteErrors  = await _client.RemoveObjectsAsync(args);
-            List<string> removeFailed = new List<string>();
+            List<string> removeFailed = [];
             foreach (var err in deleteErrors)
             {
                 removeFailed.Add(err.Key);
@@ -1071,12 +1034,12 @@ namespace Z.OSSCore.Services
                 , objectName
                 , expiresInt
                 , PresignedObjectType.Put
-                , async (bucketName, objectName, expiresInt) =>
+                , async (bucket, objectName, expiresInt) =>
                 {
                     objectName = FormatObjectName(objectName);
                     //生成URL
                     PresignedPutObjectArgs args = new PresignedPutObjectArgs()
-                        .WithBucket(bucketName)
+                        .WithBucket(bucket)
                         .WithObject(objectName)
                         .WithExpiry(expiresInt);
                     return await _client.PresignedPutObjectAsync(args);
@@ -1118,7 +1081,7 @@ namespace Z.OSSCore.Services
                 objectName = $"{bucketName}/{objectName}";
             }
 
-            List<StatementItem> statementItems = new List<StatementItem>();
+            List<StatementItem> statementItems = [];
             switch (mode)
             {
                 case AccessMode.Private:
@@ -1128,21 +1091,18 @@ namespace Z.OSSCore.Services
                         Effect = "Deny",
                         Principal = new Principal()
                         {
-                            AWS = new List<string>()
-                            {
-                                "*"
-                            }
+                            AWS = ["*"]
                         },
-                        Action = new List<string>()
-                        {
+                        Action =
+                        [
                             "s3:DeleteObject",
                             "s3:GetObject",
                             "s3:PutObject"
-                        },
-                        Resource = new List<string>()
-                        {
-                            $"arn:aws:s3:::{objectName}",
-                        },
+                        ],
+                        Resource =
+                        [
+                            $"arn:aws:s3:::{objectName}"
+                        ],
                         IsDelete = false
                     });
                     return SetPolicyAsync(bucketName, statementItems);
@@ -1155,19 +1115,13 @@ namespace Z.OSSCore.Services
                         Effect = "Allow",
                         Principal = new Principal()
                         {
-                            AWS = new List<string>()
-                            {
-                                "*"
-                            }
+                            AWS = ["*"]
                         },
-                        Action = new List<string>()
-                        {
-                            "s3:GetObject"
-                        },
-                        Resource = new List<string>()
-                        {
-                            $"arn:aws:s3:::{objectName}",
-                        },
+                        Action = ["s3:GetObject"],
+                        Resource =
+                        [
+                            $"arn:aws:s3:::{objectName}"
+                        ],
                         IsDelete = false
                     });
                     //禁止删除和修改
@@ -1176,20 +1130,17 @@ namespace Z.OSSCore.Services
                         Effect = "Deny",
                         Principal = new Principal()
                         {
-                            AWS = new List<string>()
-                            {
-                                "*"
-                            }
+                            AWS = ["*"]
                         },
-                        Action = new List<string>()
-                        {
+                        Action =
+                        [
                             "s3:DeleteObject",
                             "s3:PutObject"
-                        },
-                        Resource = new List<string>()
-                        {
-                            $"arn:aws:s3:::{objectName}",
-                        },
+                        ],
+                        Resource =
+                        [
+                            $"arn:aws:s3:::{objectName}"
+                        ],
                         IsDelete = false
                     });
                     return SetPolicyAsync(bucketName, statementItems);
@@ -1201,21 +1152,18 @@ namespace Z.OSSCore.Services
                         Effect = "Allow",
                         Principal = new Principal()
                         {
-                            AWS = new List<string>()
-                            {
-                                "*"
-                            }
+                            AWS = ["*"]
                         },
-                        Action = new List<string>()
-                        {
+                        Action =
+                        [
                             "s3:DeleteObject",
                             "s3:GetObject",
                             "s3:PutObject"
-                        },
-                        Resource = new List<string>()
-                        {
-                            $"arn:aws:s3:::{objectName}",
-                        },
+                        ],
+                        Resource =
+                        [
+                            $"arn:aws:s3:::{objectName}"
+                        ],
                         IsDelete = false
                     });
                     return SetPolicyAsync(bucketName, statementItems);
@@ -1230,9 +1178,9 @@ namespace Z.OSSCore.Services
 
         public async Task<AccessMode> GetObjectAclAsync(OperateObjectInput input)
         {
-            bool FindAction(List<string> actions, string input)
+            bool FindAction(List<string>? actions, string input)
             {
-                if (actions != null && actions.Count > 0 &&
+                if (actions is { Count: > 0 } &&
                     actions.Exists(p => p.Equals(input, StringComparison.OrdinalIgnoreCase)))
                 {
                     return true;
@@ -1255,15 +1203,15 @@ namespace Z.OSSCore.Services
             //获取存储桶默认权限
             AccessMode bucketMode = await GetBucketAclAsync(input.BucketName);
             PolicyInfo info = await GetPolicyAsync(input.BucketName);
-            if (info == null || info.Statement == null || info.Statement.Count == 0)
+            if (info.Statement.Count == 0)
             {
                 return bucketMode;
             }
 
             List<StatementItem> statements = UnpackResource(info.Statement);
 
-            bool isPublicRead = false;
-            bool isPublicWrite = false;
+            bool isPublicRead;
+            bool isPublicWrite;
             switch (bucketMode)
             {
                 case AccessMode.PublicRead:
@@ -1296,7 +1244,7 @@ namespace Z.OSSCore.Services
                     continue;
                 }
 
-                if (item.Action == null || item.Action.Count == 0)
+                if (item.Action.Count == 0)
                 {
                     continue;
                 }
@@ -1370,7 +1318,7 @@ namespace Z.OSSCore.Services
             }
 
             PolicyInfo info = await GetPolicyAsync(input.BucketName);
-            if (info == null || info.Statement == null || info.Statement.Count == 0)
+            if (info.Statement.Count == 0)
             {
                 return await GetObjectAclAsync(input);
             }
@@ -1400,9 +1348,9 @@ namespace Z.OSSCore.Services
 
         #region private
 
-        private List<StatementItem> UnpackResource(List<StatementItem> source)
+        private List<StatementItem> UnpackResource(List<StatementItem>? source)
         {
-            List<StatementItem> dest = new List<StatementItem>();
+            List<StatementItem> dest = [];
             if (source == null || source.Count == 0)
             {
                 return dest;
@@ -1410,31 +1358,26 @@ namespace Z.OSSCore.Services
 
             foreach (var item in source)
             {
-                if (item.Resource == null || item.Resource.Count == 0)
+                switch (item.Resource.Count)
                 {
-                    continue;
-                }
-                else if (item.Resource.Count > 0)
-                {
-                    foreach (var resourceItem in item.Resource)
+                    case 0:
+                        break;
+                    case > 0:
                     {
-                        StatementItem newItem = new StatementItem()
+                        dest.AddRange(item.Resource.Select(resourceItem => new StatementItem()
                         {
                             Effect = item.Effect,
                             Principal = item.Principal,
                             Action = item.Action,
-                            Resource = new List<string>()
-                            {
-                                resourceItem
-                            },
+                            Resource = [resourceItem],
                             IsDelete = item.IsDelete
-                        };
-                        dest.Add(newItem);
+                        }));
+
+                        break;
                     }
-                }
-                else
-                {
-                    dest.Add(item);
+                    default:
+                        dest.Add(item);
+                        break;
                 }
             }
 

@@ -1,6 +1,5 @@
 ﻿using BuildingBlocks.EntityFrameworkCore.Extensions;
 using BuildingBlocks.EntityFrameworkCore.Interceptors;
-using BuildingBlocks.Shared;
 using LexiCraft.Files.Grpc.Data;
 using Microsoft.EntityFrameworkCore;
 

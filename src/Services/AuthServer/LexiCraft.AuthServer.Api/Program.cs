@@ -6,7 +6,6 @@ using BuildingBlocks.Serilog;
 using BuildingBlocks.Shared;
 using LexiCraft.AuthServer.Api;
 using LexiCraft.AuthServer.Infrastructure.EntityFrameworkCore.Extensions;
-using Microsoft.Extensions.FileProviders;
 using Microsoft.OpenApi.Models;
 using Serilog;
 using Z.Local.EventBus;
@@ -51,6 +50,7 @@ builder.Services.AddExceptionHandler<CustomExceptionHandler>();
 
 builder.Services.RegisterAuthorization();
 builder.Services.AddAuthorization();
+
 
 builder.Services.ServicesCors(options =>
 {
@@ -98,7 +98,7 @@ if (app.Environment.IsDevelopment())
 {
     app.UseScalar("LexiCraft Auth Server");
 }
-app.UseExceptionHandler(options => { });
+app.UseExceptionHandler(_ => { });
 // app.UseMiddleware<ExceptionMiddleware>();
 // app.UseMiddleware<LoginExceptionMiddleware>();
 

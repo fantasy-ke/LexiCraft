@@ -1,9 +1,7 @@
 ﻿using System.Linq.Expressions;
 using System.Reflection;
-using BuildingBlocks.Authentication.Contract;
 using BuildingBlocks.Domain.Internal;
 using BuildingBlocks.Shared;
-using IdGen;
 using LexiCraft.AuthServer.Domain.Files;
 using LexiCraft.AuthServer.Domain.LoginLogs;
 using LexiCraft.AuthServer.Domain.Users;

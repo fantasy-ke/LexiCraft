@@ -13,6 +13,4 @@ public class Entity<TKey> : IEntity<TKey>
 /// <summary>
 /// 万物实体的接口
 /// </summary>
-public interface IEntity
-{
-}
+public interface IEntity;

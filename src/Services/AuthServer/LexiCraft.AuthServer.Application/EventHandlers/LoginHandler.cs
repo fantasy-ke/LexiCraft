@@ -1,7 +1,5 @@
 ﻿using BuildingBlocks.Domain;
-using Gnarly.Data;
 using LexiCraf.AuthServer.Application.Contract.Events;
-using LexiCraft.AuthServer.Domain;
 using LexiCraft.AuthServer.Domain.LoginLogs;
 using MapsterMapper;
 using Z.EventBus;

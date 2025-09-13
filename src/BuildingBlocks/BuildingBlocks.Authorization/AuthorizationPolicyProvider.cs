@@ -3,7 +3,8 @@ using Microsoft.AspNetCore.Authorization;
 
 namespace BuildingBlocks.Authentication;
 
-public class AuthorizationPolicyProvider(IAuthenticationSchemeProvider authenticationSchemeProvider):IAuthorizationPolicyProvider
+public class AuthorizationPolicyProvider(IAuthenticationSchemeProvider authenticationSchemeProvider)
+    : IAuthorizationPolicyProvider
 {
     /// <summary>
     /// 返回给定名称的授权策略
@@ -67,7 +68,7 @@ public class AuthorizationPolicyProvider(IAuthenticationSchemeProvider authentic
         }
     }
 
-    private async Task SetScheme(AuthorizationPolicyBuilder policyBuilder,string policyName = null)
+    private async Task SetScheme(AuthorizationPolicyBuilder policyBuilder, string policyName = null)
     {
         var schemes = await authenticationSchemeProvider.GetAllSchemesAsync();
 

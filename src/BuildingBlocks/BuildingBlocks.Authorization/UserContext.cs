@@ -72,7 +72,7 @@ public class UserContext(IHttpContextAccessor httpContextAccessor): IUserContext
             Type underlyingType = targetType;
             if (targetType.IsGenericType && targetType.GetGenericTypeDefinition() == typeof(Nullable<>))
             {
-                targetType = Nullable.GetUnderlyingType(targetType);
+                Nullable.GetUnderlyingType(targetType);
             }
             // 如果原始值为空且目标类型可空，返回 null
             if (string.IsNullOrEmpty(claimValue) && isNullable)

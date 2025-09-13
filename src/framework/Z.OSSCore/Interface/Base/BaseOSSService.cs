@@ -6,7 +6,7 @@ namespace Z.OSSCore.Interface.Base
     public abstract class BaseOSSService(ICacheProvider cache, OSSOptions options)
     {
         private readonly ICacheProvider _cache = cache ?? throw new ArgumentNullException(nameof(cache));
-        public OSSOptions Options { get; private set; } = options ?? throw new ArgumentNullException(nameof(options));
+        public OSSOptions Options { get; } = options ?? throw new ArgumentNullException(nameof(options));
 
         public virtual Task RemovePresignedUrlCache(OperateObjectInput input)
         {

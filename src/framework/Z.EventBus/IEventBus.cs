@@ -1,7 +1,4 @@
-﻿using System;
-using System.Threading.Tasks;
-
-namespace Z.EventBus;
+﻿namespace Z.EventBus;
 
 /// <summary>
 /// EventBus 接口

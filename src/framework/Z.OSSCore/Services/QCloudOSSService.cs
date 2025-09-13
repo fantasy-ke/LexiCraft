@@ -19,13 +19,7 @@ namespace Z.OSSCore.Services
     public class QCloudOssService : BaseOSSService, IQCloudOSSService
     {
         private readonly CosXml _client = null;
-        public CosXml Context
-        {
-            get
-            {
-                return this._client;
-            }
-        }
+        public CosXml Context => this._client;
 
         public QCloudOssService(ICacheProvider cache, OSSOptions options) 
             : base(cache, options)
@@ -113,7 +107,7 @@ namespace Z.OSSCore.Services
             }
             //得到所有的 buckets
             List<ListAllMyBuckets.Bucket> allBuckets = result.listAllMyBuckets.buckets;
-            List<Bucket> buckets = new List<Bucket>();
+            List<Bucket> buckets = [];
             foreach (var item in allBuckets)
             {
                 buckets.Add(new Bucket()
@@ -182,10 +176,7 @@ namespace Z.OSSCore.Services
 
             bool isPublicRead = false;
             bool isPublicWrite = false;
-            if (acl != null
-                && acl.accessControlList != null
-                && acl.accessControlList.grants != null
-                && acl.accessControlList.grants.Count > 0)
+            if (acl is { accessControlList.grants.Count: > 0 })
             {
                 foreach (var item in acl.accessControlList.grants)
                 {
@@ -273,7 +264,7 @@ namespace Z.OSSCore.Services
             bucketName = ConvertBucketName(bucketName);
             ListBucket info = null;
             string nextMarker = null;
-            List<Item> items = new List<Item>();
+            List<Item> items = [];
             do
             {
                 GetBucketRequest request = new GetBucketRequest(bucketName);
@@ -331,7 +322,7 @@ namespace Z.OSSCore.Services
                 GetObjectBytesResult result = _client.GetObject(request);
                 //获取内容
                 byte[] content = result.content;
-                if (content != null && content.Length > 0)
+                if (content is { Length: > 0 })
                 {
                     MemoryStream ms = new MemoryStream(content);
                     callback(ms);
@@ -390,7 +381,7 @@ namespace Z.OSSCore.Services
             GetObjectBytesResult result = _client.GetObject(request);
             byte[] content = result.content;
             MemoryStream memoryStream = null;
-            if (content != null && content.Length > 0)
+            if (content is { Length: > 0 })
             {
                 memoryStream = new MemoryStream(content);
             }
@@ -444,7 +435,7 @@ namespace Z.OSSCore.Services
                 }
                 long position = stream.Position;
                 byte[] bytes = new byte[length];
-                stream.Read(bytes, (int)stream.Position, (int)length);
+                stream.ReadExactly(bytes, (int)stream.Position, (int)length);
                 stream.Position = position;
                 return bytes;
             }
@@ -514,7 +505,8 @@ namespace Z.OSSCore.Services
             return Task.FromResult(result.IsSuccessful());
         }
 
-        public Task<ItemMeta> GetObjectMetadataAsync(string bucketName, string objectName, string versionID = null, string matchEtag = null, DateTime? modifiedSince = null)
+        public Task<ItemMeta> GetObjectMetadataAsync(string bucketName, string objectName, string? versionId = null,
+            string matchEtag = null, DateTime? modifiedSince = null)
         {
             if (string.IsNullOrEmpty(bucketName))
             {
@@ -523,9 +515,9 @@ namespace Z.OSSCore.Services
             objectName = FormatObjectName(objectName);
             bucketName = ConvertBucketName(bucketName);
             HeadObjectRequest request = new HeadObjectRequest(bucketName, objectName);
-            if (!string.IsNullOrEmpty(versionID))
+            if (!string.IsNullOrEmpty(versionId))
             {
-                request.SetVersionId(versionID);
+                request.SetVersionId(versionId);
             }
             //执行请求
             HeadObjectResult result = _client.HeadObject(request);
@@ -543,7 +535,8 @@ namespace Z.OSSCore.Services
             return Task.FromResult(metaData);
         }
 
-        public Task<bool> CopyObjectAsync(string bucketName, string objectName, string destBucketName = null, string destObjectName = null)
+        public Task<bool> CopyObjectAsync(string bucketName, string objectName, string? destBucketName,
+            string? destObjectName = null)
         {
             if (string.IsNullOrEmpty(bucketName))
             {
@@ -604,7 +597,7 @@ namespace Z.OSSCore.Services
             {
                 throw new ArgumentNullException(nameof(objectNames));
             }
-            List<string> delObjects = new List<string>();
+            List<string> delObjects = [];
             foreach (var item in objectNames)
             {
                 delObjects.Add(FormatObjectName(item));
@@ -770,10 +763,7 @@ namespace Z.OSSCore.Services
                 }
             }
 
-            if (acl != null
-                && acl.accessControlList != null
-                && acl.accessControlList.grants != null
-                && acl.accessControlList.grants.Count > 0)
+            if (acl is { accessControlList.grants.Count: > 0 })
             {
                 foreach (var item in acl.accessControlList.grants)
                 {

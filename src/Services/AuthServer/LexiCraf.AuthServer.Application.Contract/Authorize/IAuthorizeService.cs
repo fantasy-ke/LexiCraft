@@ -1,6 +1,5 @@
 ﻿using LexiCraf.AuthServer.Application.Contract.Authorize.Dto;
 using LexiCraf.AuthServer.Application.Contract.Authorize.Input;
-using LexiCraf.AuthServer.Application.Contract.Verification.Dto;
 
 namespace LexiCraf.AuthServer.Application.Contract.Authorize;
 

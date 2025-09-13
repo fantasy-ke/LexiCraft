@@ -51,7 +51,7 @@ public class FilesService(
         if (request.ParentId.HasValue)
         {
             var parentDir = await fileRepository.FirstOrDefaultAsync(f => f.Id == request.ParentId);
-            relativePath = Path.Combine(parentDir!.FilePath, fileName);
+            relativePath = Path.Combine(parentDir.FilePath, fileName);
         }
         else
         {

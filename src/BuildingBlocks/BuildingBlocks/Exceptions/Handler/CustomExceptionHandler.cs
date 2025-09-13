@@ -36,10 +36,12 @@ public class CustomExceptionHandler
             )
         };
 
-        var dicExt = new Dictionary<string, object?>();
-        dicExt.Add("traceId", context.TraceIdentifier);
-        dicExt.Add("title", details.Title);
-        dicExt.Add("instance", context.Request.Path);
+        var dicExt = new Dictionary<string, object?>
+        {
+            { "traceId", context.TraceIdentifier },
+            { "title", details.Title },
+            { "instance", context.Request.Path }
+        };
         var response = ResultDto.FailExt(details.Detail,dicExt,details.StatusCode);
         await context.Response.WriteAsJsonAsync(response, cancellationToken: cancellationToken);
         return true;

@@ -1,4 +1,5 @@
-﻿using Aliyun.OSS;
+﻿using System.Globalization;
+using Aliyun.OSS;
 using Z.OSSCore.Interface;
 using Z.OSSCore.Interface.Base;
 using Z.OSSCore.Interface.Service;
@@ -31,7 +32,7 @@ namespace Z.OSSCore.Services
             {
                 return null;
             }
-            if (buckets.Count() == 0)
+            if (!buckets.Any())
             {
                 return Task.FromResult(new List<Bucket>());
             }
@@ -151,8 +152,7 @@ namespace Z.OSSCore.Services
         public Task<string> GetBucketEndpointAsync(string bucketName)
         {
             var result = _client.GetBucketInfo(bucketName);
-            if (result != null
-                && result.Bucket != null
+            if (result is { Bucket: not null }
                 && !string.IsNullOrEmpty(result.Bucket.Name)
                 && !string.IsNullOrEmpty(result.Bucket.ExtranetEndpoint))
             {
@@ -247,12 +247,10 @@ namespace Z.OSSCore.Services
             objectName = FormatObjectName(objectName);
             return GetObjectAsync(bucketName, objectName, (stream) =>
             {
-                using (FileStream fs = new FileStream(fullPath, FileMode.Create, FileAccess.Write))
-                {
-                    stream.CopyTo(fs);
-                    stream.Dispose();
-                    fs.Close();
-                }
+                using FileStream fs = new FileStream(fullPath, FileMode.Create, FileAccess.Write);
+                stream.CopyTo(fs);
+                stream.Dispose();
+                fs.Close();
             }, cancellationToken);
         }
 
@@ -280,7 +278,7 @@ namespace Z.OSSCore.Services
             {
                 throw new ArgumentNullException(nameof(bucketName));
             }
-            List<Item> result = new List<Item>();
+            List<Item> result = [];
             ObjectListing resultObj = null;
             string nextMarker = string.Empty;
             do
@@ -302,7 +300,7 @@ namespace Z.OSSCore.Services
                     result.Add(new Item()
                     {
                         Key = item.Key,
-                        LastModified = item.LastModified.ToString(),
+                        LastModified = item.LastModified.ToString(CultureInfo.InvariantCulture),
                         ETag = item.ETag,
                         Size = (ulong)item.Size,
                         BucketName = bucketName,
@@ -447,7 +445,7 @@ namespace Z.OSSCore.Services
                 return false;
             }
         }
-        
+
         /// <summary>
         /// 文件拷贝，默认采用分片拷贝的方式
         /// </summary>
@@ -456,7 +454,8 @@ namespace Z.OSSCore.Services
         /// <param name="destBucketName"></param>
         /// <param name="destObjectName"></param>
         /// <returns></returns>
-        public Task<bool> CopyObjectAsync(string bucketName, string objectName, string destBucketName = null, string destObjectName = null)
+        public Task<bool> CopyObjectAsync(string bucketName, string objectName, string? destBucketName,
+            string? destObjectName = null)
         {
             if (string.IsNullOrEmpty(bucketName))
             {
@@ -539,7 +538,7 @@ namespace Z.OSSCore.Services
             {
                 throw new ArgumentNullException(nameof(objectNames));
             }
-            List<string> delObjects = new List<string>();
+            List<string> delObjects = [];
             foreach (var item in objectNames)
             {
                 delObjects.Add(FormatObjectName(item));
@@ -573,7 +572,8 @@ namespace Z.OSSCore.Services
             }
         }
 
-        public Task<ItemMeta> GetObjectMetadataAsync(string bucketName, string objectName, string versionID = null, string matchEtag = null, DateTime? modifiedSince = null)
+        public Task<ItemMeta> GetObjectMetadataAsync(string bucketName, string objectName, string? versionId = null,
+            string matchEtag = null, DateTime? modifiedSince = null)
         {
             if (string.IsNullOrEmpty(bucketName))
             {
@@ -582,7 +582,7 @@ namespace Z.OSSCore.Services
             objectName = FormatObjectName(objectName);
             GetObjectMetadataRequest request = new GetObjectMetadataRequest(bucketName, objectName)
             {
-                VersionId = versionID
+                VersionId = versionId
             };
             var oldMeta = _client.GetObjectMetadata(request);
             // 设置新的文件元信息。
@@ -596,7 +596,7 @@ namespace Z.OSSCore.Services
                 IsEnableHttps = Options.IsEnableHttps,
                 MetaData = new Dictionary<string, string>(),
             };
-            if (oldMeta.UserMetadata != null && oldMeta.UserMetadata.Count > 0)
+            if (oldMeta.UserMetadata is { Count: > 0 })
             {
                 foreach (var item in oldMeta.UserMetadata)
                 {

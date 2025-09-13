@@ -127,10 +127,13 @@ namespace Z.OSSCore.Interface
         /// </summary>
         /// <param name="bucketName">存储桶名称。</param>
         /// <param name="objectName">存储桶里的对象名称。</param>
+        /// <param name="versionId"></param>
+        /// <param name="matchEtag"></param>
+        /// <param name="modifiedSince"></param>
         /// <returns></returns>
         Task<ItemMeta> GetObjectMetadataAsync(string bucketName
             , string objectName
-            , string versionID = null
+            , string? versionId = null
             , string matchEtag = null
             , DateTime? modifiedSince = null);
 
@@ -142,7 +145,8 @@ namespace Z.OSSCore.Interface
         /// <param name="destBucketName">目标存储桶名称。</param>
         /// <param name="destObjectName">要创建的目标对象名称,如果为空，默认为源对象名称。</param>
         /// <returns></returns>
-        Task<bool> CopyObjectAsync(string bucketName, string objectName, string destBucketName, string destObjectName = null);
+        Task<bool> CopyObjectAsync(string bucketName, string objectName, string? destBucketName,
+            string? destObjectName = null);
 
         /// <summary>
         /// 删除一个对象。

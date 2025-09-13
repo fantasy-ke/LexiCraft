@@ -1,15 +1,9 @@
-﻿using System.Reflection;
-using BuildingBlocks.Domain;
-using BuildingBlocks.Domain.Internal;
-using BuildingBlocks.EntityFrameworkCore.Extensions;
+﻿using BuildingBlocks.EntityFrameworkCore.Extensions;
 using BuildingBlocks.EntityFrameworkCore.Interceptors;
 using BuildingBlocks.Shared;
-using LexiCraft.AuthServer.Domain;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.DependencyInjection.Extensions;
 
 namespace LexiCraft.AuthServer.Infrastructure.EntityFrameworkCore.Extensions;
 

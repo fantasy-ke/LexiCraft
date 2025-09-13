@@ -52,7 +52,7 @@ public class AuthorizeHandler(
         if (!await permissionCheck.IsGranted(requirement.AuthorizeName.JoinAsString(",")))
         {
             failureReason = new AuthorizationFailureReason(this,
-                $"Insufficient permissions, unable to request - request interface{contextAccessor.HttpContext?.Request?.Path ?? string.Empty}");
+                $"Insufficient permissions, unable to request - request interface{contextAccessor.HttpContext?.Request.Path ?? string.Empty}");
 
             context.Fail(failureReason);
 

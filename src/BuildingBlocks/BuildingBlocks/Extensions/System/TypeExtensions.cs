@@ -9,9 +9,10 @@ public static class TypeExtensions
     /// </summary>
     /// <param name="type"> 要处理的类型 </param>
     /// <returns> 是返回True，不是返回False </returns>
-    public static bool IsNullableType(this Type type)
+    public static bool IsNullableType(this Type? type)
     {
-        return type != null && type.IsGenericType && type.GetGenericTypeDefinition() == typeof(Nullable<>);
+        if (type is not { IsGenericType: true }) return false;
+        return type.GetGenericTypeDefinition() == typeof(Nullable<>);
     }
     /// <summary>
     /// 通过类型转换器获取Nullable类型的基础类型
