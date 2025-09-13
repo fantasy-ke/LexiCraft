@@ -1,0 +1,103 @@
+﻿{
+  "Serilog": {
+    // 配置日志的最小记录等级
+    "MinimumLevel": {
+      // 默认记录等级
+      "Default": "Information",
+      // 重写各类包的日志记录等级
+      "Override": {
+        "Microsoft": "Information",
+        "System": "Warning",
+        "Microsoft.AspNetCore": "Warning",
+        "Microsoft.EntityFrameworkCore": "Warning",
+        "Microsoft.Hosting.Lifetime": "Information",
+        "Microsoft.EntityFrameworkCore.Database.Command": "Information"
+      }
+    },
+    "Properties": {
+      "ApplicationName": "Z.SunBlog"
+    },
+    "Enrich": [
+      "FromLogContext",
+      "WithMachineName",
+      "WithProcessId",
+      "WithThreadId",
+      "ApplicationContext"
+    ],
+    "Using": [
+      "Serilog.Sinks.Console",
+      "Serilog.Sinks.Async"
+    ],
+    "WriteTo": [
+      {
+        "Name": "Console",
+        "Args": {
+          "outputTemplate": "[{Timestamp:HH:mm:ss:fffff} {Level:u3}] {Message:lj}{NewLine}{Exception}"
+        }
+      },
+      {
+        "Name": "Async",
+        "Args": {
+          "configure": [
+            {
+              "Name": "File",
+              "Args": {
+                "path": "AppData/Logs/Info.txt",
+                "restrictedToMinimumLevel": "Information",//日志等级
+                "rollingInterval": "Day",
+                "rollOnFileSizeLimit": true, // 设置为 true，表示启用日志文件大小限制，当日志文件达到设定的大小后，会自动滚动到新的文件中。
+                "fileSizeLimitBytes": 5000000, //设置每个日志文件的最大大小，单位是字节。这里的值是 10MB，即 10_000_000 字节。
+                "retainedFileCountLimit": 200,//设置保留的日志文件数量上限，这里是 200，即最多保留最新的 200 个日志文件。
+                //"retainedFileTimeLimit": TimeSpan.FromDays(7),//设置日志文件的最长保留时间，这里是 7 天。
+                "outputTemplate": "{Timestamp:yyyy-MM-dd HH:mm:ss.fff zzz} [{Level:u3}] {Message:lj}{NewLine}{Exception}"
+              }
+            },
+            {
+              "Name": "File",
+              "Args": {
+                "path": "AppData/Logs/Warn.txt",
+                "restrictedToMinimumLevel": "Warning",//日志等级
+                "rollingInterval": "Day",
+                "rollOnFileSizeLimit": true,
+                "fileSizeLimitBytes": 5000000,
+                "retainedFileCountLimit": 200,
+                "outputTemplate": "{Timestamp:yyyy-MM-dd HH:mm:ss.fff zzz} [{Level:u3}] {Message:lj}{NewLine}{Exception}"
+              }
+            },
+            {
+              "Name": "File",
+              "Args": {
+                "path": "AppData/Logs/Error.txt",
+                "restrictedToMinimumLevel": "Error",//日志等级
+                "rollingInterval": "Day",
+                "rollOnFileSizeLimit": true,
+                "fileSizeLimitBytes": 5000000,
+                "retainedFileCountLimit": 200,
+                "outputTemplate": "{Timestamp:yyyy-MM-dd HH:mm:ss.fff zzz} [{Level:u3}] {Message:lj}{NewLine}{Exception}"
+              }
+            }
+          ]
+        }
+      }
+//      {
+//        "Name": "File",
+//        "Args": {
+//          "path": "App_Data/Logs/log.txt",
+//          "rollingInterval": "Day",
+//          "retainedFileCountLimit": 31,
+//          "outputTemplate": "[{Timestamp:HH:mm:ss:fffff} {Level:u3}] {Message:lj}{NewLine}{Exception}"
+//        }
+//      },
+//      {
+//        "Name": "Seq",
+//        "Args": {
+//          "serverUrl": "http://47.96.234.210:5341/", // 日志中心收集器的链接地址
+//          "restrictedToMinimumLevel": "Verbose",//日志等级
+//          "apiKey": "b8ueTcbAyumLam5hfuUu",//密钥key
+//          "queueSizeLimit": 100000,//最大删除值
+//          "batchPostingLimit": 100 //批量最多
+//        }
+//      }
+    ]
+  }
+}

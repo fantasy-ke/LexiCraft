@@ -41,7 +41,7 @@ public class JwtTokenProvider(IOptions<JwtOptions> options):IJwtTokenProvider
             _options.Audience, //Audience
             claims, //Claims,
             DateTime.Now, //notBefore
-            DateTime.Now.AddDays(_options.ExpireMinute), //expires
+            DateTime.Now.AddMinutes(_options.ExpireMinute), //expires
             signingCredentials //Credentials
         );
 
