@@ -46,6 +46,8 @@ builder.Services.WithMapster();
 
 var app = builder.Build();
 
+app.MapDefaultEndpoints();
+
 app.UseSerilogRequestLogging(options =>
 {
     options.MessageTemplate = SerilogRequestUtility.HttpMessageTemplate;
