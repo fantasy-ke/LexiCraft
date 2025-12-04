@@ -5,7 +5,7 @@ namespace BuildingBlocks.Extensions.System;
 public static class TypeExtensions
 {
     /// <summary>
-    /// 判断类型是否为Nullable类型
+    ///     判断类型是否为Nullable类型
     /// </summary>
     /// <param name="type"> 要处理的类型 </param>
     /// <returns> 是返回True，不是返回False </returns>
@@ -14,8 +14,9 @@ public static class TypeExtensions
         if (type is not { IsGenericType: true }) return false;
         return type.GetGenericTypeDefinition() == typeof(Nullable<>);
     }
+
     /// <summary>
-    /// 通过类型转换器获取Nullable类型的基础类型
+    ///     通过类型转换器获取Nullable类型的基础类型
     /// </summary>
     /// <param name="type"> 要处理的类型对象 </param>
     /// <returns> </returns>
@@ -26,6 +27,7 @@ public static class TypeExtensions
             NullableConverter nullableConverter = new(type);
             return nullableConverter.UnderlyingType;
         }
+
         return type;
     }
 }

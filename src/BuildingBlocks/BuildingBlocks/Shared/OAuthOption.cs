@@ -3,7 +3,7 @@
 public class OAuthOption
 {
     public GitHub GitHub { get; set; }
-    
+
     public Gitee Gitee { get; set; }
 }
 

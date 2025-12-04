@@ -821,7 +821,7 @@ public partial class RedisCacheBaseService(RedisClient redisClient, IOptions<Red
     /// <param name="start">开始索引</param>
     /// <param name="stop">结束索引</param>
     /// <returns></returns>
-    public string[] ZRange(string key, decimal start = 0, decimal stop = -1) => redisClient.Exists(key) ? redisClient.ZRange(key, start, stop) : null;
+    public string[] ZRange(string key, decimal start = 0, decimal stop = -1) => redisClient.Exists(key) ? redisClient.ZRange(key, start, stop) : [];
 
     /// <summary>
     /// 获取元素个数

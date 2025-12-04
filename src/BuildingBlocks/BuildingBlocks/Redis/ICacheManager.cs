@@ -10,29 +10,31 @@ public interface ICacheManager : IRedisCacheBaseService
     #region 获取缓存
 
     /// <summary>
-    /// 获取缓存
+    ///     获取缓存
     /// </summary>
     /// <param name="key">缓存Key</param>
     string GetCache(string key);
 
     /// <summary>
-    /// 获取缓存
+    ///     获取缓存
     /// </summary>
     /// <param name="key">缓存Key</param>
     Task<string> GetCacheAsync(string key);
+
     /// <summary>
-    /// 获取缓存
+    ///     获取缓存
     /// </summary>
     /// <param name="key">缓存Key</param>
     T GetCache<T>(string key);
+
     /// <summary>
-    /// 获取缓存
+    ///     获取缓存
     /// </summary>
     /// <param name="key">缓存Key</param>
     Task<T> GetCacheAsync<T>(string key);
 
     /// <summary>
-    /// 缓存是否存在
+    ///     缓存是否存在
     /// </summary>
     /// <param name="key"></param>
     /// <returns></returns>
@@ -40,7 +42,7 @@ public interface ICacheManager : IRedisCacheBaseService
 
 
     /// <summary>
-    /// 查询没有写入
+    ///     查询没有写入
     /// </summary>
     /// <typeparam name="T"></typeparam>
     /// <param name="key"></param>
@@ -54,13 +56,13 @@ public interface ICacheManager : IRedisCacheBaseService
     #region 删除缓存
 
     /// <summary>
-    /// 清除缓存
+    ///     清除缓存
     /// </summary>
     /// <param name="key">缓存Key</param>
     void RemoveCache(string key);
 
     /// <summary>
-    /// 清除缓存
+    ///     清除缓存
     /// </summary>
     /// <param name="key">缓存Key</param>
     Task RemoveCacheAsync(string key);
@@ -68,5 +70,4 @@ public interface ICacheManager : IRedisCacheBaseService
     Task RemoveByPrefixAsync(string key);
 
     #endregion
-
 }

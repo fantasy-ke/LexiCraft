@@ -10,9 +10,10 @@ public static partial class StringExtensions
     {
         return string.IsNullOrEmpty(source);
     }
+
     /// <summary>
-    /// 字符串是否为null或空“”或空白字符串“ ”    
-    /// </summary>       
+    ///     字符串是否为null或空“”或空白字符串“ ”
+    /// </summary>
     /// <returns></returns>
     public static bool IsNullWhiteSpace(this string str)
     {
@@ -21,42 +22,29 @@ public static partial class StringExtensions
 
 
     /// <summary>
-    /// 删除为string类型有匹配的最后字符串
+    ///     删除为string类型有匹配的最后字符串
     /// </summary>
     /// <param name="str"></param>
     /// <param name="postFixes"></param>
     /// <returns></returns>
     public static string? RemoveFix(this string? str, params string[]? postFixes)
     {
-        if (str == null)
-        {
-            return null;
-        }
+        if (str == null) return null;
 
-        if (string.IsNullOrEmpty(str))
-        {
-            return string.Empty;
-        }
+        if (string.IsNullOrEmpty(str)) return string.Empty;
 
-        if (postFixes is null)
-        {
-            return str;
-        }
+        if (postFixes is null) return str;
 
-        foreach (string text in postFixes)
-        {
+        foreach (var text in postFixes)
             if (str.EndsWith(text))
-            {
                 return str.Left(str.Length - text.Length);
-            }
-        }
 
         return str;
     }
 
 
     /// <summary>
-    /// 从字符串的开头获取指定长度的子字符串
+    ///     从字符串的开头获取指定长度的子字符串
     /// </summary>
     /// <param name="str"></param>
     /// <param name="len"></param>
@@ -65,20 +53,15 @@ public static partial class StringExtensions
     /// <exception cref="ArgumentException"></exception>
     public static string? Left(this string? str, int len)
     {
-        if (str == null)
-        {
-            throw new ArgumentNullException(nameof(str));
-        }
+        if (str == null) throw new ArgumentNullException(nameof(str));
 
-        if (str.Length < len)
-        {
-            throw new ArgumentException("Len参数不能大于给定字符串的长度!");
-        }
+        if (str.Length < len) throw new ArgumentException("Len参数不能大于给定字符串的长度!");
 
         return str.Substring(0, len);
     }
+
     /// <summary>
-    /// 从字符串的结尾处获取指定长度的子字符串
+    ///     从字符串的结尾处获取指定长度的子字符串
     /// </summary>
     /// <param name="str"></param>
     /// <param name="len"></param>
@@ -87,22 +70,17 @@ public static partial class StringExtensions
     /// <exception cref="ArgumentException"></exception>
     public static string Right(this string str, int len)
     {
-        if (str == null)
-        {
-            throw new ArgumentNullException(nameof(str));
-        }
+        if (str == null) throw new ArgumentNullException(nameof(str));
 
-        if (str.Length < len)
-        {
-            throw new ArgumentException("Len参数不能大于给定字符串的长度!");
-        }
+        if (str.Length < len) throw new ArgumentException("Len参数不能大于给定字符串的长度!");
 
         return str.Substring(str.Length - len, len);
     }
+
     /// <summary>
-    /// 如果字符串超过最大长度，则从字符串的开头获取该字符串的子字符串。
-    /// 如果字符串被截断，它会在字符串末尾添加一个“…”后缀。
-    /// 返回的字符串不能超过maxLength。
+    ///     如果字符串超过最大长度，则从字符串的开头获取该字符串的子字符串。
+    ///     如果字符串被截断，它会在字符串末尾添加一个“…”后缀。
+    ///     返回的字符串不能超过maxLength。
     /// </summary>
     /// <param name="str">字符串</param>
     /// <param name="maxLength">最大长度</param>
@@ -113,7 +91,7 @@ public static partial class StringExtensions
     }
 
     /// <summary>
-    /// 给超出指定长度的字符串进行截断，追加后缀
+    ///     给超出指定长度的字符串进行截断，追加后缀
     /// </summary>
     /// <param name="str">字符串</param>
     /// <param name="maxLength">指定的最大长度</param>
@@ -121,30 +99,19 @@ public static partial class StringExtensions
     /// <returns></returns>
     public static string? TruncateWithPostfix(this string? str, int maxLength, string postfix)
     {
-        if (str == null)
-        {
-            return null;
-        }
+        if (str == null) return null;
 
-        if (string.IsNullOrEmpty(str) || maxLength == 0)
-        {
-            return string.Empty;
-        }
+        if (string.IsNullOrEmpty(str) || maxLength == 0) return string.Empty;
 
-        if (str.Length <= maxLength)
-        {
-            return str;
-        }
+        if (str.Length <= maxLength) return str;
 
-        if (maxLength <= postfix.Length)
-        {
-            return postfix.Left(maxLength);
-        }
+        if (maxLength <= postfix.Length) return postfix.Left(maxLength);
 
         return str.Left(maxLength - postfix.Length) + postfix;
     }
+
     /// <summary>
-    /// 驼峰命名转换 例：HelloWorld => hello-world
+    ///     驼峰命名转换 例：HelloWorld => hello-world
     /// </summary>
     /// <param name="str"></param>
     /// <returns></returns>
@@ -156,10 +123,7 @@ public static partial class StringExtensions
         foreach (var t in strCamelCase)
         {
             var temp = t.ToString();
-            if (MyRegex().IsMatch(temp))
-            {
-                temp = "-" + temp.ToLower();
-            }
+            if (MyRegex().IsMatch(temp)) temp = "-" + temp.ToLower();
             strTarget.Append(temp);
         }
 
@@ -167,7 +131,7 @@ public static partial class StringExtensions
     }
 
     /// <summary>
-    /// char类型
+    ///     char类型
     /// </summary>
     /// <typeparam name="T"></typeparam>
     /// <param name="strList"></param>
@@ -179,7 +143,7 @@ public static partial class StringExtensions
     }
 
     /// <summary>
-    /// string类型
+    ///     string类型
     /// </summary>
     /// <typeparam name="T"></typeparam>
     /// <param name="strList"></param>
@@ -191,7 +155,11 @@ public static partial class StringExtensions
     }
 
 
-    public static string NotNullString(this object? obj) => obj != null ? obj.ToString()!.Trim() : string.Empty;
+    public static string NotNullString(this object? obj)
+    {
+        return obj != null ? obj.ToString()!.Trim() : string.Empty;
+    }
+
     [GeneratedRegex("[A-Z]")]
     private static partial Regex MyRegex();
 }

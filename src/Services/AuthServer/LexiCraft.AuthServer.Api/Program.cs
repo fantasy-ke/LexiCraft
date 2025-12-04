@@ -6,7 +6,7 @@ using BuildingBlocks.Serilog;
 using BuildingBlocks.Shared;
 using LexiCraft.AuthServer.Api;
 using LexiCraft.AuthServer.Infrastructure.EntityFrameworkCore.Extensions;
-using Microsoft.OpenApi.Models;
+using Microsoft.OpenApi;
 using Serilog;
 using Z.Local.EventBus;
 

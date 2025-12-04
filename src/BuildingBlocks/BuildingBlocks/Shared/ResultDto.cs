@@ -6,24 +6,24 @@ namespace BuildingBlocks.Model;
 public class ResponseBase
 {
     /// <summary>
-    /// 是否成功
+    ///     是否成功
     /// </summary>
-    
+
     public bool Status { get; protected set; }
 
     /// <summary>
-    /// 错误信息
+    ///     错误信息
     /// </summary>
     public string Message { get; set; }
 
     /// <summary>
-    /// 状态码
+    ///     状态码
     /// </summary>
     public int StatusCode { get; set; }
-    
-    
+
+
     /// <summary>
-    /// 扩展
+    ///     扩展
     /// </summary>
     [JsonExtensionData]
     public IDictionary<string, object?> Extensions { get; set; } = new Dictionary<string, object?>();
@@ -32,8 +32,6 @@ public class ResponseBase
 [Serializable]
 public class ResultDto<TResult> : ResponseBase
 {
-    public TResult Data { get; set; }
-
     public ResultDto(TResult result)
     {
         Data = result;
@@ -51,7 +49,9 @@ public class ResultDto<TResult> : ResponseBase
     public ResultDto()
     {
     }
-    
+
+    public TResult Data { get; set; }
+
     public void SetExtensions(IDictionary<string, object?> extensions)
     {
         Extensions = extensions;
@@ -65,11 +65,11 @@ public class ResultDto : ResultDto<object>
     {
     }
 
-    public ResultDto(string errorMessage, int code = 500) : base(errorMessage,code)
+    public ResultDto(string errorMessage, int code = 500) : base(errorMessage, code)
     {
     }
 
-    public ResultDto() : base()
+    public ResultDto()
     {
     }
 
@@ -78,14 +78,14 @@ public class ResultDto : ResultDto<object>
         return new ResultDto(result);
     }
 
-    public static ResultDto Fail(string errorMessage,int errorCode = 500)
+    public static ResultDto Fail(string errorMessage, int errorCode = 500)
     {
-        return new ResultDto(errorMessage,errorCode);
+        return new ResultDto(errorMessage, errorCode);
     }
-    
-    public static ResultDto FailExt(string errorMessage,IDictionary<string, object?> extensions,int errorCode = 500)
+
+    public static ResultDto FailExt(string errorMessage, IDictionary<string, object?> extensions, int errorCode = 500)
     {
-        var result = new ResultDto(errorMessage,errorCode);
+        var result = new ResultDto(errorMessage, errorCode);
         result.SetExtensions(extensions);
         return result;
     }

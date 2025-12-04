@@ -4,11 +4,12 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Logging;
 
 namespace BuildingBlocks.Exceptions.Handler;
-public class CustomExceptionHandler
-    (ILogger<CustomExceptionHandler> logger)
+
+public class CustomExceptionHandler(ILogger<CustomExceptionHandler> logger)
     : IExceptionHandler
 {
-    public async ValueTask<bool> TryHandleAsync(HttpContext context, Exception exception, CancellationToken cancellationToken)
+    public async ValueTask<bool> TryHandleAsync(HttpContext context, Exception exception,
+        CancellationToken cancellationToken)
     {
         logger.LogError(
             "Error Message: {exceptionMessage}, Time of occurrence {time}",
@@ -42,8 +43,8 @@ public class CustomExceptionHandler
             { "title", details.Title },
             { "instance", context.Request.Path }
         };
-        var response = ResultDto.FailExt(details.Detail,dicExt,details.StatusCode);
-        await context.Response.WriteAsJsonAsync(response, cancellationToken: cancellationToken);
+        var response = ResultDto.FailExt(details.Detail, dicExt, details.StatusCode);
+        await context.Response.WriteAsJsonAsync(response, cancellationToken);
         return true;
     }
 }

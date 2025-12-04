@@ -8,11 +8,14 @@ namespace BuildingBlocks.Serilog;
 
 public static class SerilogRequestUtility
 {
-    public const string HttpMessageTemplate = "RequestIp:{RequestIp}  HTTP {RequestMethod} {RequestPath} QueryString:{QueryString} Body:{Body}  responded {StatusCode} in {Elapsed:0.0000} ms  LexiCraft";
+    public const string HttpMessageTemplate =
+        "RequestIp:{RequestIp}  HTTP {RequestMethod} {RequestPath} QueryString:{QueryString} Body:{Body}  responded {StatusCode} in {Elapsed:0.0000} ms  LexiCraft";
 
 
-    public static LogEventLevel GetRequestLevel(HttpContext ctx, double _, Exception? ex) =>
-        ex is null && ctx.Response.StatusCode <= 499 ? IgnoreRequest(ctx) : LogEventLevel.Error;
+    public static LogEventLevel GetRequestLevel(HttpContext ctx, double _, Exception? ex)
+    {
+        return ex is null && ctx.Response.StatusCode <= 499 ? IgnoreRequest(ctx) : LogEventLevel.Error;
+    }
 
 
     private static LogEventLevel IgnoreRequest(HttpContext ctx)
@@ -23,11 +26,11 @@ public static class SerilogRequestUtility
     }
 
     /// <summary>
-	/// 从Request中增加附属属性
-	/// </summary>
-	/// <param name="diagnosticContext"></param>
-	/// <param name="httpContext"></param>
-	public static void EnrichFromRequest(IDiagnosticContext diagnosticContext, HttpContext httpContext)
+    ///     从Request中增加附属属性
+    /// </summary>
+    /// <param name="diagnosticContext"></param>
+    /// <param name="httpContext"></param>
+    public static void EnrichFromRequest(IDiagnosticContext diagnosticContext, HttpContext httpContext)
     {
         var request = httpContext.Request;
 
@@ -38,12 +41,14 @@ public static class SerilogRequestUtility
 
         if (request.Method == HttpMethods.Get)
         {
-            diagnosticContext.Set("QueryString", request.QueryString.HasValue ? request.QueryString.Value : string.Empty);
+            diagnosticContext.Set("QueryString",
+                request.QueryString.HasValue ? request.QueryString.Value : string.Empty);
             diagnosticContext.Set("Body", string.Empty);
         }
         else
         {
-            diagnosticContext.Set("QueryString", request.QueryString.HasValue ? request.QueryString.Value : string.Empty);
+            diagnosticContext.Set("QueryString",
+                request.QueryString.HasValue ? request.QueryString.Value : string.Empty);
             diagnosticContext.Set("Body", request.ContentLength > 0 ? request.GetRequestBody() : string.Empty);
         }
 
@@ -56,20 +61,11 @@ public static class SerilogRequestUtility
 
     private static string GetRequestBody(this HttpRequest request)
     {
-        if (!request.Body.CanRead)
-        {
-            return null;
-        }
+        if (!request.Body.CanRead) return null;
 
-        if (!request.Body.CanSeek)
-        {
-            return null;
-        }
+        if (!request.Body.CanSeek) return null;
 
-        if (request.Body.Length < 1)
-        {
-            return null;
-        }
+        if (request.Body.Length < 1) return null;
 
         string bodyStr;
         // 启用倒带功能，就可以让 Request.Body 可以再次读取

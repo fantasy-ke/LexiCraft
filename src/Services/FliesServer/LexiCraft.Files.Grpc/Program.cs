@@ -3,7 +3,7 @@ using BuildingBlocks.Serilog;
 using LexiCraft.Files.Grpc.Data;
 using LexiCraft.Files.Grpc.Services;
 using Microsoft.Extensions.FileProviders;
-using Microsoft.OpenApi.Models;
+using Microsoft.OpenApi;
 using ProtoBuf.Grpc.Server;
 using Serilog;
 
@@ -36,8 +36,8 @@ builder.Services.AddGrpcHttpApi()
 
 builder.Services.AddSwaggerGen(c =>
 {
-    c.SwaggerDoc("v1",
-        new OpenApiInfo { Title = "file gRPC transcoding", Version = "v1" });
+    // new OpenApiInfo { Title = "file gRPC transcoding", Version = "v1" }
+    c.SwaggerDoc("v1", new OpenApiInfo { Title = "词汇技艺 Files Api", Version = "v1", Description = "词汇技艺相关接口" });
 });
 builder.Services.WithLexiCraftDbAccess(builder.Configuration);
 builder.Services.WithMapster();

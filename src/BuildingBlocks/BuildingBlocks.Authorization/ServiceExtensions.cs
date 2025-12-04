@@ -6,7 +6,7 @@ using Microsoft.AspNetCore.OpenApi;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.IdentityModel.Tokens;
-using Microsoft.OpenApi.Models;
+using Microsoft.OpenApi;
 
 namespace BuildingBlocks.Authentication;
 
@@ -61,33 +61,49 @@ public static class ServiceExtensions
         public async Task TransformAsync(OpenApiDocument document, OpenApiDocumentTransformerContext context, CancellationToken cancellationToken)
         {
             var authenticationSchemes = await authenticationSchemeProvider.GetAllSchemesAsync();
-            if (authenticationSchemes.Any(authScheme => authScheme.Name == JwtBearerDefaults.AuthenticationScheme))
+            if (authenticationSchemes.All(authScheme => authScheme.Name != JwtBearerDefaults.AuthenticationScheme))
             {
-                var requirements = new Dictionary<string, OpenApiSecurityScheme>
+                return;
+            }
+            // 定义全局 Bearer 安全方案（注意接口类型）
+            document.Components ??= new OpenApiComponents();
+            document.Components.SecuritySchemes ??= new Dictionary<string, IOpenApiSecurityScheme>();
+
+            document.Components.SecuritySchemes[JwtBearerDefaults.AuthenticationScheme] = new OpenApiSecurityScheme
+            {
+                Type = SecuritySchemeType.Http,
+                Scheme = JwtBearerDefaults.AuthenticationScheme.ToLowerInvariant(),
+                In = ParameterLocation.Header,
+                BearerFormat = "Json Web Token"
+            };
+
+            // 构造 SecurityRequirement，键为 OpenApiSecuritySchemeReference（新版本签名）
+            var securitySchemeReference = new OpenApiSecuritySchemeReference(JwtBearerDefaults.AuthenticationScheme, document)
+            {
+                Reference = new JsonSchemaReference()
                 {
-                    [JwtBearerDefaults.AuthenticationScheme] = new()
-                    {
-                        Type = SecuritySchemeType.Http,
-                        Scheme = JwtBearerDefaults.AuthenticationScheme.ToLower(),
-                        In = ParameterLocation.Header,
-                        BearerFormat = "Json Web Token"
-                    }
-                };
-                document.Components ??= new OpenApiComponents();
-                document.Components.SecuritySchemes = requirements;
-                foreach (var operation in document.Paths.Values.SelectMany(path => path.Operations))
+                    Id =  JwtBearerDefaults.AuthenticationScheme,
+                    Type = ReferenceType.SecurityScheme
+                },
+            };
+
+            var securityRequirement = new OpenApiSecurityRequirement
+            {
+                [securitySchemeReference] = []
+            };
+
+            // 给所有操作附加安全要求
+            foreach (var path in document.Paths.Values)
+            {
+                if (path.Operations is null || path.Operations.Count == 0)
                 {
-                    operation.Value.Security.Add(new OpenApiSecurityRequirement
-                    {
-                        [new OpenApiSecurityScheme
-                        {
-                            Reference = new OpenApiReference
-                            {
-                                Id = JwtBearerDefaults.AuthenticationScheme,
-                                Type = ReferenceType.SecurityScheme
-                            }
-                        }] = Array.Empty<string>()
-                    });
+                    continue;
+                }
+
+                foreach (var operation in path.Operations.Values)
+                {
+                    operation.Security ??= new List<OpenApiSecurityRequirement>();
+                    operation.Security.Add(securityRequirement);
                 }
             }
         }

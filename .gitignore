@@ -9,3 +9,4 @@ riderModule.iml
 .vscode
 AppData/
 uploads/
+/src/LexiCraft.Aspire.Host/.aspire/settings.json
