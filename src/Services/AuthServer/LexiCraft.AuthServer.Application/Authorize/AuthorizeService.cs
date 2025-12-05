@@ -9,6 +9,7 @@ using BuildingBlocks.Extensions;
 using BuildingBlocks.Filters;
 using BuildingBlocks.Redis;
 using BuildingBlocks.Shared;
+using FastService;
 using Lazy.Captcha.Core;
 using LexiCraf.AuthServer.Application.Contract.Authorize;
 using LexiCraf.AuthServer.Application.Contract.Authorize.Dto;
@@ -23,8 +24,6 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using Z.EventBus;
-using ZAnalyzers.Core;
-using ZAnalyzers.Core.Attribute;
 
 namespace LexiCraft.AuthServer.Application.Authorize;
 
@@ -39,7 +38,7 @@ public partial class AuthorizeService(
     ICaptcha captcha,IJwtTokenProvider jwtTokenProvider,
     ICacheManager redisManager,ILogger<IAuthorizeService> logger,
     IHttpClientFactory httpClientFactory,
-    IOptionsSnapshot<OAuthOption> oauthOption,IUserContext userContext):FantasyApi, IAuthorizeService
+    IOptionsSnapshot<OAuthOption> oauthOption,IUserContext userContext):FastApi, IAuthorizeService
 {
     [EndpointSummary("用户注册")]
     public async Task<bool> RegisterAsync(CreateUserRequest request)

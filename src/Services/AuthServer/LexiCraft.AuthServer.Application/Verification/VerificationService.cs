@@ -1,10 +1,9 @@
 ﻿using BuildingBlocks.Filters;
+using FastService;
 using Lazy.Captcha.Core;
 using LexiCraf.AuthServer.Application.Contract.Verification;
 using LexiCraf.AuthServer.Application.Contract.Verification.Dto;
 using Microsoft.AspNetCore.Http;
-using ZAnalyzers.Core;
-using ZAnalyzers.Core.Attribute;
 
 namespace LexiCraft.AuthServer.Application.Verification;
 
@@ -12,7 +11,7 @@ namespace LexiCraft.AuthServer.Application.Verification;
 [Tags("verification")]
 [Filter(typeof(ResultEndPointFilter))]
 // [ZAuthorize("Verification.Page")]
-public class VerificationService(ICaptcha captcha):FantasyApi, IVerificationService
+public class VerificationService(ICaptcha captcha):FastApi, IVerificationService
 {
     /// <summary>
     /// 获取验证码, 返回验证码图片base64

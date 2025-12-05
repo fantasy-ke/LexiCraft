@@ -2,6 +2,7 @@
 using BuildingBlocks.Domain;
 using BuildingBlocks.Filters;
 using BuildingBlocks.Grpc.Contracts.FileGrpc;
+using FastService;
 using LexiCraf.AuthServer.Application.Contract.User;
 using LexiCraf.AuthServer.Application.Contract.User.Dto;
 using LexiCraf.AuthServer.Application.Contract.Users.Dto;
@@ -11,21 +12,16 @@ using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
-using ZAnalyzers.Core;
-using ZAnalyzers.Core.Attribute;
 
 namespace LexiCraft.AuthServer.Application.Users;
 
-[ZAnalyzers.Core.Attribute.Route("/api/user")]
+[FastService.Route("/api/user")]
 [Tags("User")]
 [Filter(typeof(ResultEndPointFilter))]
 public class UserService(
     IRepository<User> userRepository, 
-    IRepository<FileInfos> fileRepository, 
     IUserContext userContext,
-    IFilesService filesService,
-    IUnitOfWork unitOfWork,
-    IWebHostEnvironment hostEnvironment) : FantasyApi, IUserService
+    IFilesService filesService) : FastApi, IUserService
 {
     [EndpointSummary("获取用户信息")]
     public async Task<UserInfoDto> GetUserInfo()
@@ -38,8 +34,8 @@ public class UserService(
             UserName = p.Username,
             Email = p.Email,
             Avatar = p.Avatar,
-            Phone = p.Phone,
-        }).FirstOrDefaultAsync();
+            Phone = p.Phone ?? string.Empty,
+        }).FirstOrDefaultAsync() ?? throw new Exception("用户不存在");
     }
 
     [EndpointSummary("上传头像")]
