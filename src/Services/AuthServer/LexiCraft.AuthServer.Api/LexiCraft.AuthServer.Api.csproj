@@ -9,7 +9,6 @@
     </PropertyGroup>
 
     <ItemGroup>
-        <PackageReference Include="FastService.Analyzers" Version="0.2.2" />
         <PackageReference Include="Microsoft.AspNetCore.OpenApi" Version="10.0.0" />
     </ItemGroup>
 
@@ -19,9 +18,9 @@
     </ItemGroup>
 
     <!-- ZAnalyzers.MinimalApiSG -->
-    <!--<ItemGroup Condition="'$(ZAnalyzersRefMode)'=='nuget'">
+    <ItemGroup Condition="'$(ZAnalyzersRefMode)'=='nuget'">
         <PackageReference Include="ZAnalyzers.MinimalApiSG" Version="$(ZAnalyzersVersion)" />
-    </ItemGroup>-->
+    </ItemGroup>
 
     <ItemGroup>
         <ProjectReference Include="..\..\..\LexiCraft.Aspire.ServiceDefaults\LexiCraft.Aspire.ServiceDefaults.csproj" />

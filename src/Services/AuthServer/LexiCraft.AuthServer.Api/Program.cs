@@ -74,7 +74,7 @@ builder.Services.WithMapster();
 builder.Services.WithIdGen();
 
 builder.Services.WithServiceLifetime();
-builder.Services.AddFastApis();
+builder.Services.WithFantasyLife();
 
 var app = builder.Build();
 
@@ -91,21 +91,13 @@ app.MapDefaultEndpoints();
 app.UseCors("LexiCraft.Cors");
 
 // app.MapAuthEndpoint();
+
+app.MapFantasyApi();
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
 {
     app.UseScalar("LexiCraft Auth Server");
 }
-
-app.MapFastApis(options =>
-{
-    options.Prefix = "api";
-    options.Version = "v1";
-    options.PluralizeServiceName = true;
-    options.AutoAppendId = true;
-    options.DisableTrimMethodPrefix = false;
-    options.EnableProperty = false;
-});
 app.UseExceptionHandler(_ => { });
 // app.UseMiddleware<ExceptionMiddleware>();
 // app.UseMiddleware<LoginExceptionMiddleware>();

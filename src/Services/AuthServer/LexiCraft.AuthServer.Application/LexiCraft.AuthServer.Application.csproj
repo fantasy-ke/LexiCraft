@@ -9,7 +9,6 @@
 
     <ItemGroup>
         <FrameworkReference Include="Microsoft.AspNetCore.App"/>
-        <PackageReference Include="FastService" Version="0.2.2" />
         <PackageReference Include="Lazy.Captcha.Core" Version="2.2.2" />
     </ItemGroup>
 
@@ -19,9 +18,9 @@
     </ItemGroup>
 
     <!-- ZAnalyzers.Core -->
-<!--    <ItemGroup Condition="'$(ZAnalyzersRefMode)'=='nuget'">-->
-<!--        <PackageReference Include="ZAnalyzers.Core" Version="$(ZAnalyzersVersion)" />-->
-<!--    </ItemGroup>-->
+    <ItemGroup Condition="'$(ZAnalyzersRefMode)'=='nuget'">
+        <PackageReference Include="ZAnalyzers.Core" Version="$(ZAnalyzersVersion)" />
+    </ItemGroup>
 
 
     <ItemGroup>
