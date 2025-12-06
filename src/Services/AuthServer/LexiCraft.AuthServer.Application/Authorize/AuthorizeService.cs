@@ -24,7 +24,6 @@ using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using Z.EventBus;
 using ZAnalyzers.Core;
-using ZAnalyzers.Core.Attribute;
 
 namespace LexiCraft.AuthServer.Application.Authorize;
 

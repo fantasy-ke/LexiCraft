@@ -92,7 +92,16 @@ app.UseCors("LexiCraft.Cors");
 
 // app.MapAuthEndpoint();
 
-app.MapFantasyApi();
+app.MapFantasyApis(options =>
+{
+    options.Prefix = "v1";                    // API 前缀
+    options.Version = "1.0";                  // API 版本
+    options.DisableAutoMapRoute = false;      // 禁用自动路由映射
+    options.AutoAppendId = true;              // 自动追加 ID 参数
+    options.PluralizeServiceName = true;      // 服务名复数化
+    options.EnableProperty = false;           // 启用属性访问
+    options.DisableTrimMethodPrefix = false;  // 禁用方法前缀修剪
+});
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
 {

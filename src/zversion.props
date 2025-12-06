@@ -1,7 +1,7 @@
 <Project>
 
     <PropertyGroup>
-        <ZAnalyzersVersion>0.1.2</ZAnalyzersVersion>
+        <ZAnalyzersVersion>0.2.0</ZAnalyzersVersion>
         <LangVersion>latest</LangVersion>
     </PropertyGroup>
 

@@ -1,10 +1,10 @@
-﻿using BuildingBlocks.Filters;
+﻿using BuildingBlocks.Authentication;
+using BuildingBlocks.Filters;
 using Lazy.Captcha.Core;
 using LexiCraf.AuthServer.Application.Contract.Verification;
 using LexiCraf.AuthServer.Application.Contract.Verification.Dto;
 using Microsoft.AspNetCore.Http;
 using ZAnalyzers.Core;
-using ZAnalyzers.Core.Attribute;
 
 namespace LexiCraft.AuthServer.Application.Verification;
 
@@ -20,7 +20,7 @@ public class VerificationService(ICaptcha captcha):FantasyApi, IVerificationServ
     /// <param name="key"></param>
     /// <returns></returns>
     [EndpointSummary("获取验证码")]
-    // [ZAuthorize("Verification.Add","Verification.Edit")]
+    [ZAuthorize("Verification.Add","Verification.Edit")]
     public Task<VerificationDto> GetCaptchaCodeAsync(string key)
     {
         var uuid = key + ":" + Guid.NewGuid().ToString("N");

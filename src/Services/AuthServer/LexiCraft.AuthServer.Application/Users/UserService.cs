@@ -12,11 +12,10 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using ZAnalyzers.Core;
-using ZAnalyzers.Core.Attribute;
 
 namespace LexiCraft.AuthServer.Application.Users;
 
-[ZAnalyzers.Core.Attribute.Route("/api/user")]
+[ZAnalyzers.Core.Route("/api/user")]
 [Tags("User")]
 [Filter(typeof(ResultEndPointFilter))]
 public class UserService(

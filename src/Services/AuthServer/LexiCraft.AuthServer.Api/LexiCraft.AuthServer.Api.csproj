@@ -8,13 +8,9 @@
 		<!--<EmitCompilerGeneratedFiles>true</EmitCompilerGeneratedFiles>-->
     </PropertyGroup>
 
-    <ItemGroup>
-        <PackageReference Include="Microsoft.AspNetCore.OpenApi" Version="10.0.0" />
-    </ItemGroup>
-
     <!-- ZAnalyzers.MinimalApiSG -->
     <ItemGroup Condition="'$(ZAnalyzersRefMode)'=='src'">
-        <ProjectReference Include="..\ZAnalyzers.MinimalApiSG\ZAnalyzers.MinimalApiSG.csproj" />
+        <ProjectReference Include="..\..\..\..\..\ZAnalyzers\src\ZAnalyzers.MinimalApiSG\ZAnalyzers.MinimalApiSG.csproj"  OutputItemType="Analyzer" ReferenceOutputAssembly="false"  />
     </ItemGroup>
 
     <!-- ZAnalyzers.MinimalApiSG -->

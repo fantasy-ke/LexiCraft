@@ -31,6 +31,7 @@ public static class ServiceExtensions
 
         builder.MapScalarApiReference((options =>
         {
+            options.ShowDeveloperTools = DeveloperToolsVisibility.Always;
             options.WithTitle(title);
             options.WithTheme(ScalarTheme.BluePlanet);
             options.Authentication = new ScalarAuthenticationOptions()

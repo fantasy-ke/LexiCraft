@@ -14,7 +14,7 @@
 
     <!-- ZAnalyzers.Core -->
     <ItemGroup Condition="'$(ZAnalyzersRefMode)'=='src'">
-        <ProjectReference Include="..\ZAnalyzers.Core\ZAnalyzers.Core.csproj" />
+        <ProjectReference Include="..\..\..\..\..\ZAnalyzers\src\ZAnalyzers.Core\ZAnalyzers.Core.csproj" />
     </ItemGroup>
 
     <!-- ZAnalyzers.Core -->
