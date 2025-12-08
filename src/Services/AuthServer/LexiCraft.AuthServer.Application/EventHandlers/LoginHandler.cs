@@ -1,5 +1,5 @@
 ﻿using BuildingBlocks.Domain;
-using LexiCraf.AuthServer.Application.Contract.Events;
+using LexiCraft.AuthServer.Application.Contract.Events;
 using LexiCraft.AuthServer.Domain.LoginLogs;
 using MapsterMapper;
 using Z.EventBus;

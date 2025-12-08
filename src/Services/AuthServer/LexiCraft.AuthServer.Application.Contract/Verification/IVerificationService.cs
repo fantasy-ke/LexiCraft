@@ -1,6 +1,6 @@
-﻿using LexiCraf.AuthServer.Application.Contract.Verification.Dto;
+﻿using LexiCraft.AuthServer.Application.Contract.Verification.Dto;
 
-namespace LexiCraf.AuthServer.Application.Contract.Verification;
+namespace LexiCraft.AuthServer.Application.Contract.Verification;
 
 public interface IVerificationService
 {

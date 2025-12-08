@@ -1,4 +1,4 @@
-﻿namespace LexiCraf.AuthServer.Application.Contract.Verification.Dto;
+﻿namespace LexiCraft.AuthServer.Application.Contract.Verification.Dto;
 
 public class VerificationDto
 {

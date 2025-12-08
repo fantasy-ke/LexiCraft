@@ -1,9 +1,9 @@
 ﻿using System.Text.Json;
 using BuildingBlocks.Exceptions;
-using LexiCraf.AuthServer.Application.Contract.Events;
+using LexiCraft.AuthServer.Application.Contract.Events;
 using Z.EventBus;
 
-namespace LexiCraf.AuthServer.Application.Contract.Exceptions;
+namespace LexiCraft.AuthServer.Application.Contract.Exceptions;
 
 public class AuthLoginException : UserFriendlyException
 {

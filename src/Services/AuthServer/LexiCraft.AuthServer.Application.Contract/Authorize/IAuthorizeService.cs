@@ -1,7 +1,7 @@
-﻿using LexiCraf.AuthServer.Application.Contract.Authorize.Dto;
-using LexiCraf.AuthServer.Application.Contract.Authorize.Input;
+﻿using LexiCraft.AuthServer.Application.Contract.Authorize.Dto;
+using LexiCraft.AuthServer.Application.Contract.Authorize.Input;
 
-namespace LexiCraf.AuthServer.Application.Contract.Authorize;
+namespace LexiCraft.AuthServer.Application.Contract.Authorize;
 
 public interface IAuthorizeService
 {

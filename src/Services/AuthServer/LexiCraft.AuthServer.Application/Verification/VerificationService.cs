@@ -1,8 +1,8 @@
 ﻿using BuildingBlocks.Authentication;
 using BuildingBlocks.Filters;
 using Lazy.Captcha.Core;
-using LexiCraf.AuthServer.Application.Contract.Verification;
-using LexiCraf.AuthServer.Application.Contract.Verification.Dto;
+using LexiCraft.AuthServer.Application.Contract.Verification;
+using LexiCraft.AuthServer.Application.Contract.Verification.Dto;
 using Microsoft.AspNetCore.Http;
 using ZAnalyzers.Core;
 

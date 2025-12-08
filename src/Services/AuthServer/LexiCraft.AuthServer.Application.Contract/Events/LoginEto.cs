@@ -1,4 +1,4 @@
-﻿namespace LexiCraf.AuthServer.Application.Contract.Events;
+﻿namespace LexiCraft.AuthServer.Application.Contract.Events;
 
 /// <summary>
 /// 登录事件

@@ -1,6 +1,6 @@
 ﻿using System.Text.Json.Serialization;
 
-namespace LexiCraf.AuthServer.Application.Contract.Authorize.Dto;
+namespace LexiCraft.AuthServer.Application.Contract.Authorize.Dto;
 
 public class OAuthTokenDto
 {

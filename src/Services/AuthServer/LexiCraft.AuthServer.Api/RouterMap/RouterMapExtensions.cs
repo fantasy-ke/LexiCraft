@@ -1,7 +1,7 @@
 ﻿using BuildingBlocks.Filters;
-using LexiCraf.AuthServer.Application.Contract.Authorize;
-using LexiCraf.AuthServer.Application.Contract.Authorize.Input;
-using LexiCraf.AuthServer.Application.Contract.Verification;
+using LexiCraft.AuthServer.Application.Contract.Authorize;
+using LexiCraft.AuthServer.Application.Contract.Authorize.Input;
+using LexiCraft.AuthServer.Application.Contract.Verification;
 
 namespace LexiCraft.AuthServer.Api.RouterMap;
 

@@ -1,4 +1,4 @@
-﻿namespace LexiCraf.AuthServer.Application.Contract.Authorize.Dto;
+﻿namespace LexiCraft.AuthServer.Application.Contract.Authorize.Dto;
 
 /// <summary>
 /// 登录返回token 响应

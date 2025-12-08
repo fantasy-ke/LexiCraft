@@ -1,4 +1,4 @@
-﻿namespace LexiCraf.AuthServer.Application.Contract.Users.Dto;
+﻿namespace LexiCraft.AuthServer.Application.Contract.Users.Dto;
 
 public class AvatarUploadResultDto
 {

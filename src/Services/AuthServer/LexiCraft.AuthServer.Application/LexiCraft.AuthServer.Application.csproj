@@ -24,7 +24,7 @@
 
 
     <ItemGroup>
-         <ProjectReference Include="..\LexiCraf.AuthServer.Application.Contract\LexiCraf.AuthServer.Application.Contract.csproj" />
+         <ProjectReference Include="..\LexiCraft.AuthServer.Application.Contract\LexiCraft.AuthServer.Application.Contract.csproj" />
     </ItemGroup>
 
     

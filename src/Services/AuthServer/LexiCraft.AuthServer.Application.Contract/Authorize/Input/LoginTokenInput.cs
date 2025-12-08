@@ -1,4 +1,4 @@
-﻿namespace LexiCraf.AuthServer.Application.Contract.Authorize.Input;
+﻿namespace LexiCraft.AuthServer.Application.Contract.Authorize.Input;
 
 public class LoginTokenInput
 {

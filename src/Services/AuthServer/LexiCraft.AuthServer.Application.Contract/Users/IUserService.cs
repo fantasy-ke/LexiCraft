@@ -1,8 +1,8 @@
-﻿using LexiCraf.AuthServer.Application.Contract.User.Dto;
-using LexiCraf.AuthServer.Application.Contract.Users.Dto;
+﻿using LexiCraft.AuthServer.Application.Contract.User.Dto;
+using LexiCraft.AuthServer.Application.Contract.Users.Dto;
 using Microsoft.AspNetCore.Http;
 
-namespace LexiCraf.AuthServer.Application.Contract.User;
+namespace LexiCraft.AuthServer.Application.Contract.User;
 
 public interface IUserService
 {

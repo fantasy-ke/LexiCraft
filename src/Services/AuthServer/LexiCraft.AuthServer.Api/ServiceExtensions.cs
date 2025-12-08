@@ -1,7 +1,7 @@
 ﻿using System.Text.Json;
 using System.Text.Json.Serialization;
 using BuildingBlocks.Grpc.Contracts.FileGrpc;
-using LexiCraf.AuthServer.Application.Contract.Events;
+using LexiCraft.AuthServer.Application.Contract.Events;
 using LexiCraft.AuthServer.Application.EventHandlers;
 using LexiCraft.AuthServer.Domain.Repository;
 using LexiCraft.AuthServer.Infrastructure.EntityFrameworkCore;

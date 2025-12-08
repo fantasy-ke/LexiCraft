@@ -2,9 +2,9 @@
 using BuildingBlocks.Domain;
 using BuildingBlocks.Filters;
 using BuildingBlocks.Grpc.Contracts.FileGrpc;
-using LexiCraf.AuthServer.Application.Contract.User;
-using LexiCraf.AuthServer.Application.Contract.User.Dto;
-using LexiCraf.AuthServer.Application.Contract.Users.Dto;
+using LexiCraft.AuthServer.Application.Contract.User;
+using LexiCraft.AuthServer.Application.Contract.User.Dto;
+using LexiCraft.AuthServer.Application.Contract.Users.Dto;
 using LexiCraft.AuthServer.Domain.Files;
 using LexiCraft.AuthServer.Domain.Users;
 using Microsoft.AspNetCore.Hosting;

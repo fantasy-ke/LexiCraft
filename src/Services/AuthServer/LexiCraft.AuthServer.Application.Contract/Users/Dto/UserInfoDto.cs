@@ -1,4 +1,4 @@
-﻿namespace LexiCraf.AuthServer.Application.Contract.User.Dto;
+﻿namespace LexiCraft.AuthServer.Application.Contract.User.Dto;
 
 /// <summary>
 /// 当前登录用户信息

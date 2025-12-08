@@ -17,7 +17,7 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "LexiCraft.AuthServer.Applic
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "LexiCraft.AuthServer.Api", "Services\AuthServer\LexiCraft.AuthServer.Api\LexiCraft.AuthServer.Api.csproj", "{9B6FAD30-9DE8-41B2-8737-052739DF8E7F}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "LexiCraf.AuthServer.Application.Contract", "Services\AuthServer\LexiCraf.AuthServer.Application.Contract\LexiCraf.AuthServer.Application.Contract.csproj", "{EC6C2A8F-2F33-4743-9C59-523DBBF56FB0}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "LexiCraft.AuthServer.Application.Contract", "Services\AuthServer\LexiCraft.AuthServer.Application.Contract\LexiCraft.AuthServer.Application.Contract.csproj", "{EC6C2A8F-2F33-4743-9C59-523DBBF56FB0}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "framework", "framework", "{BD3122C1-5B01-4D48-96CE-E5B9166F3E7D}"
 EndProject
