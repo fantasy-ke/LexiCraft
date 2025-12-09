@@ -5,9 +5,7 @@ using BuildingBlocks.Grpc.Contracts.FileGrpc;
 using LexiCraft.AuthServer.Application.Contract.User;
 using LexiCraft.AuthServer.Application.Contract.User.Dto;
 using LexiCraft.AuthServer.Application.Contract.Users.Dto;
-using LexiCraft.AuthServer.Domain.Files;
 using LexiCraft.AuthServer.Domain.Users;
-using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
@@ -20,11 +18,8 @@ namespace LexiCraft.AuthServer.Application.Users;
 [Filter(typeof(ResultEndPointFilter))]
 public class UserService(
     IRepository<User> userRepository, 
-    IRepository<FileInfos> fileRepository, 
     IUserContext userContext,
-    IFilesService filesService,
-    IUnitOfWork unitOfWork,
-    IWebHostEnvironment hostEnvironment) : FantasyApi, IUserService
+    IFilesService filesService) : FantasyApi, IUserService
 {
     [EndpointSummary("获取用户信息")]
     public async Task<UserInfoDto> GetUserInfo()

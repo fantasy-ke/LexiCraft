@@ -24,20 +24,14 @@ builder.AddServiceDefaults();
 builder.Host.UseSerilog();
 
 // Add services to the container.
-builder.Services.AddGrpcHttpApi()
-    .AddGrpcSwagger()
-    .AddCodeFirstGrpc();
-// builder.Services.WithScalar(new OpenApiInfo()
-// {
-//     Title = "词汇技艺 Files Api",
-//     Version = "v1",
-//     Description = "词汇技艺相关接口",
-// });
+builder.Services.AddCodeFirstGrpc();
 
+builder.Services.AddGrpcSwagger();
 builder.Services.AddSwaggerGen(c =>
 {
     // new OpenApiInfo { Title = "file gRPC transcoding", Version = "v1" }
-    c.SwaggerDoc("v1", new OpenApiInfo { Title = "词汇技艺 Files Api", Version = "v1", Description = "词汇技艺相关接口" });
+    c.SwaggerDoc("v1", 
+        new OpenApiInfo { Title = "词汇技艺 Files Api", Version = "v1", Description = "词汇技艺相关接口" });
 });
 builder.Services.WithLexiCraftDbAccess(builder.Configuration);
 builder.Services.WithMapster();

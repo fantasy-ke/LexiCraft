@@ -76,7 +76,7 @@ public static class ServiceExtensions
                             //通过枚举扩展方法获取枚举描述
                             var description = ((Enum)result).GetDescription();
                             //重新组织枚举值展示结构（作为字符串 Json 节点加入）
-                            list.Add(JsonValue.Create($"{enumValue.GetValue<string>()} - {description}")!);
+                            list.Add(JsonValue.Create($"{enumValue.GetValue<string>()} - {description}"));
                         }
                         else
                         {
@@ -139,7 +139,7 @@ public static class ServiceExtensions
         }
 
         /// <summary>
-        ///     添加Mapster映射
+        /// 添加Mapster映射
         /// </summary>
         /// <returns></returns>
         public IServiceCollection WithMapster()

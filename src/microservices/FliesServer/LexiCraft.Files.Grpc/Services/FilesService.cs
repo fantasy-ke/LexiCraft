@@ -10,14 +10,28 @@ using static System.Guid;
 
 namespace LexiCraft.Files.Grpc.Services;
 
-
+/// <summary>
+/// 文件服务
+/// </summary>
+/// <param name="logger"></param>
+/// <param name="fileRepository"></param>
+/// <param name="unitOfWork"></param>
+/// <param name="hostEnvironment"></param>
 public class FilesService(
     ILogger<FilesService> logger,
     IRepository<FileInfos> fileRepository, 
     IUnitOfWork unitOfWork, 
     IWebHostEnvironment hostEnvironment) : IFilesService
 {
-    private readonly FileExtensionContentTypeProvider contentTypeProvider = new();
+    private readonly FileExtensionContentTypeProvider _contentTypeProvider = new();
+    
+    /// <summary>
+    /// 上传文件
+    /// </summary>
+    /// <param name="request"></param>
+    /// <returns></returns>
+    /// <exception cref="ArgumentException"></exception>
+    /// <exception cref="Exception"></exception>
     public async Task<FileInfoDto> UploadFileAsync(FileUploadRequestDto request)
     {
         if (request.FileContent == null)
@@ -41,7 +55,7 @@ public class FilesService(
         }
 
         // 获取上传路径，默认存放在App_Data目录
-        var appDataPath = Path.Combine(hostEnvironment.ContentRootPath, "uploads", request.Directory);
+        var appDataPath = Path.Combine(hostEnvironment.ContentRootPath, "uploads", request.Directory ?? string.Empty);
         if (!Directory.Exists(appDataPath))
         {
             Directory.CreateDirectory(appDataPath);
@@ -118,6 +132,12 @@ public class FilesService(
         return fileInfo.Adapt<FileInfoDto>();
     }
 
+    /// <summary>
+    /// 批量上传文件
+    /// </summary>
+    /// <param name="request"></param>
+    /// <param name="context"></param>
+    /// <returns></returns>
     public async Task<List<FileInfoDto>> BatchUploadFileAsync(List<FileUploadRequestDto> request, CallContext context = default)
     {
         var results = new List<FileInfoDto>();
@@ -129,6 +149,13 @@ public class FilesService(
         return results;
     }
 
+    /// <summary>
+    /// 创建文件夹
+    /// </summary>
+    /// <param name="request"></param>
+    /// <param name="context"></param>
+    /// <returns></returns>
+    /// <exception cref="Exception"></exception>
     public async Task<FileInfoDto> CreateFolderAsync(CreateFolderDto request, CallContext context = default)
     {
        // 检查父目录是否存在
@@ -147,7 +174,7 @@ public class FilesService(
         }
 
         // 获取上传路径，默认存放在目录
-        var appDataPath = Path.Combine(hostEnvironment.ContentRootPath, "uploads", request.Directory);
+        var appDataPath = Path.Combine(hostEnvironment.ContentRootPath, "uploads", request.Directory ?? string.Empty);
         if (!Directory.Exists(appDataPath))
         {
             Directory.CreateDirectory(appDataPath);
@@ -155,12 +182,11 @@ public class FilesService(
 
         // 创建相对路径，如果有父目录则放到对应目录下
         string relativePath;
-        string? parentPath = null;
-        
+
         if (request.ParentId.HasValue)
         {
             var parentDir = await fileRepository.FirstOrDefaultAsync(f => f.Id == request.ParentId);
-            parentPath = parentDir!.FilePath;
+            var parentPath = parentDir!.FilePath;
             relativePath = Path.Combine(parentPath, request.FolderName);
         }
         else
@@ -201,6 +227,13 @@ public class FilesService(
         return folderInfo.Adapt<FileInfoDto>();
     }
 
+    /// <summary>
+    /// 获取文件信息
+    /// </summary>
+    /// <param name="id"></param>
+    /// <param name="context"></param>
+    /// <returns></returns>
+    /// <exception cref="Exception"></exception>
     public async Task<FileInfoDto> GetFileInfoAsync(string id, CallContext context = default)
     {
         TryParse(id, out var guid);
@@ -213,6 +246,12 @@ public class FilesService(
         return fileInfo.Adapt<FileInfoDto>();
     }
 
+    /// <summary>
+    /// 查询文件列表
+    /// </summary>
+    /// <param name="queryDto"></param>
+    /// <param name="context"></param>
+    /// <returns></returns>
     public async Task<QueryFilesResponseDto> QueryFilesAsync(FileQueryDto queryDto, CallContext context = default)
     {
         // 构建查询条件
@@ -286,6 +325,13 @@ public class FilesService(
         };
     }
 
+    /// <summary>
+    /// 删除文件
+    /// </summary>
+    /// <param name="id"></param>
+    /// <param name="context"></param>
+    /// <returns></returns>
+    /// <exception cref="Exception"></exception>
     public async Task<DeleteResponseDto> DeleteAsync(string id, CallContext context = default)
     {
         TryParse(id, out var guid);
@@ -329,6 +375,11 @@ public class FilesService(
         return new  DeleteResponseDto { Success = true };
     }
 
+    /// <summary>
+    /// 获取目录树
+    /// </summary>
+    /// <param name="context"></param>
+    /// <returns></returns>
     public async Task<List<FileInfoDto>> GetDirectoryTreeAsync(CallContext context = default)
     {
         // 获取所有文件夹
@@ -363,6 +414,15 @@ public class FilesService(
         }
     }
 
+    /// <summary>
+    /// 获取文件内容
+    /// </summary>
+    /// <param name="relativePath"></param>
+    /// <param name="context"></param>
+    /// <returns></returns>
+    /// <exception cref="ArgumentException"></exception>
+    /// <exception cref="Exception"></exception>
+    /// <exception cref="FileNotFoundException"></exception>
     public async Task<FileResponseDto> GetFileByPathAsync(string relativePath, CallContext context = default)
     {
         if (string.IsNullOrEmpty(relativePath))
@@ -396,7 +456,7 @@ public class FilesService(
         await unitOfWork.SaveChangesAsync();
 
         // 使用FileExtensionContentTypeProvider获取MIME类型
-        if (!contentTypeProvider.TryGetContentType(fullPath, out var contentType))
+        if (!_contentTypeProvider.TryGetContentType(fullPath, out var contentType))
         {
             contentType = "application/octet-stream";
         }

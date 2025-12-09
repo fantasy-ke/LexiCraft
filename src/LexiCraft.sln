@@ -7,17 +7,17 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "LexiCraft.Aspire.Host", "Le
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "LexiCraft.Aspire.ServiceDefaults", "LexiCraft.Aspire.ServiceDefaults\LexiCraft.Aspire.ServiceDefaults.csproj", "{0D5E6DCA-5A8C-4974-88B3-502476C7F005}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "LexiCraft.AuthServer.Infrastructure", "Services\AuthServer\LexiCraft.AuthServer.Infrastructure\LexiCraft.AuthServer.Infrastructure.csproj", "{1AF149F5-916F-4048-B917-1DF3924B9F4A}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "LexiCraft.AuthServer.Infrastructure", "microservices\AuthServer\LexiCraft.AuthServer.Infrastructure\LexiCraft.AuthServer.Infrastructure.csproj", "{1AF149F5-916F-4048-B917-1DF3924B9F4A}"
 EndProject
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Services", "Services", "{3828E665-D227-42B9-A531-013FE0D1B2C2}"
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "microservices", "microservices", "{3828E665-D227-42B9-A531-013FE0D1B2C2}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "LexiCraft.AuthServer.Domain", "Services\AuthServer\LexiCraft.AuthServer.Domain\LexiCraft.AuthServer.Domain.csproj", "{0437F9D8-7751-430E-95B2-8791BF4AA608}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "LexiCraft.AuthServer.Domain", "microservices\AuthServer\LexiCraft.AuthServer.Domain\LexiCraft.AuthServer.Domain.csproj", "{0437F9D8-7751-430E-95B2-8791BF4AA608}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "LexiCraft.AuthServer.Application", "Services\AuthServer\LexiCraft.AuthServer.Application\LexiCraft.AuthServer.Application.csproj", "{BC6FFA5D-FD02-49E4-93F3-2FBBC824E07B}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "LexiCraft.AuthServer.Application", "microservices\AuthServer\LexiCraft.AuthServer.Application\LexiCraft.AuthServer.Application.csproj", "{BC6FFA5D-FD02-49E4-93F3-2FBBC824E07B}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "LexiCraft.AuthServer.Api", "Services\AuthServer\LexiCraft.AuthServer.Api\LexiCraft.AuthServer.Api.csproj", "{9B6FAD30-9DE8-41B2-8737-052739DF8E7F}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "LexiCraft.AuthServer.Api", "microservices\AuthServer\LexiCraft.AuthServer.Api\LexiCraft.AuthServer.Api.csproj", "{9B6FAD30-9DE8-41B2-8737-052739DF8E7F}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "LexiCraft.AuthServer.Application.Contract", "Services\AuthServer\LexiCraft.AuthServer.Application.Contract\LexiCraft.AuthServer.Application.Contract.csproj", "{EC6C2A8F-2F33-4743-9C59-523DBBF56FB0}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "LexiCraft.AuthServer.Application.Contract", "microservices\AuthServer\LexiCraft.AuthServer.Application.Contract\LexiCraft.AuthServer.Application.Contract.csproj", "{EC6C2A8F-2F33-4743-9C59-523DBBF56FB0}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "framework", "framework", "{BD3122C1-5B01-4D48-96CE-E5B9166F3E7D}"
 EndProject
@@ -49,7 +49,7 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BuildingBlocks.EntityFramew
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "FilesServer", "FilesServer", "{791EB85A-4F30-479B-987D-AE89A67B6A1E}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "LexiCraft.Files.Grpc", "Services\FliesServer\LexiCraft.Files.Grpc\LexiCraft.Files.Grpc.csproj", "{86AA48EC-92A7-4CB5-A0D3-B61E654BBE3C}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "LexiCraft.Files.Grpc", "microservices\FliesServer\LexiCraft.Files.Grpc\LexiCraft.Files.Grpc.csproj", "{86AA48EC-92A7-4CB5-A0D3-B61E654BBE3C}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BuildingBlocks.Grpc.Contracts", "BuildingBlocks\BuildingBlocks.Grpc.Contracts\BuildingBlocks.Grpc.Contracts.csproj", "{E8D4FE71-EB5A-4CC8-AE91-D5DA7E59F7ED}"
 EndProject
