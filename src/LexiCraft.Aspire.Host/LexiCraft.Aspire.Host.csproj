@@ -14,4 +14,8 @@
       <ProjectReference Include="..\Services\FliesServer\LexiCraft.Files.Grpc\LexiCraft.Files.Grpc.csproj" />
     </ItemGroup>
 
+    <ItemGroup>
+      <PackageReference Include="Aspire.Hosting.AppHost" Version="13.0.2" />
+    </ItemGroup>
+
 </Project>

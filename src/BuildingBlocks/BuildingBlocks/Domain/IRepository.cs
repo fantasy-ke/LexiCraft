@@ -60,7 +60,7 @@ public interface IRepository<TEntity>
     /// </summary>
     /// <param name="predicate">条件表达式</param>
     /// <returns>实体对象或默认值</returns>
-    Task<TEntity> FirstOrDefaultAsync(Expression<Func<TEntity, bool>> predicate);
+    Task<TEntity?> FirstOrDefaultAsync(Expression<Func<TEntity, bool>> predicate);
 
     /// <summary>
     ///     获取符合条件的第一个实体
@@ -74,7 +74,7 @@ public interface IRepository<TEntity>
     /// </summary>
     /// <param name="predicate">条件表达式</param>
     /// <returns>实体对象或默认值</returns>
-    Task<TEntity> SingleOrDefaultAsync(Expression<Func<TEntity, bool>> predicate);
+    Task<TEntity?> SingleOrDefaultAsync(Expression<Func<TEntity, bool>> predicate);
 
     /// <summary>
     ///     获取符合条件的唯一实体
@@ -102,7 +102,7 @@ public interface IRepository<TEntity>
     /// </summary>
     /// <param name="predicate">条件表达式</param>
     /// <returns>实体对象</returns>
-    Task<TEntity> GetAsync(Expression<Func<TEntity, bool>> predicate);
+    Task<TEntity?> GetAsync(Expression<Func<TEntity, bool>> predicate);
 
     /// <summary>
     ///     获取所有实体列表

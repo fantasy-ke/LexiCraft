@@ -18,13 +18,16 @@ Log.Logger = new LoggerConfiguration()
     .ReadFrom.Configuration(configuration)
     .CreateLogger();
 
-builder.AddServiceDefaults();
+builder.AddServiceDefaults( );
 // Add services to the container.
 // Learn more about configuring OpenAPI at https://aka.ms/aspnet/openapi
 builder.Host.UseSerilog();
 
 // Add services to the container.
-builder.Services.AddCodeFirstGrpc();
+builder.Services.AddCodeFirstGrpc(options =>
+{
+    options.EnableDetailedErrors = true;
+});
 
 builder.Services.AddGrpcSwagger();
 builder.Services.AddSwaggerGen(c =>

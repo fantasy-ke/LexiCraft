@@ -51,7 +51,7 @@ public class Repository<TDbContext, TEntity>(TDbContext dbContext) : IRepository
 		return Task.CompletedTask;
 	}
 
-	public async Task<TEntity> FirstOrDefaultAsync(Expression<Func<TEntity, bool>> predicate)
+	public async Task<TEntity?> FirstOrDefaultAsync(Expression<Func<TEntity, bool>> predicate)
 	{
 		return await Entity.FirstOrDefaultAsync(predicate).ConfigureAwait(false);
 	}
@@ -61,7 +61,7 @@ public class Repository<TDbContext, TEntity>(TDbContext dbContext) : IRepository
 		return Entity.FirstAsync(predicate);
 	}
 
-	public Task<TEntity> SingleOrDefaultAsync(Expression<Func<TEntity, bool>> predicate)
+	public Task<TEntity?> SingleOrDefaultAsync(Expression<Func<TEntity, bool>> predicate)
 	{
 		return Entity.SingleOrDefaultAsync(predicate);
 	}
@@ -81,7 +81,7 @@ public class Repository<TDbContext, TEntity>(TDbContext dbContext) : IRepository
 		return Entity.AnyAsync(predicate);
 	}
 
-	public Task<TEntity> GetAsync(Expression<Func<TEntity, bool>> predicate)
+	public Task<TEntity?> GetAsync(Expression<Func<TEntity, bool>> predicate)
 	{
 		return Entity.FirstOrDefaultAsync(predicate);
 	}

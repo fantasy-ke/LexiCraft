@@ -87,5 +87,6 @@
 	<s:String x:Key="/Default/Environment/AssemblyExplorer/XmlDocument/@EntryValue">&lt;AssemblyExplorer&gt;&#xD;
   &lt;Assembly Path="C:\Users\zhou\.nuget\packages\microsoft.codeanalysis.common\4.8.0\lib\netstandard2.0\Microsoft.CodeAnalysis.dll" /&gt;&#xD;
 &lt;/AssemblyExplorer&gt;</s:String>
+	<s:Boolean x:Key="/Default/UserDictionary/Words/=gitee/@EntryIndexedValue">True</s:Boolean>
 	
 	</wpf:ResourceDictionary>
