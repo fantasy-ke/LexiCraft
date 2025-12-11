@@ -37,8 +37,8 @@ public partial class AuthorizeService(
     IEventBus<LoginEto> loginEventBus,
     ICaptcha captcha,IJwtTokenProvider jwtTokenProvider,
     ICacheManager redisManager,ILogger<IAuthorizeService> logger,
-    IHttpClientFactory httpClientFactory,
-    IOptionsSnapshot<OAuthOption> oauthOption,IUserContext userContext):FantasyApi, IAuthorizeService
+    IHttpClientFactory httpClientFactory,IUserContext userContext,
+    OAuthProviderFactory oauthProviderFactory):FantasyApi, IAuthorizeService
 {
     [EndpointSummary("用户注册")]
     public async Task<bool> RegisterAsync(CreateUserRequest request)
@@ -204,84 +204,56 @@ public partial class AuthorizeService(
     {
         var client = httpClientFactory.CreateClient(nameof(AuthorizeService));
         var httpContext = httpContextAccessor.HttpContext;
-        OAuthUserDto? userDto = null;
-        var soureceType = SourceEnum.Register;
-        // 这里需要处理第三方登录的逻辑
-        if (type.Equals("github"))
+        
+        // 获取对应的OAuth提供者
+        var provider = oauthProviderFactory.GetProvider(type);
+        if (provider is null)
         {
-            soureceType = SourceEnum.GitHub;
-            // 处理github登录
-            var clientId = oauthOption.Value.GitHub.ClientId;
-            var clientSecret = oauthOption.Value.GitHub.ClientSecret;
-
-            var response =
-                await client.PostAsync(
-                    $"https://github.com/login/oauth/access_token?code={code}&client_id={clientId}&client_secret={clientSecret}",
-                    null);
-
-            var result = await response.Content.ReadFromJsonAsync<OAuthTokenDto>();
-            if (result is null)
-            {
-                ThrowAuthLoginException.ThrowException(loginEventBus,JsonSerializer.Serialize(
-                GetLoginLogDto(httpContext!,    new ExceptionLoginDto("Github授权失败","", "OAuth")
-                )));
-            }
-
-            var request = new HttpRequestMessage(HttpMethod.Get,
-                "https://api.github.com/user")
-            {
-                Headers =
-                {
-                    Authorization = new AuthenticationHeaderValue("Bearer", result.AccessToken)
-                }
-            };
-
-            var responseMessage = await client.SendAsync(request);
-
-            userDto = await responseMessage.Content.ReadFromJsonAsync<OAuthUserDto>();
+            ThrowAuthLoginException.ThrowException(loginEventBus,JsonSerializer.Serialize(
+                GetLoginLogDto(httpContext!, new ExceptionLoginDto($"不支持的OAuth提供者: {type}","", "OAuth")
+            )));
+            return string.Empty; // 这行代码不会执行，因为ThrowException会抛出异常
         }
-        else if (type.Equals("gitee"))
+
+        OAuthUserDto userDto;
+        try
         {
-            soureceType = SourceEnum.Gitee;
-            // 处理gitee登录
-            var clientId = oauthOption.Value.Gitee.ClientId;
-            var clientSecret = oauthOption.Value.Gitee.ClientSecret;
-
-            var response =
-                await client.PostAsync(
-                    $"https://gitee.com/oauth/token?grant_type=authorization_code&redirect_uri={redirectUri}&response_type=code&code={code}&client_id={clientId}&client_secret={clientSecret}",
-                    null);
-
-            var result = await response.Content.ReadFromJsonAsync<OAuthTokenDto>();
-            if (result?.AccessToken is null)
-            {
-                ThrowAuthLoginException.ThrowException(loginEventBus,JsonSerializer.Serialize(
-                GetLoginLogDto(httpContext!,    new ExceptionLoginDto("Gitee授权失败","", "OAuth")
-                )));
-            }
-
-
-            var request = new HttpRequestMessage(HttpMethod.Get,
-                "https://gitee.com/api/v5/user?access_token=" + result.AccessToken);
-
-            var responseMessage = await client.SendAsync(request);
-
-            userDto = await responseMessage.Content.ReadFromJsonAsync<OAuthUserDto>();
+            // 使用提供者获取用户信息
+            userDto = await provider.GetUserInfoAsync(code, redirectUri, client);
+        }
+        catch (Exception ex)
+        {
+            ThrowAuthLoginException.ThrowException(loginEventBus,JsonSerializer.Serialize(
+                GetLoginLogDto(httpContext!, new ExceptionLoginDto($"{type}授权失败: {ex.Message}","", "OAuth")
+            )));
+            return string.Empty; // 这行代码不会执行，因为ThrowException会抛出异常
         }
 
         // 获取是否存在当前渠道
         var oauth = await userOAuthRepository.FirstOrDefaultAsync(x =>
             x.Provider == type && x.ProviderUserId == userDto.Id.ToString());
 
-        User user;
+        if (oauth is null)
+        {
+            ThrowAuthLoginException.ThrowException(loginEventBus,JsonSerializer.Serialize(
+                GetLoginLogDto(httpContext!, new ExceptionLoginDto("用户未绑定该OAuth账户","", "OAuth")
+            )));
+            return string.Empty; // 这行代码不会执行，因为ThrowException会抛出异常
+        }
 
-        user = await userRepository.FirstOrDefaultAsync(x => x.Id == oauth.UserId);
-
+        var user = await userRepository.FirstOrDefaultAsync(x => x.Id == oauth.UserId);
+        if (user is null)
+        {
+            ThrowAuthLoginException.ThrowException(loginEventBus,JsonSerializer.Serialize(
+                GetLoginLogDto(httpContext!, new ExceptionLoginDto("用户不存在","", "OAuth")
+            )));
+            return string.Empty; // 这行代码不会执行，因为ThrowException会抛出异常
+        }
 
         var userDit = new Dictionary<string, string>();
 
-        user.PasswordHash = null;
-        user.PasswordSalt = null;
+        user.PasswordHash = null!;
+        user.PasswordSalt = null!;
         userDit.Add(UserInfoConst.UserId, user.Id.ToString());
         userDit.Add(UserInfoConst.UserName, user.Username);
         userDit.Add(UserInfoConst.UserAccount, user.UserAccount);

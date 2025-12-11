@@ -1,11 +1,15 @@
 ﻿using System.Text.Json;
 using System.Text.Json.Serialization;
 using BuildingBlocks.Grpc.Contracts.FileGrpc;
+using LexiCraft.AuthServer.Application.Authorize;
+using LexiCraft.AuthServer.Application.Contract.Authorize;
 using LexiCraft.AuthServer.Application.Contract.Events;
 using LexiCraft.AuthServer.Application.EventHandlers;
 using LexiCraft.AuthServer.Domain.Repository;
 using LexiCraft.AuthServer.Infrastructure.EntityFrameworkCore;
 using LexiCraft.AuthServer.Infrastructure.EntityFrameworkCore.Repository;
+using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.DependencyInjection.Extensions;
 using ProtoBuf.Grpc.ClientFactory;
 using Z.EventBus;
 
@@ -52,6 +56,11 @@ public static class ServiceExtensions
         //services.AddScoped<IVerificationService,VerificationService>();
         services.AddScoped<IUserRepository<LexiCraftDbContext>, UserRepository>();
         services.AddScoped<IEventHandler<LoginEto>, LoginHandler>();
+        // 注册OAuth提供者
+        services.TryAddEnumerable(ServiceDescriptor.Scoped<IOAuthProvider, GitHubOAuthProvider>());
+        services.TryAddEnumerable(ServiceDescriptor.Scoped<IOAuthProvider, GiteeOAuthProvider>());
+        services.AddScoped<OAuthProviderFactory>();
+        
         return services;
     }
 }
