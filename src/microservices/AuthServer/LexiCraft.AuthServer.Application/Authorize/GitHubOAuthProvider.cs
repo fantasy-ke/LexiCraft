@@ -4,13 +4,14 @@ using BuildingBlocks.Shared;
 using LexiCraft.AuthServer.Application.Contract.Authorize;
 using LexiCraft.AuthServer.Application.Contract.Authorize.Dto;
 using Microsoft.Extensions.Options;
+using ZAnalyzers.Core;
 
 namespace LexiCraft.AuthServer.Application.Authorize;
 
 /// <summary>
 /// GitHub OAuth提供者
 /// </summary>
-public class GitHubOAuthProvider(IOptionsSnapshot<OAuthOption> oauthOption) : IOAuthProvider
+public class GitHubOAuthProvider(IOptionsSnapshot<OAuthOption> oauthOption) :FantasyService, IOAuthProvider
 {
     public string ProviderName => "github";
 

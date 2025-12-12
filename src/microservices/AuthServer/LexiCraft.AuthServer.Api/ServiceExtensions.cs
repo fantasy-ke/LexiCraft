@@ -57,8 +57,8 @@ public static class ServiceExtensions
         services.AddScoped<IUserRepository<LexiCraftDbContext>, UserRepository>();
         services.AddScoped<IEventHandler<LoginEto>, LoginHandler>();
         // 注册OAuth提供者
-        services.TryAddEnumerable(ServiceDescriptor.Scoped<IOAuthProvider, GitHubOAuthProvider>());
-        services.TryAddEnumerable(ServiceDescriptor.Scoped<IOAuthProvider, GiteeOAuthProvider>());
+        // services.TryAddEnumerable(ServiceDescriptor.Scoped<IOAuthProvider, GitHubOAuthProvider>());
+        // services.TryAddEnumerable(ServiceDescriptor.Scoped<IOAuthProvider, GiteeOAuthProvider>());
         services.AddScoped<OAuthProviderFactory>();
         
         return services;
