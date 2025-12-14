@@ -2,7 +2,7 @@
 using LexiCraft.AuthServer.Application.Contract.Users.Dto;
 using Microsoft.AspNetCore.Http;
 
-namespace LexiCraft.AuthServer.Application.Contract.User;
+namespace LexiCraft.AuthServer.Application.Contract.Users;
 
 public interface IUserService
 {

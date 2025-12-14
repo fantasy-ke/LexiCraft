@@ -23,7 +23,7 @@ public sealed class UserInfoDto
     /// <summary>
     /// 用户手机
     /// </summary>
-    public string Phone { get;  set; }
+    public string? Phone { get;  set; }
 
     /// <summary>
     /// 头像

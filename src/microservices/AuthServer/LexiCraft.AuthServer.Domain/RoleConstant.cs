@@ -1,19 +1,20 @@
-﻿namespace LexiCraft.AuthServer.Domain;
+namespace LexiCraft.AuthServer.Domain;
 
 public static class RoleConstant
 {
+    public const string Admin = "admin";
+    public const string User = "user";
+    
     /// <summary>
-    /// 管理员角色
+    /// 默认用户权限
     /// </summary>
-    public const string Admin = "Admin";
-
-    /// <summary>
-    /// 用户角色。
-    /// </summary>
-    public const string User = "Users";
-
-    /// <summary>
-    /// AI角色
-    /// </summary>
-    public const string Assistant = "Assistant";
+    public static class DefaultUserPermissions
+    {
+        public static readonly string[] Permissions =
+        [
+            "Pages", 
+            "Pages.User",
+            "Pages.User.UploadAvatar"
+        ];
+    }
 }

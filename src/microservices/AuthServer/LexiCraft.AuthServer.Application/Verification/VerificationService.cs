@@ -1,4 +1,4 @@
-﻿using BuildingBlocks.Authentication;
+using BuildingBlocks.Authentication;
 using BuildingBlocks.Filters;
 using Lazy.Captcha.Core;
 using LexiCraft.AuthServer.Application.Contract.Verification;
@@ -11,7 +11,6 @@ namespace LexiCraft.AuthServer.Application.Verification;
 [Route("/api/Verification")]
 [Tags("verification")]
 [Filter(typeof(ResultEndPointFilter))]
-// [ZAuthorize("Verification.Page")]
 public class VerificationService(ICaptcha captcha):FantasyApi, IVerificationService
 {
     /// <summary>
@@ -20,7 +19,6 @@ public class VerificationService(ICaptcha captcha):FantasyApi, IVerificationServ
     /// <param name="key"></param>
     /// <returns></returns>
     [EndpointSummary("获取验证码")]
-    [ZAuthorize("Verification.Add","Verification.Edit")]
     public Task<VerificationDto> GetCaptchaCodeAsync(string key)
     {
         var uuid = key + ":" + Guid.NewGuid().ToString("N");

@@ -1,10 +1,12 @@
-﻿using BuildingBlocks.Authentication.Contract;
-using BuildingBlocks.Domain;
+﻿using BuildingBlocks.Authentication;
+using BuildingBlocks.Authentication.Contract;
 using BuildingBlocks.Filters;
 using BuildingBlocks.Grpc.Contracts.FileGrpc;
-using LexiCraft.AuthServer.Application.Contract.User;
 using LexiCraft.AuthServer.Application.Contract.User.Dto;
+using LexiCraft.AuthServer.Application.Contract.Users;
+using LexiCraft.AuthServer.Application.Contract.Users.Authorization;
 using LexiCraft.AuthServer.Application.Contract.Users.Dto;
+using LexiCraft.AuthServer.Domain.Repository;
 using LexiCraft.AuthServer.Domain.Users;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
@@ -16,8 +18,9 @@ namespace LexiCraft.AuthServer.Application.Users;
 [ZAnalyzers.Core.Route("/api/user")]
 [Tags("User")]
 [Filter(typeof(ResultEndPointFilter))]
+[ZAuthorize(UsersPermissions.Page)]
 public class UserService(
-    IRepository<User> userRepository, 
+    IUserRepository userRepository, 
     IUserContext userContext,
     IFilesService filesService) : FantasyApi, IUserService
 {
@@ -33,11 +36,12 @@ public class UserService(
             Email = p.Email,
             Avatar = p.Avatar,
             Phone = p.Phone,
-        }).FirstOrDefaultAsync();
+        }).FirstOrDefaultAsync() ?? new UserInfoDto();
     }
 
     [EndpointSummary("上传头像")]
     [IgnoreAntiforgeryToken]
+    [ZAuthorize(UsersPermissions.UploadAvatar)]
     public async Task<AvatarUploadResultDto> UploadAvatarAsync(IFormFile avatar)
     {
         var userId = userContext.UserId;

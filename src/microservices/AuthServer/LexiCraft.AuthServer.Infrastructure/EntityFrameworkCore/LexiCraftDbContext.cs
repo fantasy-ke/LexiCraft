@@ -14,7 +14,7 @@ using Microsoft.Extensions.Options;
 
 namespace LexiCraft.AuthServer.Infrastructure.EntityFrameworkCore;
 
-public class LexiCraftDbContext(DbContextOptions options,IServiceProvider? serviceProvider = null): DbContext(options)
+public class LexiCraftDbContext(DbContextOptions options,IServiceProvider serviceProvider = null): DbContext(options)
 {
     public DbSet<User> Users { get; set; }
     
@@ -25,8 +25,10 @@ public class LexiCraftDbContext(DbContextOptions options,IServiceProvider? servi
     public DbSet<LoginLog> LoginLogs { get; set; }
     
     public DbSet<FileInfos> FileInfos { get; set; }
+    
+    public DbSet<UserPermission> UserPermissions { get; set; }
 
-    private ContextOption? ContextOption { get; } = 
+    private ContextOption ContextOption { get; } = 
         serviceProvider?.GetService<IOptionsSnapshot<ContextOption>>()!.Value;
     
     
@@ -58,10 +60,9 @@ public class LexiCraftDbContext(DbContextOptions options,IServiceProvider? servi
 
         foreach (var entityType in modelBuilder.Model.GetEntityTypes())
         {
-            methodInfo!.MakeGenericMethod(entityType.ClrType).Invoke(this, new object?[]
-            {
+            methodInfo!.MakeGenericMethod(entityType.ClrType).Invoke(this, [
                 modelBuilder, entityType
-            });
+            ]);
         }
     }
 
@@ -86,10 +87,10 @@ public class LexiCraftDbContext(DbContextOptions options,IServiceProvider? servi
     /// </summary>
     /// <typeparam name="TEntity"></typeparam>
     /// <returns></returns>
-    protected virtual Expression<Func<TEntity, bool>>? CreateFilterExpression<TEntity>()
+    protected virtual Expression<Func<TEntity, bool>> CreateFilterExpression<TEntity>()
         where TEntity : class
     {
-        Expression<Func<TEntity, bool>>? expression = null;
+        Expression<Func<TEntity, bool>> expression = null;
 
         if (typeof(ISoftDeleted).IsAssignableFrom(typeof(TEntity)))
         {

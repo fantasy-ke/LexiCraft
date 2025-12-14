@@ -1,4 +1,4 @@
-﻿using System.Net.Http.Headers;
+using System.Net.Http.Headers;
 using System.Net.Http.Json;
 using System.Text.Json;
 using System.Text.RegularExpressions;
@@ -16,6 +16,7 @@ using LexiCraft.AuthServer.Application.Contract.Authorize.Input;
 using LexiCraft.AuthServer.Application.Contract.Events;
 using LexiCraft.AuthServer.Application.Contract.Exceptions;
 using LexiCraft.AuthServer.Domain;
+using LexiCraft.AuthServer.Domain.Repository;
 using LexiCraft.AuthServer.Domain.Users;
 using LexiCraft.AuthServer.Domain.Users.Enum;
 using Microsoft.AspNetCore.Http;
@@ -38,7 +39,8 @@ public partial class AuthorizeService(
     ICaptcha captcha,IJwtTokenProvider jwtTokenProvider,
     ICacheManager redisManager,ILogger<IAuthorizeService> logger,
     IHttpClientFactory httpClientFactory,IUserContext userContext,
-    OAuthProviderFactory oauthProviderFactory):FantasyApi, IAuthorizeService
+    OAuthProviderFactory oauthProviderFactory,
+    IUserPermissionRepository userPermissionRepository):FantasyApi, IAuthorizeService
 {
     [EndpointSummary("用户注册")]
     public async Task<bool> RegisterAsync(CreateUserRequest request)
@@ -94,16 +96,41 @@ public partial class AuthorizeService(
             user.SetPassword(request.Password);
             user.Avatar = "🦜";
             user.Roles.Add(RoleConstant.User);
+            // 注意：不再在这里添加权限，权限将在数据库中管理
             user.UpdateLastLogin();
             user.UpdateSource(SourceEnum.Register);
             await userRepository.InsertAsync(user);
             await userRepository.SaveChangesAsync();
+            
+            // 为用户分配默认权限
+            await AssignDefaultPermissionsAsync(user.Id);
+            
             return true;
         }
         catch (Exception e)
         {
             logger.LogError(e, $"{e.Message}用户注册失败");
             throw;
+        }
+    }
+    
+    /// <summary>
+    /// 为用户分配默认权限
+    /// </summary>
+    /// <param name="userId"></param>
+    /// <returns></returns>
+    private async Task AssignDefaultPermissionsAsync(Guid userId)
+    {
+        var defaultPermissions = new[]
+        {
+            "Pages",
+            "Pages.Verification",
+            "Pages.Verification.Create"
+        };
+
+        foreach (var permission in defaultPermissions)
+        {
+            await userPermissionRepository.AddUserPermissionAsync(userId, permission);
         }
     }
 
@@ -173,6 +200,7 @@ public partial class AuthorizeService(
         userDit.Add(UserInfoConst.UserName, user.Username);
         userDit.Add(UserInfoConst.UserAccount, user.UserAccount);
         userDit.Add("UserInfo", JsonSerializer.Serialize(user, JsonSerializerOptions.Web));
+        // 注意：不再将权限添加到JWT中
 
         var token = jwtTokenProvider.GenerateAccessToken(userDit, user.Id, user.Roles.ToArray());
         var refreshToken = jwtTokenProvider.GenerateRefreshToken();
@@ -258,6 +286,7 @@ public partial class AuthorizeService(
         userDit.Add(UserInfoConst.UserName, user.Username);
         userDit.Add(UserInfoConst.UserAccount, user.UserAccount);
         userDit.Add("UserInfo", JsonSerializer.Serialize(user, JsonSerializerOptions.Web));
+        // 注意：不再将权限添加到JWT中
 
         var token = jwtTokenProvider.GenerateAccessToken(userDit, user.Id, user.Roles.ToArray());
 

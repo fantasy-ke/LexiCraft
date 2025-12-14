@@ -5,6 +5,7 @@ using BuildingBlocks.Extensions.System;
 using BuildingBlocks.Serilog;
 using BuildingBlocks.Shared;
 using LexiCraft.AuthServer.Api;
+using LexiCraft.AuthServer.Application.Contract.Users.Authorization;
 using LexiCraft.AuthServer.Infrastructure.EntityFrameworkCore.Extensions;
 using Microsoft.OpenApi;
 using Serilog;
@@ -50,6 +51,9 @@ builder.Services.AddExceptionHandler<CustomExceptionHandler>();
 
 builder.Services.RegisterAuthorization();
 builder.Services.AddAuthorization();
+
+// 注册权限定义提供程序
+builder.Services.AddPermissionDefinitionProvider<UsersPermissionDefinitionProvider>();
 
 
 builder.Services.ServicesCors(options =>

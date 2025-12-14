@@ -1,15 +1,16 @@
-﻿using BuildingBlocks.Extensions.System;
+using BuildingBlocks.Extensions.System;
 using Microsoft.AspNetCore.Authorization;
 
 namespace BuildingBlocks.Authentication;
 
-[AttributeUsage(AttributeTargets.Class | AttributeTargets.Method)]
-public class ZAuthorizeAttribute: AuthorizeAttribute
+[AttributeUsage(AttributeTargets.Class | AttributeTargets.Method, AllowMultiple = true)]
+public class ZAuthorizeAttribute : AuthorizeAttribute
 {
-    public string[] AuthorizeName { get; set; }
-    public ZAuthorizeAttribute(params string[] policyNames)
+    public string[] Permissions { get; set; }
+    
+    public ZAuthorizeAttribute(params string[] permissions)
     {
-        AuthorizeName = policyNames;
-        Policy = AuthorizeName.Length > 0 ? AuthorizeName.JoinAsString(","): null;
+        Permissions = permissions;
+        Policy = permissions.Length > 0 ? permissions.JoinAsString(",") : null;
     }
 }

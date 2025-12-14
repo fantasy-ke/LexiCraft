@@ -28,4 +28,8 @@
       <Folder Include="uploads\" />
     </ItemGroup>
 
+    <ItemGroup>
+      <PackageReference Include="Gnarly" Version="1.0.7" />
+    </ItemGroup>
+
 </Project>

@@ -1,11 +1,10 @@
-﻿using BuildingBlocks.Extensions.System;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace BuildingBlocks.Authentication;
 
-public class AuthorizeHandler(
+public sealed class AuthorizeHandler(
     IServiceProvider serviceProvider,
     IHttpContextAccessor contextAccessor) : AuthorizationHandler<AuthorizeRequirement>, IDisposable
 {
@@ -49,20 +48,21 @@ public class AuthorizeHandler(
             return;
         }
 
-        if (!await permissionCheck.IsGranted(requirement.AuthorizeName.JoinAsString(",")))
+        // 检查所有需要的权限
+        foreach (var permission in requirement.AuthorizeName)
         {
+            if (await permissionCheck.IsGranted(permission)) continue;
             failureReason = new AuthorizationFailureReason(this,
-                $"Insufficient permissions, unable to request - request interface{contextAccessor.HttpContext?.Request.Path ?? string.Empty}");
+                $"权限不足，缺少权限: {permission}，无法请求接口 {contextAccessor.HttpContext?.Request.Path ?? string.Empty}");
 
             context.Fail(failureReason);
-
             return;
         }
 
         context.Succeed(requirement);
     }
 
-    protected virtual void Dispose(bool disposing)
+    private void Dispose(bool disposing)
     {
         if (disposing)
         {

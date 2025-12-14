@@ -1,38 +1,38 @@
-﻿using System.Security.Claims;
+using System.Security.Claims;
 using BuildingBlocks.Authentication.Contract;
 using Microsoft.AspNetCore.Http;
 
 namespace BuildingBlocks.Authentication;
 
-public class UserContext(IHttpContextAccessor httpContextAccessor): IUserContext
+/// <summary>
+///   用户上下文
+/// </summary>
+/// <param name="httpContextAccessor"></param>
+public class UserContext(
+    IHttpContextAccessor httpContextAccessor)
+    : IUserContext
 {
-    private ClaimsPrincipal _principal => httpContextAccessor.HttpContext?.User;
+    private ClaimsPrincipal Principal => httpContextAccessor.HttpContext?.User ?? throw new InvalidOperationException("HttpContext.User is null");
+    
     /// <summary>
     /// 用户id
     /// </summary>
-    public virtual Guid UserId => FindClaimValue<Guid>(ClaimTypes.Sid);
+    public Guid UserId => FindClaimValue<Guid>(ClaimTypes.Sid);
 
     /// <summary>
     /// 用户名称
     /// </summary>
-    public virtual string UserName => FindClaimValue<string>(UserInfoConst.UserName);
+    public string UserName => FindClaimValue<string>(UserInfoConst.UserName) ?? string.Empty;
 
+    /// <summary>
+    /// 用户所有权限（包括继承的权限）
+    /// </summary>
+    public string[] UserAllPermissions => []; // 清理掉权限相关代码，返回空数组
     
-    
-    public string[] UserAllPermissions
-    {
-        get
-        {
-            var permClaim = FindClaimValue<string[]>(UserInfoConst.UserAllPermissions);
-            return permClaim;
-        }
-    }
-
     /// <summary>
     /// 用户账号
     /// </summary>
-    public string UserAccount => FindClaimValue<string>(UserInfoConst.UserAccount);
-
+    public string UserAccount => FindClaimValue<string>(UserInfoConst.UserAccount) ?? string.Empty;
 
     /// <summary>
     /// 是否授权
@@ -53,10 +53,10 @@ public class UserContext(IHttpContextAccessor httpContextAccessor): IUserContext
 
     protected virtual Claim? FindClaim(string claimType)
     {
-        return _principal.FindFirst(c => c.Type == claimType);
+        return Principal.FindFirst(c => c.Type == claimType);
     }
 
-    private TType FindClaimValue<TType>(string claimType)
+    private TType? FindClaimValue<TType>(string claimType)
     {
         var claimValue = FindClaim(claimType)?.Value;
 
@@ -79,7 +79,7 @@ public class UserContext(IHttpContextAccessor httpContextAccessor): IUserContext
                 return default;
             
 
-            object result = null;
+            object? result = null;
 
             // 特殊处理 Guid 类型
             if (underlyingType == typeof(Guid))
@@ -108,11 +108,16 @@ public class UserContext(IHttpContextAccessor httpContextAccessor): IUserContext
             {
                 result = claimValue;
             }
+            // 数组类型特殊处理
+            else if (underlyingType == typeof(string[]))
+            {
+                result = string.IsNullOrEmpty(claimValue) ? Array.Empty<string>() : claimValue.Split(',');
+            }
             else
             {
                 throw new InvalidCastException($"不支持从字符串转换为 {underlyingType.FullName}");
             }
-            return (TType)result;
+            return (TType)result!;
         }
         catch (Exception ex)
         {

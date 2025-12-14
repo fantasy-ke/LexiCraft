@@ -5,6 +5,6 @@ using LexiCraft.AuthServer.Domain.Users;
 
 namespace LexiCraft.AuthServer.Infrastructure.EntityFrameworkCore.Repository;
 
-[Registration(typeof(IUserRepository<LexiCraftDbContext>))]
+[Registration(typeof(IUserRepository))]
 public class UserRepository(LexiCraftDbContext dbContext) 
-    : Repository<LexiCraftDbContext, User>(dbContext), IUserRepository<LexiCraftDbContext>, IScopeDependency;
+    : Repository<LexiCraftDbContext, User>(dbContext), IUserRepository, IScopeDependency;
