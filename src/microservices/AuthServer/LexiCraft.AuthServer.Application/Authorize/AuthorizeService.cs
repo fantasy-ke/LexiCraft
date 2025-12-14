@@ -99,11 +99,11 @@ public partial class AuthorizeService(
             // 注意：不再在这里添加权限，权限将在数据库中管理
             user.UpdateLastLogin();
             user.UpdateSource(SourceEnum.Register);
-            await userRepository.InsertAsync(user);
+            var afterUser = await userRepository.InsertAsync(user);
             await userRepository.SaveChangesAsync();
             
             // 为用户分配默认权限
-            await AssignDefaultPermissionsAsync(user.Id);
+            await AssignDefaultPermissionsAsync(afterUser.Id);
             
             return true;
         }
@@ -121,17 +121,8 @@ public partial class AuthorizeService(
     /// <returns></returns>
     private async Task AssignDefaultPermissionsAsync(Guid userId)
     {
-        var defaultPermissions = new[]
-        {
-            "Pages",
-            "Pages.Verification",
-            "Pages.Verification.Create"
-        };
-
-        foreach (var permission in defaultPermissions)
-        {
-            await userPermissionRepository.AddUserPermissionAsync(userId, permission);
-        }
+        var defaultPermissions = RoleConstant.DefaultUserPermissions.Permissions;
+        await userPermissionRepository.AddUserPermissionsAsync(userId, defaultPermissions);
     }
 
     private LoginEto GetLoginLogDto(HttpContext context, ExceptionLoginDto? exDto)
@@ -183,6 +174,7 @@ public partial class AuthorizeService(
             ThrowAuthLoginException.ThrowException(loginEventBus,JsonSerializer.Serialize(
                 GetLoginLogDto(httpContext!,new ExceptionLoginDto("用户不存在",input.UserAccount, "Password")
             )));
+            return new TokenResponse();
         }
 
         if (!user.VerifyPassword(input.PassWord))

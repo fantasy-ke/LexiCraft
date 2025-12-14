@@ -1,10 +1,9 @@
-using BuildingBlocks.Authentication;
-using BuildingBlocks.Domain;
-using LexiCraft.AuthServer.Application.Contract.User;
+using BuildingBlocks.Filters;
+using Gnarly.Data;
 using LexiCraft.AuthServer.Application.Contract.Users;
-using LexiCraft.AuthServer.Application.Contract.Users.Authorization;
+using LexiCraft.AuthServer.Domain;
 using LexiCraft.AuthServer.Domain.Repository;
-using LexiCraft.AuthServer.Domain.Users;
+using Microsoft.AspNetCore.Http;
 using ZAnalyzers.Core;
 
 namespace LexiCraft.AuthServer.Application.Users;
@@ -12,9 +11,12 @@ namespace LexiCraft.AuthServer.Application.Users;
 /// <summary>
 /// 用户权限服务
 /// </summary>
+[Route("/api/userPermission")]
+[Tags("UserPermission")]
+[Filter(typeof(ResultEndPointFilter))]
 public class PermissionService(
     IUserPermissionRepository userPermissionRepository)
-    : FantasyService, IPermissionService
+    : FantasyApi, IPermissionService
 {
 
     /// <summary>
@@ -22,15 +24,10 @@ public class PermissionService(
     /// </summary>
     /// <param name="userId"></param>
     /// <returns></returns>
+    [EndpointSummary("为用户分配默认权限")]
     public async Task AssignDefaultPermissionsAsync(Guid userId)
     {
-        var defaultPermissions = new[]
-        {
-            "Pages",
-            "Pages.Verification",
-            "Pages.Verification.Create"
-        };
-
+        var defaultPermissions = RoleConstant.DefaultUserPermissions.Permissions;
         await userPermissionRepository.AddUserPermissionsAsync(userId, defaultPermissions);
     }
 
@@ -39,14 +36,11 @@ public class PermissionService(
     /// </summary>
     /// <param name="userId"></param>
     /// <returns></returns>
+    [EndpointSummary("获取用户所有权限")]
     public async Task<HashSet<string>> GetUserAllPermissionsAsync(Guid userId)
     {
         // 获取用户直接权限
         var directPermissions = await userPermissionRepository.GetUserPermissionsAsync(userId);
-        var allPermissions = new HashSet<string>(directPermissions);
-
-        // TODO: 添加继承的权限逻辑（如果需要）
-
-        return allPermissions;
+        return [..directPermissions];
     }
 }

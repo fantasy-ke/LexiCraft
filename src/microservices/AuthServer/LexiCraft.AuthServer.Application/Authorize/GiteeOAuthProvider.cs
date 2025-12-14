@@ -1,16 +1,17 @@
 using System.Net.Http.Json;
 using BuildingBlocks.Shared;
+using Gnarly.Data;
 using LexiCraft.AuthServer.Application.Contract.Authorize;
 using LexiCraft.AuthServer.Application.Contract.Authorize.Dto;
 using Microsoft.Extensions.Options;
-using ZAnalyzers.Core;
 
 namespace LexiCraft.AuthServer.Application.Authorize;
 
 /// <summary>
 /// Gitee OAuth提供者
 /// </summary>
-public class GiteeOAuthProvider(IOptionsSnapshot<OAuthOption> oauthOption) :FantasyService, IOAuthProvider
+[Registration(typeof(IOAuthProvider))]
+public class GiteeOAuthProvider(IOptionsSnapshot<OAuthOption> oauthOption) : IOAuthProvider,IScopeDependency
 {
     public string ProviderName => "gitee";
 

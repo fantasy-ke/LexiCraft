@@ -1,6 +1,7 @@
 using System.Net.Http.Headers;
 using System.Net.Http.Json;
 using BuildingBlocks.Shared;
+using Gnarly.Data;
 using LexiCraft.AuthServer.Application.Contract.Authorize;
 using LexiCraft.AuthServer.Application.Contract.Authorize.Dto;
 using Microsoft.Extensions.Options;
@@ -11,7 +12,8 @@ namespace LexiCraft.AuthServer.Application.Authorize;
 /// <summary>
 /// GitHub OAuth提供者
 /// </summary>
-public class GitHubOAuthProvider(IOptionsSnapshot<OAuthOption> oauthOption) :FantasyService, IOAuthProvider
+[Registration(typeof(IOAuthProvider))]
+public class GitHubOAuthProvider(IOptionsSnapshot<OAuthOption> oauthOption) :IOAuthProvider,IScopeDependency
 {
     public string ProviderName => "github";
 

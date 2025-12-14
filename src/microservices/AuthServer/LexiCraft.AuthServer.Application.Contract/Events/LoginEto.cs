@@ -20,6 +20,6 @@ public record LoginEto(
     string? Origin,
     string? Ip,
     string? UserAgent,
-    string LoginType,
+    string? LoginType,
     bool IsSuccess,
     string? ErrorMessage);

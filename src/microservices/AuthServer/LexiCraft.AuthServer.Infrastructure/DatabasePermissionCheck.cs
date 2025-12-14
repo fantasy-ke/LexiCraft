@@ -63,11 +63,9 @@ public class DatabasePermissionCheck(
     private void AddInheritedPermissions(HashSet<string> permissions, string permissionName)
     {
         var permission = permissionDefinitionManager.GetPermission(permissionName);
-        if (permission?.Parent != null)
-        {
-            permissions.Add(permission.Parent.Name);
-            AddInheritedPermissions(permissions, permission.Parent.Name);
-        }
+        if (permission?.Parent == null) return;
+        permissions.Add(permission.Parent.Name);
+        AddInheritedPermissions(permissions, permission.Parent.Name);
     }
 
     private bool CheckPermission(HashSet<string> userPermissions, string permissionName)
@@ -78,11 +76,9 @@ public class DatabasePermissionCheck(
 
         // 检查是否有父权限（权限继承）
         var permission = permissionDefinitionManager.GetPermission(permissionName);
-        if (permission == null)
-            return false;
-
-        // 递归检查父权限
-        return CheckParentPermission(userPermissions, permission);
+        return permission != null &&
+               // 递归检查父权限
+               CheckParentPermission(userPermissions, permission);
     }
 
     private bool CheckParentPermission(HashSet<string> userPermissions, PermissionDefinition permission)
@@ -91,10 +87,8 @@ public class DatabasePermissionCheck(
             return false;
 
         // 检查用户是否拥有父权限
-        if (userPermissions.Contains(permission.Parent.Name))
-            return true;
-
-        // 递归检查祖父权限
-        return CheckParentPermission(userPermissions, permission.Parent);
+        return userPermissions.Contains(permission.Parent.Name) ||
+               // 递归检查祖父权限
+               CheckParentPermission(userPermissions, permission.Parent);
     }
 }

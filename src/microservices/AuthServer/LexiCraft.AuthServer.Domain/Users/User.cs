@@ -32,12 +32,12 @@ public class User: AuditEntity<Guid,Guid?>
     /// <summary>
     /// 用户的密码哈希值。
     /// </summary>
-    public string PasswordHash { get; set; }
+    public string? PasswordHash { get; set; }
 
     /// <summary>
     /// 用户密码的盐值。
     /// </summary>
-    public string PasswordSalt { get; set; }
+    public string? PasswordSalt { get; set; }
     
     /// <summary>
     ///  用户来源
