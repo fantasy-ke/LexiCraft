@@ -53,11 +53,11 @@ public static class ServiceExtensions
         //services.AddScoped<IUserRepository, UserRepository>();
         services.AddScoped<IPermissionCheck, DatabasePermissionCheck>();
         services.AddScoped<IEventHandler<LoginEto>, LoginHandler>();
-        services.AddAutoGnarly();
+        services.AddZAnalyzerServices();
         // 注册OAuth提供者
         // services.TryAddEnumerable(ServiceDescriptor.Scoped<IOAuthProvider, GitHubOAuthProvider>());
         // services.TryAddEnumerable(ServiceDescriptor.Scoped<IOAuthProvider, GiteeOAuthProvider>());
-        services.AddScoped<OAuthProviderFactory>();
+        // services.AddScoped<OAuthProviderFactory>();
         
         return services;
     }

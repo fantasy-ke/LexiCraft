@@ -1,5 +1,3 @@
-using System.Net.Http.Headers;
-using System.Net.Http.Json;
 using System.Text.Json;
 using System.Text.RegularExpressions;
 using BuildingBlocks.Authentication;
@@ -8,7 +6,6 @@ using BuildingBlocks.Domain;
 using BuildingBlocks.Extensions;
 using BuildingBlocks.Filters;
 using BuildingBlocks.Redis;
-using BuildingBlocks.Shared;
 using Lazy.Captcha.Core;
 using LexiCraft.AuthServer.Application.Contract.Authorize;
 using LexiCraft.AuthServer.Application.Contract.Authorize.Dto;
@@ -22,7 +19,6 @@ using LexiCraft.AuthServer.Domain.Users.Enum;
 using Microsoft.AspNetCore.Http;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
-using Microsoft.Extensions.Options;
 using Z.EventBus;
 using ZAnalyzers.Core;
 
@@ -40,7 +36,7 @@ public partial class AuthorizeService(
     ICacheManager redisManager,ILogger<IAuthorizeService> logger,
     IHttpClientFactory httpClientFactory,IUserContext userContext,
     OAuthProviderFactory oauthProviderFactory,
-    IUserPermissionRepository userPermissionRepository):FantasyApi, IAuthorizeService
+    IUserPermissionRepository userPermissionRepository):ZAnalyzerApi, IAuthorizeService
 {
     [EndpointSummary("用户注册")]
     public async Task<bool> RegisterAsync(CreateUserRequest request)
