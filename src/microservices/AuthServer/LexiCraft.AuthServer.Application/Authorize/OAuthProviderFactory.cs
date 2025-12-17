@@ -6,7 +6,7 @@ namespace LexiCraft.AuthServer.Application.Authorize;
 /// <summary>
 /// OAuth提供者工厂
 /// </summary>
-public abstract class OAuthProviderFactory(IEnumerable<IOAuthProvider> providers):IScopeDependency
+public class OAuthProviderFactory(IEnumerable<IOAuthProvider> providers): IScopeDependency
 {
     private readonly Dictionary<string, IOAuthProvider> _providers 
         = providers.ToDictionary(p => p.ProviderName.ToLower(), p => p);

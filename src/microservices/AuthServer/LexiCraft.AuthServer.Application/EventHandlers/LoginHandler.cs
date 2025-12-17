@@ -2,6 +2,7 @@
 using LexiCraft.AuthServer.Application.Contract.Events;
 using LexiCraft.AuthServer.Domain.LoginLogs;
 using MapsterMapper;
+using Microsoft.Extensions.Logging;
 using Z.EventBus;
 
 namespace LexiCraft.AuthServer.Application.EventHandlers;
@@ -11,15 +12,24 @@ namespace LexiCraft.AuthServer.Application.EventHandlers;
 /// </summary>
 /// <param name="loginLogRepository"></param>
 /// <param name="mapper"></param>
-public sealed class LoginHandler(IRepository<LoginLog> loginLogRepository, IMapper mapper)
+public sealed class LoginHandler(IRepository<LoginLog> loginLogRepository, 
+    IMapper mapper,ILogger<LoginHandler> logger)
     : IEventHandler<LoginEto>
 {
     public async Task HandleAsync(LoginEto @event, CancellationToken cancellationToken = default)
     {
-        var entity = mapper.Map<LoginLog>(@event);
+        try
+        {
+            var entity = mapper.Map<LoginLog>(@event);
 
-        await loginLogRepository.InsertAsync(entity);
+            await loginLogRepository.InsertAsync(entity);
 
-        await loginLogRepository.SaveChangesAsync();
+            await loginLogRepository.SaveChangesAsync();
+        }
+        catch (Exception e)
+        {
+            logger.LogError(e, $"登录事件处理器 消费错误信息{e.Message}");
+        }
+        
     }
 }

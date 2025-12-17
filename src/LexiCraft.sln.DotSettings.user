@@ -90,6 +90,9 @@
 	<s:String x:Key="/Default/Environment/AssemblyExplorer/XmlDocument/@EntryValue">&lt;AssemblyExplorer&gt;&#xD;
   &lt;Assembly Path="C:\Users\zhou\.nuget\packages\microsoft.codeanalysis.common\4.8.0\lib\netstandard2.0\Microsoft.CodeAnalysis.dll" /&gt;&#xD;
 &lt;/AssemblyExplorer&gt;</s:String>
+	<s:String x:Key="/Default/Environment/UnitTesting/UnitTestSessionStore/Sessions/=dfa173cd_002De927_002D46c1_002D9fa8_002D882f8a599804/@EntryIndexedValue">&lt;SessionState ContinuousTestingMode="0" Name="解决方案中的所有测试" xmlns="urn:schemas-jetbrains-com:jetbrains-ut-session"&gt;&#xD;
+  &lt;Solution /&gt;&#xD;
+&lt;/SessionState&gt;</s:String>
 	<s:Boolean x:Key="/Default/UserDictionary/Words/=gitee/@EntryIndexedValue">True</s:Boolean>
 	
 	</wpf:ResourceDictionary>

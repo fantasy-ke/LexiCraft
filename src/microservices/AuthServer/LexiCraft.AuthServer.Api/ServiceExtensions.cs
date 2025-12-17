@@ -2,7 +2,6 @@
 using System.Text.Json.Serialization;
 using BuildingBlocks.Authentication;
 using BuildingBlocks.Grpc.Contracts.FileGrpc;
-using LexiCraft.AuthServer.Application.Authorize;
 using LexiCraft.AuthServer.Application.Contract.Events;
 using LexiCraft.AuthServer.Application.EventHandlers;
 using LexiCraft.AuthServer.Infrastructure;
