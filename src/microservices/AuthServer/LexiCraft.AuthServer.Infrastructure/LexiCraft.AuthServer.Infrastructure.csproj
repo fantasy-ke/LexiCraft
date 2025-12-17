@@ -10,7 +10,7 @@
     <ItemGroup>
       <ProjectReference Include="..\..\..\BuildingBlocks\BuildingBlocks.Authorization\BuildingBlocks.Authorization.csproj" />
       <ProjectReference Include="..\..\..\BuildingBlocks\BuildingBlocks.EntityFrameworkCore\BuildingBlocks.EntityFrameworkCore.csproj" />
-      <ProjectReference Include="..\..\FliesServer\LexiCraft.Files.Grpc\LexiCraft.Files.Grpc.csproj" />
+      <ProjectReference Include="..\..\..\BuildingBlocks\BuildingBlocks.Grpc.Contracts\BuildingBlocks.Grpc.Contracts.csproj" />
       <ProjectReference Include="..\LexiCraft.AuthServer.Domain\LexiCraft.AuthServer.Domain.csproj" />
     </ItemGroup>
 
