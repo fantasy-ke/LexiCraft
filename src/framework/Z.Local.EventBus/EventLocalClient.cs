@@ -51,7 +51,7 @@ public class EventLocalClient(
             var data = handlerSerializer.SerializeJson(eventDto);
 
             await channel.Writer.WriteAsync(data, _cts.Token);
-            
+
             break;
         }
     }
@@ -92,16 +92,14 @@ public class EventLocalClient(
 
     public async Task ConsumeStartAsync(CancellationToken stoppingToken)
     {
-        
         while (!stoppingToken.IsCancellationRequested)
         {
             foreach (var channel in _channels)
             {
-                _ = Task.Factory.StartNew(async () =>
-                {
-                    await ConsumeChannelAsync(channel.Key, channel.Value, _cts.Token);
-                }, stoppingToken);
+                _ = Task.Factory.StartNew(
+                    async () => { await ConsumeChannelAsync(channel.Key, channel.Value, _cts.Token); }, stoppingToken);
             }
+
             //周期性任务，于上次任务执行完成后，等待5秒，执行下一次任务
             await Task.Delay(5000, stoppingToken);
         }
@@ -118,11 +116,11 @@ public class EventLocalClient(
     private async Task ConsumeChannelAsync(string channelName, Channel<string> channel,
         CancellationToken cancellationToken)
     {
-        logger.LogInformation($"开始消费Channel: {channelName}");
-
-        try
+        while (channel.Reader.TryPeek(out _) && await channel.Reader.WaitToReadAsync(cancellationToken))
         {
-            while (channel.Reader.TryPeek(out _) && await channel.Reader.WaitToReadAsync(cancellationToken))
+            
+            logger.LogInformation($"开始消费Channel: {channelName}");
+            try
             {
                 if (!channel.Reader.TryRead(out var message)) continue;
 
@@ -159,27 +157,28 @@ public class EventLocalClient(
 
                 await ProcessEventAsync(eventType, eventData, cancellationToken);
             }
-        }
-        catch (OperationCanceledException) when (cancellationToken.IsCancellationRequested)
-        {
-            // 正常取消，不需要特殊处理
-            logger.LogInformation($"Channel {channelName} 的消费任务已取消");
-        }
-        catch (Exception ex)
-        {
-            logger.LogError(ex, $"消费Channel {channelName} 时发生错误");
-        }
-        finally
-        {
-            // 如果 Channel 已经为空，清理它
-            if (!channel.Reader.TryPeek(out _))
+            catch (OperationCanceledException) when (cancellationToken.IsCancellationRequested)
             {
-                _channels.TryRemove(channelName, out _);
-                logger.LogInformation($"Channel {channelName} 已被清理");
+                // 正常取消，不需要特殊处理
+                logger.LogInformation($"Channel {channelName} 的消费任务已取消");
             }
+            catch (Exception ex)
+            {
+                logger.LogError(ex, $"消费Channel {channelName} 时发生错误");
+            }
+            finally
+            {
+                // 如果 Channel 已经为空，清理它
+                if (!channel.Reader.TryPeek(out _))
+                {
+                    _channels.TryRemove(channelName, out _);
+                    logger.LogInformation($"Channel {channelName} 已被清理");
+                }
+            }
+
+            logger.LogInformation($"停止消费Channel: {channelName}");
         }
 
-        logger.LogInformation($"停止消费Channel: {channelName}");
     }
 
     /// <summary>
