@@ -78,7 +78,7 @@ builder.Services.WithMapster();
 builder.Services.WithIdGen();
 
 builder.Services.WithServiceLifetime();
-builder.Services.WithFantasyLife();
+builder.Services.WithZMinmalLife();
 
 var app = builder.Build();
 
@@ -96,7 +96,7 @@ app.UseCors("LexiCraft.Cors");
 
 // app.MapAuthEndpoint();
 
-app.MapFantasyApis(options =>
+app.MapZMinimalApis(options =>
 {
     options.Prefix = "v1";                    // API 前缀
     options.Version = "1.0";                  // API 版本

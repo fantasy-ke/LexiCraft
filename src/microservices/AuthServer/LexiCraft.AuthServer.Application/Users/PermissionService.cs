@@ -1,5 +1,4 @@
 using BuildingBlocks.Filters;
-using Gnarly.Data;
 using LexiCraft.AuthServer.Application.Contract.Users;
 using LexiCraft.AuthServer.Domain;
 using LexiCraft.AuthServer.Domain.Repository;
@@ -16,7 +15,7 @@ namespace LexiCraft.AuthServer.Application.Users;
 [Filter(typeof(ResultEndPointFilter))]
 public class PermissionService(
     IUserPermissionRepository userPermissionRepository)
-    : FantasyApi, IPermissionService
+    : ZAnalyzerApi, IPermissionService
 {
 
     /// <summary>

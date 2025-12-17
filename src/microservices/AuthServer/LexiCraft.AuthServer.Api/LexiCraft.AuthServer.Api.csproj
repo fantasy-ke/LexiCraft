@@ -11,11 +11,13 @@
     <!-- ZAnalyzers.MinimalApiSG -->
     <ItemGroup Condition="'$(ZAnalyzersRefMode)'=='src'">
         <ProjectReference Include="..\..\..\..\..\ZAnalyzers\src\ZAnalyzers.MinimalApiSG\ZAnalyzers.MinimalApiSG.csproj"  OutputItemType="Analyzer" ReferenceOutputAssembly="false"  />
+        <ProjectReference Include="..\..\..\..\..\ZAnalyzers\src\ZAnalyzers.ServiceInjectionSG\ZAnalyzers.ServiceInjectionSG.csproj"  OutputItemType="Analyzer" ReferenceOutputAssembly="false"  />
     </ItemGroup>
 
     <!-- ZAnalyzers.MinimalApiSG -->
     <ItemGroup Condition="'$(ZAnalyzersRefMode)'=='nuget'">
         <PackageReference Include="ZAnalyzers.MinimalApiSG" Version="$(ZAnalyzersVersion)" />
+        <PackageReference Include="ZAnalyzers.ServiceInjectionSG" Version="$(ZAnalyzersVersion)" />
     </ItemGroup>
 
     <ItemGroup>
@@ -26,10 +28,6 @@
 
     <ItemGroup>
       <Folder Include="uploads\" />
-    </ItemGroup>
-
-    <ItemGroup>
-      <PackageReference Include="Gnarly" Version="1.0.7" />
     </ItemGroup>
 
 </Project>

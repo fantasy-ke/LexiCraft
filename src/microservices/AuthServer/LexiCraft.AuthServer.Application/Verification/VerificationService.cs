@@ -11,7 +11,7 @@ namespace LexiCraft.AuthServer.Application.Verification;
 [Route("/api/Verification")]
 [Tags("verification")]
 [Filter(typeof(ResultEndPointFilter))]
-public class VerificationService(ICaptcha captcha):FantasyApi, IVerificationService
+public class VerificationService(ICaptcha captcha):ZAnalyzerApi, IVerificationService
 {
     /// <summary>
     /// 获取验证码, 返回验证码图片base64

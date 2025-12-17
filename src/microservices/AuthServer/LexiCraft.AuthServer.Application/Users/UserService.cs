@@ -22,7 +22,7 @@ namespace LexiCraft.AuthServer.Application.Users;
 public class UserService(
     IUserRepository userRepository, 
     IUserContext userContext,
-    IFilesService filesService) : FantasyApi, IUserService
+    IFilesService filesService) : ZAnalyzerApi, IUserService
 {
     [EndpointSummary("获取用户信息")]
     public async Task<UserInfoDto> GetUserInfo()

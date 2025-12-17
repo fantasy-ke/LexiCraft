@@ -1,5 +1,4 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
-    <Import Project="..\..\..\zversion.props" />
     <PropertyGroup>
         <TargetFramework>net10.0</TargetFramework>
         <ImplicitUsings>enable</ImplicitUsings>
@@ -11,17 +10,6 @@
         <FrameworkReference Include="Microsoft.AspNetCore.App"/>
         <PackageReference Include="Lazy.Captcha.Core" Version="2.2.2" />
     </ItemGroup>
-
-    <!-- ZAnalyzers.Core -->
-    <ItemGroup Condition="'$(ZAnalyzersRefMode)'=='src'">
-        <ProjectReference Include="..\..\..\..\..\ZAnalyzers\src\ZAnalyzers.Core\ZAnalyzers.Core.csproj" />
-    </ItemGroup>
-
-    <!-- ZAnalyzers.Core -->
-    <ItemGroup Condition="'$(ZAnalyzersRefMode)'=='nuget'">
-        <PackageReference Include="ZAnalyzers.Core" Version="$(ZAnalyzersVersion)" />
-    </ItemGroup>
-
 
     <ItemGroup>
          <ProjectReference Include="..\LexiCraft.AuthServer.Application.Contract\LexiCraft.AuthServer.Application.Contract.csproj" />

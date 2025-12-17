@@ -1,13 +1,12 @@
-using System.Collections.Generic;
-using System.Linq;
 using LexiCraft.AuthServer.Application.Contract.Authorize;
+using ZAnalyzers.Core;
 
 namespace LexiCraft.AuthServer.Application.Authorize;
 
 /// <summary>
 /// OAuth提供者工厂
 /// </summary>
-public class OAuthProviderFactory(IEnumerable<IOAuthProvider> providers)
+public abstract class OAuthProviderFactory(IEnumerable<IOAuthProvider> providers):IScopeDependency
 {
     private readonly Dictionary<string, IOAuthProvider> _providers 
         = providers.ToDictionary(p => p.ProviderName.ToLower(), p => p);
