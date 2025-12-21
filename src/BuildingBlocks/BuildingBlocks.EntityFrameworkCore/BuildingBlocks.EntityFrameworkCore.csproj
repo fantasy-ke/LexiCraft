@@ -10,5 +10,11 @@
       <ProjectReference Include="..\BuildingBlocks.Authorization\BuildingBlocks.Authorization.csproj" />
       <ProjectReference Include="..\BuildingBlocks\BuildingBlocks.csproj" />
     </ItemGroup>
+    
+    <ItemGroup>
+        <PackageReference Include="EFCore.NamingConventions" Version="9.0.0" />
+        <PackageReference Include="Microsoft.EntityFrameworkCore" Version="10.0.1" />
+        <PackageReference Include="Microsoft.EntityFrameworkCore.Relational" Version="10.0.1"/>
+    </ItemGroup>
 
 </Project>

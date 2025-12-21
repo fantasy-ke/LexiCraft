@@ -4,6 +4,7 @@ using BuildingBlocks.Domain.Internal;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
+using Microsoft.Extensions.Hosting;
 
 namespace BuildingBlocks.EntityFrameworkCore.Extensions;
 
@@ -17,7 +18,7 @@ public static class ServiceExtensions
     /// <typeparam name="TDbContext"></typeparam>
     /// <returns></returns>
     public static IServiceCollection WithDbAccess<TDbContext>(this IServiceCollection services,
-        Action<DbContextOptionsBuilder> optionsAction)
+        Action<DbContextOptionsBuilder> optionsAction,Action<IHostApplicationBuilder>? action = null)
         where TDbContext : DbContext
     {
         // Npgsql 6.0.0 之后的版本需要设置以下两个开关，否则会导致时间戳字段的值不正确
@@ -28,7 +29,6 @@ public static class ServiceExtensions
         // services.AddDbContextPool<TDbContext>(optionsAction);
         services.AddScoped<IUnitOfWork, UnitOfWork<TDbContext>>();
         // services.AddScoped(typeof(IRepository<,>), typeof(Repository<,>));
-
         return services;
     }
     

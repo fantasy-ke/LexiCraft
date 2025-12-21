@@ -1,6 +1,7 @@
 <Solution>
   <Folder Name="/BuildingBlocks/">
     <Project Path="BuildingBlocks/BuildingBlocks.Authorization/BuildingBlocks.Authorization.csproj" />
+    <Project Path="BuildingBlocks/BuildingBlocks.EntityFrameworkCore.Postgres/BuildingBlocks.EntityFrameworkCore.Postgres.csproj" />
     <Project Path="BuildingBlocks/BuildingBlocks.EntityFrameworkCore/BuildingBlocks.EntityFrameworkCore.csproj" />
     <Project Path="BuildingBlocks/BuildingBlocks.Grpc.Contracts/BuildingBlocks.Grpc.Contracts.csproj" />
     <Project Path="BuildingBlocks/BuildingBlocks/BuildingBlocks.csproj" />
@@ -21,6 +22,10 @@
   </Folder>
   <Folder Name="/microservices/FilesServer/">
     <Project Path="microservices/FliesServer/LexiCraft.Files.Grpc/LexiCraft.Files.Grpc.csproj" />
+  </Folder>
+  <Folder Name="/microservices/Identity/">
+    <Project Path="microservices/LexiCraft.Services.Identity.Api/LexiCraft.Services.Identity.Api.csproj" />
+    <Project Path="microservices/LexiCraft.Services.Identity/LexiCraft.Services.Identity.csproj" />
   </Folder>
   <Folder Name="/Solution Items/">
     <File Path="../.gitignore" />
