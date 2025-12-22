@@ -10,6 +10,7 @@
         <ProjectReference Include="..\..\BuildingBlocks\BuildingBlocks.EntityFrameworkCore.Postgres\BuildingBlocks.EntityFrameworkCore.Postgres.csproj" />
         <ProjectReference Include="..\..\BuildingBlocks\BuildingBlocks.Grpc.Contracts\BuildingBlocks.Grpc.Contracts.csproj" />
         <ProjectReference Include="..\..\BuildingBlocks\BuildingBlocks\BuildingBlocks.csproj"/>
+        <ProjectReference Include="..\..\framework\Z.EventBus\Z.EventBus.csproj" />
     </ItemGroup>
 
     <ItemGroup>
@@ -29,6 +30,7 @@
     </ItemGroup>
 
     <ItemGroup>
+      <Folder Include="Identity\Features\" />
       <Folder Include="Users\Features\GetUserInfo\" />
     </ItemGroup>
 
