@@ -10,7 +10,7 @@ using Microsoft.Extensions.Options;
 
 namespace LexiCraft.Services.Identity.Shared.Data;
 
-public class LexiCraftDbContext(DbContextOptions options,IServiceProvider serviceProvider = null): DbContext(options)
+public class IdentityDbContext(DbContextOptions options,IServiceProvider serviceProvider = null): DbContext(options)
 {
     public DbSet<User> Users { get; set; }
     
