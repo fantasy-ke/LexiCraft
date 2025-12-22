@@ -21,7 +21,8 @@ public static class UploadAvatarEndpoint
             .WithName(nameof(UploadAvatar))
             .WithDisplayName(nameof(UploadAvatar).Humanize())
             .WithSummary("上传用户头像".Humanize())
-            .WithDescription(nameof(UploadAvatar).Humanize());
+            .WithDescription(nameof(UploadAvatar).Humanize())
+            .DisableAntiforgery();
 
         async Task<UploadAvatarResponse> Handle(
             [AsParameters] UploadAvatarRequestParameters requestParameters)

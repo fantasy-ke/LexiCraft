@@ -11,7 +11,7 @@ public static partial class HostApplicationBuilderExtensions
     {
         builder.Services.AddMediator<IdentityMetadata>();
 
-        builder.AddIdentityStorage();
+        builder.AddStorage();
 
         builder.AddCustomAuthentication();
 
