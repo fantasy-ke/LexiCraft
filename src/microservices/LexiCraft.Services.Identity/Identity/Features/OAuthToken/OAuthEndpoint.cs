@@ -13,7 +13,6 @@ public static class OAuthEndpoint
     {
         return endpoints
             .MapPost("oauthToken", Handle)
-            .WithTags("OAuthToken")
             .WithName(nameof(OAuthToken))
             .WithDisplayName(nameof(OAuthToken).Humanize())
             .WithSummary("第三方授权登录".Humanize())

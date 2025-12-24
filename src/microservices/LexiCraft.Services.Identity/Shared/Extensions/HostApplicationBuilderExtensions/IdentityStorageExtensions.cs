@@ -32,11 +32,11 @@ public static partial class HostApplicationBuilderExtensions
             {
                 if (app.Environment.IsDevelopment() || app.Environment.IsEnvironment("Aspire"))
                 {
-                    app.AddMigration<IdentityDbContext, IdentityDbDataSeeder>();
+                    //app.AddMigration<IdentityDbContext, IdentityDbDataSeeder>();
                 }
                 else
                 {
-                    app.AddMigration<IdentityDbContext>();
+                    //app.AddMigration<IdentityDbContext>();
                 }
             }
         );

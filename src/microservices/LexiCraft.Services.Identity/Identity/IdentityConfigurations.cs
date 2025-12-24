@@ -9,7 +9,7 @@ namespace LexiCraft.Services.Identity.Identity;
 
 internal static class IdentityConfigurations
 {
-    private const string Tag = "Identity";
+    public const string Tag = "Identity";
     private const string IdentityPrefixUri = $"{ApplicationConfiguration.IdentityModulePrefixUri}";
 
     internal static WebApplicationBuilder AddIdentityModuleServices(this WebApplicationBuilder builder)
@@ -19,7 +19,9 @@ internal static class IdentityConfigurations
 
     public static IEndpointRouteBuilder MapIdentityModuleEndpoints(this IEndpointRouteBuilder endpoints)
     {
-        var identityVersionGroup = endpoints.NewVersionedApi(Tag).WithTags(Tag);
+        var identityVersionGroup = endpoints
+            .NewVersionedApi(Tag)
+            .WithTags(Tag);
 
         var identityGroupV1 = identityVersionGroup
             .MapGroup(IdentityPrefixUri)

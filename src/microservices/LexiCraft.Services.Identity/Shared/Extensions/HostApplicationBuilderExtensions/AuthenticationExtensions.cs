@@ -49,13 +49,13 @@ public static partial class HostApplicationBuilderExtensions
         builder.Services.TryAddEnumerable(ServiceDescriptor.Scoped<IOAuthProvider, GitHubOAuthProvider>());
         builder.Services.TryAddEnumerable(ServiceDescriptor.Scoped<IOAuthProvider, GiteeOAuthProvider>());
         builder.Services.AddScoped<OAuthProviderFactory>();
-        
+
         builder.Services.AddOpenApi(options =>
         {
             //可输入token
             options.AddDocumentTransformer<BearerSecuritySchemeTransformer>();
         });
-        
+
         return builder;
     }
 

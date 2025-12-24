@@ -13,7 +13,6 @@ public static class LogoutEndpoint
     {
         return endpoints
             .MapPost("logout", Handle)
-            .WithTags("Users")
             .WithName(nameof(Logout))
             .WithDisplayName(nameof(Logout).Humanize())
             .WithSummary("用户退出登录".Humanize())

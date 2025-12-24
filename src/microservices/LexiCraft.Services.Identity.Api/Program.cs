@@ -1,4 +1,5 @@
 
+using Asp.Versioning;
 using BuildingBlocks.Exceptions.Handler;
 using BuildingBlocks.Extensions;
 using LexiCraft.Services.Identity;
@@ -42,8 +43,6 @@ builder.Services.AddLocalEventBus();
 builder.AddApplicationServices();
 
 builder.AddInfrastructure();
-
-
 var app = builder.Build();
 
 app.MapDefaultEndpoints();

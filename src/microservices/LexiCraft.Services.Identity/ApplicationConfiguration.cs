@@ -13,7 +13,7 @@ namespace LexiCraft.Services.Identity;
 
 public static class ApplicationConfiguration
 {
-    public const string IdentityModulePrefixUri = "api/v1/identity";
+    public const string IdentityModulePrefixUri = "api/v{version:apiVersion}/identity";
 
     public static WebApplicationBuilder AddApplicationServices(this WebApplicationBuilder builder)
     {
@@ -37,7 +37,7 @@ public static class ApplicationConfiguration
         endpoints.MapGet("/", (HttpContext context) => "Identity Service Apis.")
             .ExcludeFromDescription();
 
-        // endpoints.MapIdentityModuleEndpoints();
+        endpoints.MapIdentityModuleEndpoints();
 
         return endpoints;
     }

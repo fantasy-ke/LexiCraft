@@ -14,7 +14,6 @@ public static class LoginEndpoint
     {
         return endpoints
             .MapPost("login", Handle)
-            .WithTags("Users")
             .WithName(nameof(Login))
             .WithDisplayName(nameof(Login).Humanize())
             .WithSummary("用户登录".Humanize())
