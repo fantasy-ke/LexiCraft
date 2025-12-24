@@ -1,7 +1,4 @@
-using BuildingBlocks.Authentication.Contract;
 using Humanizer;
-using LexiCraft.Services.Identity.Identity.Features.Login;
-using LexiCraft.Services.Identity.Users.Features.Login;
 using Mapster;
 using MediatR;
 using Microsoft.AspNetCore.Builder;
@@ -9,14 +6,14 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Routing;
 
-namespace LexiCraft.Services.Identity.Users.Features.Login;
+namespace LexiCraft.Services.Identity.Identity.Features.Login;
 
 public static class LoginEndpoint
 {
     internal static RouteHandlerBuilder MapLoginEndpoint(this IEndpointRouteBuilder endpoints)
     {
         return endpoints
-            .MapPost("/api/users/login", Handle)
+            .MapPost("login", Handle)
             .WithTags("Users")
             .WithName(nameof(Login))
             .WithDisplayName(nameof(Login).Humanize())

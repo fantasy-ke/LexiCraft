@@ -12,7 +12,7 @@ public static class LogoutEndpoint
     internal static RouteHandlerBuilder MapLogoutEndpoint(this IEndpointRouteBuilder endpoints)
     {
         return endpoints
-            .MapPost("/api/users/logout", Handle)
+            .MapPost("logout", Handle)
             .WithTags("Users")
             .WithName(nameof(Logout))
             .WithDisplayName(nameof(Logout).Humanize())

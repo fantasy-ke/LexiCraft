@@ -1,5 +1,8 @@
+using BuildingBlocks.Cors;
+using BuildingBlocks.Serilog;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Http;
+using Serilog;
 
 namespace LexiCraft.Services.Identity.Shared.Extensions.WebApplicationExtensions;
 
@@ -9,12 +12,17 @@ public static class WebApplicationExtensions
     {
         app.UseStaticFiles();
         
-        app.UseCookiePolicy(new CookiePolicyOptions { MinimumSameSitePolicy = SameSiteMode.Lax });
-
+        app.UseDefaultCors();
+        
+        app.UseSerilogRequestLogging(options =>
+        {
+            options.MessageTemplate = SerilogRequestUtility.HttpMessageTemplate;
+            options.GetLevel = SerilogRequestUtility.GetRequestLevel;
+            options.EnrichDiagnosticContext = SerilogRequestUtility.EnrichFromRequest;
+        });
         
         app.UseAuthentication();
         app.UseAuthorization();
 
-        // map registered minimal endpoints
     }
 }

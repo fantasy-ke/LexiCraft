@@ -4,6 +4,7 @@
         <TargetFramework>net10.0</TargetFramework>
         <ImplicitUsings>enable</ImplicitUsings>
         <Nullable>enable</Nullable>
+        <InterceptorsNamespaces>$(InterceptorsNamespaces);Microsoft.AspNetCore.OpenApi.Generated</InterceptorsNamespaces>
     </PropertyGroup>
 
     <ItemGroup>
@@ -26,6 +27,9 @@
     <ItemGroup>
       <Content Include="..\LexiCraft.Services.Identity.Api\appsettings.json">
         <Link>appsettings.json</Link>
+      </Content>
+      <Content Include="..\LexiCraft.Services.Identity.Api\serilog.json">
+        <Link>serilog.json</Link>
       </Content>
     </ItemGroup>
 

@@ -8,9 +8,7 @@
 
     <ItemGroup>
       <PackageReference Include="Grpc.Net.Client" Version="2.71.0" />
-      <PackageReference Include="Mapster" Version="7.4.0" />
       <PackageReference Include="Microsoft.Extensions.Logging.Abstractions" Version="10.0.1" />
-      <PackageReference Include="protobuf-net.Grpc.ClientFactory" Version="1.2.2" />
     </ItemGroup>
 
     <ItemGroup>

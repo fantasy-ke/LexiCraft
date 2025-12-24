@@ -18,7 +18,7 @@ public static class AuthorizationExtensions
             
             // 权限相关服务
             services.AddSingleton<IPermissionDefinitionManager, PermissionDefinitionManager>();
-            
+          
             return services;
       }
       

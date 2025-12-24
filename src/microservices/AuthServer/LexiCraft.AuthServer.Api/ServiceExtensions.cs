@@ -12,19 +12,6 @@ namespace LexiCraft.AuthServer.Api;
 
 public static class ServiceExtensions
 {
-
-    public static IServiceCollection ConfigureJson(this IServiceCollection services)
-    {
-        services.AddControllers()
-            .AddJsonOptions(options =>
-            {
-                options.JsonSerializerOptions.PropertyNamingPolicy = null;
-                options.JsonSerializerOptions.Converters.Add(new JsonStringEnumConverter());
-                options.JsonSerializerOptions.Converters.Add(new JsonStringEnumConverter(JsonNamingPolicy.CamelCase));
-            });
-        return services;
-    }
-    
     public static IServiceCollection AddGrpcService(this IServiceCollection services,  IConfiguration configuration)
     {
         //Grpc Services

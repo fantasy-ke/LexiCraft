@@ -1,5 +1,7 @@
 ﻿using System.Reflection;
+using System.Text.Json;
 using System.Text.Json.Nodes;
+using System.Text.Json.Serialization;
 using BuildingBlocks.Extensions.System;
 using BuildingBlocks.Redis;
 using BuildingBlocks.Shared;
@@ -93,6 +95,22 @@ public static class ServiceExtensions
         }
 
         /// <summary>
+        /// 
+        /// </summary>
+        /// <returns></returns>
+        public IServiceCollection ConfigureJson()
+        {
+            services.AddControllers()
+                .AddJsonOptions(options =>
+                {
+                    options.JsonSerializerOptions.PropertyNamingPolicy = null;
+                    options.JsonSerializerOptions.Converters.Add(new JsonStringEnumConverter());
+                    options.JsonSerializerOptions.Converters.Add(new JsonStringEnumConverter(JsonNamingPolicy.CamelCase));
+                });
+            return services;
+        }
+        
+        /// <summary>
         ///     添加IdGen
         /// </summary>
         /// <returns></returns>
@@ -151,4 +169,6 @@ public static class ServiceExtensions
             return services;
         }
     }
+    
+    
 }

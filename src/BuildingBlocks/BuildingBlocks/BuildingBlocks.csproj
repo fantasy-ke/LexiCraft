@@ -9,7 +9,7 @@
     <ItemGroup>
         <PackageReference Include="Humanizer" Version="3.0.1" />
         <PackageReference Include="Mapster" Version="7.4.0"/>
-        <PackageReference Include="MediatR" Version="12.4.1" />
+        <PackageReference Include="MediatR" Version="14.0.0" />
         <PackageReference Include="Microsoft.Extensions.Logging.Abstractions" Version="10.0.1" />
 <!--        <PackageReference Include="Microsoft.FeatureManagement.AspNetCore" Version="4.3.0"/>-->
         <PackageReference Include="Microsoft.OpenApi" Version="2.3.11" />
@@ -18,10 +18,13 @@
         <PackageReference Include="Serilog.AspNetCore" Version="10.0.0"/>
         <PackageReference Include="Serilog.Sinks.Async" Version="2.1.0"/>
         <PackageReference Include="Serilog.Sinks.Console" Version="6.1.1"/>
-         <PackageReference Include="Scalar.AspNetCore" Version="2.11.3" />
+         <PackageReference Include="Scalar.AspNetCore" Version="2.11.10" />
         <PackageReference Include="IdGen.DependencyInjection" Version="3.0.7"/>
         <PackageReference Include="Microsoft.AspNetCore.OpenApi" Version="10.0.1" />
         <PackageReference Include="Microsoft.EntityFrameworkCore" Version="10.0.1" />
+        <PackageReference Include="Microsoft.AspNetCore.OpenApi" Version="9.0.7" />
+        <PackageReference Include="Asp.Versioning.Http" Version="8.1.0" />
+        <PackageReference Include="Asp.Versioning.Mvc.ApiExplorer" Version="8.1.0" />
     </ItemGroup>
 
     <ItemGroup>

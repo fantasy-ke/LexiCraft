@@ -6,7 +6,6 @@ using BuildingBlocks.Mediator;
 using BuildingBlocks.Redis;
 using LexiCraft.Services.Identity.Identity.Models;
 using LexiCraft.Services.Identity.Shared.Contracts;
-using LexiCraft.Services.Identity.Users.Features.Login;
 using Microsoft.EntityFrameworkCore;
 
 namespace LexiCraft.Services.Identity.Identity.Features.Login;
