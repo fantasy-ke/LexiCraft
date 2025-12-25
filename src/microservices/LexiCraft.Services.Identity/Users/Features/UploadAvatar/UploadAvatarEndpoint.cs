@@ -1,5 +1,6 @@
 using BuildingBlocks.Authentication.Contract;
 using Humanizer;
+using LexiCraft.Services.Identity.Users.Authorization;
 using LexiCraft.Services.Identity.Users.Dtos;
 using LexiCraft.Services.Identity.Users.Features.UploadAvatar;
 using MediatR;
@@ -16,7 +17,7 @@ public static class UploadAvatarEndpoint
     {
         return endpoints
             .MapPost("uploadAvatar", Handle)
-            .RequireAuthorization(policyNames: [])
+            .RequireAuthorization(UsersPermissions.UploadAvatar)
             .WithName(nameof(UploadAvatar))
             .WithDisplayName(nameof(UploadAvatar).Humanize())
             .WithSummary("上传用户头像".Humanize())

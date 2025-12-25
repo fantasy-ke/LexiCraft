@@ -19,20 +19,14 @@ public static class ApplicationConfiguration
 
     public static WebApplicationBuilder AddApplicationServices(this WebApplicationBuilder builder)
     {
-        builder.AddInfrastructure();
-        
         builder.AddStorage();
-        
         builder.Services.AddMediator<IdentityMetadata>();
-        
         builder.Services.AddCaptcha(builder.Configuration);
-
+        builder.AddInfrastructure();
+        builder.AddUsersModuleServices();
         builder.AddGrpcService<IFilesService>(builder.Configuration);
-        
         builder.Services.WithMapster();
-
         builder.Services.WithIdGen();
-       
         return builder;
     }
 
@@ -40,9 +34,6 @@ public static class ApplicationConfiguration
     {
 
         app.UseInfrastructure();
-        
-        app.MapGet("/", (HttpContext context) => "Identity Service Apis.")
-            .ExcludeFromDescription();
 
         app.MapIdentityModuleEndpoints();
         app.MapUsersModuleEndpoints();

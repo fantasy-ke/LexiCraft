@@ -1,5 +1,6 @@
 using BuildingBlocks.Authentication.Contract;
 using Humanizer;
+using LexiCraft.Services.Identity.Users.Authorization;
 using LexiCraft.Services.Identity.Users.Dtos;
 using MediatR;
 using Microsoft.AspNetCore.Builder;
@@ -14,7 +15,7 @@ public static class GetUserInfoEndpoint
     {
         return endpoints
             .MapGet("userInfo", Handle)
-            .RequireAuthorization(policyNames: [])
+            .RequireAuthorization(UsersPermissions.Query)
             .WithName(nameof(GetUserInfo))
             .WithDisplayName(nameof(GetUserInfo).Humanize())
             .WithSummary("获取当前登录用户信息".Humanize())
