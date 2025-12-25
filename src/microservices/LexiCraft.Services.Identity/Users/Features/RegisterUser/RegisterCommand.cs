@@ -64,7 +64,7 @@ public partial class RegisterCommandHandler(
             var user = new User(command.UserAccount, command.Email);
             user.SetPassword(command.Password);
             user.Avatar = "🦜";
-            user.Roles.Add(RoleConstant.User);
+            user.Roles.Add(PermissionConstant.User);
             user.UpdateLastLogin();
             user.UpdateSource(SourceEnum.Register);
 
@@ -72,7 +72,7 @@ public partial class RegisterCommandHandler(
             await userRepository.SaveChangesAsync();
 
             // 为用户分配默认权限
-            var defaultPermissions = RoleConstant.DefaultUserPermissions.Permissions;
+            var defaultPermissions = PermissionConstant.DefaultUserPermissions.Permissions;
             await userPermissionRepository.AddUserPermissionsAsync(afterUser.Id, defaultPermissions);
 
             return true;

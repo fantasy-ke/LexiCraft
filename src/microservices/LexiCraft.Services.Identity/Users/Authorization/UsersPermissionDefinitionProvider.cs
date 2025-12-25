@@ -1,4 +1,5 @@
 using BuildingBlocks.Authentication.Permission;
+using LexiCraft.Services.Identity.Shared;
 
 namespace LexiCraft.Services.Identity.Users.Authorization;
 
@@ -10,8 +11,8 @@ public class UsersPermissionDefinitionProvider : PermissionDefinitionProvider
     public override void Define(PermissionDefinitionContext context)
     {
         // 创建根页面权限
-        var pages = context.GetPermissionOrNull("Pages") ??
-                    context.CreatePermission("Pages", "页面访问", "所有页面访问权限");
+        var pages = context.GetPermissionOrNull(PermissionConstant.Pages) ??
+                    context.CreatePermission(PermissionConstant.Pages, "页面访问", "所有页面访问权限");
                     
         // 创建用户服务页面权限
         var usersPage = pages.GetChildOrNull(UsersPermissions.Page) ??

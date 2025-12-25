@@ -1,9 +1,12 @@
+using LexiCraft.Services.Identity.Users.Authorization;
+
 namespace LexiCraft.Services.Identity.Shared;
 
-public static class RoleConstant
+public static class PermissionConstant
 {
     public const string Admin = "admin";
     public const string User = "user";
+    public const string Pages = "Pages";
     
     /// <summary>
     /// 默认用户权限
@@ -12,9 +15,8 @@ public static class RoleConstant
     {
         public static readonly string[] Permissions =
         [
-            "Pages", 
-            "Pages.User",
-            "Pages.User.UploadAvatar"
+            Pages, 
+            UsersPermissions.Page
         ];
     }
 }
