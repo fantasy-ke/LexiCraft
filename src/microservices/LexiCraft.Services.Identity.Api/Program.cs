@@ -42,14 +42,10 @@ builder.Services.AddLocalEventBus();
 
 builder.AddApplicationServices();
 
-builder.AddInfrastructure();
 var app = builder.Build();
 
 app.MapDefaultEndpoints();
-
-app.UseInfrastructure();
-
-app.MapApplicationEndpoints();
+app.UseApplication();
 
 if (app.Environment.IsDevelopment())
 {

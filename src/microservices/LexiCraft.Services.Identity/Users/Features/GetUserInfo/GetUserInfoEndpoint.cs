@@ -13,9 +13,8 @@ public static class GetUserInfoEndpoint
     internal static RouteHandlerBuilder MapGetUserInfoEndpoint(this IEndpointRouteBuilder endpoints)
     {
         return endpoints
-            .MapGet("/api/users", Handle)
+            .MapGet("userInfo", Handle)
             .RequireAuthorization(policyNames: [])
-            .WithTags("Users")
             .WithName(nameof(GetUserInfo))
             .WithDisplayName(nameof(GetUserInfo).Humanize())
             .WithSummary("获取当前登录用户信息".Humanize())

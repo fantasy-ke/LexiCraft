@@ -4,6 +4,8 @@ using BuildingBlocks.Grpc.Contracts.FileGrpc;
 using BuildingBlocks.Mediator;
 using LexiCraft.Services.Identity.Identity;
 using LexiCraft.Services.Identity.Shared.Extensions.HostApplicationBuilderExtensions;
+using LexiCraft.Services.Identity.Shared.Extensions.WebApplicationExtensions;
+using LexiCraft.Services.Identity.Users;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Routing;
@@ -17,6 +19,8 @@ public static class ApplicationConfiguration
 
     public static WebApplicationBuilder AddApplicationServices(this WebApplicationBuilder builder)
     {
+        builder.AddInfrastructure();
+        
         builder.AddStorage();
         
         builder.Services.AddMediator<IdentityMetadata>();
@@ -24,21 +28,25 @@ public static class ApplicationConfiguration
         builder.Services.AddCaptcha(builder.Configuration);
 
         builder.AddGrpcService<IFilesService>(builder.Configuration);
-
         
         builder.Services.WithMapster();
 
         builder.Services.WithIdGen();
+       
         return builder;
     }
 
-    public static IEndpointRouteBuilder MapApplicationEndpoints(this IEndpointRouteBuilder endpoints)
+    public static IEndpointRouteBuilder UseApplication(this WebApplication app)
     {
-        endpoints.MapGet("/", (HttpContext context) => "Identity Service Apis.")
+
+        app.UseInfrastructure();
+        
+        app.MapGet("/", (HttpContext context) => "Identity Service Apis.")
             .ExcludeFromDescription();
 
-        endpoints.MapIdentityModuleEndpoints();
+        app.MapIdentityModuleEndpoints();
+        app.MapUsersModuleEndpoints();
 
-        return endpoints;
+        return app;
     }
 }

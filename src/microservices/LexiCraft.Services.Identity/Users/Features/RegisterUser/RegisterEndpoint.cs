@@ -14,8 +14,7 @@ public static class RegisterEndpoint
     internal static RouteHandlerBuilder MapRegisterEndpoint(this IEndpointRouteBuilder endpoints)
     {
         return endpoints
-            .MapPost("/api/users/register", Handle)
-            .WithTags("Users")
+            .MapPost("register", Handle)
             .WithName(nameof(RegisterUser))
             .WithDisplayName(nameof(RegisterUser).Humanize())
             .WithSummary("用户注册".Humanize())

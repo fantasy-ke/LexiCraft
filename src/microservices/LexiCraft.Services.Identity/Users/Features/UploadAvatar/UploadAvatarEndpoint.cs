@@ -15,9 +15,8 @@ public static class UploadAvatarEndpoint
     internal static RouteHandlerBuilder MapUploadAvatarEndpoint(this IEndpointRouteBuilder endpoints)
     {
         return endpoints
-            .MapPost("/api/users/avatar", Handle)
+            .MapPost("uploadAvatar", Handle)
             .RequireAuthorization(policyNames: [])
-            .WithTags("Users")
             .WithName(nameof(UploadAvatar))
             .WithDisplayName(nameof(UploadAvatar).Humanize())
             .WithSummary("上传用户头像".Humanize())
