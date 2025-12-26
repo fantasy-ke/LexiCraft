@@ -37,11 +37,9 @@ public static partial class HostApplicationBuilderExtensions
                     ValidAudiences = oauthOptions.ValidAudiences,
                     ValidateLifetime = oauthOptions.ValidateLifetime,
                     ClockSkew = oauthOptions.ClockSkew,
-                    // For IdentityServer4/Duende, we should also validate the signing key
                     ValidateIssuerSigningKey = true,
                 };
 
-                // Preserve ALL claims from the token (including "sub")
                 options.MapInboundClaims = false;
             });
         builder.Services.AddConfigurationOptions<OAuthOption>();

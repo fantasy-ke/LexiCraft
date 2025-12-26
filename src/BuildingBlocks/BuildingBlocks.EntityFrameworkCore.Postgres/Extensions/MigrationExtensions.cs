@@ -1,4 +1,3 @@
-using BuildingBlocks.Persistence.EfCore.Postgres;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;

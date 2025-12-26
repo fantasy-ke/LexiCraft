@@ -1,99 +1,24 @@
 ﻿using System.Reflection;
 using System.Text.Json;
-using System.Text.Json.Nodes;
 using System.Text.Json.Serialization;
-using BuildingBlocks.Extensions.System;
 using BuildingBlocks.Redis;
 using BuildingBlocks.Shared;
 using IdGen;
 using IdGen.DependencyInjection;
 using Mapster;
 using MapsterMapper;
-using Microsoft.AspNetCore.Builder;
-using Microsoft.AspNetCore.Routing;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
-using Microsoft.OpenApi;
-using Scalar.AspNetCore;
 using Z.FreeRedis;
 
 namespace BuildingBlocks.Extensions;
 
 public static class ServiceExtensions
 {
-    /// <summary>
-    ///     添加Scalar
-    /// </summary>
-    /// <param name="builder"></param>
-    /// <param name="title"></param>
-    /// <returns></returns>
-    public static IEndpointRouteBuilder UseScalar(this IEndpointRouteBuilder builder, string title)
-    {
-        builder.MapOpenApi();
-
-        builder.MapScalarApiReference((options =>
-        {
-            options.ShowDeveloperTools = DeveloperToolsVisibility.Always;
-            options.WithTitle(title);
-            options.WithTheme(ScalarTheme.BluePlanet);
-            options.Authentication = new ScalarAuthenticationOptions()
-            {
-                PreferredSecuritySchemes = new List<string>() { "Bearer" },
-            };
-        }));
-
-        return builder;
-    }
 
     /// <param name="services"></param>
     extension(IServiceCollection services)
     {
-        /// <summary>
-        ///     添加Scalar
-        /// </summary>
-        /// <param name="openApiInfo"></param>
-        /// <returns></returns>
-        public IServiceCollection WithScalar(OpenApiInfo openApiInfo)
-        {
-            services.AddOpenApi(options =>
-            {
-                options.AddDocumentTransformer((document, _, _) =>
-                {
-                    document.Info = openApiInfo;
-                    return Task.CompletedTask;
-                });
-            
-                //枚举展示描述
-                options.AddSchemaTransformer((schema, context, _) =>
-                {
-                    //找出枚举类型
-                    if (context.JsonTypeInfo.Type.BaseType != typeof(Enum)) return Task.CompletedTask;
-                    var list = new List<JsonNode>();
-                    //获取枚举项
-                    foreach (var enumValue in schema.Enum?.OfType<JsonNode>() ?? Enumerable.Empty<JsonNode>())
-                    {
-                        //把枚举项转为枚举类型
-                        if (Enum.TryParse(context.JsonTypeInfo.Type, enumValue.GetValue<string>(), out var result))
-                        {
-                            //通过枚举扩展方法获取枚举描述
-                            var description = ((Enum)result).GetDescription();
-                            //重新组织枚举值展示结构（作为字符串 Json 节点加入）
-                            list.Add(JsonValue.Create($"{enumValue.GetValue<string>()} - {description}"));
-                        }
-                        else
-                        {
-                            list.Add(enumValue);
-                        }
-                    }
-            
-                    schema.Enum = list;
-                    return Task.CompletedTask;
-                });
-            });
-
-            return services;
-        }
-
         /// <summary>
         /// 
         /// </summary>
@@ -105,11 +30,12 @@ public static class ServiceExtensions
                 {
                     options.JsonSerializerOptions.PropertyNamingPolicy = null;
                     options.JsonSerializerOptions.Converters.Add(new JsonStringEnumConverter());
-                    options.JsonSerializerOptions.Converters.Add(new JsonStringEnumConverter(JsonNamingPolicy.CamelCase));
+                    options.JsonSerializerOptions.Converters.Add(
+                        new JsonStringEnumConverter(JsonNamingPolicy.CamelCase));
                 });
             return services;
         }
-        
+
         /// <summary>
         ///     添加IdGen
         /// </summary>
@@ -169,6 +95,4 @@ public static class ServiceExtensions
             return services;
         }
     }
-    
-    
 }

@@ -1,6 +1,7 @@
 using Asp.Versioning;
 using BuildingBlocks.Authentication;
 using BuildingBlocks.Cors;
+using BuildingBlocks.OpenApi.AspnetOpenApi.Extensions;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 
@@ -15,23 +16,15 @@ public static partial class HostApplicationBuilderExtensions
         
         builder.Services.AddHttpContextAccessor();
         
+        builder.Services.AddEndpointsApiExplorer();
+        
         builder.Services.RegisterAuthorization();
         
         builder.AddCustomAuthentication();
-
-        builder.Services.AddApiVersioning(options =>
-        {
-            options.AssumeDefaultVersionWhenUnspecified = true;
-
-            options.DefaultApiVersion = new ApiVersion(1, 0);
-        })
-        .AddApiExplorer(options =>
-        {
-            options.GroupNameFormat = "'v'VVV";
-
-            options.SubstituteApiVersionInUrl = true;
-        })
-        .EnableApiVersionBinding();
+        
+        builder.AddCustomVersioning();
+        builder.AddAspnetOpenApi(["v1", "v2"]);
+        
         return builder;
     }
 }

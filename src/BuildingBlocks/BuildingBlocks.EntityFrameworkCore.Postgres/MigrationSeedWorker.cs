@@ -1,17 +1,15 @@
 using System.Diagnostics;
-using BuildingBlocks.EntityFrameworkCore;
-using BuildingBlocks.EntityFrameworkCore.Postgres;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 
-namespace BuildingBlocks.Persistence.EfCore.Postgres;
+namespace BuildingBlocks.EntityFrameworkCore.Postgres;
 
 public class MigrationSeedWorker<TContext>(IServiceProvider serviceProvider) : IHostedService
     where TContext : DbContext
 {
-    private static readonly ActivitySource _activitySource = new(MigrationExtensions.ActivitySourceName);
+    private static readonly ActivitySource ActivitySource = new(MigrationExtensions.ActivitySourceName);
 
     public async Task StartAsync(CancellationToken cancellationToken)
     {
@@ -21,7 +19,7 @@ public class MigrationSeedWorker<TContext>(IServiceProvider serviceProvider) : I
         var logger = scopeServiceProvider.GetRequiredService<ILogger<TContext>>();
         var context = scopeServiceProvider.GetRequiredService<TContext>();
 
-        using Activity? activity = _activitySource.StartActivity($"Migration operation {typeof(TContext).Name}");
+        using Activity? activity = ActivitySource.StartActivity($"Migration operation {typeof(TContext).Name}");
 
         try
         {
@@ -41,7 +39,7 @@ public class MigrationSeedWorker<TContext>(IServiceProvider serviceProvider) : I
 
             activity?.SetStatus(ActivityStatusCode.Error, ex.Message);
 
-            throw;
+            // throw;
         }
     }
 
@@ -53,7 +51,7 @@ public class MigrationSeedWorker<TContext>(IServiceProvider serviceProvider) : I
     private static async Task ExecuteAsync<TContext>(IDataSeeder<TContext> seeder, TContext context)
         where TContext : DbContext
     {
-        using var activity = _activitySource.StartActivity($"Migrating {typeof(TContext).Name}");
+        using var activity = ActivitySource.StartActivity($"Migrating {typeof(TContext).Name}");
 
         try
         {

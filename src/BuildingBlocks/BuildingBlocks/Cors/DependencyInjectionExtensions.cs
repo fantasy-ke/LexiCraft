@@ -13,7 +13,7 @@ public static class Extensions
 
     public static IHostApplicationBuilder AddDefaultCors(this IHostApplicationBuilder builder)
     {
-        if (builder.Environment.IsDevelopment() || builder.Environment.IsEnvironment("Test"))
+        if (builder.Environment.IsDevelopment() || builder.Environment.IsTest())
         {
             builder.Services.AddCors(options =>
             {

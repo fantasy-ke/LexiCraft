@@ -2,6 +2,7 @@ using BuildingBlocks.Authentication;
 using BuildingBlocks.Exceptions.Handler;
 using BuildingBlocks.Extensions;
 using BuildingBlocks.Extensions.System;
+using BuildingBlocks.OpenApi.AspnetOpenApi.Extensions;
 using BuildingBlocks.Serilog;
 using BuildingBlocks.Shared;
 using LexiCraft.AuthServer.Api;
@@ -28,13 +29,15 @@ builder.AddServiceDefaults();
 // Learn more about configuring OpenAPI at https://aka.ms/aspnet/openapi
 builder.Host.UseSerilog();
 
+builder.AddAspnetOpenApi(["v1"]);
+
 builder.Services
-    .WithScalar(new OpenApiInfo()
-    {
-        Title = "词汇技艺 Web Api",
-        Version = "v1",
-        Description = "词汇技艺相关接口",
-    })
+    // .WithScalar(new OpenApiInfo()
+    // {
+    //     Title = "词汇技艺 Web Api",
+    //     Version = "v1",
+    //     Description = "词汇技艺相关接口",
+    // })
     .ConfigureJson()
     .WithJwt(builder.Configuration)
     .WithLexiCraftDbAccess(builder.Configuration)
@@ -109,7 +112,7 @@ app.MapZMinimalApis(options =>
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
 {
-    app.UseScalar("LexiCraft Auth Server");
+    app.UseAspnetOpenApi();
 }
 app.UseExceptionHandler(_ => { });
 // app.UseMiddleware<ExceptionMiddleware>();

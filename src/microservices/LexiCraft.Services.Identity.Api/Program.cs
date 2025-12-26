@@ -1,11 +1,7 @@
-
-using Asp.Versioning;
 using BuildingBlocks.Exceptions.Handler;
 using BuildingBlocks.Extensions;
+using BuildingBlocks.OpenApi.AspnetOpenApi.Extensions;
 using LexiCraft.Services.Identity;
-using LexiCraft.Services.Identity.Shared.Extensions.HostApplicationBuilderExtensions;
-using LexiCraft.Services.Identity.Shared.Extensions.WebApplicationExtensions;
-using Microsoft.OpenApi;
 using Serilog;
 using Z.Local.EventBus;
 
@@ -25,17 +21,8 @@ builder.Host.UseSerilog();
 builder.AddServiceDefaults();
 
 builder.Services
-    .WithScalar(new OpenApiInfo()
-    {
-        Title = "词汇技艺 Web Api",
-        Version = "v1",
-        Description = "词汇技艺相关接口",
-    })
     .ConfigureJson()
     .WithRedis(builder.Configuration);
-
-builder.Services.AddEndpointsApiExplorer();
-
 builder.Services.AddExceptionHandler<CustomExceptionHandler>();
 
 builder.Services.AddLocalEventBus();
@@ -49,7 +36,7 @@ app.UseApplication();
 
 if (app.Environment.IsDevelopment())
 {
-    app.UseScalar("LexiCraft Auth Server");
+    app.UseAspnetOpenApi();
 }
 
 app.UseHttpsRedirection();

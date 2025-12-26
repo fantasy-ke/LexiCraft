@@ -30,13 +30,13 @@ public static partial class HostApplicationBuilderExtensions
             connectionStringName: nameof(PostgresOptions),
             action: app =>
             {
-                if (app.Environment.IsDevelopment() || app.Environment.IsEnvironment("Aspire"))
+                if (app.Environment.IsDevelopment() || app.Environment.IsAspireRun())
                 {
-                    //app.AddMigration<IdentityDbContext, IdentityDbDataSeeder>();
+                    app.AddMigration<IdentityDbContext, IdentityDbDataSeeder>();
                 }
                 else
                 {
-                    //app.AddMigration<IdentityDbContext>();
+                    app.AddMigration<IdentityDbContext>();
                 }
             }
         );

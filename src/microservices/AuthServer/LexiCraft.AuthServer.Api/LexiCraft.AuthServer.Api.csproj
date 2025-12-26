@@ -21,6 +21,7 @@
     </ItemGroup>
 
     <ItemGroup>
+        <ProjectReference Include="..\..\..\BuildingBlocks\BuildingBlocks.OpenApi\BuildingBlocks.OpenApi.csproj" />
         <ProjectReference Include="..\..\..\LexiCraft.Aspire.ServiceDefaults\LexiCraft.Aspire.ServiceDefaults.csproj" />
       <ProjectReference Include="..\LexiCraft.AuthServer.Application\LexiCraft.AuthServer.Application.csproj" />
       <ProjectReference Include="..\LexiCraft.AuthServer.Infrastructure\LexiCraft.AuthServer.Infrastructure.csproj" />
