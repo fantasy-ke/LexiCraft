@@ -1,5 +1,6 @@
 using BuildingBlocks.Grpc.Contracts.FileGrpc;
 using BuildingBlocks.Mediator;
+using FluentValidation;
 using LexiCraft.Services.Identity.Identity.Models;
 using LexiCraft.Services.Identity.Shared.Contracts;
 using Microsoft.AspNetCore.Http;
@@ -7,6 +8,37 @@ using Microsoft.AspNetCore.Http;
 namespace LexiCraft.Services.Identity.Users.Features.UploadAvatar;
 
 public record UploadAvatarCommand(IFormFile Avatar, Guid UserId) : ICommand<UploadAvatarResult>;
+
+public class UploadAvatarCommandValidator : AbstractValidator<UploadAvatarCommand>
+{
+    public UploadAvatarCommandValidator()
+    {
+        RuleFor(x => x.UserId)
+            .NotEqual(Guid.Empty).WithMessage("用户ID不能为空");
+            
+        RuleFor(x => x.Avatar)
+            .NotNull().WithMessage("头像文件不能为空")
+            .Must(IsValidImageFile).WithMessage("上传的文件必须是有效的图片格式")
+            .Must(BeWithinSizeLimit).WithMessage("上传的文件大小不能超过5MB");
+    }
+    
+    private bool IsValidImageFile(IFormFile file)
+    {
+        if (file == null) return true;
+        
+        var allowedExtensions = new[] { ".jpg", ".jpeg", ".png", ".gif", ".bmp" };
+        var extension = System.IO.Path.GetExtension(file.FileName).ToLowerInvariant();
+        return allowedExtensions.Contains(extension);
+    }
+    
+    private bool BeWithinSizeLimit(IFormFile file)
+    {
+        if (file == null) return true;
+        
+        // 限制文件大小为5MB
+        return file.Length <= 5 * 1024 * 1024;
+    }
+}
 
 public record UploadAvatarResult(
     string AvatarUrl,

@@ -1,4 +1,5 @@
 using System.Reflection;
+using BuildingBlocks.Exceptions.Problem;
 using FluentValidation;
 using Microsoft.Extensions.DependencyInjection;
 using Scrutor;
@@ -16,6 +17,8 @@ public static class DependencyInjectionExtensions
                 .AsImplementedInterfaces()
                 .WithTransientLifetime()
         );
+
+        services.AddSingleton<IProblemCodeMapper, ProblemCodeMapper>();
 
         return services;
     }

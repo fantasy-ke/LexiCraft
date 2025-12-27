@@ -4,6 +4,7 @@ using BuildingBlocks.Authentication;
 using BuildingBlocks.Authentication.Contract;
 using BuildingBlocks.Mediator;
 using BuildingBlocks.Redis;
+using FluentValidation;
 using LexiCraft.Services.Identity.Identity.Models;
 using LexiCraft.Services.Identity.Shared.Contracts;
 using Microsoft.EntityFrameworkCore;
@@ -15,6 +16,21 @@ namespace LexiCraft.Services.Identity.Identity.Features.Login;
 
 public record LoginCommand(string UserAccount, string Password) : ICommand<TokenResponse>;
 
+public class LoginCommandValidator : AbstractValidator<LoginCommand>
+{
+    public LoginCommandValidator()
+    {
+        RuleFor(x => x.UserAccount)
+            .NotEmpty().WithMessage("请输入账号")
+            .MaximumLength(50).WithMessage("账号长度不能超过50个字符");
+            
+        RuleFor(x => x.Password)
+            .NotEmpty().WithMessage("请输入密码")
+            .MinimumLength(6).WithMessage("密码长度至少6位")
+            .Matches("^(?=.*[0-9])(?=.*[a-zA-Z]).*$").WithMessage("密码必须包含字母和数字");
+    }
+}
+
 public partial class LoginCommandHandler(
     IUserRepository userRepository,
     IJwtTokenProvider jwtTokenProvider,
@@ -24,26 +40,6 @@ public partial class LoginCommandHandler(
 {
     public async Task<TokenResponse> Handle(LoginCommand command, CancellationToken cancellationToken)
     {
-        // 验证密码强度
-        if (string.IsNullOrEmpty(command.Password) 
-            || command.Password.Length < 6 ||
-            !PasswordRegex().IsMatch(command.Password))
-        {
-            var loginLogDto = new LoginLogDto(null, command.UserAccount, null, DateTime.Now,
-                null, null, null, "Password", false, "密码长度至少6位，且必须包含字母和数字");
-
-            ThrowIdentityAuthException.ThrowException(loginEventBus, JsonSerializer.Serialize(loginLogDto));
-        }
-
-        // 验证用户账号
-        if (string.IsNullOrEmpty(command.UserAccount))
-        {
-            var loginLogDto = new LoginLogDto(null, command.UserAccount, null, DateTime.Now,
-                null, null, null, "Password", false, "请输入账号");
-
-            ThrowIdentityAuthException.ThrowException(loginEventBus, JsonSerializer.Serialize(loginLogDto));
-        }
-
         var user = await userRepository.QueryNoTracking<User>()
             .FirstOrDefaultAsync(x => x.UserAccount == command.UserAccount, cancellationToken);
 

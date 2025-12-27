@@ -1,5 +1,6 @@
 using System.Text.RegularExpressions;
 using BuildingBlocks.Mediator;
+using FluentValidation;
 using Lazy.Captcha.Core;
 using LexiCraft.Services.Identity.Identity.Models;
 using LexiCraft.Services.Identity.Identity.Models.Enum;
@@ -14,6 +15,31 @@ namespace LexiCraft.Services.Identity.Users.Features.RegisterUser;
 public record RegisterCommand(string UserAccount, string Email, string Password, string CaptchaKey, string CaptchaCode)
     : ICommand<bool>;
 
+public class RegisterCommandValidator : AbstractValidator<RegisterCommand>
+{
+    public RegisterCommandValidator()
+    {
+        RuleFor(x => x.UserAccount)
+            .NotEmpty().WithMessage("请输入账号")
+            .MaximumLength(50).WithMessage("账号长度不能超过50个字符");
+            
+        RuleFor(x => x.Email)
+            .NotEmpty().WithMessage("请输入邮箱")
+            .EmailAddress().WithMessage("邮箱格式不正确");
+            
+        RuleFor(x => x.Password)
+            .NotEmpty().WithMessage("请输入密码")
+            .MinimumLength(6).WithMessage("密码长度至少6位")
+            .Matches("^(?=.*[0-9])(?=.*[a-zA-Z]).*$").WithMessage("密码必须包含字母和数字");
+            
+        RuleFor(x => x.CaptchaKey)
+            .NotEmpty().WithMessage("验证码Key不能为空");
+            
+        RuleFor(x => x.CaptchaCode)
+            .NotEmpty().WithMessage("请输入验证码");
+    }
+}
+
 public partial class RegisterCommandHandler(
     IUserRepository userRepository,
     IUserPermissionRepository userPermissionRepository,
@@ -23,41 +49,11 @@ public partial class RegisterCommandHandler(
 {
     public async Task<bool> Handle(RegisterCommand command, CancellationToken cancellationToken)
     {
-        // 验证邮箱格式
-        if (string.IsNullOrEmpty(command.Email) || !EmailRegex().IsMatch(command.Email))
-        {
-            throw new Exception("邮箱格式不正确");
-        }
-
-        // 验证密码强度
-        if (string.IsNullOrEmpty(command.Password)
-            || command.Password.Length < 6 ||
-            !PasswordRegex().IsMatch(command.Password))
-        {
-            throw new Exception("密码长度至少6位，且必须包含字母和数字");
-        }
-
-        // 验证验证码相关信息
-        if (string.IsNullOrEmpty(command.CaptchaKey) || string.IsNullOrEmpty(command.CaptchaCode))
-        {
-            throw new Exception("请输入验证码");
-        }
-
         // 验证验证码
         if (!captcha.Validate(command.CaptchaKey, command.CaptchaCode))
         {
             var loginLogDto = new LoginLogDto(null, command.UserAccount, null, DateTime.Now,
-                null, null, null, "Register", false, "请输入验证码");
-
-            ThrowIdentityAuthException.ThrowException(loginEventBus, System.Text.Json.JsonSerializer.Serialize(loginLogDto));
-
-        }
-
-        // 验证用户账号
-        if (string.IsNullOrEmpty(command.UserAccount))
-        {
-            var loginLogDto = new LoginLogDto(null, command.UserAccount, null, DateTime.Now,
-                null, null, null, "Register", false, "请输入账号和用户名");
+                null, null, null, "Register", false, "验证码不正确");
 
             ThrowIdentityAuthException.ThrowException(loginEventBus, System.Text.Json.JsonSerializer.Serialize(loginLogDto));
 

@@ -2,6 +2,7 @@ using System.Text.Json;
 using BuildingBlocks.Authentication;
 using BuildingBlocks.Authentication.Contract;
 using BuildingBlocks.Domain;
+using FluentValidation;
 using LexiCraft.Services.Identity.Identity.Models;
 using LexiCraft.Services.Identity.Shared.Authorize;
 using MediatR;
@@ -12,6 +13,26 @@ using Microsoft.Extensions.Logging;
 namespace LexiCraft.Services.Identity.Identity.Features.OAuthToken;
 
 public record OAuthCommand(string Type, string Code, string? RedirectUri) : IRequest<string>;
+
+public class OAuthCommandValidator : AbstractValidator<OAuthCommand>
+{
+    public OAuthCommandValidator()
+    {
+        RuleFor(x => x.Type)
+            .NotEmpty().WithMessage("OAuth类型不能为空")
+            .Must(BeValidOAuthType).WithMessage("不支持的OAuth提供者类型");
+            
+        RuleFor(x => x.Code)
+            .NotEmpty().WithMessage("授权码不能为空");
+    }
+    
+    private bool BeValidOAuthType(string type)
+    {
+        // 根据OAuthProviderFactory中支持的类型进行验证
+        var validTypes = new[] { "github", "gitee" };
+        return validTypes.Contains(type.ToLower());
+    }
+}
 
 internal class OAuthCommandHandler(
     OAuthProviderFactory oauthProviderFactory,

@@ -1,10 +1,20 @@
 using BuildingBlocks.Authentication;
 using BuildingBlocks.Mediator;
 using BuildingBlocks.Redis;
+using FluentValidation;
 
 namespace LexiCraft.Services.Identity.Identity.Features.Logout;
 
 public record LogoutCommand(Guid UserId) : ICommand<bool>;
+
+public class LogoutCommandValidator : AbstractValidator<LogoutCommand>
+{
+    public LogoutCommandValidator()
+    {
+        RuleFor(x => x.UserId)
+            .NotEqual(Guid.Empty).WithMessage("用户ID不能为空");
+    }
+}
 
 public class LogoutCommandHandler(
     ICacheManager redisManager) 
