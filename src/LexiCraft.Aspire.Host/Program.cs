@@ -7,10 +7,6 @@ builder.AddProject<Projects.LexiCraft_Services_Identity_Api>("lexicraft-identity
     .WithReference(postgres)
     .WithReference(redis);
 
-builder.AddProject<Projects.LexiCraft_AuthServer_Api>("lexicraft-authserver-api")
-    .WithReference(postgres)
-    .WithReference(redis);
-
 builder.AddProject<Projects.LexiCraft_Files_Grpc>("lexicraft-files-grpc");
 
 builder.Build().Run();

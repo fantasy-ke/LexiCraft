@@ -11,7 +11,6 @@
 
     <ItemGroup>
       <ProjectReference Include="..\microservices\LexiCraft.Services.Identity.Api\LexiCraft.Services.Identity.Api.csproj" />
-      <ProjectReference Include="..\microservices\AuthServer\LexiCraft.AuthServer.Api\LexiCraft.AuthServer.Api.csproj" />
       <ProjectReference Include="..\microservices\FliesServer\LexiCraft.Files.Grpc\LexiCraft.Files.Grpc.csproj" />
     </ItemGroup>
 

@@ -15,13 +15,6 @@
     <Project Path="framework/Z.OSSCore/Z.OSSCore.csproj" />
   </Folder>
   <Folder Name="/microservices/" />
-  <Folder Name="/microservices/AuthServer/">
-    <Project Path="microservices/AuthServer/LexiCraft.AuthServer.Api/LexiCraft.AuthServer.Api.csproj" />
-    <Project Path="microservices/AuthServer/LexiCraft.AuthServer.Application.Contract/LexiCraft.AuthServer.Application.Contract.csproj" />
-    <Project Path="microservices/AuthServer/LexiCraft.AuthServer.Application/LexiCraft.AuthServer.Application.csproj" />
-    <Project Path="microservices/AuthServer/LexiCraft.AuthServer.Domain/LexiCraft.AuthServer.Domain.csproj" />
-    <Project Path="microservices/AuthServer/LexiCraft.AuthServer.Infrastructure/LexiCraft.AuthServer.Infrastructure.csproj" />
-  </Folder>
   <Folder Name="/microservices/FilesServer/">
     <Project Path="microservices/FliesServer/LexiCraft.Files.Grpc/LexiCraft.Files.Grpc.csproj" />
   </Folder>
