@@ -1,11 +1,17 @@
-﻿using BuildingBlocks.Model;
+﻿using System.Diagnostics;
+using BuildingBlocks.Exceptions.Problem;
+using BuildingBlocks.Model;
 using Microsoft.AspNetCore.Diagnostics;
+using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
+using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 
 namespace BuildingBlocks.Exceptions.Handler;
 
-public class CustomExceptionHandler(ILogger<CustomExceptionHandler> logger)
+public class CustomExceptionHandler(ILogger<CustomExceptionHandler> logger,
+IWebHostEnvironment webHostEnvironment,
+IProblemCodeMapper? problemCodeMapper = null)
     : IExceptionHandler
 {
     public async ValueTask<bool> TryHandleAsync(HttpContext context, Exception exception,
@@ -15,35 +21,19 @@ public class CustomExceptionHandler(ILogger<CustomExceptionHandler> logger)
             "Error Message: {exceptionMessage}, Time of occurrence {time}",
             exception.Message, DateTime.UtcNow);
 
-        (string Detail, string Title, int StatusCode) details = exception switch
+        var statusCode = (problemCodeMapper ?? new ProblemCodeMapper()).GetMappedStatusCodes(exception);
+        var extensions = new Dictionary<string, object?>
         {
-            UserFriendlyException =>
-            (
-                exception.Message,
-                exception.GetType().Name,
-                context.Response.StatusCode = StatusCodes.Status500InternalServerError
-            ),
-            NotFoundException =>
-            (
-                exception.Message,
-                exception.GetType().Name,
-                context.Response.StatusCode = StatusCodes.Status404NotFound
-            ),
-            _ =>
-            (
-                exception.Message,
-                exception.GetType().Name,
-                context.Response.StatusCode = StatusCodes.Status500InternalServerError
-            )
-        };
-
-        var dicExt = new Dictionary<string, object?>
-        {
-            { "traceId", context.TraceIdentifier },
-            { "title", details.Title },
+            { "traceId", Activity.Current?.Id ?? context.TraceIdentifier },
+            { "title", exception.GetType().Name },
             { "instance", context.Request.Path }
         };
-        var response = ResultDto.FailExt(details.Detail, dicExt, details.StatusCode);
+        
+        if (webHostEnvironment.IsDevelopment())
+        {
+            extensions["stackTrace"] = exception.StackTrace;
+        }
+        var response = ResultDto.FailExt(exception.Message, extensions, statusCode);
         await context.Response.WriteAsJsonAsync(response, cancellationToken);
         return true;
     }

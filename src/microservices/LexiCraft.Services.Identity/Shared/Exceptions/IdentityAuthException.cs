@@ -5,16 +5,7 @@ using Z.EventBus;
 
 namespace LexiCraft.Services.Identity.Shared.Exceptions;
 
-public class IdentityAuthException : UserFriendlyException
-{
-    public IdentityAuthException()
-    {
-    }
-
-    public IdentityAuthException(string message) : base(message)
-    {
-    }
-}
+public class IdentityAuthException(string message) : UserFriendlyException(message);
 
 public static class ThrowIdentityAuthException
 {

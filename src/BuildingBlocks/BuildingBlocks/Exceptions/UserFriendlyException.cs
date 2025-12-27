@@ -1,15 +1,8 @@
-﻿namespace BuildingBlocks.Exceptions;
+﻿using Microsoft.AspNetCore.Http;
 
-public class UserFriendlyException : Exception
-{
-    public UserFriendlyException()
-    {
-    }
+namespace BuildingBlocks.Exceptions;
 
-    public UserFriendlyException(string message) : base(message)
-    {
-    }
-}
+public class UserFriendlyException(string message) : CustomException(message);
 
 public static class ThrowUserFriendlyException
 {

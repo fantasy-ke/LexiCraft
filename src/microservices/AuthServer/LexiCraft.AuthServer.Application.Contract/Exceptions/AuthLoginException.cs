@@ -5,16 +5,7 @@ using Z.EventBus;
 
 namespace LexiCraft.AuthServer.Application.Contract.Exceptions;
 
-public class AuthLoginException : UserFriendlyException
-{
-    public AuthLoginException()
-    {
-    }
-
-    public AuthLoginException(string message) : base(message)
-    {
-    }
-}
+public class AuthLoginException(string message) : UserFriendlyException(message);
 
 public static class ThrowAuthLoginException
 {
