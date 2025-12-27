@@ -10,7 +10,7 @@ using Microsoft.Extensions.Options;
 
 namespace LexiCraft.Services.Identity.Shared.Data;
 
-public class IdentityDbContext(DbContextOptions options,IServiceProvider serviceProvider = null): DbContext(options)
+public class IdentityDbContext(DbContextOptions<IdentityDbContext> options,IServiceProvider? serviceProvider = null): DbContext(options)
 {
     public DbSet<User> Users { get; set; }
     
@@ -69,7 +69,7 @@ public class IdentityDbContext(DbContextOptions options,IServiceProvider service
     /// </summary>
     /// <typeparam name="TEntity"></typeparam>
     /// <returns></returns>
-    protected virtual Expression<Func<TEntity, bool>> CreateFilterExpression<TEntity>()
+    protected virtual Expression<Func<TEntity, bool>>? CreateFilterExpression<TEntity>()
         where TEntity : class
     {
         Expression<Func<TEntity, bool>> expression = null;

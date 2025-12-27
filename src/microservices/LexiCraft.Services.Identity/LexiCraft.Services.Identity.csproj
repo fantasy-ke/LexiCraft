@@ -29,9 +29,7 @@
     <ItemGroup>
       <Content Include="..\LexiCraft.Services.Identity.Api\appsettings.json">
         <Link>appsettings.json</Link>
-      </Content>
-      <Content Include="..\LexiCraft.Services.Identity.Api\serilog.json">
-        <Link>serilog.json</Link>
+        <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
       </Content>
     </ItemGroup>
 
