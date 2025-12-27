@@ -41,12 +41,12 @@ LexiCraft 是一个基于 .NET 的项目，围绕微服务架构构建，并使�
 ## 快速开始
 
 1. **先决条件**：
-    - .NET SDK 10.0+
+    - .NET SDK 10.0+ (Preview)
     - Docker（用于运行 Redis、PostgreSQL 等依赖项）
-    - Visual Studio 或 JetBrains Rider
+    - Visual Studio 2022 Preview 或 JetBrains Rider (支持 .slnx 格式)
 
 2. **运行应用程序**：
-    - 在您首选的 IDE（Visual Studio、JetBrains Rider）中打开 `LexiCraft.sln` 解决方案文件。
+    - 在您首选的 IDE 中打开 `src/LexiCraft.slnx` 解决方案文件。
     - 将 `LexiCraft.Aspire.Host` 设置为启动项目。
     - 运行项目。这将启动 Aspire 仪表板和所有注册的服务。
 
