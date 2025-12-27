@@ -1,4 +1,5 @@
 using Humanizer;
+using Mapster;
 using MediatR;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Http;
@@ -19,18 +20,18 @@ public static class OAuthEndpoint
             .WithDescription(nameof(OAuthToken).Humanize())
             .AllowAnonymous(); // 注册接口允许匿名访问
 
-        async Task<string> Handle(
+        async Task<OAuthTokenResponse> Handle(
             [AsParameters] RegisterRequestParameters requestParameters)
         {
             var (type, code, redirectUri, mediator, cancellationToken) = requestParameters;
             
             var command = new OAuthCommand(type, code, redirectUri);
+            var result = await mediator.Send(command, cancellationToken);
             
-            return await mediator.Send(command, cancellationToken);
+            return result.Adapt<OAuthTokenResponse>();
         }
     }
 }
-
 
 internal record RegisterRequestParameters(
     [FromQuery] string Type,
@@ -39,3 +40,9 @@ internal record RegisterRequestParameters(
     IMediator Mediator,
     CancellationToken CancellationToken
 );
+
+/// <summary>
+/// OAuth令牌响应
+/// </summary>
+/// <param name="Token">访问令牌</param>
+internal record OAuthTokenResponse(string Token);

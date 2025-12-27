@@ -7,6 +7,9 @@ using BuildingBlocks.Redis;
 using LexiCraft.Services.Identity.Identity.Models;
 using LexiCraft.Services.Identity.Shared.Contracts;
 using Microsoft.EntityFrameworkCore;
+using LexiCraft.Services.Identity.Shared.Dtos;
+using LexiCraft.Services.Identity.Shared.Exceptions;
+using Z.EventBus;
 
 namespace LexiCraft.Services.Identity.Identity.Features.Login;
 
@@ -15,7 +18,8 @@ public record LoginCommand(string UserAccount, string Password) : ICommand<Token
 public partial class LoginCommandHandler(
     IUserRepository userRepository,
     IJwtTokenProvider jwtTokenProvider,
-    ICacheManager redisManager) 
+    ICacheManager redisManager,
+    IEventBus<LoginLogDto> loginEventBus) 
     : ICommandHandler<LoginCommand, TokenResponse>
 {
     public async Task<TokenResponse> Handle(LoginCommand command, CancellationToken cancellationToken)
@@ -25,13 +29,19 @@ public partial class LoginCommandHandler(
             || command.Password.Length < 6 ||
             !PasswordRegex().IsMatch(command.Password))
         {
-            throw new Exception("密码长度至少6位，且必须包含字母和数字");
+            var loginLogDto = new LoginLogDto(null, command.UserAccount, null, DateTime.Now,
+                null, null, null, "Password", false, "密码长度至少6位，且必须包含字母和数字");
+
+            ThrowIdentityAuthException.ThrowException(loginEventBus, JsonSerializer.Serialize(loginLogDto));
         }
 
         // 验证用户账号
         if (string.IsNullOrEmpty(command.UserAccount))
         {
-            throw new Exception("请输入账号");
+            var loginLogDto = new LoginLogDto(null, command.UserAccount, null, DateTime.Now,
+                null, null, null, "Password", false, "请输入账号");
+
+            ThrowIdentityAuthException.ThrowException(loginEventBus, JsonSerializer.Serialize(loginLogDto));
         }
 
         var user = await userRepository.QueryNoTracking<User>()
@@ -39,12 +49,18 @@ public partial class LoginCommandHandler(
 
         if(user is null)
         {
-            throw new Exception("用户不存在");
+            var loginLogDto = new LoginLogDto(null, command.UserAccount, null, DateTime.Now,
+                null, null, null, "Password", false, "用户不存在");
+
+            ThrowIdentityAuthException.ThrowException(loginEventBus, JsonSerializer.Serialize(loginLogDto));
         }
 
         if (!user.VerifyPassword(command.Password))
         {
-            throw new Exception("密码错误");
+            var loginLogDto = new LoginLogDto(null, command.UserAccount, null, DateTime.Now,
+                null, null, null, "Password", false, "密码错误");
+
+            ThrowIdentityAuthException.ThrowException(loginEventBus, JsonSerializer.Serialize(loginLogDto));
         }
 
         var userDict = new Dictionary<string, string>();
@@ -60,6 +76,11 @@ public partial class LoginCommandHandler(
         var refreshToken = jwtTokenProvider.GenerateRefreshToken();
         var response = new TokenResponse(token, refreshToken);
 
+        // 成功登录记录
+        var successLoginLogDto = new LoginLogDto(user.Id, user.UserAccount, token, DateTime.Now,
+            null, null, null, "Password", true, null);
+
+        await loginEventBus.PublishAsync(successLoginLogDto);
         await redisManager.SetAsync(string.Format(UserInfoConst.RedisTokenKey, user.Id.ToString("N")), response, TimeSpan.FromDays(7).Seconds);
         
         return response;

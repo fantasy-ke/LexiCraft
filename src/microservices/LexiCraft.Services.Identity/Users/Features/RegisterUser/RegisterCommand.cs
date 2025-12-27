@@ -5,6 +5,9 @@ using LexiCraft.Services.Identity.Identity.Models;
 using LexiCraft.Services.Identity.Identity.Models.Enum;
 using LexiCraft.Services.Identity.Shared;
 using LexiCraft.Services.Identity.Shared.Contracts;
+using LexiCraft.Services.Identity.Shared.Dtos;
+using LexiCraft.Services.Identity.Shared.Exceptions;
+using Z.EventBus;
 
 namespace LexiCraft.Services.Identity.Users.Features.RegisterUser;
 
@@ -14,6 +17,7 @@ public record RegisterCommand(string UserAccount, string Email, string Password,
 public partial class RegisterCommandHandler(
     IUserRepository userRepository,
     IUserPermissionRepository userPermissionRepository,
+    IEventBus<LoginLogDto> loginEventBus,
     ICaptcha captcha)
     : ICommandHandler<RegisterCommand, bool>
 {
@@ -42,20 +46,32 @@ public partial class RegisterCommandHandler(
         // 验证验证码
         if (!captcha.Validate(command.CaptchaKey, command.CaptchaCode))
         {
-            throw new Exception("验证码校验错误");
+            var loginLogDto = new LoginLogDto(null, command.UserAccount, null, DateTime.Now,
+                null, null, null, "Register", false, "请输入验证码");
+
+            ThrowIdentityAuthException.ThrowException(loginEventBus, System.Text.Json.JsonSerializer.Serialize(loginLogDto));
+
         }
 
         // 验证用户账号
         if (string.IsNullOrEmpty(command.UserAccount))
         {
-            throw new Exception("请输入账号");
+            var loginLogDto = new LoginLogDto(null, command.UserAccount, null, DateTime.Now,
+                null, null, null, "Register", false, "请输入账号和用户名");
+
+            ThrowIdentityAuthException.ThrowException(loginEventBus, System.Text.Json.JsonSerializer.Serialize(loginLogDto));
+
         }
 
         // 检查用户账号是否已存在
         var any = await userRepository.AnyAsync(p => p.UserAccount == command.UserAccount);
         if (any)
         {
-            throw new Exception("当前用户名已存在，请重新输入");
+            var loginLogDto = new LoginLogDto(null, command.UserAccount, null, DateTime.Now,
+                null, null, null, "Register", false, "当前用户名已存在，请重新输入");
+
+            ThrowIdentityAuthException.ThrowException(loginEventBus, System.Text.Json.JsonSerializer.Serialize(loginLogDto));
+
         }
 
         try

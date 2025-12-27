@@ -25,7 +25,9 @@ public static class LoginEndpoint
         {
             var (mediator, request, cancellationToken) = requestParameters;
             
-            return await mediator.Send(request.Adapt<LoginCommand>(), cancellationToken);
+            var result = await mediator.Send(request.Adapt<LoginCommand>(), cancellationToken);
+            
+            return result.Adapt<TokenResponse>();
         }
     }
 }
@@ -51,6 +53,11 @@ public record LoginUserRequest(
     string UserAccount,
     string Password);
 
+/// <summary>
+/// 登录令牌响应
+/// </summary>
+/// <param name="Token">访问令牌</param>
+/// <param name="RefreshToken">刷新令牌</param>
 public record TokenResponse(
     string Token,
     string RefreshToken);

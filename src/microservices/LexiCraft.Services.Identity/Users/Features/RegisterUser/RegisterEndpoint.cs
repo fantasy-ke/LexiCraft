@@ -21,12 +21,14 @@ public static class RegisterEndpoint
             .WithDescription(nameof(RegisterUser).Humanize())
             .AllowAnonymous(); // 注册接口允许匿名访问
 
-        async Task<bool> Handle(
+        async Task<RegisterResponse> Handle(
             [AsParameters] RegisterRequestParameters requestParameters)
         {
             var (mediator, request, cancellationToken) = requestParameters;
             
-            return await mediator.Send(request.Adapt<RegisterCommand>(), cancellationToken);
+            var result = await mediator.Send(request.Adapt<RegisterCommand>(), cancellationToken);
+            
+            return result.Adapt<RegisterResponse>();
         }
     }
 }
@@ -57,3 +59,9 @@ public record RegisterUserRequest(
     string Password,
     string CaptchaKey,
     string CaptchaCode);
+
+/// <summary>
+/// 用户注册响应
+/// </summary>
+/// <param name="Success">注册是否成功</param>
+internal record RegisterResponse(bool Success);

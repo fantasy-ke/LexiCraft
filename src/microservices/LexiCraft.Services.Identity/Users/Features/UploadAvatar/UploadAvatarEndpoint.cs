@@ -1,8 +1,7 @@
 using BuildingBlocks.Authentication.Contract;
 using Humanizer;
 using LexiCraft.Services.Identity.Users.Authorization;
-using LexiCraft.Services.Identity.Users.Dtos;
-using LexiCraft.Services.Identity.Users.Features.UploadAvatar;
+using Mapster;
 using MediatR;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Http;
@@ -35,7 +34,7 @@ public static class UploadAvatarEndpoint
             }
             
             var result = await mediator.Send(new UploadAvatarCommand(avatar, userContext.UserId), cancellationToken);
-            return new UploadAvatarResponse(result);
+            return result.Adapt<UploadAvatarResponse>();
         }
     }
 }
@@ -54,4 +53,12 @@ internal record UploadAvatarRequestParameters(
     CancellationToken CancellationToken
 );
 
-internal record UploadAvatarResponse(AvatarUploadResultDto Result);
+/// <summary>
+/// 上传头像响应
+/// </summary>
+/// <param name="AvatarUrl">头像URL</param>
+/// <param name="FileId">文件ID</param>
+internal record UploadAvatarResponse(
+    string AvatarUrl,
+    Guid? FileId
+);

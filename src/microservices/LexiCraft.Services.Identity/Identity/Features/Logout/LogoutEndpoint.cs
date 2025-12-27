@@ -1,5 +1,6 @@
 using BuildingBlocks.Authentication.Contract;
 using Humanizer;
+using Mapster;
 using MediatR;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Http;
@@ -18,12 +19,14 @@ public static class LogoutEndpoint
             .WithSummary("用户退出登录".Humanize())
             .WithDescription(nameof(Logout).Humanize());
 
-        async Task<bool> Handle(
+        async Task<LogoutResponse> Handle(
             [AsParameters] LogoutRequestParameters requestParameters)
         {
             var (mediator, userContext, cancellationToken) = requestParameters;
             
-            return await mediator.Send(new LogoutCommand(userContext.UserId), cancellationToken);
+            var result = await mediator.Send(new LogoutCommand(userContext.UserId), cancellationToken);
+            
+            return result.Adapt<LogoutResponse>();
         }
     }
 }
@@ -39,3 +42,9 @@ internal record LogoutRequestParameters(
     IUserContext UserContext,
     CancellationToken CancellationToken
 );
+
+/// <summary>
+/// 用户退出登录响应
+/// </summary>
+/// <param name="Success">退出是否成功</param>
+internal record LogoutResponse(bool Success);

@@ -2,19 +2,23 @@ using BuildingBlocks.Grpc.Contracts.FileGrpc;
 using BuildingBlocks.Mediator;
 using LexiCraft.Services.Identity.Identity.Models;
 using LexiCraft.Services.Identity.Shared.Contracts;
-using LexiCraft.Services.Identity.Users.Dtos;
 using Microsoft.AspNetCore.Http;
 
 namespace LexiCraft.Services.Identity.Users.Features.UploadAvatar;
 
-public record UploadAvatarCommand(IFormFile Avatar, Guid UserId) : ICommand<AvatarUploadResultDto>;
+public record UploadAvatarCommand(IFormFile Avatar, Guid UserId) : ICommand<UploadAvatarResult>;
+
+public record UploadAvatarResult(
+    string AvatarUrl,
+    Guid? FileId
+);
 
 public class UploadAvatarCommandHandler(
     IUserRepository userRepository,
     IFilesService filesService) 
-    : ICommandHandler<UploadAvatarCommand, AvatarUploadResultDto>
+    : ICommandHandler<UploadAvatarCommand, UploadAvatarResult>
 {
-    public async Task<AvatarUploadResultDto> Handle(UploadAvatarCommand command, CancellationToken cancellationToken)
+    public async Task<UploadAvatarResult> Handle(UploadAvatarCommand command, CancellationToken cancellationToken)
     {
         var user = await userRepository.FirstOrDefaultAsync(u => u.Id == command.UserId);
         if (user == null)
@@ -42,10 +46,6 @@ public class UploadAvatarCommandHandler(
         var avatarUrl = $"/FileDirectly?relativePath={fileInfoDto.FilePath}";
         user.Avatar = avatarUrl;
 
-        return new AvatarUploadResultDto
-        {
-            AvatarUrl = avatarUrl,
-            FileId = fileInfoDto.Id
-        };
+        return new UploadAvatarResult(avatarUrl, fileInfoDto.Id);
     }
 }

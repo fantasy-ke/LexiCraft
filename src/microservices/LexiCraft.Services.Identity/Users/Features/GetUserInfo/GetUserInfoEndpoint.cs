@@ -1,7 +1,7 @@
 using BuildingBlocks.Authentication.Contract;
 using Humanizer;
 using LexiCraft.Services.Identity.Users.Authorization;
-using LexiCraft.Services.Identity.Users.Dtos;
+using Mapster;
 using MediatR;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Http;
@@ -27,7 +27,8 @@ public static class GetUserInfoEndpoint
         {
             var (queryProcessor,userContext, cancellationToken) = requestParameters;
             var result = await queryProcessor.Send(new GetUserInfoQuery(userContext.UserId), cancellationToken);
-            return new GetUserInfoResponse(result);
+            
+            return result.Adapt<GetUserInfoResponse>();
         }
     }
 }
@@ -44,4 +45,18 @@ internal record GetUserInfoRequestParameters(
     CancellationToken CancellationToken
 );
 
-internal record GetUserInfoResponse(UserInfoDto? UserInfo);
+/// <summary>
+/// 获取用户信息响应
+/// </summary>
+/// <param name="UserId">用户ID</param>
+/// <param name="UserName">用户名</param>
+/// <param name="Email">邮箱</param>
+/// <param name="Phone">手机号</param>
+/// <param name="Avatar">头像</param>
+internal record GetUserInfoResponse(
+    Guid UserId,
+    string UserName,
+    string Email,
+    string? Phone,
+    string Avatar
+);
