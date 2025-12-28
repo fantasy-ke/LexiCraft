@@ -21,7 +21,6 @@ public static class ApplicationConfiguration
     {
         builder.AddStorage();
         builder.Services.AddMediator<IdentityMetadata>();
-        builder.Services.AddCaptcha(builder.Configuration);
         builder.AddInfrastructure();
         builder.AddUsersModuleServices();
         builder.AddGrpcService<IFilesService>(builder.Configuration);

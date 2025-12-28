@@ -68,18 +68,30 @@ public static class ServiceExtensions
                 )
             );
         }
+        
+        public IServiceCollection WithCaptcha(IConfiguration configuration)
+        {
+            services.AddCaptcha(configuration);
+            services.AddStackExchangeRedisCache(options =>
+            {
+                options.Configuration = configuration.GetConnectionString("RedisCache");
+                options.InstanceName = "captcha:";
+            });
+            return services;
+        }
 
-        public void WithRedis(IConfiguration configuration)
+        public IServiceCollection WithRedis(IConfiguration configuration)
         {
             //使用CsRedis
-            var cacheOption = configuration.GetSection("App:RedisCache").Get<RedisCacheOptions>()!;
+            var cacheOption = configuration.GetSection("RedisCache").Get<RedisCacheOptions>()!;
 
             if (cacheOption == null) throw new Exception("无法获取App:Cache  redis缓存配置");
 
-            if (!cacheOption.Enable) return;
+            if (!cacheOption.Enable) return services;
             services.AddZRedis(cacheOption, options => { options.Capacity = 6; });
 
             services.AddSingleton<ICacheManager, CacheManager>();
+            return services;
         }
 
         /// <summary>

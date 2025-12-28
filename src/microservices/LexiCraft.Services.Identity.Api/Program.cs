@@ -22,6 +22,7 @@ builder.AddServiceDefaults();
 
 builder.Services
     .ConfigureJson()
+    .WithCaptcha(configuration)
     .WithRedis(builder.Configuration);
 builder.Services.AddExceptionHandler<CustomExceptionHandler>();
 
