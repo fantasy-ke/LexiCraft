@@ -1,10 +1,10 @@
-﻿using System.Text;
+using System.Text;
 using BuildingBlocks.Extensions;
 using Microsoft.AspNetCore.Http;
 using Serilog;
 using Serilog.Events;
 
-namespace BuildingBlocks.Serilog;
+namespace BuildingBlocks.SerilogLogging.Utils;
 
 public static class SerilogRequestUtility
 {

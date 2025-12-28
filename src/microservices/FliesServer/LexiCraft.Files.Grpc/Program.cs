@@ -1,5 +1,6 @@
 using BuildingBlocks.Extensions;
-using BuildingBlocks.Serilog;
+using BuildingBlocks.SerilogLogging.Extensions;
+using BuildingBlocks.SerilogLogging.Utils;
 using LexiCraft.Files.Grpc.Data;
 using LexiCraft.Files.Grpc.Services;
 using Microsoft.Extensions.FileProviders;
@@ -9,19 +10,11 @@ using Serilog;
 
 var builder = WebApplication.CreateBuilder(args);
 
-var configuration = new ConfigurationBuilder()
-    .SetBasePath(AppContext.BaseDirectory)
-    .AddJsonFile(path: "serilog.json", optional: false, reloadOnChange: true)
-    .Build();
-
-Log.Logger = new LoggerConfiguration()
-    .ReadFrom.Configuration(configuration)
-    .CreateLogger();
+builder.AddSerilogLogging();
 
 builder.AddServiceDefaults( );
 // Add services to the container.
 // Learn more about configuring OpenAPI at https://aka.ms/aspnet/openapi
-builder.Host.UseSerilog();
 
 // Add services to the container.
 builder.Services.AddCodeFirstGrpc(options =>

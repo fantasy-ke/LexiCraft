@@ -1,5 +1,6 @@
 using BuildingBlocks.Cors;
-using BuildingBlocks.Serilog;
+using BuildingBlocks.SerilogLogging.Extensions;
+using BuildingBlocks.SerilogLogging.Utils;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Http;
 using Serilog;
