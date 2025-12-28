@@ -1,5 +1,4 @@
 using BuildingBlocks.Domain;
-using LexiCraft.Services.Identity.Identity.Models;
 using LexiCraft.Services.Identity.Shared.Dtos;
 using MapsterMapper;
 using Microsoft.Extensions.Logging;
@@ -12,7 +11,7 @@ namespace LexiCraft.Services.Identity.Identity.Events;
 /// </summary>
 /// <param name="loginLogRepository"></param>
 /// <param name="mapper"></param>
-public sealed class LoginEventHandler(IRepository<LoginLog> loginLogRepository, 
+public sealed class LoginEventHandler(IRepository<Models.LoginLog> loginLogRepository, 
     IMapper mapper, ILogger<LoginEventHandler> logger)
     : IEventHandler<LoginLogDto>
 {
@@ -20,7 +19,7 @@ public sealed class LoginEventHandler(IRepository<LoginLog> loginLogRepository,
     {
         try
         {
-            var entity = mapper.Map<LoginLog>(@event);
+            var entity = mapper.Map<Models.LoginLog>(@event);
 
             await loginLogRepository.InsertAsync(entity);
 

@@ -4,7 +4,6 @@
 /// 登录日志DTO
 /// </summary>
 /// <param name="UserId">登录用户</param>
-/// <param name="Token">返回的token</param>
 /// <param name="Username">登录账号</param>
 /// <param name="LoginTime">登录时间</param>
 /// <param name="Origin">登录来源</param>
@@ -16,7 +15,6 @@
 public record LoginLogDto(
     Guid? UserId,
     string? Username,
-    string? Token,
     DateTime LoginTime,
     string? Origin,
     string? Ip,

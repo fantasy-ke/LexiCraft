@@ -1,14 +1,13 @@
-using System.Text.RegularExpressions;
+using BuildingBlocks.Exceptions;
 using BuildingBlocks.Mediator;
 using FluentValidation;
 using Lazy.Captcha.Core;
+using LexiCraft.Services.Identity.Identity.Events.LoginLog;
 using LexiCraft.Services.Identity.Identity.Models;
 using LexiCraft.Services.Identity.Identity.Models.Enum;
 using LexiCraft.Services.Identity.Shared;
 using LexiCraft.Services.Identity.Shared.Contracts;
-using LexiCraft.Services.Identity.Shared.Dtos;
-using LexiCraft.Services.Identity.Shared.Exceptions;
-using Z.EventBus;
+using MediatR;
 
 namespace LexiCraft.Services.Identity.Users.Features.RegisterUser;
 
@@ -40,11 +39,11 @@ public class RegisterCommandValidator : AbstractValidator<RegisterCommand>
     }
 }
 
-public partial class RegisterCommandHandler(
+public class RegisterCommandHandler(
     IUserRepository userRepository,
     IUserPermissionRepository userPermissionRepository,
-    IEventBus<LoginLogDto> loginEventBus,
-    ICaptcha captcha)
+    ICaptcha captcha,
+    IMediator mediator)
     : ICommandHandler<RegisterCommand, bool>
 {
     public async Task<bool> Handle(RegisterCommand command, CancellationToken cancellationToken)
@@ -52,22 +51,16 @@ public partial class RegisterCommandHandler(
         // 验证验证码
         if (!captcha.Validate(command.CaptchaKey, command.CaptchaCode))
         {
-            var loginLogDto = new LoginLogDto(null, command.UserAccount, null, DateTime.Now,
-                null, null, null, "Register", false, "验证码不正确");
-
-            ThrowIdentityAuthException.ThrowException(loginEventBus, System.Text.Json.JsonSerializer.Serialize(loginLogDto));
-
+            await mediator.Send(new PublishLoginLogCommand(command.UserAccount, "验证码不正确", LoginType: "Register"), cancellationToken);
+            ThrowUserFriendlyException.ThrowException("验证码不正确");
         }
 
         // 检查用户账号是否已存在
         var any = await userRepository.AnyAsync(p => p.UserAccount == command.UserAccount);
         if (any)
         {
-            var loginLogDto = new LoginLogDto(null, command.UserAccount, null, DateTime.Now,
-                null, null, null, "Register", false, "当前用户名已存在，请重新输入");
-
-            ThrowIdentityAuthException.ThrowException(loginEventBus, System.Text.Json.JsonSerializer.Serialize(loginLogDto));
-
+            await mediator.Send(new PublishLoginLogCommand(command.UserAccount, "当前用户名已存在，请重新输入",LoginType: "Register"), cancellationToken);
+            ThrowUserFriendlyException.ThrowException("当前用户名已存在，请重新输入");
         }
 
         try
@@ -81,23 +74,16 @@ public partial class RegisterCommandHandler(
             user.UpdateSource(SourceEnum.Register);
 
             var afterUser = await userRepository.InsertAsync(user);
-            await userRepository.SaveChangesAsync();
+            var isSuccess = await userRepository.SaveChangesAsync();
 
             // 为用户分配默认权限
             var defaultPermissions = PermissionConstant.DefaultUserPermissions.Permissions;
             await userPermissionRepository.AddUserPermissionsAsync(afterUser.Id, defaultPermissions);
-
-            return true;
+            return isSuccess > 0;
         }
         catch (Exception e)
         {
             throw new Exception($"{e.Message}用户注册失败", e);
         }
     }
-
-    [GeneratedRegex("^(?=.*[0-9])(?=.*[a-zA-Z]).*$")]
-    private static partial Regex PasswordRegex();
-
-    [GeneratedRegex(@"^[\w-]+(\.[\w-]+)*@[\w-]+(\.[\w-]+)+$")]
-    private static partial Regex EmailRegex();
 }
