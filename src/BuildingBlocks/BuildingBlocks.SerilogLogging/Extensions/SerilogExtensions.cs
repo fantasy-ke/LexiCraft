@@ -63,22 +63,23 @@ public static class SerilogExtensions
             {
                 var logLevels = new[]
                 {
-                    (Level: LogEventLevel.Information, Suffix: "Info"),
-                    (Level: LogEventLevel.Warning, Suffix: "Warn"),
-                    (Level: LogEventLevel.Error, Suffix: "Error")
+                    (Suffix: "Info", Filter: (Func<LogEvent, bool>)(e => e.Level == LogEventLevel.Information)),
+                    (Suffix: "Warn", Filter: (Func<LogEvent, bool>)(e => e.Level == LogEventLevel.Warning)),
+                    (Suffix: "Error", Filter: (Func<LogEvent, bool>)(e => e.Level is LogEventLevel.Error or LogEventLevel.Fatal))
                 };
 
-                foreach (var (level, suffix) in logLevels)
+                foreach (var (suffix, filter) in logLevels)
                 {
-                    ConfigureSink(a => a.File(
-                        path: Path.Combine(options.LogPath, $"{suffix}.txt"),
-                        restrictedToMinimumLevel: level,
-                        rollingInterval: RollingInterval.Day,
-                        rollOnFileSizeLimit: true,
-                        fileSizeLimitBytes: options.FileSizeLimitBytes,
-                        retainedFileCountLimit: options.RetainedFileCountLimit,
-                        outputTemplate: options.LogTemplate
-                    ));
+                    ConfigureSink(a => a.Logger(lc => lc
+                        .Filter.ByIncludingOnly(filter)
+                        .WriteTo.File(
+                            path: Path.Combine(options.LogPath, $"{suffix}.txt"),
+                            rollingInterval: RollingInterval.Day,
+                            rollOnFileSizeLimit: true,
+                            fileSizeLimitBytes: options.FileSizeLimitBytes,
+                            retainedFileCountLimit: options.RetainedFileCountLimit,
+                            outputTemplate: options.LogTemplate
+                        )));
                 }
             }
 
