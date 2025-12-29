@@ -1,4 +1,4 @@
-<Project Sdk="Aspire.AppHost.Sdk/13.0.1">
+<Project Sdk="Aspire.AppHost.Sdk/13.1.0">
     
     <PropertyGroup>
         <OutputType>Exe</OutputType>
@@ -12,10 +12,6 @@
     <ItemGroup>
       <ProjectReference Include="..\microservices\LexiCraft.Services.Identity.Api\LexiCraft.Services.Identity.Api.csproj" />
       <ProjectReference Include="..\microservices\FliesServer\LexiCraft.Files.Grpc\LexiCraft.Files.Grpc.csproj" />
-    </ItemGroup>
-
-    <ItemGroup>
-      <PackageReference Include="Aspire.Hosting.AppHost" Version="13.0.2" />
     </ItemGroup>
 
 </Project>
