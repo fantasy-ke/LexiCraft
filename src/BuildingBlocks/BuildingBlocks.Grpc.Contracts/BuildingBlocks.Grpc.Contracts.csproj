@@ -7,8 +7,8 @@
     </PropertyGroup>
 
     <ItemGroup>
-        <PackageReference Include="protobuf-net.Grpc.AspNetCore" Version="1.2.2" />
-        <PackageReference Include="protobuf-net.Grpc.ClientFactory" Version="1.2.2" />
+        <PackageReference Include="protobuf-net.Grpc.AspNetCore" />
+        <PackageReference Include="protobuf-net.Grpc.ClientFactory" />
     </ItemGroup>
 
 </Project>

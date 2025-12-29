@@ -7,15 +7,15 @@
     </PropertyGroup>
 
     <ItemGroup>
-      <PackageReference Include="Aliyun.OSS.SDK.NetCore" Version="2.14.1" />
-      <PackageReference Include="Microsoft.Extensions.Caching.Memory" Version="10.0.1" />
-      <PackageReference Include="Microsoft.Extensions.Configuration.Abstractions" Version="10.0.1" />
-      <PackageReference Include="Microsoft.Extensions.Configuration.Binder" Version="10.0.1" />
-      <PackageReference Include="Microsoft.Extensions.Logging.Abstractions" Version="10.0.1" />
-      <PackageReference Include="Microsoft.Extensions.Options" Version="10.0.1" />
-      <PackageReference Include="Minio" Version="7.0.0" />
-      <PackageReference Include="Newtonsoft.Json" Version="13.0.4" />
-      <PackageReference Include="Tencent.QCloud.Cos.Sdk" Version="5.4.49" />
+      <PackageReference Include="Aliyun.OSS.SDK.NetCore" />
+      <PackageReference Include="Microsoft.Extensions.Caching.Memory" />
+      <PackageReference Include="Microsoft.Extensions.Configuration.Abstractions" />
+      <PackageReference Include="Microsoft.Extensions.Configuration.Binder" />
+      <PackageReference Include="Microsoft.Extensions.Logging.Abstractions" />
+      <PackageReference Include="Microsoft.Extensions.Options" />
+      <PackageReference Include="Minio" />
+      <PackageReference Include="Newtonsoft.Json" />
+      <PackageReference Include="Tencent.QCloud.Cos.Sdk" />
     </ItemGroup>
 
 </Project>

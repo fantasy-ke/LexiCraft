@@ -27,7 +27,8 @@
     <File Path="../.gitignore" />
     <File Path="../LICENSE" />
     <File Path="../README.md" />
-    <File Path="zversion.props" />
+    <File Path="Directory.Build.props" />
+    <File Path="Directory.Packages.props" />
   </Folder>
   <Project Path="LexiCraft.Aspire.Host/LexiCraft.Aspire.Host.csproj" />
   <Project Path="LexiCraft.Aspire.ServiceDefaults/LexiCraft.Aspire.ServiceDefaults.csproj" />

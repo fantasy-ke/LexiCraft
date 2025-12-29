@@ -7,17 +7,17 @@
     </PropertyGroup>
 
     <ItemGroup>
-        <PackageReference Include="Humanizer" Version="3.0.1" />
-        <PackageReference Include="Mapster" Version="7.4.0" />
-        <PackageReference Include="MediatR" Version="14.0.0" />
-        <PackageReference Include="Microsoft.Extensions.Caching.StackExchangeRedis" Version="10.0.1" />
-        <PackageReference Include="Microsoft.Extensions.Logging.Abstractions" Version="10.0.1" />
-<!--        <PackageReference Include="Microsoft.FeatureManagement.AspNetCore" Version="4.3.0"/>-->
-        <PackageReference Include="Newtonsoft.Json" Version="13.0.4" />
-        <PackageReference Include="Scrutor" Version="7.0.0" />
-        <PackageReference Include="IdGen.DependencyInjection" Version="3.0.7" />
-        <PackageReference Include="Lazy.Captcha.Core" Version="2.2.2" />
-        <PackageReference Include="Microsoft.EntityFrameworkCore" Version="10.0.1" />
+        <PackageReference Include="Humanizer" />
+        <PackageReference Include="Mapster" />
+        <PackageReference Include="MediatR" />
+        <PackageReference Include="Microsoft.Extensions.Caching.StackExchangeRedis" />
+        <PackageReference Include="Microsoft.Extensions.Logging.Abstractions" />
+<!--        <PackageReference Include="Microsoft.FeatureManagement.AspNetCore" />-->
+        <PackageReference Include="Newtonsoft.Json" />
+        <PackageReference Include="Scrutor" />
+        <PackageReference Include="IdGen.DependencyInjection" />
+        <PackageReference Include="Lazy.Captcha.Core" />
+        <PackageReference Include="Microsoft.EntityFrameworkCore" />
     
     </ItemGroup>
 
