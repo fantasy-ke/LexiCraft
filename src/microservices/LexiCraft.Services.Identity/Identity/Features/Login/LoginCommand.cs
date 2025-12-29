@@ -4,7 +4,7 @@ using BuildingBlocks.Authentication;
 using BuildingBlocks.Authentication.Contract;
 using BuildingBlocks.Exceptions;
 using BuildingBlocks.Mediator;
-using BuildingBlocks.Redis;
+using BuildingBlocks.Caching.Redis;
 using FluentValidation;
 using LexiCraft.Services.Identity.Identity.Events.LoginLog;
 using LexiCraft.Services.Identity.Identity.Models;

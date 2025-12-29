@@ -1,6 +1,6 @@
 using BuildingBlocks.Authentication;
 using BuildingBlocks.Mediator;
-using BuildingBlocks.Redis;
+using BuildingBlocks.Caching.Redis;
 using FluentValidation;
 
 namespace LexiCraft.Services.Identity.Identity.Features.Logout;

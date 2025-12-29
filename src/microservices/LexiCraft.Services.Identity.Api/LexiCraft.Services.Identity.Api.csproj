@@ -12,6 +12,7 @@
       <ProjectReference Include="..\..\LexiCraft.Aspire.ServiceDefaults\LexiCraft.Aspire.ServiceDefaults.csproj" />
       <ProjectReference Include="..\LexiCraft.Services.Identity\LexiCraft.Services.Identity.csproj" />
       <ProjectReference Include="..\..\BuildingBlocks\BuildingBlocks.SerilogLogging\BuildingBlocks.SerilogLogging.csproj" />
+      <ProjectReference Include="..\..\BuildingBlocks\BuildingBlocks.Caching\BuildingBlocks.Caching.csproj" />
     </ItemGroup>
 
 </Project>

@@ -1,9 +1,9 @@
 ﻿using BuildingBlocks.Extensions.System;
 using FreeRedis;
 using Microsoft.Extensions.Options;
-using Z.FreeRedis;
+using BuildingBlocks.Caching.Redis;
 
-namespace BuildingBlocks.Redis;
+namespace BuildingBlocks.Caching.Redis;
 
 public class CacheManager : RedisCacheBaseService, ICacheManager
 {

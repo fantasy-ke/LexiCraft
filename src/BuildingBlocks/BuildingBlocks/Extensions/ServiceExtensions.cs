@@ -1,7 +1,6 @@
 ﻿using System.Reflection;
 using System.Text.Json;
 using System.Text.Json.Serialization;
-using BuildingBlocks.Redis;
 using BuildingBlocks.Shared;
 using IdGen;
 using IdGen.DependencyInjection;
@@ -9,7 +8,6 @@ using Mapster;
 using MapsterMapper;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
-using Z.FreeRedis;
 
 namespace BuildingBlocks.Extensions;
 
@@ -80,19 +78,6 @@ public static class ServiceExtensions
             return services;
         }
 
-        public IServiceCollection WithRedis(IConfiguration configuration)
-        {
-            //使用CsRedis
-            var cacheOption = configuration.GetSection("RedisCache").Get<RedisCacheOptions>()!;
-
-            if (cacheOption == null) throw new Exception("无法获取App:Cache  redis缓存配置");
-
-            if (!cacheOption.Enable) return services;
-            services.AddZRedis(cacheOption, options => { options.Capacity = 6; });
-
-            services.AddSingleton<ICacheManager, CacheManager>();
-            return services;
-        }
 
         /// <summary>
         /// 添加Mapster映射

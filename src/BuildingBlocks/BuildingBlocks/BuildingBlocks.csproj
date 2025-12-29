@@ -22,7 +22,6 @@
     </ItemGroup>
 
     <ItemGroup>
-        <ProjectReference Include="..\..\framework\Z.FreeRedis\Z.FreeRedis.csproj" />
         <FrameworkReference Include="Microsoft.AspNetCore.App" />
     </ItemGroup>
 

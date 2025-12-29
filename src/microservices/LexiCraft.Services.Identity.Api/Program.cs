@@ -1,9 +1,9 @@
+using BuildingBlocks.Caching.Extensions;
 using BuildingBlocks.Exceptions.Handler;
 using BuildingBlocks.Extensions;
 using BuildingBlocks.OpenApi.AspnetOpenApi.Extensions;
 using LexiCraft.Services.Identity;
 using BuildingBlocks.SerilogLogging.Extensions;
-using Serilog;
 using Z.Local.EventBus;
 
 var builder = WebApplication.CreateBuilder(args);

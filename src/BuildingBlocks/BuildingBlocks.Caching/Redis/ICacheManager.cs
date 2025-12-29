@@ -1,7 +1,7 @@
 ﻿using FreeRedis;
-using Z.FreeRedis;
+using BuildingBlocks.Caching.Redis;
 
-namespace BuildingBlocks.Redis;
+namespace BuildingBlocks.Caching.Redis;
 
 public interface ICacheManager : IRedisCacheBaseService
 {

@@ -7,11 +7,11 @@
     <Project Path="BuildingBlocks/BuildingBlocks.OpenApi/BuildingBlocks.OpenApi.csproj" />
     <Project Path="BuildingBlocks/BuildingBlocks.SerilogLogging/BuildingBlocks.SerilogLogging.csproj" />
     <Project Path="BuildingBlocks/BuildingBlocks.Validation/BuildingBlocks.Validation.csproj" />
+    <Project Path="BuildingBlocks/BuildingBlocks.Caching/BuildingBlocks.Caching.csproj" />
     <Project Path="BuildingBlocks/BuildingBlocks/BuildingBlocks.csproj" />
   </Folder>
   <Folder Name="/framework/">
     <Project Path="framework/Z.EventBus/Z.EventBus.csproj" />
-    <Project Path="framework/Z.FreeRedis/Z.FreeRedis.csproj" />
     <Project Path="framework/Z.Local.EventBus/Z.Local.EventBus.csproj" />
     <Project Path="framework/Z.OSSCore/Z.OSSCore.csproj" />
   </Folder>

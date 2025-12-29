@@ -1,4 +1,4 @@
-﻿namespace Z.FreeRedis;
+﻿namespace BuildingBlocks.Caching.Redis;
 
 public class RedisCacheOptions
 {

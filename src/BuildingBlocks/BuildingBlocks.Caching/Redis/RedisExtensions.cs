@@ -5,7 +5,7 @@ using Microsoft.Extensions.DependencyInjection.Extensions;
 using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
 
-namespace Z.FreeRedis;
+namespace BuildingBlocks.Caching.Redis;
 
 public static class RedisExtensions
 {
