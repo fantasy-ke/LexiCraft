@@ -1,9 +1,7 @@
 using FluentValidation.Results;
-using Microsoft.AspNetCore.Http;
 using Newtonsoft.Json;
-using JsonSerializer = System.Text.Json.JsonSerializer;
 
-namespace Shared.Validation;
+namespace BuildingBlocks.Validation;
 
 public class ValidationResultModel<TRequest>
 {

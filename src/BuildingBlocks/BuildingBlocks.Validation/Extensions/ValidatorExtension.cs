@@ -1,5 +1,4 @@
 using FluentValidation;
-using Shared.Validation;
 using ValidationException = BuildingBlocks.Exceptions.ValidationException;
 
 namespace BuildingBlocks.Validation.Extensions;

@@ -59,7 +59,7 @@ public static class SerilogRequestUtility
         if (endpoint?.DisplayName != null) diagnosticContext.Set("EndpointName", endpoint.DisplayName);
     }
 
-    private static string GetRequestBody(this HttpRequest request)
+    private static string? GetRequestBody(this HttpRequest request)
     {
         if (!request.Body.CanRead) return null;
 
