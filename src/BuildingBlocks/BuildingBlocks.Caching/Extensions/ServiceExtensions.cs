@@ -7,14 +7,22 @@ namespace BuildingBlocks.Caching.Extensions;
 
 public static class CachingServiceExtensions
 {
-    public static IServiceCollection WithRedis(this IServiceCollection services, IConfiguration configuration)
+    /// <summary>
+    /// 添加 Redis 缓存服务，集成一级本地缓存（FreeRedis ClientSideCaching）
+    /// </summary>
+    /// <param name="services"></param>
+    /// <param name="configuration"></param>
+    /// <param name="sectionName">配置节点名称，默认为 RedisCache</param>
+    /// <returns></returns>
+    public static IServiceCollection AddRedisCaching(this IServiceCollection services, string sectionName = "RedisCache", Action<RedisCacheOptions>? configurator = null)
     {
-        services.AddConfigurationOptions<RedisCacheOptions>("RedisCache");
-        var cacheOption = services.BuildServiceProvider().GetRequiredService<RedisCacheOptions>();
+        // 1. 绑定配置并注入 RedisCacheOptions
+        services.AddConfigurationOptions<RedisCacheOptions>(sectionName, configurator);
 
-        if (!cacheOption.Enable) return services;
+        // 2. 注入 FreeRedis 客户端
+        services.AddRedisClient();
 
-        services.AddZRedis(cacheOption, options => { options.Capacity = 6; });
+        // 3. 注入 缓存管理器
         services.AddSingleton<ICacheManager, CacheManager>();
 
         return services;

@@ -12,7 +12,7 @@ public partial class RedisCacheBaseService(RedisClient redisClient, IOptions<Red
     /// </summary>
     /// <param name="key"></param>
     /// <returns></returns>
-    private string FormatKey(string key)
+    protected string FormatKey(string key)
     {
         return string.IsNullOrWhiteSpace(cacheOptions.KeyPrefix) ? key : $"{cacheOptions.KeyPrefix}:{key}";
     }

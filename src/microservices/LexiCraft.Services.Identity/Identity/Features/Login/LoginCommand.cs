@@ -71,7 +71,7 @@ public partial class LoginCommandHandler(
         // 成功登录记录
         await mediator.Send(new PublishLoginLogCommand(user.UserAccount, "登录成功", user.Id, true), cancellationToken);
 
-        await redisManager.SetAsync(string.Format(UserInfoConst.RedisTokenKey, user.Id.ToString("N")), response, TimeSpan.FromDays(7).Seconds);
+        await redisManager.SetAsync(string.Format(UserInfoConst.RedisTokenKey, user.Id.ToString("N")), response, TimeSpan.FromDays(7));
 
         return response;
     }

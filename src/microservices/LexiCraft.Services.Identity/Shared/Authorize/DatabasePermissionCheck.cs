@@ -40,7 +40,7 @@ public class DatabasePermissionCheck(
         // 尝试从缓存获取
         var cachedPermissions = await cacheManager.GetAsync<string[]>(cacheKey);
         
-        if (cachedPermissions.Any())
+        if (cachedPermissions != null && cachedPermissions.Any())
             return [..cachedPermissions];
 
         // 缓存未命中，从数据库获取
@@ -54,7 +54,7 @@ public class DatabasePermissionCheck(
         }
 
         // 存储到缓存，有效期1小时
-        await cacheManager.SetAsync(cacheKey, allPermissions.ToArray(), 3600);
+        await cacheManager.SetAsync(cacheKey, allPermissions.ToArray(), TimeSpan.FromHours(1));
 
         return allPermissions;
     }

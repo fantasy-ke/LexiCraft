@@ -15,7 +15,7 @@ builder.AddServiceDefaults();
 builder.Services
     .ConfigureJson()
     .WithCaptcha(builder.Configuration)
-    .WithRedis(builder.Configuration);
+    .AddRedisCaching();
 builder.Services.AddExceptionHandler<CustomExceptionHandler>();
 
 builder.Services.AddLocalEventBus();

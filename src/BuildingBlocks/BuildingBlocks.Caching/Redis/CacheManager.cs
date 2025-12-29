@@ -1,136 +1,170 @@
-﻿using BuildingBlocks.Extensions.System;
+﻿using System.Linq;
+using BuildingBlocks.Extensions.System;
 using FreeRedis;
+using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
-using BuildingBlocks.Caching.Redis;
 
 namespace BuildingBlocks.Caching.Redis;
 
 public class CacheManager : RedisCacheBaseService, ICacheManager
 {
     private readonly RedisClient _redisClient;
+    private readonly ILogger<CacheManager> _logger;
 
-    public CacheManager(RedisClient redisClient, IOptions<RedisCacheOptions> options) : base(redisClient, options)
+    public CacheManager(
+        RedisClient redisClient, 
+        IOptions<RedisCacheOptions> options,
+        ILogger<CacheManager> logger) : base(redisClient, options)
     {
         _redisClient = redisClient;
-        Client = _redisClient;
+        _logger = logger;
     }
 
-    public RedisClient Client { get; set; }
+    public RedisClient Client => _redisClient;
 
-    /// <summary>
-    ///     设置缓存
-    /// </summary>
-    /// <param name="key"></param>
-    /// <param name="value"></param>
-    public void SetCache(string key, object value)
-    {
-        var cacheKey = BuildKey(key);
-        _redisClient.Set(cacheKey, value.ToJson());
-    }
+    #region 基础操作实现
 
-    public async Task SetCacheAsync(string key, object value)
-    {
-        var cacheKey = BuildKey(key);
-        await _redisClient.SetAsync(cacheKey, value.ToJson());
-    }
-
-    public void SetCache(string key, object value, TimeSpan timeout)
-    {
-        var cacheKey = BuildKey(key);
-        _redisClient.Set(cacheKey, value.ToJson(), timeout.Seconds);
-    }
-
-    public async Task SetCacheAsync(string key, object value, TimeSpan timeout)
-    {
-        var cacheKey = BuildKey(key);
-        await _redisClient.SetAsync(cacheKey, value.ToJson(), timeout.Seconds);
-    }
-
-
-    public string GetCache(string idKey)
-    {
-        if (idKey.IsNullEmpty()) return null;
-        var cacheKey = BuildKey(idKey);
-        var cache = _redisClient.Get(cacheKey);
-        return cache;
-    }
-
-    public async Task<string> GetCacheAsync(string key)
+    public string? Get(string key)
     {
         if (key.IsNullEmpty()) return null;
-        var cacheKey = BuildKey(key);
-        var cache = await _redisClient.GetAsync(cacheKey);
-        return cache;
+        return _redisClient.Get(FormatKey(key));
     }
 
-    public T GetCache<T>(string key)
+    public async Task<string?> GetAsync(string key)
     {
-        var cache = GetCache(key);
-        if (!cache.IsNullEmpty()) return cache.ToObject<T>();
-        return default;
+        if (key.IsNullEmpty()) return null;
+        return await _redisClient.GetAsync(FormatKey(key));
     }
 
-    public async Task<T> GetCacheAsync<T>(string key)
+    public T? Get<T>(string key)
     {
-        var cache = await GetCacheAsync(key);
-        if (!string.IsNullOrEmpty(cache)) return cache.ToObject<T>();
-        return default;
+        if (key.IsNullEmpty()) return default;
+        return _redisClient.Get<T>(FormatKey(key));
     }
 
-    public async Task<T> GetCacheAsync<T>(string key, Func<Task<T>> dataRetriever, TimeSpan timeout)
+    public async Task<T?> GetAsync<T>(string key)
     {
-        var result = await GetCacheAsync<T>(key);
+        if (key.IsNullEmpty()) return default;
+        return await _redisClient.GetAsync<T>(FormatKey(key));
+    }
+
+    public void Set(string key, object value, TimeSpan? timeout = null)
+    {
+        if (key.IsNullEmpty()) return;
+        var formattedKey = FormatKey(key);
+        if (timeout.HasValue)
+            _redisClient.Set(formattedKey, value, (int)timeout.Value.TotalSeconds);
+        else
+            _redisClient.Set(formattedKey, value);
+    }
+
+    public async Task SetAsync(string key, object value, TimeSpan? timeout = null)
+    {
+        if (key.IsNullEmpty()) return;
+        var formattedKey = FormatKey(key);
+        if (timeout.HasValue)
+            await _redisClient.SetAsync(formattedKey, value, (int)timeout.Value.TotalSeconds);
+        else
+            await _redisClient.SetAsync(formattedKey, value);
+    }
+
+    public void Remove(string key)
+    {
+        if (key.IsNullEmpty()) return;
+        _redisClient.Del(FormatKey(key));
+    }
+
+    public async Task RemoveAsync(string key)
+    {
+        if (key.IsNullEmpty()) return;
+        await _redisClient.DelAsync(FormatKey(key));
+    }
+
+    public async Task RemoveByPrefixAsync(string prefix)
+    {
+        if (prefix.IsNullEmpty()) return;
+        var formattedPrefix = FormatKey(prefix);
+        var keys = await _redisClient.KeysAsync(formattedPrefix + "*");
+        if (keys != null && keys.Length > 0)
+        {
+            await _redisClient.DelAsync(keys);
+        }
+    }
+
+    public async Task<bool> ExistsAsync(string key)
+    {
+        if (key.IsNullEmpty()) return false;
+        return await _redisClient.ExistsAsync(FormatKey(key));
+    }
+
+    #region Implementation of IRedisCacheBaseService (Mapping & Compatibility)
+
+    // Bridge SetCache calls to our optimized Set/SetAsync
+    public void SetCache(string key, object value) => Set(key, value);
+    public Task SetCacheAsync(string key, object value) => SetAsync(key, value);
+    public void SetCache(string key, object value, TimeSpan timeout) => Set(key, value, timeout);
+    public Task SetCacheAsync(string key, object value, TimeSpan timeout) => SetAsync(key, value, timeout);
+
+    // Ensure Del/DelAsync are prefix-safe (shadowing/overriding base implementation)
+    public new long Del(params string[] keys) => _redisClient.Del(keys.Select(FormatKey).ToArray());
+    public new async Task<long> DelAsync(params string[] keys) => await _redisClient.DelAsync(keys.Select(FormatKey).ToArray());
+
+    #endregion
+
+    #endregion
+
+    #region 高级操作实现
+
+    public async Task<T?> GetOrSetAsync<T>(string key, Func<Task<T>> acquire, TimeSpan? timeout = null)
+    {
+        if (key.IsNullEmpty()) return await acquire();
+
+        var cacheKey = FormatKey(key);
+        
+        // 1. 尝试从缓存获取 (如果开启了 ClientSideCaching，这里会自动命中 L1)
+        var result = await _redisClient.GetAsync<T>(cacheKey);
         if (result != null) return result;
-        var cacheKey = BuildKey(key);
-        using var redisLock = _redisClient.Lock(cacheKey, 10);
-        if (redisLock == null) throw new Exception("抢不到所");
 
-        var task = dataRetriever();
-        var flag = !task.IsCompleted;
-        if (flag) flag = await Task.WhenAny(task, Task.Delay(10)) != task;
-        //if (flag)
-        //{
-        //    throw new UserFriendlyException("任务执行错误");
-        //}
-        var item = await task;
-        if (item == null) return result;
-        await _redisClient.SetAsync(cacheKey, item.ToJson(), timeout.Seconds);
+        // 2. 缓存未命中，加锁防止击穿
+        var lockKey = $"Lock:{cacheKey}";
+        using (var redisLock = _redisClient.Lock(lockKey, 10)) // 10秒锁
+        {
+            if (redisLock == null)
+            {
+                _logger.LogWarning($"Failed to acquire lock for {lockKey}, waiting and retrying...");
+                await Task.Delay(100);
+                return await GetOrSetAsync(key, acquire, timeout);
+            }
 
-        redisLock.Dispose();
+            // 再次检查缓存（双重检查）
+            result = await _redisClient.GetAsync<T>(cacheKey);
+            if (result != null) return result;
 
-        result = item;
+            // 3. 回源获取数据
+            result = await acquire();
+
+            if (result != null)
+            {
+                // 4. 写入缓存
+                if (timeout.HasValue)
+                    await _redisClient.SetAsync(cacheKey, result, (int)timeout.Value.TotalSeconds);
+                else
+                    await _redisClient.SetAsync(cacheKey, result);
+            }
+        }
 
         return result;
     }
 
-    public void RemoveCache(string key)
-    {
-        _redisClient.Del(BuildKey(key));
-    }
-
-    public async Task RemoveCacheAsync(string key)
-    {
-        await _redisClient.DelAsync(BuildKey(key));
-    }
-
-    public async Task RemoveByPrefixAsync(string key)
-    {
-        var keys = await _redisClient.KeysAsync("*" + BuildKey(key) + "*");
-        foreach (var item in keys) await _redisClient.DelAsync(item);
-    }
-
-    public async Task<bool> ExistsCacheAsync(string key)
-    {
-        return await _redisClient.ExistsAsync(BuildKey(key));
-    }
+    #endregion
 
     /// <summary>
-    ///     创建缓存Key
+    /// 组合 KeyPrefix 和 TypeName 进行格式化
     /// </summary>
-    /// <param name="idKey"></param>
-    /// <returns></returns>
-    private string BuildKey(string idKey)
+    protected new string FormatKey(string key)
     {
-        return $"Cache_{GetType().FullName}_{idKey}";
+        var typePrefix = $"Cache_{GetType().Name}";
+        var formattedKey = $"{typePrefix}_{key}";
+        return base.FormatKey(formattedKey);
     }
 }

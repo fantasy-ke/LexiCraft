@@ -23,7 +23,7 @@ public class LogoutCommandHandler(
     public async Task<bool> Handle(LogoutCommand command, CancellationToken cancellationToken)
     {
         var cacheKey = string.Format(UserInfoConst.RedisTokenKey, command.UserId.ToString("N"));
-        await redisManager.DelAsync(cacheKey);
+        await redisManager.RemoveAsync(cacheKey);
         return true;
     }
 }
