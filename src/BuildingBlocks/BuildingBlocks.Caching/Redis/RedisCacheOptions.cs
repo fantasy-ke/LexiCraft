@@ -8,63 +8,58 @@ public class RedisCacheOptions
 {
     public bool Enable { get; set; } = true;
     
-    public string? ConnectionString { get; set; }
+    public string Host { get; set; } = "127.0.0.1";
+    
+    public int Port { get; set; } = 6379;
+
+    public string? User { get; set; }
     
     public string? Password { get; set; }
     
-    public int? DefaultDb { get; set; }
+    public int DefaultDb { get; set; } = 0;
     
-    public int? MaxPoolSize { get; set; }
+    public int MaxPoolSize { get; set; } = 100;
     
-    public int? MinPoolSize { get; set; }
+    public int MinPoolSize { get; set; } = 1;
+
+    public int IdleTimeout { get; set; } = 20000;
     
-    public bool? Ssl { get; set; }
+    public bool Ssl { get; set; } = false;
     
     public string? KeyPrefix { get; set; }
 
     /// <summary>
     /// 连接超时时间（毫秒）
     /// </summary>
-    public int? ConnectionTimeout { get; set; }
+    public int ConnectionTimeout { get; set; } = 5000;
 
     /// <summary>
     /// 读取/写入超时时间（毫秒）
     /// </summary>
-    public int? SyncTimeout { get; set; }
-
-    public string Configuration => GetOptionsConnectionString();
+    public int SyncTimeout { get; set; } = 5000;
 
     /// <summary>
     /// 本地缓存（一级缓存）配置
     /// </summary>
     public SideCaching SideCache { get; set; } = new();
 
-    private string GetOptionsConnectionString()
+    public string GetConnectionString()
     {
-        if (string.IsNullOrEmpty(ConnectionString)) return string.Empty;
-
-        var parameters = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase);
-        var parts = ConnectionString.Split(',', StringSplitOptions.RemoveEmptyEntries);
-
-        foreach (var part in parts)
+        return new FreeRedis.ConnectionStringBuilder
         {
-            var kv = part.Split('=', 2);
-            if (kv.Length == 2) parameters[kv[0].Trim()] = kv[1].Trim();
-            else parameters[kv[0].Trim()] = string.Empty;
-        }
-
-        // Apply options from properties (override if already in ConnectionString)
-        if (!string.IsNullOrEmpty(Password)) parameters["password"] = Password;
-        if (DefaultDb.HasValue) parameters["database"] = DefaultDb.Value.ToString();
-        else if (!parameters.ContainsKey("database")) parameters["database"] = "0";
-
-        if (MaxPoolSize > 0) parameters["max pool size"] = MaxPoolSize.Value.ToString();
-        if (MinPoolSize > 0) parameters["min pool size"] = MinPoolSize.Value.ToString();
-        if (Ssl.HasValue) parameters["ssl"] = Ssl.Value.ToString().ToLower();
-        if (ConnectionTimeout.HasValue) parameters["connectTimeout"] = ConnectionTimeout.Value.ToString();
-        if (SyncTimeout.HasValue) parameters["syncTimeout"] = SyncTimeout.Value.ToString();
-
-        return string.Join(",", parameters.Select(kv => string.IsNullOrEmpty(kv.Value) ? kv.Key : $"{kv.Key}={kv.Value}"));
+            Host = $"{Host}:{Port}",
+            User = User,
+            Password = Password,
+            Database = DefaultDb,
+            MaxPoolSize = MaxPoolSize,
+            MinPoolSize = MinPoolSize,
+            Ssl = Ssl,
+            ConnectTimeout = TimeSpan.FromMilliseconds(ConnectionTimeout),
+            ReceiveTimeout = TimeSpan.FromMilliseconds(SyncTimeout),
+            SendTimeout = TimeSpan.FromMilliseconds(SyncTimeout),
+            IdleTimeout = TimeSpan.FromMilliseconds(IdleTimeout),
+            // Name property does not exist in FreeRedis.ConnectionStringBuilder
+        }.ToString();
     }
 }
 

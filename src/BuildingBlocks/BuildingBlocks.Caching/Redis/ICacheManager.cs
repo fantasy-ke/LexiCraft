@@ -2,7 +2,7 @@
 
 namespace BuildingBlocks.Caching.Redis;
 
-public interface ICacheManager : IRedisCacheBaseService
+public interface ICacheManager
 {
     public RedisClient Client { get; }
 
@@ -58,6 +58,16 @@ public interface ICacheManager : IRedisCacheBaseService
     /// </summary>
     Task<bool> ExistsAsync(string key);
 
+    /// <summary>
+    /// 设置缓存过期时间
+    /// </summary>
+    bool Expire(string key, TimeSpan timeout);
+
+    /// <summary>
+    /// 设置缓存过期时间
+    /// </summary>
+    Task<bool> ExpireAsync(string key, TimeSpan timeout);
+
     #endregion
 
     #region 高级操作 (二层缓存模式)
@@ -71,6 +81,21 @@ public interface ICacheManager : IRedisCacheBaseService
     /// <param name="timeout">过期时间</param>
     /// <returns></returns>
     Task<T?> GetOrSetAsync<T>(string key, Func<Task<T>> acquire, TimeSpan? timeout = null);
+
+    /// <summary>
+    /// 获取缓存 (支持配置)
+    /// </summary>
+    Task<T?> GetAsync<T>(string key, Action<CacheOptions>? configure = null);
+
+    /// <summary>
+    /// 设置缓存 (支持配置)
+    /// </summary>
+    Task SetAsync(string key, object value, Action<CacheOptions>? configure = null);
+
+    /// <summary>
+    /// 获取或设置缓存 (支持配置)
+    /// </summary>
+    Task<T?> GetOrSetAsync<T>(string key, Func<Task<T>> acquire, Action<CacheOptions>? configure = null);
 
     #endregion
 }

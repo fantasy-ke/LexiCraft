@@ -1,27 +1,46 @@
-﻿using FreeRedis;
+using BuildingBlocks.Caching.Redis;
+using BuildingBlocks.Extensions;
+using FreeRedis;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
 using Microsoft.Extensions.Logging;
-using Microsoft.Extensions.Options;
 using Newtonsoft.Json;
 
-namespace BuildingBlocks.Caching.Redis;
+namespace BuildingBlocks.Caching.Extensions;
 
-public static class RedisExtensions
+public static class DependencyInjectionExtensions
 {
-    public static IServiceCollection AddRedisClient(this IServiceCollection services, Action<ClientSideCachingOptions>? clientCacheOptions = null)
+    /// <summary>
+    /// 添加 Redis 缓存服务，集成一级本地缓存（FreeRedis ClientSideCaching）
+    /// </summary>
+    /// <param name="services"></param>
+    /// <param name="sectionName">配置节点名称，默认为 RedisCache</param>
+    /// <param name="configurator"></param>
+    /// <returns></returns>
+    public static IServiceCollection AddRedisCaching(this IServiceCollection services, string sectionName = "RedisCache", Action<RedisCacheOptions>? configurator = null)
+    {
+        // 1. 绑定配置并注入 RedisCacheOptions
+        services.AddConfigurationOptions<RedisCacheOptions>(sectionName, configurator);
+
+        // 2. 注入 FreeRedis 客户端
+        services.AddRedisClient();
+
+        // 3. 注入 缓存管理器
+        services.AddSingleton<ICacheManager, CacheManager>();
+
+        return services;
+    }
+
+    private static IServiceCollection AddRedisClient(this IServiceCollection services, Action<ClientSideCachingOptions>? clientCacheOptions = null)
     {
         services.TryAddSingleton(x =>
         {
             var cacheOption = x.GetRequiredService<RedisCacheOptions>();
             var logger = x.GetRequiredService<ILogger<RedisClient>>();
             
-            if (string.IsNullOrEmpty(cacheOption.Configuration))
-            {
-                throw new ArgumentNullException(nameof(cacheOption.ConnectionString), "Redis connection string is not configured.");
-            }
+            var connectionString = cacheOption.GetConnectionString();
 
-            var redisClient = new RedisClient(cacheOption.Configuration);
+            var redisClient = new RedisClient(connectionString);
 
             // 配置默认使用Newtonsoft.Json作为序列化工具
             redisClient.Serialize = JsonConvert.SerializeObject;
