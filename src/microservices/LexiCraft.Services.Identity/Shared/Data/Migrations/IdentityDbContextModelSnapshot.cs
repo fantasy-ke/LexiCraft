@@ -274,10 +274,6 @@ namespace LexiCraft.Services.Identity.Shared.Data.Migrations
                         .HasColumnType("text")
                         .HasColumnName("create_by_name");
 
-                    b.Property<DateTime>("CreatedAt")
-                        .HasColumnType("timestamp with time zone")
-                        .HasColumnName("created_at");
-
                     b.Property<string>("PermissionName")
                         .IsRequired()
                         .HasColumnType("text")

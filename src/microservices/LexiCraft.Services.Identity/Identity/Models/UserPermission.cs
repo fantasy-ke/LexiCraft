@@ -17,10 +17,6 @@ public class UserPermission : AuditEntity<long>
     /// </summary>
     public string PermissionName { get; private set; }
     
-    /// <summary>
-    /// 创建时间
-    /// </summary>
-    public DateTime CreatedAt { get; private set; }
     
     private UserPermission() { } // EF Core需要的无参构造函数
     
@@ -28,6 +24,5 @@ public class UserPermission : AuditEntity<long>
     {
         UserId = userId;
         PermissionName = permissionName;
-        CreatedAt = DateTime.UtcNow;
     }
 }

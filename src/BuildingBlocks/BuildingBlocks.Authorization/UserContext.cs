@@ -12,7 +12,7 @@ public class UserContext(
     IHttpContextAccessor httpContextAccessor)
     : IUserContext
 {
-    private ClaimsPrincipal Principal => httpContextAccessor.HttpContext?.User ?? throw new InvalidOperationException("HttpContext.User is null");
+    private ClaimsPrincipal? Principal => httpContextAccessor.HttpContext?.User;
     
     /// <summary>
     /// 用户id
@@ -53,7 +53,7 @@ public class UserContext(
 
     protected virtual Claim? FindClaim(string claimType)
     {
-        return Principal.FindFirst(c => c.Type == claimType);
+        return Principal?.FindFirst(c => c.Type == claimType);
     }
 
     private TType? FindClaimValue<TType>(string claimType)

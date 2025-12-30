@@ -66,7 +66,6 @@ namespace LexiCraft.Services.Identity.Shared.Data.Migrations
                         .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
                     user_id = table.Column<Guid>(type: "uuid", nullable: false),
                     permission_name = table.Column<string>(type: "text", nullable: false),
-                    created_at = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
                     create_by_name = table.Column<string>(type: "text", nullable: true),
                     create_at = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
                     create_by_id = table.Column<Guid>(type: "uuid", nullable: true),

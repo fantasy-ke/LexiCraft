@@ -28,7 +28,8 @@ public class IdentityDbDataSeeder
             adduser.Roles.Add(PermissionConstant.Admin);
             adduser.UpdateLastLogin();
             adduser.UpdateSource(SourceEnum.Register);
-            adduser.CreateAt  = DateTime.Now;
+            adduser.CreateById = Guid.Empty;
+            adduser.CreateByName = "admin";
             await context.Users.AddAsync(adduser);
             await context.SaveChangesAsync(); // 保存用户以获取ID
             
@@ -54,7 +55,11 @@ public class IdentityDbDataSeeder
             {
                 if (context.UserPermissions.Any(up => up.UserId == user.Id && up.PermissionName == permissionName))
                     continue;
-                var userPermission = new UserPermission(user.Id, permissionName);
+                var userPermission = new UserPermission(user.Id, permissionName)
+                {
+                    CreateById = Guid.Empty,
+                    CreateByName = "admin"
+                };
                 await context.UserPermissions.AddAsync(userPermission);
             }
         }

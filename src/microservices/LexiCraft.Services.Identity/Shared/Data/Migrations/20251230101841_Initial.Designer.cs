@@ -13,7 +13,7 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace LexiCraft.Services.Identity.Shared.Data.Migrations
 {
     [DbContext(typeof(IdentityDbContext))]
-    [Migration("20251227084423_Initial")]
+    [Migration("20251230101841_Initial")]
     partial class Initial
     {
         /// <inheritdoc />
@@ -276,10 +276,6 @@ namespace LexiCraft.Services.Identity.Shared.Data.Migrations
                     b.Property<string>("CreateByName")
                         .HasColumnType("text")
                         .HasColumnName("create_by_name");
-
-                    b.Property<DateTime>("CreatedAt")
-                        .HasColumnType("timestamp with time zone")
-                        .HasColumnName("created_at");
 
                     b.Property<string>("PermissionName")
                         .IsRequired()

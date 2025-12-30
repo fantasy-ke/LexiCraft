@@ -32,7 +32,7 @@ public static partial class HostApplicationBuilderExtensions
             {
                 if (app.Environment.IsDevelopment() || app.Environment.IsAspireRun())
                 {
-                    // app.AddMigration<IdentityDbContext, IdentityDbDataSeeder>();
+                    app.AddMigration<IdentityDbContext, IdentityDbDataSeeder>();
                 }
                 else
                 {
