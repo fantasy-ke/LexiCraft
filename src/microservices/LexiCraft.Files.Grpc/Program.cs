@@ -4,7 +4,7 @@ using BuildingBlocks.SerilogLogging.Utils;
 using LexiCraft.Files.Grpc.Data;
 using LexiCraft.Files.Grpc.Services;
 using Microsoft.Extensions.FileProviders;
-using Microsoft.OpenApi;
+using Microsoft.OpenApi.Models;
 using ProtoBuf.Grpc.Server;
 using Serilog;
 

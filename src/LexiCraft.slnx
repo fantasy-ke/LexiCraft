@@ -16,8 +16,8 @@
     <Project Path="framework/Z.OSSCore/Z.OSSCore.csproj" />
   </Folder>
   <Folder Name="/microservices/" />
-  <Folder Name="/microservices/FilesServer/">
-    <Project Path="microservices/FliesServer/LexiCraft.Files.Grpc/LexiCraft.Files.Grpc.csproj" />
+  <Folder Name="/microservices/FilesService/">
+    <Project Path="microservices/LexiCraft.Files.Grpc/LexiCraft.Files.Grpc.csproj" />
   </Folder>
   <Folder Name="/microservices/Identity/">
     <Project Path="microservices/LexiCraft.Services.Identity.Api/LexiCraft.Services.Identity.Api.csproj" />
