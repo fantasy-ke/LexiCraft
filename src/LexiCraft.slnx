@@ -17,12 +17,15 @@
     <Project Path="framework/Z.OSSCore/Z.OSSCore.csproj" />
   </Folder>
   <Folder Name="/microservices/" />
-  <Folder Name="/microservices/FilesService/">
-    <Project Path="microservices/LexiCraft.Files.Grpc/LexiCraft.Files.Grpc.csproj" />
+  <Folder Name="/microservices/Files/">
+    <File Path="microservices/Files/Dockerfile" />
+    <Project Path="microservices/Files/LexiCraft.Files.Grpc/LexiCraft.Files.Grpc.csproj" />
   </Folder>
   <Folder Name="/microservices/Identity/">
-    <Project Path="microservices/LexiCraft.Services.Identity.Api/LexiCraft.Services.Identity.Api.csproj" />
-    <Project Path="microservices/LexiCraft.Services.Identity/LexiCraft.Services.Identity.csproj" />
+    <File Path=".dockerignore" />
+    <File Path="microservices/Identity/Dockerfile" />
+    <Project Path="microservices/Identity/LexiCraft.Services.Identity.Api/LexiCraft.Services.Identity.Api.csproj" />
+    <Project Path="microservices/Identity/LexiCraft.Services.Identity/LexiCraft.Services.Identity.csproj" />
   </Folder>
   <Folder Name="/Solution Items/">
     <File Path="../.gitignore" />

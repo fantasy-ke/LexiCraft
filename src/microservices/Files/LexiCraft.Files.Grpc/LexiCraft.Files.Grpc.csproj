@@ -5,6 +5,7 @@
         <Nullable>enable</Nullable>
         <ImplicitUsings>enable</ImplicitUsings>
         <GenerateDocumentationFile>true</GenerateDocumentationFile>
+        <DockerDefaultTargetOS>Linux</DockerDefaultTargetOS>
     </PropertyGroup>
 
     <ItemGroup>
@@ -18,10 +19,19 @@
     </ItemGroup>
 
     <ItemGroup>
-      <ProjectReference Include="..\..\BuildingBlocks\BuildingBlocks.EntityFrameworkCore\BuildingBlocks.EntityFrameworkCore.csproj" />
-      <ProjectReference Include="..\..\BuildingBlocks\BuildingBlocks.Grpc.Contracts\BuildingBlocks.Grpc.Contracts.csproj" />
-      <ProjectReference Include="..\..\LexiCraft.Aspire.ServiceDefaults\LexiCraft.Aspire.ServiceDefaults.csproj" />
-      <ProjectReference Include="..\..\BuildingBlocks\BuildingBlocks.SerilogLogging\BuildingBlocks.SerilogLogging.csproj" />
+      <ProjectReference Include="..\..\..\BuildingBlocks\BuildingBlocks.EntityFrameworkCore\BuildingBlocks.EntityFrameworkCore.csproj" />
+      <ProjectReference Include="..\..\..\BuildingBlocks\BuildingBlocks.Grpc.Contracts\BuildingBlocks.Grpc.Contracts.csproj" />
+      <ProjectReference Include="..\..\..\LexiCraft.Aspire.ServiceDefaults\LexiCraft.Aspire.ServiceDefaults.csproj" />
+      <ProjectReference Include="..\..\..\BuildingBlocks\BuildingBlocks.SerilogLogging\BuildingBlocks.SerilogLogging.csproj" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <Content Include="..\..\..\.dockerignore">
+        <Link>.dockerignore</Link>
+      </Content>
+      <Content Include="..\..\.dockerignore">
+        <Link>.dockerignore</Link>
+      </Content>
     </ItemGroup>
 
 </Project>
