@@ -12,7 +12,6 @@
         <PackageReference Include="MediatR" />
         <PackageReference Include="Microsoft.Extensions.Caching.StackExchangeRedis" />
         <PackageReference Include="Microsoft.Extensions.Logging.Abstractions" />
-<!--        <PackageReference Include="Microsoft.FeatureManagement.AspNetCore" />-->
         <PackageReference Include="Newtonsoft.Json" />
         <PackageReference Include="Scrutor" />
         <PackageReference Include="IdGen.DependencyInjection" />
