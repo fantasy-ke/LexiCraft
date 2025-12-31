@@ -1,3 +1,4 @@
+using BuildingBlocks.Cors;
 using BuildingBlocks.SerilogLogging.Extensions;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -13,20 +14,12 @@ builder.Services.AddReverseProxy()
     .LoadFromConfig(builder.Configuration.GetSection("ReverseProxy"));
 
 // 添加CORS支持
-builder.Services.AddCors(options =>
-{
-    options.AddDefaultPolicy(policy =>
-    {
-        policy.AllowAnyOrigin()
-              .AllowAnyMethod()
-              .AllowAnyHeader();
-    });
-});
+builder.AddDefaultCors();
 
 var app = builder.Build();
 
 // 配置HTTP请求管道
-app.UseCors();
+app.UseDefaultCors();
 
 // 映射默认端点(健康检查等)
 app.MapDefaultEndpoints();
