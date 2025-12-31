@@ -55,7 +55,13 @@ public static class ServiceExtensions
         return services;
     }
     
-    
+    /// <summary>
+    ///   添加仓储
+    /// </summary>
+    /// <param name="services"></param>
+    /// <param name="assemblies"></param>
+    /// <typeparam name="TDbContext"></typeparam>
+    /// <returns></returns>
     public static IServiceCollection TryAddRepository<TDbContext>(
         this IServiceCollection services,
         IEnumerable<Assembly> assemblies)

@@ -24,4 +24,17 @@ public class UnitOfWork<TDbContext>(TDbContext dbContext) : IUnitOfWork where TD
     {
         return await dbContext.SaveChangesAsync();
     }
+
+    public void Dispose()
+    {
+        if (dbContext is IDisposable dbContextDisposable)
+            dbContextDisposable.Dispose();
+        else
+            _ = dbContext.DisposeAsync().AsTask();
+    }
+
+    public async ValueTask DisposeAsync()
+    {
+        await dbContext.DisposeAsync();
+    }
 }

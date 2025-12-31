@@ -61,9 +61,9 @@ public class Repository<TDbContext, TEntity>(TDbContext dbContext) : IRepository
 		return Entity.FirstAsync(predicate);
 	}
 
-	public Task<TEntity?> SingleOrDefaultAsync(Expression<Func<TEntity, bool>> predicate)
+	public Task<TEntity> SingleOrDefaultAsync(Expression<Func<TEntity, bool>> predicate)
 	{
-		return Entity.SingleOrDefaultAsync(predicate);
+		return Entity.SingleOrDefaultAsync(predicate)!;
 	}
 
 	public Task<TEntity> SingleAsync(Expression<Func<TEntity, bool>> predicate)

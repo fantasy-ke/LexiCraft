@@ -1,6 +1,6 @@
 ﻿namespace BuildingBlocks.Domain;
 
-public interface IUnitOfWork
+public interface IUnitOfWork : IDisposable, IAsyncDisposable
 {
     /// <summary>
     ///     开启事务

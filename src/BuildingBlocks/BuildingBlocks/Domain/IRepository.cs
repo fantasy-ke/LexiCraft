@@ -74,7 +74,7 @@ public interface IRepository<TEntity>
     /// </summary>
     /// <param name="predicate">条件表达式</param>
     /// <returns>实体对象或默认值</returns>
-    Task<TEntity?> SingleOrDefaultAsync(Expression<Func<TEntity, bool>> predicate);
+    Task<TEntity> SingleOrDefaultAsync(Expression<Func<TEntity, bool>> predicate);
 
     /// <summary>
     ///     获取符合条件的唯一实体

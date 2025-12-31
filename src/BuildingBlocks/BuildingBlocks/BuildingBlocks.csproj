@@ -17,7 +17,7 @@
         <PackageReference Include="IdGen.DependencyInjection" />
         <PackageReference Include="Lazy.Captcha.Core" />
         <PackageReference Include="Microsoft.EntityFrameworkCore" />
-    
+        <PackageReference Include="MongoDB.Driver" />
     </ItemGroup>
 
     <ItemGroup>

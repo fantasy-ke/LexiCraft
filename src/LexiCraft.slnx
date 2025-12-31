@@ -4,6 +4,7 @@
     <Project Path="BuildingBlocks/BuildingBlocks.EntityFrameworkCore.Postgres/BuildingBlocks.EntityFrameworkCore.Postgres.csproj" />
     <Project Path="BuildingBlocks/BuildingBlocks.EntityFrameworkCore/BuildingBlocks.EntityFrameworkCore.csproj" />
     <Project Path="BuildingBlocks/BuildingBlocks.Grpc.Contracts/BuildingBlocks.Grpc.Contracts.csproj" />
+    <Project Path="BuildingBlocks/BuildingBlocks.MongoDB/BuildingBlocks.MongoDB.csproj" />
     <Project Path="BuildingBlocks/BuildingBlocks.OpenApi/BuildingBlocks.OpenApi.csproj" />
     <Project Path="BuildingBlocks/BuildingBlocks.SerilogLogging/BuildingBlocks.SerilogLogging.csproj" />
     <Project Path="BuildingBlocks/BuildingBlocks.Validation/BuildingBlocks.Validation.csproj" />
