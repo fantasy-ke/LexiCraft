@@ -5,17 +5,11 @@ using MongoDB.Driver;
 
 namespace BuildingBlocks.MongoDB;
 
-public class MongoDbContext : IMongoDbContext
+public class MongoDbContext(IMongoDatabase database, IMongoClient client) : IMongoDbContext
 {
-    public IMongoDatabase Database { get; }
-    public IMongoClient Client { get; }
+    public IMongoDatabase Database { get; } = database;
+    public IMongoClient Client { get; } = client;
     public IClientSessionHandle? Session { get; private set; }
-
-    public MongoDbContext(IMongoDatabase database, IMongoClient client)
-    {
-        Client = client;
-        Database = database;
-    }
 
     public async Task<IClientSessionHandle> BeginTransactionAsync(CancellationToken cancellationToken = default)
     {
@@ -26,7 +20,7 @@ public class MongoDbContext : IMongoDbContext
 
     public async Task CommitTransactionAsync(CancellationToken cancellationToken = default)
     {
-        if (Session != null && Session.IsInTransaction)
+        if (Session is { IsInTransaction: true })
         {
             await Session.CommitTransactionAsync(cancellationToken);
         }
@@ -34,7 +28,7 @@ public class MongoDbContext : IMongoDbContext
 
     public async Task RollbackTransactionAsync(CancellationToken cancellationToken = default)
     {
-        if (Session != null && Session.IsInTransaction)
+        if (Session is { IsInTransaction: true })
         {
             await Session.AbortTransactionAsync(cancellationToken);
         }
