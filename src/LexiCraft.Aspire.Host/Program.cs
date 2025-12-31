@@ -9,4 +9,6 @@ builder.AddProject<Projects.LexiCraft_Services_Identity_Api>("lexicraft-identity
 
 builder.AddProject<Projects.LexiCraft_Files_Grpc>("lexicraft-files-grpc");
 
+builder.AddProject<Projects.LexiCraft_ApiGateway>("lexicraft-api-gateway");
+
 builder.Build().Run();

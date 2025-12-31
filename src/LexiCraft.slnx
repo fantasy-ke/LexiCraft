@@ -27,10 +27,16 @@
     <Project Path="microservices/Identity/LexiCraft.Services.Identity.Api/LexiCraft.Services.Identity.Api.csproj" />
     <Project Path="microservices/Identity/LexiCraft.Services.Identity/LexiCraft.Services.Identity.csproj" />
   </Folder>
+  <Folder Name="/ApiGateway/">
+    <File Path=".dockerignore" />
+    <File Path="ApiGateway/Dockerfile" />
+    <Project Path="ApiGateway/LexiCraft.ApiGateway/LexiCraft.ApiGateway.csproj" />
+  </Folder>
   <Folder Name="/Solution Items/">
     <File Path="../.gitignore" />
     <File Path="../LICENSE" />
     <File Path="../README.md" />
+    <File Path="compose.yaml" />
     <File Path="Directory.Build.props" />
     <File Path="Directory.Packages.props" />
   </Folder>

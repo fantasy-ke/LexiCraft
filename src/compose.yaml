@@ -1,0 +1,19 @@
+﻿services:
+  lexicraft.apigateway:
+    image: lexicraft.apigateway
+    build:
+      context: .
+      dockerfile: ApiGateway/Dockerfile
+
+  files-grpc:
+    image: lexicraft.files.grpc
+    build:
+      context: .
+      dockerfile: microservices/Files/Dockerfile
+
+  identity-api:
+    image: lexicraft.services.identity.api
+    build:
+      context: .
+      dockerfile: microservices/Identity/Dockerfile
+
