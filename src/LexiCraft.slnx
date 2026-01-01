@@ -15,6 +15,7 @@
     <Project Path="framework/Z.EventBus/Z.EventBus.csproj" />
     <Project Path="framework/Z.Local.EventBus/Z.Local.EventBus.csproj" />
     <Project Path="framework/Z.OSSCore/Z.OSSCore.csproj" />
+    <Project Path="framework/Z.Redis.EventBus/Z.Redis.EventBus.csproj" />
   </Folder>
   <Folder Name="/microservices/" />
   <Folder Name="/microservices/Files/">

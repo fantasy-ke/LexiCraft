@@ -9,6 +9,7 @@ LexiCraft 是一个基于 .NET 的项目，围绕微服务架构构建，并使�
 - **`src/`**: 主要源代码目录。
   - **`LexiCraft.Aspire.Host/`**: .NET Aspire 主机项目，用于编排应用程序的各种服务和组件。
   - **`LexiCraft.Aspire.ServiceDefaults/`**: 包含 Aspire 生态系统的默认服务配置和扩展。
+  - **`ApiGateway/`**: 基于 **YARP (Yet Another Reverse Proxy)** 实现的 API 网关，负责请求路由、负载均衡和跨切面逻辑。
   - **`microservices/`**: 存放应用程序的不同微服务。
     - **`LexiCraft.Services.Identity/`**: 用户身份认证和管理服务，包含用户、权限、登录等核心功能。
     - **`LexiCraft.Services.Identity.Api/`**: 用户身份认证服务的API入口点。
@@ -38,7 +39,9 @@ LexiCraft 是一个基于 .NET 的项目，围绕微服务架构构建，并使�
 - **API 版本控制**: 支持 API 版本管理，便于系统演进。
 - **CQRS 模式**: 使用 MediatR 实现命令查询职责分离。
 - **请求验证**: 使用 FluentValidation 实现请求参数验证。
-- **事件驱动**: 通过事件总线实现服务间的异步通信。
+- **事件驱动与数据一致性**: 
+    - 通过事件总线实现服务间的异步通信。
+    - 采用 **Saga 模式 (Choreography/协作式)** 处理跨微服务的分布式事务。当某个业务环节失败时，通过 `Z.EventBus` 发布补偿事件，确保数据的最终一致性。
 
 ## 快速开始
 
@@ -57,6 +60,7 @@ LexiCraft 是一个基于 .NET 的项目，围绕微服务架构构建，并使�
 
 - **.NET 10.0**
 - **.NET Aspire**（用于编排）
+- **YARP**（用于 API 网关转发与路由）
 - **ASP.NET Core**（用于 Web API）
 - **Entity Framework Core**（用于数据访问）
 - **PostgreSQL**（主要数据库）
