@@ -22,12 +22,11 @@ LexiCraft 是一个基于 .NET 的项目，围绕微服务架构构建，并使�
     - **`BuildingBlocks.EntityFrameworkCore.Postgres`**: PostgreSQL 数据库相关组件。
     - **`BuildingBlocks.Grpc.Contracts`**: 用于服务间通信的 gRPC 契约。
     - **`BuildingBlocks.OpenApi`**: OpenAPI (Swagger/Scalar) 相关配置和组件。
+    - **`BuildingBlocks.EventBus`**: 统一事件总线实现，支持本地内存 (Channel) 与 Redis 分布式混合模式。
     - **`BuildingBlocks.SerilogLogging`**: 基于 Serilog 的统一日志记录组件。
     - **`BuildingBlocks.Validation`**: 请求验证相关组件，基于 FluentValidation。
     - `BuildingBlocks.MongoDB`: MongoDB数据访问组件
   - **`framework/`**: 包含为项目开发的自定义框架和库。
-    - **`Z.EventBus`**: 用于异步通信的事件总线定义和抽象。
-    - **`Z.Local.EventBus`**: 基于内存或本地机制的事件总线实现。
     - **`Z.OSSCore`**: 用于对象存储服务 (OSS) 跨平台交互的核心组件（支持阿里云、腾讯云、Minio 等）。
 
 ## 功能特性
@@ -41,7 +40,7 @@ LexiCraft 是一个基于 .NET 的项目，围绕微服务架构构建，并使�
 - **请求验证**: 使用 FluentValidation 实现请求参数验证。
 - **事件驱动与数据一致性**: 
     - 通过事件总线实现服务间的异步通信。
-    - 采用 **Saga 模式 (Choreography/协作式)** 处理跨微服务的分布式事务。当某个业务环节失败时，通过 `Z.EventBus` 发布补偿事件，确保数据的最终一致性。
+    - 采用 **Saga 模式 (Choreography/协作式)** 处理跨微服务的分布式事务。当某个业务环节失败时，通过 `BuildingBlocks.EventBus` 发布补偿事件，确保数据的最终一致性。
 
 ## 快速开始
 
