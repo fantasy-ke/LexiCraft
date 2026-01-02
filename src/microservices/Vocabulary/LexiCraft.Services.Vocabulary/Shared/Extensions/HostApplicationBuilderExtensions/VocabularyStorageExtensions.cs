@@ -41,6 +41,7 @@ public static partial class HostApplicationBuilderExtensions
     {
         builder.Services.AddTransient<IWordRepository, WordRepository>();
         builder.Services.AddTransient<IWordListRepository, WordListRepository>();
+        builder.Services.AddTransient<IWordListItemRepository, WordListItemRepository>();
         builder.Services.AddTransient<IUserWordStateRepository, UserWordStateRepository>();
     }
 }

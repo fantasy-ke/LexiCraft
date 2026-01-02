@@ -1,3 +1,4 @@
+using BuildingBlocks.EntityFrameworkCore;
 using LexiCraft.Services.Vocabulary.Shared.Contracts;
 using LexiCraft.Services.Vocabulary.Shared.Data;
 using LexiCraft.Services.Vocabulary.UserStates.Models;
@@ -5,16 +6,12 @@ using Microsoft.EntityFrameworkCore;
 
 namespace LexiCraft.Services.Vocabulary.UserStates.Data.Repositories;
 
-public class UserWordStateRepository(VocabularyDbContext context) : IUserWordStateRepository
+public class UserWordStateRepository(VocabularyDbContext context) 
+    : Repository<VocabularyDbContext, UserWordState>(context), IUserWordStateRepository
 {
     public async Task<UserWordState?> GetAsync(Guid userId, long wordId)
     {
-        return await context.UserWordStates.FirstOrDefaultAsync(x => x.UserId == userId && x.WordId == wordId);
-    }
-
-    public IQueryable<UserWordState> Query()
-    {
-        return context.UserWordStates.AsQueryable();
+        return await FirstOrDefaultAsync(x => x.UserId == userId && x.WordId == wordId);
     }
 
     public async Task AddOrUpdateAsync(UserWordState state)
@@ -22,12 +19,12 @@ public class UserWordStateRepository(VocabularyDbContext context) : IUserWordSta
         var existing = await GetAsync(state.UserId, state.WordId);
         if (existing == null)
         {
-            await context.UserWordStates.AddAsync(state);
+            await InsertAsync(state);
         }
         else
         {
-            context.Entry(existing).CurrentValues.SetValues(state);
+            DbContext.Entry(existing).CurrentValues.SetValues(state);
         }
-        await context.SaveChangesAsync();
+        await SaveChangesAsync();
     }
 }

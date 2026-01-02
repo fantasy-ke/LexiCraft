@@ -30,7 +30,7 @@ public class SearchWordQueryHandler(IWordRepository wordRepository)
 {
     public async Task<List<WordDto>> Handle(SearchWordQuery query, CancellationToken cancellationToken)
     {
-        var words = await wordRepository.Query()
+        var words = await wordRepository.QueryNoTracking()
             .Where(x => x.Spelling.Contains(query.Keyword))
             .Take(20)
             .ToListAsync(cancellationToken);

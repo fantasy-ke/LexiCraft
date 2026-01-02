@@ -3,7 +3,6 @@ using LexiCraft.Services.Vocabulary.Words.Models;
 
 namespace LexiCraft.Services.Vocabulary.Shared.Contracts;
 
-public interface IWordListRepository : IRepository<WordList>
+public interface IWordListItemRepository : IRepository<WordListItem>
 {
-    Task<WordList?> GetByIdAsync(long id);
 }

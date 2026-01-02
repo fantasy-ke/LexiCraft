@@ -12,7 +12,7 @@ public class WordList : AuditEntity<long>
     /// <summary>
     /// 分类 (考试 / 主题 / 难度)
     /// </summary>
-    public string Category { get; set; }
+    public string? Category { get; set; }
 
     /// <summary>
     /// 描述

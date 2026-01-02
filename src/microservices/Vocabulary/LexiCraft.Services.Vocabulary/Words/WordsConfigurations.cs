@@ -1,4 +1,5 @@
 using LexiCraft.Services.Vocabulary.Words.Features.GetWordsByList;
+using LexiCraft.Services.Vocabulary.Words.Features.ImportWords;
 using LexiCraft.Services.Vocabulary.Words.Features.SearchWord;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Http;
@@ -28,6 +29,7 @@ internal static class WordsConfigurations
 
         wordsGroupV1.MapSearchWordEndpoint();
         wordsGroupV1.MapGetWordsByListEndpoint();
+        wordsGroupV1.MapImportWordsEndpoint();
 
         return endpoints;
     }
