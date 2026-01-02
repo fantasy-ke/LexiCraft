@@ -106,6 +106,16 @@ public class Repository<TDbContext, TEntity>(TDbContext dbContext) : IRepository
 	/// </summary>
 	/// <typeparam name="T"></typeparam>
 	/// <returns></returns>
+	public IQueryable<TEntity> QueryNoTracking()
+	{
+		return DbContext.Set<TEntity>().AsNoTracking();
+	}
+	
+	/// <summary>
+	/// 查询无跟踪
+	/// </summary>
+	/// <typeparam name="T"></typeparam>
+	/// <returns></returns>
 	public IQueryable<T> QueryNoTracking<T>() where T : class
 	{
 		return DbContext.Set<T>().AsNoTracking();

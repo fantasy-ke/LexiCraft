@@ -1,4 +1,5 @@
 using System.Reflection;
+using BuildingBlocks.Domain;
 using BuildingBlocks.EntityFrameworkCore.Extensions;
 using BuildingBlocks.EntityFrameworkCore.Interceptors;
 using BuildingBlocks.Extensions;
@@ -68,6 +69,7 @@ public static class DependencyInjectionExtensions
         );
 
         action?.Invoke(builder);
+        builder.Services.AddScoped<IUnitOfWork, UnitOfWork<TDbContext>>();
         builder.Services.WithRepository<TDbContext>();
 
         return builder;

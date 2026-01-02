@@ -135,6 +135,11 @@ public class MongoRepository<TEntity>(IMongoDbContext context) : IRepository<TEn
         return Task.FromResult(1);
     }
 
+    public IQueryable<TEntity> QueryNoTracking()
+    {
+       return _collection.AsQueryable();
+    }
+    
     public IQueryable<T> QueryNoTracking<T>() where T : class
     {
         if (typeof(T) == typeof(TEntity))

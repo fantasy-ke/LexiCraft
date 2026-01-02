@@ -129,6 +129,13 @@ public interface IRepository<TEntity>
     /// </summary>
     /// <typeparam name="T"></typeparam>
     /// <returns></returns>
+    IQueryable<TEntity> QueryNoTracking();
+    
+    /// <summary>
+    ///     非跟踪查询
+    /// </summary>
+    /// <typeparam name="T"></typeparam>
+    /// <returns></returns>
     IQueryable<T> QueryNoTracking<T>() where T : class;
 
     /// <summary>
