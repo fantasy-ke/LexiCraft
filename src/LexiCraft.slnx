@@ -11,9 +11,7 @@
     <Project Path="BuildingBlocks/BuildingBlocks.Caching/BuildingBlocks.Caching.csproj" />
     <Project Path="BuildingBlocks/BuildingBlocks.EventBus/BuildingBlocks.EventBus.csproj" />
     <Project Path="BuildingBlocks/BuildingBlocks/BuildingBlocks.csproj" />
-  </Folder>
-  <Folder Name="/framework/">
-    <Project Path="framework/Z.OSSCore/Z.OSSCore.csproj" />
+    <Project Path="BuildingBlocks/BuildingBlocks.OSS/BuildingBlocks.OSS.csproj" />
   </Folder>
   <Folder Name="/microservices/" />
   <Folder Name="/microservices/Files/">

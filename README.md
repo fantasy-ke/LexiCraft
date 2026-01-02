@@ -25,9 +25,8 @@ LexiCraft 是一个基于 .NET 的项目，围绕微服务架构构建，并使�
     - **`BuildingBlocks.EventBus`**: 统一事件总线实现，支持本地内存 (Channel) 与 Redis 分布式混合模式。
     - **`BuildingBlocks.SerilogLogging`**: 基于 Serilog 的统一日志记录组件。
     - **`BuildingBlocks.Validation`**: 请求验证相关组件，基于 FluentValidation。
-    - `BuildingBlocks.MongoDB`: MongoDB数据访问组件
-  - **`framework/`**: 包含为项目开发的自定义框架和库。
-    - **`Z.OSSCore`**: 用于对象存储服务 (OSS) 跨平台交互的核心组件（支持阿里云、腾讯云、Minio 等）。
+    - **`BuildingBlocks.OSS`**: 对象存储服务 (OSS) 统一封装组件，支持阿里云、腾讯云、Minio 等。
+    - **`BuildingBlocks.MongoDB`**: MongoDB 数据访问组件。
 
 ## 功能特性
 
