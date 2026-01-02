@@ -40,7 +40,7 @@ public partial class LoginCommandHandler(
 {
     public async Task<TokenResponse> Handle(LoginCommand command, CancellationToken cancellationToken)
     {
-        var user = await userRepository.QueryNoTracking<User>()
+        var user = await userRepository.QueryNoTracking()
             .FirstOrDefaultAsync(x => x.UserAccount == command.UserAccount, cancellationToken);
 
         if (user is null)

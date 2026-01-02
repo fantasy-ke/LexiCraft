@@ -70,7 +70,7 @@ internal class OAuthCommandHandler(
         }
 
         // 获取是否存在当前渠道
-        var oauth = await userOAuthRepository.QueryNoTracking<UserOAuth>()
+        var oauth = await userOAuthRepository.QueryNoTracking()
             .FirstOrDefaultAsync(x =>
                 x.Provider == request.Type && x.ProviderUserId == userDto.Id, cancellationToken);
 
@@ -80,7 +80,7 @@ internal class OAuthCommandHandler(
             throw new InvalidOperationException("用户未绑定该OAuth账户");
         }
 
-        var user = await userRepository.QueryNoTracking<User>()
+        var user = await userRepository.QueryNoTracking()
             .FirstOrDefaultAsync(x => x.Id == oauth.UserId, cancellationToken);
         if (user is null)
         {

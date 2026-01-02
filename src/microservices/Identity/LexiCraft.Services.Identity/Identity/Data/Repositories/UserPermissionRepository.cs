@@ -11,7 +11,7 @@ public class UserPermissionRepository(IdentityDbContext dbContext)
 {
     public async Task<List<string>> GetUserPermissionsAsync(Guid userId)
     {
-        return await QueryNoTracking<UserPermission>()
+        return await QueryNoTracking()
             .Where(up => up.UserId == userId)
             .Select(up => up.PermissionName)
             .ToListAsync();
@@ -19,7 +19,7 @@ public class UserPermissionRepository(IdentityDbContext dbContext)
 
     public async Task AddUserPermissionAsync(Guid userId, string permissionName)
     {
-        var existingPermission = await QueryNoTracking<UserPermission>()
+        var existingPermission = await QueryNoTracking()
             .FirstOrDefaultAsync(up => up.UserId == userId && up.PermissionName == permissionName);
 
         if (existingPermission == null)
@@ -32,7 +32,7 @@ public class UserPermissionRepository(IdentityDbContext dbContext)
 
     public async Task AddUserPermissionsAsync(Guid userId, IEnumerable<string> permissionNames)
     {
-        var existingPermissions = await QueryNoTracking<UserPermission>()
+        var existingPermissions = await QueryNoTracking()
             .Where(up => up.UserId == userId && permissionNames.Contains(up.PermissionName))
             .Select(up => up.PermissionName)
             .ToListAsync();

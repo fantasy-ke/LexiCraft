@@ -21,7 +21,7 @@ public class GetUserInfoQueryHandler(IUserRepository userRepository)
 {
     public async Task<GetUserInfoResult> Handle(GetUserInfoQuery query, CancellationToken cancellationToken)
     {
-        var user = await userRepository.QueryNoTracking<User>()
+        var user = await userRepository.QueryNoTracking()
             .Where(p => p.Id == query.UserId)
             .Select(p => new GetUserInfoResult(
                 UserId: p.Id,
