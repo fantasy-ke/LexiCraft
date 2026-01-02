@@ -1,0 +1,35 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+    <PropertyGroup>
+        <TargetFramework>net10.0</TargetFramework>
+        <Nullable>enable</Nullable>
+        <ImplicitUsings>enable</ImplicitUsings>
+        <UseEntityFrameworkCore>true</UseEntityFrameworkCore>
+    </PropertyGroup>
+
+    <ItemGroup>
+        <ProjectReference Include="..\..\..\BuildingBlocks\BuildingBlocks.EntityFrameworkCore.Postgres\BuildingBlocks.EntityFrameworkCore.Postgres.csproj" />
+        <ProjectReference Include="..\..\..\BuildingBlocks\BuildingBlocks.Grpc.Contracts\BuildingBlocks.Grpc.Contracts.csproj" />
+        <ProjectReference Include="..\..\..\BuildingBlocks\BuildingBlocks.OpenApi\BuildingBlocks.OpenApi.csproj" />
+        <ProjectReference Include="..\..\..\BuildingBlocks\BuildingBlocks.Validation\BuildingBlocks.Validation.csproj" />
+        <ProjectReference Include="..\..\..\BuildingBlocks\BuildingBlocks\BuildingBlocks.csproj" />
+        <ProjectReference Include="..\..\..\BuildingBlocks\BuildingBlocks.EventBus\BuildingBlocks.EventBus.csproj" />
+        <ProjectReference Include="..\..\..\BuildingBlocks\BuildingBlocks.SerilogLogging\BuildingBlocks.SerilogLogging.csproj" />
+        <ProjectReference Include="..\..\..\BuildingBlocks\BuildingBlocks.Caching\BuildingBlocks.Caching.csproj" />
+    </ItemGroup>
+
+    <ItemGroup>
+        <PackageReference Include="Microsoft.EntityFrameworkCore.Tools">
+            <PrivateAssets>all</PrivateAssets>
+            <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+        </PackageReference>
+    </ItemGroup>
+
+    <ItemGroup>
+      <Content Include="..\LexiCraft.Services.Vocabulary.Api\appsettings.json">
+        <Link>appsettings.json</Link>
+        <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      </Content>
+    </ItemGroup>
+
+</Project>

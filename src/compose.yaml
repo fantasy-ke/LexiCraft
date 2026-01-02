@@ -17,3 +17,9 @@
       context: .
       dockerfile: microservices/Identity/Dockerfile
 
+  lexicraft.services.vocabulary.api:
+    image: lexicraft.services.vocabulary.api
+    build:
+      context: .
+      dockerfile: microservices/Vocabulary/Dockerfile
+

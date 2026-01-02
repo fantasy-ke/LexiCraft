@@ -1,10 +1,14 @@
 var builder = DistributedApplication.CreateBuilder(args);
-
-var postgres = builder.AddConnectionString("postgres", "ConnectionStrings:Default");
-var redis = builder.AddConnectionString("redis", "ConnectionStrings:Redis");
+var postgresIdentity = builder.AddConnectionString("postgres-identity", "ConnectionStrings:postgres-identity");
+var postgresVocabulary = builder.AddConnectionString("postgres-vocabulary", "ConnectionStrings:postgres-vocabulary");
+var redis = builder.AddConnectionString("redis", "ConnectionStrings:redis");
 
 builder.AddProject<Projects.LexiCraft_Services_Identity_Api>("lexicraft-identity-api")
-    .WithReference(postgres)
+    .WithReference(postgresIdentity)
+    .WithReference(redis);
+
+builder.AddProject<Projects.LexiCraft_Services_Vocabulary_Api>("lexicraft-vocabulary-api")
+    .WithReference(postgresVocabulary)
     .WithReference(redis);
 
 builder.AddProject<Projects.LexiCraft_Files_Grpc>("lexicraft-files-grpc");

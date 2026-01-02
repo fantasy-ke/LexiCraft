@@ -13,6 +13,7 @@
       <ProjectReference Include="..\ApiGateway\LexiCraft.ApiGateway\LexiCraft.ApiGateway.csproj" />
       <ProjectReference Include="..\microservices\Files\LexiCraft.Files.Grpc\LexiCraft.Files.Grpc.csproj" />
       <ProjectReference Include="..\microservices\Identity\LexiCraft.Services.Identity.Api\LexiCraft.Services.Identity.Api.csproj" />
+      <ProjectReference Include="..\microservices\Vocabulary\LexiCraft.Services.Vocabulary.Api\LexiCraft.Services.Vocabulary.Api.csproj" />
     </ItemGroup>
 
 </Project>

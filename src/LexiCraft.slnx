@@ -24,6 +24,12 @@
     <Project Path="microservices/Identity/LexiCraft.Services.Identity.Api/LexiCraft.Services.Identity.Api.csproj" />
     <Project Path="microservices/Identity/LexiCraft.Services.Identity/LexiCraft.Services.Identity.csproj" />
   </Folder>
+  <Folder Name="/microservices/Vocabulary/">
+    <File Path=".dockerignore" />
+    <File Path="microservices/Vocabulary/Dockerfile" />
+    <Project Path="microservices/Vocabulary/LexiCraft.Services.Vocabulary.Api/LexiCraft.Services.Vocabulary.Api.csproj" />
+    <Project Path="microservices/Vocabulary/LexiCraft.Services.Vocabulary/LexiCraft.Services.Vocabulary.csproj" />
+  </Folder>
   <Folder Name="/ApiGateway/">
     <File Path=".dockerignore" />
     <File Path="ApiGateway/Dockerfile" />
