@@ -59,9 +59,9 @@ public class ResultDto<TResult> : ResponseBase
 }
 
 [Serializable]
-public class ResultDto : ResultDto<object>
+public class ResultDto : ResultDto<object?>
 {
-    public ResultDto(object result) : base(result)
+    public ResultDto(object? result) : base(result)
     {
     }
 
@@ -73,7 +73,7 @@ public class ResultDto : ResultDto<object>
     {
     }
 
-    public static ResultDto Sucess(object result)
+    public static ResultDto Sucess(object? result)
     {
         return new ResultDto(result);
     }

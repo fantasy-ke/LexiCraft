@@ -6,7 +6,7 @@ namespace BuildingBlocks.Filters;
 
 public class ResultEndPointFilter : IEndpointFilter
 {
-    public async ValueTask<object> InvokeAsync(EndpointFilterInvocationContext context, EndpointFilterDelegate next)
+    public async ValueTask<object?> InvokeAsync(EndpointFilterInvocationContext context, EndpointFilterDelegate next)
     {
         var result = await next(context);
 

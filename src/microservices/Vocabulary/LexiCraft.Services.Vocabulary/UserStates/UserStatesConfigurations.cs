@@ -1,3 +1,4 @@
+using BuildingBlocks.Filters;
 using LexiCraft.Services.Vocabulary.UserStates.Features.GetWeakWords;
 using LexiCraft.Services.Vocabulary.UserStates.Features.UpdateState;
 using Microsoft.AspNetCore.Builder;
@@ -24,7 +25,8 @@ internal static class UserStatesConfigurations
 
         var statesGroupV1 = statesVersionGroup
             .MapGroup(VocabularyPrefixUri)
-            .HasApiVersion(1.0);
+            .HasApiVersion(1.0)
+            .AddEndpointFilter<ResultEndPointFilter>();
 
         statesGroupV1.MapUpdateStateEndpoint();
         statesGroupV1.MapGetWeakWordsEndpoint();

@@ -27,6 +27,8 @@ public class VocabularyDbContext(DbContextOptions<VocabularyDbContext> options, 
     {
         base.OnModelCreating(modelBuilder);
         
+        modelBuilder.HasPostgresExtension("unaccent");
+        
         modelBuilder.ApplyConfigurationsFromAssembly(typeof(VocabularyDbContext).Assembly);
         
         // 软删除查询过滤

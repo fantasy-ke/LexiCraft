@@ -1,3 +1,4 @@
+using BuildingBlocks.Filters;
 using LexiCraft.Services.Vocabulary.Words.Features.GetWordLists;
 using LexiCraft.Services.Vocabulary.Words.Features.GetWordsByList;
 using LexiCraft.Services.Vocabulary.Words.Features.ImportWords;
@@ -26,7 +27,8 @@ internal static class WordsConfigurations
 
         var wordsGroupV1 = wordsVersionGroup
             .MapGroup(VocabularyPrefixUri)
-            .HasApiVersion(1.0);
+            .HasApiVersion(1.0)
+            .AddEndpointFilter<ResultEndPointFilter>();
 
         wordsGroupV1.MapSearchWordEndpoint();
         wordsGroupV1.MapGetWordListsEndpoint();

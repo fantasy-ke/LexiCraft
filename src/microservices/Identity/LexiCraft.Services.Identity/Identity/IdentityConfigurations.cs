@@ -1,3 +1,4 @@
+using BuildingBlocks.Filters;
 using LexiCraft.Services.Identity.Identity.Features.Login;
 using LexiCraft.Services.Identity.Identity.Features.Logout;
 using LexiCraft.Services.Identity.Identity.Features.OAuthToken;
@@ -25,11 +26,13 @@ internal static class IdentityConfigurations
 
         var identityGroupV1 = identityVersionGroup
             .MapGroup(IdentityPrefixUri)
-            .HasApiVersion(1.0);
+            .HasApiVersion(1.0)
+            .AddEndpointFilter<ResultEndPointFilter>();
 
         var identityGroupV2 = identityVersionGroup
             .MapGroup(IdentityPrefixUri)
-            .HasApiVersion(2.0);
+            .HasApiVersion(2.0)
+            .AddEndpointFilter<ResultEndPointFilter>();
 
 
         identityGroupV1.MapOAuthEndpoint();
