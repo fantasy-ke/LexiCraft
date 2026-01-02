@@ -4,7 +4,7 @@ using BuildingBlocks.Extensions;
 using BuildingBlocks.OpenApi.AspnetOpenApi.Extensions;
 using LexiCraft.Services.Identity;
 using BuildingBlocks.SerilogLogging.Extensions;
-using Z.Local.EventBus;
+using BuildingBlocks.EventBus.Extensions;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -18,7 +18,7 @@ builder.Services
     .AddRedisCaching();
 builder.Services.AddExceptionHandler<CustomExceptionHandler>();
 
-builder.Services.AddLocalEventBus();
+builder.AddZEventBus();
 
 builder.AddApplicationServices();
 

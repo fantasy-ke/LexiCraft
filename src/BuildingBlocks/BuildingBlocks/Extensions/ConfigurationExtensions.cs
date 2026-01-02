@@ -1,6 +1,6 @@
 using Microsoft.Extensions.Configuration;
 
-namespace BuildingBlocks.Core.Extensions;
+namespace BuildingBlocks.Extensions;
 
 /// <summary>
 /// Static helper class for <see cref="IConfiguration"/>.

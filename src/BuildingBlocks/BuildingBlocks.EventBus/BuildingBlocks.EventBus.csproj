@@ -4,17 +4,17 @@
         <TargetFramework>net10.0</TargetFramework>
         <ImplicitUsings>enable</ImplicitUsings>
         <Nullable>enable</Nullable>
+        <AssemblyName>BuildingBlocks.EventBus</AssemblyName>
+        <RootNamespace>BuildingBlocks.EventBus</RootNamespace>
     </PropertyGroup>
 
     <ItemGroup>
         <PackageReference Include="FreeRedis" />
         <PackageReference Include="Microsoft.Extensions.Hosting.Abstractions" />
-        <PackageReference Include="Microsoft.Extensions.Logging.Abstractions" />
     </ItemGroup>
 
     <ItemGroup>
-      <ProjectReference Include="..\Z.EventBus\Z.EventBus.csproj" />
-      <ProjectReference Include="..\Z.Local.EventBus\Z.Local.EventBus.csproj" />
+      <ProjectReference Include="..\BuildingBlocks\BuildingBlocks.csproj" />
     </ItemGroup>
 
 </Project>

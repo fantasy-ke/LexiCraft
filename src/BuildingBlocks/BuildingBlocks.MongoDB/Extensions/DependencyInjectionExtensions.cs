@@ -1,6 +1,5 @@
 using System.Reflection;
 using BuildingBlocks.Abstractions;
-using BuildingBlocks.Core.Extensions;
 using BuildingBlocks.Domain;
 using BuildingBlocks.Extensions;
 using BuildingBlocks.MongoDB.Configuration;

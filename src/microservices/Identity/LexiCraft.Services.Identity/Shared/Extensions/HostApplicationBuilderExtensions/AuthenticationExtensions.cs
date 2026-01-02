@@ -1,5 +1,4 @@
 using BuildingBlocks.Authentication;
-using BuildingBlocks.Core.Extensions;
 using BuildingBlocks.Extensions;
 using BuildingBlocks.Shared;
 using LexiCraft.Services.Identity.Shared.Authorize;

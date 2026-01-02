@@ -9,13 +9,11 @@
     <Project Path="BuildingBlocks/BuildingBlocks.SerilogLogging/BuildingBlocks.SerilogLogging.csproj" />
     <Project Path="BuildingBlocks/BuildingBlocks.Validation/BuildingBlocks.Validation.csproj" />
     <Project Path="BuildingBlocks/BuildingBlocks.Caching/BuildingBlocks.Caching.csproj" />
+    <Project Path="BuildingBlocks/BuildingBlocks.EventBus/BuildingBlocks.EventBus.csproj" />
     <Project Path="BuildingBlocks/BuildingBlocks/BuildingBlocks.csproj" />
   </Folder>
   <Folder Name="/framework/">
-    <Project Path="framework/Z.EventBus/Z.EventBus.csproj" />
-    <Project Path="framework/Z.Local.EventBus/Z.Local.EventBus.csproj" />
     <Project Path="framework/Z.OSSCore/Z.OSSCore.csproj" />
-    <Project Path="framework/Z.Redis.EventBus/Z.Redis.EventBus.csproj" />
   </Folder>
   <Folder Name="/microservices/" />
   <Folder Name="/microservices/Files/">

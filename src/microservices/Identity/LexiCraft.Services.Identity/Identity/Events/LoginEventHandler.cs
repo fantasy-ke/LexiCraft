@@ -2,7 +2,7 @@ using BuildingBlocks.Domain;
 using LexiCraft.Services.Identity.Shared.Dtos;
 using MapsterMapper;
 using Microsoft.Extensions.Logging;
-using Z.EventBus;
+using BuildingBlocks.EventBus.Abstractions;
 
 namespace LexiCraft.Services.Identity.Identity.Events;
 

@@ -2,7 +2,7 @@ using BuildingBlocks.Extensions;
 using BuildingBlocks.Mediator;
 using LexiCraft.Services.Identity.Shared.Dtos;
 using Microsoft.AspNetCore.Http;
-using Z.EventBus;
+using BuildingBlocks.EventBus.Abstractions;
 
 namespace LexiCraft.Services.Identity.Identity.Events.LoginLog;
 

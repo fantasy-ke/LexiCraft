@@ -1,4 +1,3 @@
-using BuildingBlocks.Core.Extensions;
 using BuildingBlocks.Extensions;
 using BuildingBlocks.Web.Cors;
 using Microsoft.AspNetCore.Builder;

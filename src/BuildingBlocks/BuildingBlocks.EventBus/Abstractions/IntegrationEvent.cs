@@ -1,6 +1,6 @@
 using System.Text.Json.Serialization;
 
-namespace Z.EventBus;
+namespace BuildingBlocks.EventBus.Abstractions;
 
 /// <summary>
 /// 集成事件基类，用于跨服务通信
@@ -13,7 +13,7 @@ public abstract record IntegrationEvent(Guid Id, Guid CorrelationId, DateTime Cr
     }
 
     /// <summary>
-    /// 事件唯一标识
+    /// 事件唯一 ID
     /// </summary>
     [JsonPropertyOrder(-3)]
     public Guid Id { get; init; } = Id;

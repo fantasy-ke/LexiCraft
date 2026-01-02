@@ -1,4 +1,3 @@
-using BuildingBlocks.Core.Extensions;
 using BuildingBlocks.EntityFrameworkCore.Extensions;
 using BuildingBlocks.EntityFrameworkCore.Interceptors;
 using BuildingBlocks.EntityFrameworkCore.Postgres;

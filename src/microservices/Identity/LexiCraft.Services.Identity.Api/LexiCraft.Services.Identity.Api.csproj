@@ -8,7 +8,7 @@
     </PropertyGroup>
 
     <ItemGroup>
-      <ProjectReference Include="..\..\..\framework\Z.Local.EventBus\Z.Local.EventBus.csproj" />
+      <ProjectReference Include="..\..\..\BuildingBlocks\BuildingBlocks.EventBus\BuildingBlocks.EventBus.csproj" />
       <ProjectReference Include="..\..\..\LexiCraft.Aspire.ServiceDefaults\LexiCraft.Aspire.ServiceDefaults.csproj" />
       <ProjectReference Include="..\LexiCraft.Services.Identity\LexiCraft.Services.Identity.csproj" />
       <ProjectReference Include="..\..\..\BuildingBlocks\BuildingBlocks.SerilogLogging\BuildingBlocks.SerilogLogging.csproj" />

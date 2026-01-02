@@ -8,7 +8,7 @@ FROM mcr.microsoft.com/dotnet/sdk:10.0 AS build
 ARG BUILD_CONFIGURATION=Release
 WORKDIR /src
 COPY ["microservices/Identity/LexiCraft.Services.Identity.Api/LexiCraft.Services.Identity.Api.csproj", "microservices/Identity/LexiCraft.Services.Identity.Api/"]
-COPY ["framework/Z.EventBus/Z.EventBus.csproj", "framework/Z.EventBus/"]
+COPY ["BuildingBlocks/BuildingBlocks.EventBus/BuildingBlocks.EventBus.csproj", "BuildingBlocks/BuildingBlocks.EventBus/"]
 COPY ["BuildingBlocks/BuildingBlocks.Validation/BuildingBlocks.Validation.csproj", "BuildingBlocks/BuildingBlocks.Validation/"]
 COPY ["BuildingBlocks/BuildingBlocks/BuildingBlocks.csproj", "BuildingBlocks/BuildingBlocks/"]
 COPY ["BuildingBlocks/BuildingBlocks.SerilogLogging/BuildingBlocks.SerilogLogging.csproj", "BuildingBlocks/BuildingBlocks.SerilogLogging/"]
@@ -20,7 +20,6 @@ COPY ["BuildingBlocks/BuildingBlocks.Authorization/BuildingBlocks.Authorization.
 COPY ["BuildingBlocks/BuildingBlocks.Caching/BuildingBlocks.Caching.csproj", "BuildingBlocks/BuildingBlocks.Caching/"]
 COPY ["microservices/Identity/LexiCraft.Services.Identity/LexiCraft.Services.Identity.csproj", "microservices/Identity/LexiCraft.Services.Identity/"]
 COPY ["LexiCraft.Aspire.ServiceDefaults/LexiCraft.Aspire.ServiceDefaults.csproj", "LexiCraft.Aspire.ServiceDefaults/"]
-COPY ["framework/Z.Local.EventBus/Z.Local.EventBus.csproj", "framework/Z.Local.EventBus/"]
 RUN dotnet restore "microservices/Identity/LexiCraft.Services.Identity.Api/LexiCraft.Services.Identity.Api.csproj"
 COPY . .
 WORKDIR "/src/microservices/Identity/LexiCraft.Services.Identity.Api"
