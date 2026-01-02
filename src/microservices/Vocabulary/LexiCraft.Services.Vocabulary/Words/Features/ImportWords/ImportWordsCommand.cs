@@ -51,34 +51,40 @@ public class ImportWordsCommandHandler(
     public async Task<WordImportResult> Handle(ImportWordsCommand command, CancellationToken cancellationToken)
     {
         var request = command.Request;
-        
-        await unitOfWork.BeginTransactionAsync();
-        try
+
+        // 当配置了重试策略 (如 NpgsqlRetryingExecutionStrategy) 时，
+        // 必须使用 ExecutionStrategy.ExecuteAsync 来执行包含事务的代码块。
+        // 我们通过 IUnitOfWork.ExecuteAsync 封装了这一行为。
+        return await unitOfWork.ExecuteAsync(async () =>
         {
-            // 1. 获取或创建词库
-            var wordList = await GetOrCreateWordListAsync(request, cancellationToken);
+            await unitOfWork.BeginTransactionAsync();
+            try
+            {
+                // 1. 获取或创建词库
+                var wordList = await GetOrCreateWordListAsync(request, cancellationToken);
 
-            // 2. 批量处理单词（去重与新增）
-            var (deployedWords, newWordsCount) = await BatchProcessWordsAsync(request.Words, cancellationToken);
+                // 2. 批量处理单词（去重与新增）
+                var (deployedWords, newWordsCount) = await BatchProcessWordsAsync(request.Words, cancellationToken);
 
-            // 3. 建立关联关系
-            await LinkWordsToListAsync(wordList.Id, deployedWords, cancellationToken);
+                // 3. 建立关联关系
+                await LinkWordsToListAsync(wordList.Id, deployedWords, cancellationToken);
 
-            await unitOfWork.CommitTransactionAsync();
+                await unitOfWork.CommitTransactionAsync();
 
-            return new WordImportResult(
-                wordList.Id,
-                request.Words.Count,
-                newWordsCount,
-                deployedWords.Count - newWordsCount,
-                deployedWords
-            );
-        }
-        catch (Exception)
-        {
-            await unitOfWork.RollbackTransactionAsync();
-            throw;
-        }
+                return new WordImportResult(
+                    wordList.Id,
+                    request.Words.Count,
+                    newWordsCount,
+                    deployedWords.Count - newWordsCount,
+                    deployedWords
+                );
+            }
+            catch (Exception)
+            {
+                await unitOfWork.RollbackTransactionAsync();
+                throw;
+            }
+        });
     }
 
     private async Task<WordList> GetOrCreateWordListAsync(ImportWordsRequest request, CancellationToken cancellationToken)
@@ -128,7 +134,7 @@ public class ImportWordsCommandHandler(
                     Tags = data.Tags ?? new List<string>()
                 };
                 newWordsToInsert.Add(newWord);
-                wordMap[newWord.Spelling] = newWord; // 防止同一批次内重复拼写
+                wordMap[newWord.Spelling] = newWord; 
             }
         }
 
@@ -137,7 +143,6 @@ public class ImportWordsCommandHandler(
             await wordRepository.InsertAsync(newWordsToInsert);
             await unitOfWork.SaveChangesAsync();
             
-            // 补充新插入单词的 ID 信息
             deployedWordsResult.AddRange(newWordsToInsert.Select(x => new WordDuplicateInfo(x.Spelling, x.Id)));
         }
 

@@ -25,6 +25,18 @@ public class UnitOfWork<TDbContext>(TDbContext dbContext) : IUnitOfWork where TD
         return await dbContext.SaveChangesAsync();
     }
 
+    public async Task ExecuteAsync(Func<Task> action)
+    {
+        var strategy = dbContext.Database.CreateExecutionStrategy();
+        await strategy.ExecuteAsync(action);
+    }
+
+    public async Task<TResult> ExecuteAsync<TResult>(Func<Task<TResult>> action)
+    {
+        var strategy = dbContext.Database.CreateExecutionStrategy();
+        return await strategy.ExecuteAsync(action);
+    }
+
     public void Dispose()
     {
         if (dbContext is IDisposable dbContextDisposable)

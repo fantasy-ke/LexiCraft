@@ -25,4 +25,8 @@ public interface IUnitOfWork : IDisposable, IAsyncDisposable
     /// </summary>
     /// <returns></returns>
     Task<int> SaveChangesAsync();
+
+    Task ExecuteAsync(Func<Task> action);
+
+    Task<TResult> ExecuteAsync<TResult>(Func<Task<TResult>> action);
 }
