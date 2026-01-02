@@ -1,3 +1,4 @@
+using LexiCraft.Services.Vocabulary.Words.Features.GetWordLists;
 using LexiCraft.Services.Vocabulary.Words.Features.GetWordsByList;
 using LexiCraft.Services.Vocabulary.Words.Features.ImportWords;
 using LexiCraft.Services.Vocabulary.Words.Features.SearchWord;
@@ -28,6 +29,7 @@ internal static class WordsConfigurations
             .HasApiVersion(1.0);
 
         wordsGroupV1.MapSearchWordEndpoint();
+        wordsGroupV1.MapGetWordListsEndpoint();
         wordsGroupV1.MapGetWordsByListEndpoint();
         wordsGroupV1.MapImportWordsEndpoint();
 
