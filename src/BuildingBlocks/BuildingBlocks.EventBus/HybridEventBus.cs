@@ -15,10 +15,10 @@ public class HybridEventBus<TEvent>(
     EventLocalClient localClient,
     IHandlerSerializer serializer,
     ILogger<HybridEventBus<TEvent>> logger,
-    IOptionsSnapshot<EventBusOptions> options,
+    IOptionsMonitor<EventBusOptions> options,
     IServiceProvider serviceProvider) : IEventBus<TEvent> where TEvent : class
 {
-    private readonly EventBusOptions _options = options.Value;
+    private EventBusOptions _options => options.CurrentValue;
 
     public async ValueTask PublishAsync(TEvent @event)
     {

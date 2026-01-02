@@ -20,12 +20,12 @@ public class RedisEventConsumerService(
     IServiceProvider serviceProvider,
     ILogger<RedisEventConsumerService> logger,
     IHandlerSerializer handlerSerializer,
-    IOptionsSnapshot<EventBusOptions> options)
+    IOptionsMonitor<EventBusOptions> options)
     : BackgroundService
 {
     private readonly ConcurrentDictionary<Type, Func<object, object, CancellationToken, Task>> _handlerCache = new();
     private readonly ConcurrentDictionary<string, Type> _typeCache = new();
-    private readonly EventBusOptions _options = options.Value;
+    private EventBusOptions _options => options.CurrentValue;
 
     protected override async Task ExecuteAsync(CancellationToken stoppingToken)
     {
