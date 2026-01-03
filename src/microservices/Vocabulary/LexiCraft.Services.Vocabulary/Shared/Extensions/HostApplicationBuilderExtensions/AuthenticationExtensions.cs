@@ -31,6 +31,9 @@ public static partial class HostApplicationBuilderExtensions
                     ValidateLifetime = oauthOptions.ValidateLifetime,
                     ClockSkew = oauthOptions.ClockSkew,
                     ValidateIssuerSigningKey = true,
+                    IssuerSigningKey = !string.IsNullOrEmpty(oauthOptions.Secret) 
+                        ? new SymmetricSecurityKey(System.Text.Encoding.UTF8.GetBytes(oauthOptions.Secret)) 
+                        : null
                 };
 
                 options.MapInboundClaims = false;
