@@ -3,6 +3,7 @@ using LexiCraft.Services.Identity.Identity.Models;
 using LexiCraft.Services.Identity.Identity.Models.Enum;
 using LexiCraft.Services.Identity.Shared;
 using System.Collections.Generic;
+using LexiCraft.Shared.Permissions;
 using Microsoft.EntityFrameworkCore;
 
 namespace LexiCraft.Services.Identity.Shared.Data;

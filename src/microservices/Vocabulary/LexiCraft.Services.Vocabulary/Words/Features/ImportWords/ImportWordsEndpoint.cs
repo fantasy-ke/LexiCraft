@@ -5,6 +5,8 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Routing;
 
+using LexiCraft.Shared.Permissions;
+
 namespace LexiCraft.Services.Vocabulary.Words.Features.ImportWords;
 
 public static class ImportWordsEndpoint
@@ -13,6 +15,7 @@ public static class ImportWordsEndpoint
     {
         return endpoints
             .MapPost("word-lists/import", Handle)
+            .RequireAuthorization(VocabularyPermissions.Words.Import)
             .WithName(nameof(ImportWords))
             .WithDisplayName(nameof(ImportWords).Humanize())
             .WithSummary("导入词库JSON数据".Humanize())

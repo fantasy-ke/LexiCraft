@@ -1,4 +1,4 @@
-﻿namespace LexiCraft.Services.Identity.Shared;
+﻿namespace LexiCraft.Shared;
 
 public static class CacheKeys
 {

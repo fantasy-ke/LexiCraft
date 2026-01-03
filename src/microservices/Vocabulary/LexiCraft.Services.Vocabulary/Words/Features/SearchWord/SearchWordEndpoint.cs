@@ -6,6 +6,8 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Routing;
 
+using LexiCraft.Shared.Permissions;
+
 namespace LexiCraft.Services.Vocabulary.Words.Features.SearchWord;
 
 public static class SearchWordEndpoint
@@ -14,6 +16,7 @@ public static class SearchWordEndpoint
     {
         return endpoints
             .MapGet("words", Handle)
+            .RequireAuthorization(VocabularyPermissions.Words.Query)
             .WithName(nameof(SearchWord))
             .WithDisplayName(nameof(SearchWord).Humanize())
             .WithSummary("搜索单词".Humanize())

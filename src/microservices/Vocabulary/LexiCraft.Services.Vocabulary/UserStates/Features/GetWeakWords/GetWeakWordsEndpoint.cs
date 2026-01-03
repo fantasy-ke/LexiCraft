@@ -6,6 +6,8 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Routing;
 using LexiCraft.Services.Vocabulary.Words.Features.SearchWord;
 
+using LexiCraft.Shared.Permissions;
+
 namespace LexiCraft.Services.Vocabulary.UserStates.Features.GetWeakWords;
 
 public static class GetWeakWordsEndpoint
@@ -14,6 +16,7 @@ public static class GetWeakWordsEndpoint
     {
         return endpoints
             .MapGet("user-words/weak", Handle)
+            .RequireAuthorization(VocabularyPermissions.UserStates.Query)
             .WithName(nameof(GetWeakWords))
             .WithDisplayName(nameof(GetWeakWords).Humanize())
             .WithSummary("获取薄弱词汇集合".Humanize())

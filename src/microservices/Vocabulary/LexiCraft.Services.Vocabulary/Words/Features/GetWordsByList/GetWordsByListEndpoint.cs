@@ -5,6 +5,8 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Routing;
 
+using LexiCraft.Shared.Permissions;
+
 namespace LexiCraft.Services.Vocabulary.Words.Features.GetWordsByList;
 
 public static class GetWordsByListEndpoint
@@ -13,6 +15,7 @@ public static class GetWordsByListEndpoint
     {
         return endpoints
             .MapGet("word-lists/{id}/words", Handle)
+            .RequireAuthorization(VocabularyPermissions.Words.Query)
             .WithName(nameof(GetWordsByList))
             .WithDisplayName(nameof(GetWordsByList).Humanize())
             .WithSummary("获取词库单词 (分页/乱序)".Humanize())

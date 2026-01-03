@@ -1,6 +1,6 @@
 using BuildingBlocks.Authentication.Contract;
 using Humanizer;
-using LexiCraft.Services.Identity.Users.Authorization;
+using LexiCraft.Shared.Permissions;
 using Mapster;
 using MediatR;
 using Microsoft.AspNetCore.Builder;

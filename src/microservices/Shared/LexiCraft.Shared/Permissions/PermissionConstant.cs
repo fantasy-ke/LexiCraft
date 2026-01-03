@@ -1,6 +1,4 @@
-using LexiCraft.Services.Identity.Users.Authorization;
-
-namespace LexiCraft.Services.Identity.Shared;
+namespace LexiCraft.Shared.Permissions;
 
 public static class PermissionConstant
 {

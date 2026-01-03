@@ -1,5 +1,5 @@
 using BuildingBlocks.Authentication.Permission;
-using LexiCraft.Services.Identity.Shared;
+using LexiCraft.Shared.Permissions;
 
 namespace LexiCraft.Services.Identity.Users.Authorization;
 

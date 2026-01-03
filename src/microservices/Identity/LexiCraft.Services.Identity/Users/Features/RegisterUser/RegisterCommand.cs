@@ -7,6 +7,7 @@ using LexiCraft.Services.Identity.Identity.Models;
 using LexiCraft.Services.Identity.Identity.Models.Enum;
 using LexiCraft.Services.Identity.Shared;
 using LexiCraft.Services.Identity.Shared.Contracts;
+using LexiCraft.Shared.Permissions;
 using MediatR;
 
 namespace LexiCraft.Services.Identity.Users.Features.RegisterUser;

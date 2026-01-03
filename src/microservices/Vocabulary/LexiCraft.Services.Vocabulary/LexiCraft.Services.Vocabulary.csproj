@@ -16,6 +16,8 @@
         <ProjectReference Include="..\..\..\BuildingBlocks\BuildingBlocks.EventBus\BuildingBlocks.EventBus.csproj" />
         <ProjectReference Include="..\..\..\BuildingBlocks\BuildingBlocks.SerilogLogging\BuildingBlocks.SerilogLogging.csproj" />
         <ProjectReference Include="..\..\..\BuildingBlocks\BuildingBlocks.Caching\BuildingBlocks.Caching.csproj" />
+        <ProjectReference Include="..\..\..\microservices\Shared\LexiCraft.Shared\LexiCraft.Shared.csproj" />
+        <ProjectReference Include="..\..\..\BuildingBlocks\BuildingBlocks.Authorization\BuildingBlocks.Authorization.csproj" />
     </ItemGroup>
 
     <ItemGroup>

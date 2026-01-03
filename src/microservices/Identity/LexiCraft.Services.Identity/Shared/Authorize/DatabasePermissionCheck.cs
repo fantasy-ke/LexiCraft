@@ -4,6 +4,7 @@ using BuildingBlocks.Authentication.Permission;
 using BuildingBlocks.Extensions.System;
 using BuildingBlocks.Caching.Redis;
 using LexiCraft.Services.Identity.Shared.Contracts;
+using LexiCraft.Shared;
 
 namespace LexiCraft.Services.Identity.Shared.Authorize;
 

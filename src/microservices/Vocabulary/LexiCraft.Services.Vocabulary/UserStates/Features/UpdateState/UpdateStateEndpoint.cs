@@ -6,6 +6,8 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Routing;
 using LexiCraft.Services.Vocabulary.UserStates.Models.Enum;
 
+using LexiCraft.Shared.Permissions;
+
 namespace LexiCraft.Services.Vocabulary.UserStates.Features.UpdateState;
 
 public static class UpdateStateEndpoint
@@ -14,6 +16,7 @@ public static class UpdateStateEndpoint
     {
         return endpoints
             .MapPost("user-words/state", Handle)
+            .RequireAuthorization(VocabularyPermissions.UserStates.Update)
             .WithName(nameof(UpdateState))
             .WithDisplayName(nameof(UpdateState).Humanize())
             .WithSummary("更新单词掌握状态".Humanize())

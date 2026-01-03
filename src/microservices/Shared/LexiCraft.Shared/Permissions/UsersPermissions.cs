@@ -1,4 +1,4 @@
-namespace LexiCraft.Services.Identity.Users.Authorization;
+namespace LexiCraft.Shared.Permissions;
 
 /// <summary>
 /// 验证服务相关权限定义
