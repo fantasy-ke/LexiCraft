@@ -33,7 +33,14 @@ public class GetWordsByListQueryHandler(
         // 解决乱序分页问题的核心：基于 Seed 的确定性随机排序
         if (!string.IsNullOrEmpty(query.Seed))
         {
-            dbQuery = dbQuery.OrderBy(x => EF.Functions.Unaccent(x.WordId + query.Seed));
+            // 在 C# 端生成稳定的种子哈希，确保跨数据库调用的稳定性
+            // 使用简单的扰乱算法： (WordId ^ SeedHash) 并辅以大质数乘法
+            long seedHash = 0;
+            foreach (char c in query.Seed) seedHash = (seedHash * 31) + c;
+
+            // 使用位异或进行打乱。PostgreSQL 支持 bigint 的 ^ 运算符。
+            // 这种方式比字符串拼接更有效，且能产生真正的乱序。
+            dbQuery = dbQuery.OrderBy(x => x.WordId ^ seedHash);
         }
         else
         {
