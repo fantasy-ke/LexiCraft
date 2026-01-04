@@ -1,25 +1,62 @@
 using BuildingBlocks.Authentication.Contract;
 using BuildingBlocks.Authentication.Permission;
+using BuildingBlocks.Authentication.Shared;
+using BuildingBlocks.Extensions;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Hosting;
+using StackExchange.Redis;
 
 namespace BuildingBlocks.Authentication;
 
 public static class AuthorizationExtensions
 {
-      public static IServiceCollection RegisterAuthorization(this IServiceCollection services)
+      public static IHostApplicationBuilder RegisterAuthorization(this IHostApplicationBuilder builder)
       {
-            // services.AddScoped<IPermissionCheck, PermissionCheck>();
-            services.AddTransient<IAuthorizationPolicyProvider, AuthorizationPolicyProvider>();
-            services.AddSingleton<IAuthorizationMiddlewareResultHandler, AuthorizeResultHandle>();
-            services.AddSingleton<IAuthorizationHandler, AuthorizeHandler>();
-            services.AddSingleton<IJwtTokenProvider, JwtTokenProvider>();
-            services.AddScoped<IUserContext, UserContext>();
-            
+          builder.AddAuthorizationRedis();
+          builder.Services.AddTransient<IAuthorizationPolicyProvider, AuthorizationPolicyProvider>();
+          builder.Services.AddSingleton<IAuthorizationMiddlewareResultHandler, AuthorizeResultHandle>();
+          builder.Services.AddSingleton<IAuthorizationHandler, AuthorizeHandler>();
+          builder.Services.AddSingleton<IJwtTokenProvider, JwtTokenProvider>();
+          builder.Services.AddScoped<IUserContext, UserContext>();
             // 权限相关服务
-            services.AddSingleton<IPermissionDefinitionManager, PermissionDefinitionManager>();
+          builder.Services.AddSingleton<IPermissionDefinitionManager, PermissionDefinitionManager>();
           
-            return services;
+            return builder;
+      }
+      
+      /// <summary>
+      ///   添加权限 Redis
+      /// </summary>
+      /// <param name="builder"></param>
+      /// <returns></returns>
+      
+      public static IHostApplicationBuilder AddAuthorizationRedis(this IHostApplicationBuilder builder)
+      { 
+          // 使用扩展方法绑定配置
+          var oauthOptions = builder.Configuration.BindOptions<OAuthOptions>();
+          // 注册配置选项
+          builder.Services.AddConfigurationOptions<OAuthOptions>();
+          // 如果未启用 Redis，直接返回
+          if (!oauthOptions.OAuthRedis.Enable)
+          {
+              return builder;
+          }
+          // 注册 Redis 连接多路复用器（单例）
+          builder.Services.AddSingleton<IConnectionMultiplexer>(sp =>
+          {
+              var redisOptions = oauthOptions.OAuthRedis;
+              var configurationOptions = ConfigurationOptions.Parse(redisOptions.ConnectionString ?? string.Empty);
+              configurationOptions.ConnectTimeout = redisOptions.ConnectTimeout;
+              configurationOptions.SyncTimeout = redisOptions.SyncTimeout;
+              configurationOptions.DefaultDatabase = redisOptions.DefaultDatabase;
+              return ConnectionMultiplexer.Connect(configurationOptions);
+          });
+
+          // 注册 Redis 权限缓存服务
+          builder.Services.AddSingleton<IPermissionCacheService, RedisPermissionCacheService>();
+          builder.Services.AddScoped<IPermissionCheck, PermissionCheck>();
+          return builder;
       }
       
       /// <summary>

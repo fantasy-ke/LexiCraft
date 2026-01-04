@@ -5,50 +5,90 @@ using BuildingBlocks.Extensions.System;
 namespace BuildingBlocks.Authentication;
 
 /// <summary>
-/// 默认权限检查实现（基于JWT中存储的权限）
+/// Redis权限检查实现（基于Redis缓存的权限）
 /// </summary>
-public class PermissionCheck(IUserContext userContext, IPermissionDefinitionManager permissionDefinitionManager)
+public class PermissionCheck(
+    IUserContext userContext,
+    IPermissionCacheService permissionCacheService,
+    IPermissionDefinitionManager permissionDefinitionManager)
     : IPermissionCheck
 {
-    public Task<bool> IsGranted(string permissionName)
+    public async Task<bool> IsGranted(string permissionName)
     {
-        // 注意：这是原始的权限检查实现，基于JWT中存储的权限
-        // 在实际应用中，如果JWT中不存储权限，应该使用DatabasePermissionCheck
-        
-        if (userContext.UserAllPermissions.Length == 0)
-            return Task.FromResult(false);
+        // 如果用户未认证，直接拒绝
+        if (!userContext.IsAuthenticated)
+            return false;
+
+        // 如果没有指定权限名称，默认允许
         if (permissionName.IsNullWhiteSpace())
-            return Task.FromResult(true);
-        
-        // 检查用户是否拥有该权限或其任何父权限
-        return Task.FromResult(CheckPermission(permissionName));
+            return true;
+
+        // 获取用户所有权限（包含继承的权限）
+        var userPermissions = await GetUserAllPermissionsAsync(userContext.UserId);
+        return userPermissions.Count != 0 &&
+               // 检查权限
+               CheckPermission(userPermissions, permissionName);
     }
-    
-    private bool CheckPermission(string permissionName)
+
+    /// <summary>
+    /// 获取用户所有权限（包含继承的权限）
+    /// </summary>
+    private async Task<HashSet<string>> GetUserAllPermissionsAsync(Guid userId)
+    {
+        var userPermissions = await permissionCacheService.GetUserPermissionsAsync(userId);
+        if (userPermissions == null)
+        {
+            return new HashSet<string>();
+        }
+
+        // 添加继承的权限
+        var allPermissions = new HashSet<string>(userPermissions);
+        foreach (var permission in userPermissions)
+        {
+            AddInheritedPermissions(allPermissions, permission);
+        }
+
+        return allPermissions;
+    }
+
+    /// <summary>
+    /// 添加继承的权限
+    /// </summary>
+    private void AddInheritedPermissions(HashSet<string> permissions, string permissionName)
+    {
+        var permission = permissionDefinitionManager.GetPermission(permissionName);
+        if (permission?.Parent == null) return;
+
+        permissions.Add(permission.Parent.Name);
+        AddInheritedPermissions(permissions, permission.Parent.Name);
+    }
+
+    /// <summary>
+    /// 检查用户是否拥有指定权限
+    /// </summary>
+    private bool CheckPermission(HashSet<string> userPermissions, string permissionName)
     {
         // 直接匹配用户权限
-        if (userContext.UserAllPermissions.Contains(permissionName))
+        if (userPermissions.Contains(permissionName))
             return true;
-            
+
         // 检查是否有父权限（权限继承）
         var permission = permissionDefinitionManager.GetPermission(permissionName);
         if (permission == null)
             return false;
-            
-        // 递归检查父权限
-        return CheckParentPermission(permission);
+
+        return CheckParentPermission(userPermissions, permission);
     }
-    
-    private bool CheckParentPermission(PermissionDefinition permission)
+
+    /// <summary>
+    /// 递归检查父权限
+    /// </summary>
+    private bool CheckParentPermission(HashSet<string> userPermissions, PermissionDefinition permission)
     {
         if (permission.Parent == null)
             return false;
-            
-        // 检查用户是否拥有父权限
-        if (userContext.UserAllPermissions.Contains(permission.Parent.Name))
-            return true;
-            
-        // 递归检查祖父权限
-        return CheckParentPermission(permission.Parent);
+
+        return userPermissions.Contains(permission.Parent.Name) ||
+               CheckParentPermission(userPermissions, permission.Parent);
     }
 }

@@ -3,15 +3,16 @@ using System.Security.Claims;
 using System.Security.Cryptography;
 using System.Text;
 using BuildingBlocks.Authentication.Contract;
+using BuildingBlocks.Authentication.Shared;
 using BuildingBlocks.Shared;
 using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
 
 namespace BuildingBlocks.Authentication;
 
-public class JwtTokenProvider(IOptions<JwtOptions> options):IJwtTokenProvider
+public class JwtTokenProvider(IOptions<OAuthOptions> options):IJwtTokenProvider
 {
-    readonly JwtOptions _options = options.Value;
+    readonly OAuthOptions _options = options.Value;
     
     public string GenerateAccessToken(Dictionary<string, string> dist, Guid userId, string[] roles)
     {

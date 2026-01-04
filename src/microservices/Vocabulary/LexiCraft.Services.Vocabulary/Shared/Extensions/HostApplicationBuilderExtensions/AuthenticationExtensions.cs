@@ -1,4 +1,5 @@
 using BuildingBlocks.Authentication;
+using BuildingBlocks.Authentication.Shared;
 using BuildingBlocks.Extensions;
 using BuildingBlocks.Shared;
 using LexiCraft.Services.Vocabulary.Shared.Authorization;
@@ -13,7 +14,7 @@ public static partial class HostApplicationBuilderExtensions
 {
     public static IHostApplicationBuilder AddCustomAuthentication(this IHostApplicationBuilder builder)
     {
-        var oauthOptions = builder.Configuration.BindOptions<JwtOptions>();
+        var oauthOptions = builder.Configuration.BindOptions<OAuthOptions>();
         
         builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
             .AddJwtBearer(options =>
@@ -38,10 +39,6 @@ public static partial class HostApplicationBuilderExtensions
 
                 options.MapInboundClaims = false;
             });
-
-        // 默认使用基于 JWT Claims 或权限定义管理的基础检查。
-        // 如果需要跨服务从数据库/缓存读取，后续可实现自定义 IPermissionCheck。
-        // builder.Services.AddScoped<IPermissionCheck, PermissionCheck>();
         
         return builder;
     }

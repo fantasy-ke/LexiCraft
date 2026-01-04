@@ -1,6 +1,8 @@
+using BuildingBlocks.Authentication.Shared;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Options;
 
 namespace BuildingBlocks.Authentication;
 
@@ -40,14 +42,20 @@ public sealed class AuthorizeHandler(
             return;
         }
 
-        var permissionCheck = _scope.ServiceProvider.GetRequiredService<IPermissionCheck>();
-
         if (!context.User.Identity?.IsAuthenticated ?? true)
         {
             context.Fail();
             return;
         }
-
+        
+        // 检查是否启用Redis权限验证
+        var oauthOptions = _scope.ServiceProvider.GetRequiredService<IOptions<OAuthOptions>>();
+        var redisEnabled = oauthOptions.Value.OAuthRedis.Enable;
+        // 如果未启用Redis权限验证，直接通过（降级策略）
+        if (!redisEnabled)
+           goto next;
+        
+        var permissionCheck = _scope.ServiceProvider.GetRequiredService<IPermissionCheck>();
         // 检查所有需要的权限
         foreach (var permission in requirement.AuthorizeName)
         {
@@ -58,7 +66,7 @@ public sealed class AuthorizeHandler(
             context.Fail(failureReason);
             return;
         }
-
+        next:
         context.Succeed(requirement);
     }
 

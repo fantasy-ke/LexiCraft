@@ -1,6 +1,7 @@
 using System.Collections.Immutable;
+using BuildingBlocks.Authentication.Permission;
 
-namespace BuildingBlocks.Authentication.Permission;
+namespace BuildingBlocks.Authentication.Contract;
 
 /// <summary>
 /// 权限定义管理器接口

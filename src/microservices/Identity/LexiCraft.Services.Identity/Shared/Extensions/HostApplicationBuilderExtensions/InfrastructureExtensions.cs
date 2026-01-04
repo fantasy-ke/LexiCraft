@@ -20,7 +20,7 @@ public static partial class HostApplicationBuilderExtensions
         
         builder.Services.AddEndpointsApiExplorer();
         
-        builder.Services.RegisterAuthorization();
+        builder.RegisterAuthorization();
         
         builder.AddCustomAuthentication();
         

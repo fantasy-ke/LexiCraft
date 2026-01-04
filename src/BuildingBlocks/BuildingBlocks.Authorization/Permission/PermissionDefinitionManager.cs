@@ -1,4 +1,5 @@
 using System.Collections.Immutable;
+using BuildingBlocks.Authentication.Contract;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace BuildingBlocks.Authentication.Permission;
