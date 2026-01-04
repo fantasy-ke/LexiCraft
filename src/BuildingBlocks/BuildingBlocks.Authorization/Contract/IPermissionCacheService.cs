@@ -34,10 +34,24 @@ public interface IPermissionCacheService
     Task AddPermissionAsync(Guid userId, string permissionName);
 
     /// <summary>
+    /// 批量添加权限到用户权限集合
+    /// </summary>
+    /// <param name="userId">用户ID</param>
+    /// <param name="permissionNames">权限名称列表</param>
+    Task AddPermissionsAsync(Guid userId, IEnumerable<string> permissionNames);
+
+    /// <summary>
     /// 从用户权限集合中移除单个权限
     /// </summary>
     /// <param name="userId">用户ID</param>
     /// <param name="permissionName">权限名称</param>
     Task RemovePermissionAsync(Guid userId, string permissionName);
+
+    /// <summary>
+    /// 从用户权限集合中批量移除权限
+    /// </summary>
+    /// <param name="userId">用户ID</param>
+    /// <param name="permissionNames">权限名称列表</param>
+    Task RemovePermissionsAsync(Guid userId, List<string> permissionNames);
 }
 

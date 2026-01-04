@@ -3,6 +3,7 @@ using BuildingBlocks.Grpc.Contracts.Extensions;
 using BuildingBlocks.Grpc.Contracts.FileGrpc;
 using BuildingBlocks.Mediator;
 using LexiCraft.Services.Identity.Identity;
+using LexiCraft.Services.Identity.Permissions;
 using LexiCraft.Services.Identity.Shared.Extensions.HostApplicationBuilderExtensions;
 using LexiCraft.Services.Identity.Shared.Extensions.WebApplicationExtensions;
 using LexiCraft.Services.Identity.Users;
@@ -23,6 +24,7 @@ public static class ApplicationConfiguration
         builder.Services.AddMediator<IdentityMetadata>();
         builder.AddInfrastructure();
         builder.AddUsersModuleServices();
+        builder.AddPermissionsModuleServices();
         builder.AddGrpcService<IFilesService>(builder.Configuration);
         builder.Services.WithMapster();
         builder.Services.WithIdGen();
@@ -36,6 +38,7 @@ public static class ApplicationConfiguration
 
         app.MapIdentityModuleEndpoints();
         app.MapUsersModuleEndpoints();
+        app.MapPermissionsModuleEndpoints();
 
         return app;
     }

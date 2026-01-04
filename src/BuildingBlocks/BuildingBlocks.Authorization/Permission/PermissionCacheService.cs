@@ -115,6 +115,25 @@ public class RedisPermissionCacheService(
         }
     }
 
+    public async Task AddPermissionsAsync(Guid userId, IEnumerable<string> permissionNames)
+    {
+        try
+        {
+            var permissions = await GetUserPermissionsAsync(userId) ?? new HashSet<string>();
+            foreach (var permissionName in permissionNames)
+            {
+                permissions.Add(permissionName);
+            }
+            await SetUserPermissionsAsync(userId, permissions);
+
+            logger.LogDebug("Permissions added to user: {UserId}, Count: {Count}", userId, permissionNames.Count());
+        }
+        catch (Exception ex)
+        {
+            logger.LogError(ex, "Failed to add permissions: {UserId}", userId);
+        }
+    }
+
     public async Task RemovePermissionAsync(Guid userId, string permissionName)
     {
         try
@@ -131,6 +150,28 @@ public class RedisPermissionCacheService(
         catch (Exception ex)
         {
             logger.LogError(ex, "Failed to remove permission: {UserId}, {Permission}", userId, permissionName);
+        }
+    }
+
+    public async Task RemovePermissionsAsync(Guid userId, List<string> permissionNames)
+    {
+        try
+        {
+            var permissions = await GetUserPermissionsAsync(userId);
+            if (permissions != null)
+            {
+                foreach (var permissionName in permissionNames)
+                {
+                    permissions.Remove(permissionName);
+                }
+                await SetUserPermissionsAsync(userId, permissions);
+
+                logger.LogDebug("Permissions removed from user: {UserId}, Count: {Count}", userId, permissionNames.Count);
+            }
+        }
+        catch (Exception ex)
+        {
+            logger.LogError(ex, "Failed to remove permissions: {UserId}", userId);
         }
     }
 

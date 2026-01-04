@@ -55,6 +55,12 @@ public class UserPermissionRepository(IdentityDbContext dbContext)
         await SaveChangesAsync();
     }
 
+    public async Task RemoveUserPermissionsAsync(Guid userId, IEnumerable<string> permissionNames)
+    {
+        await DeleteAsync(up => up.UserId == userId && permissionNames.Contains(up.PermissionName));
+        await SaveChangesAsync();
+    }
+
     public async Task RemoveAllUserPermissionsAsync(Guid userId)
     {
         await DeleteAsync(up => up.UserId == userId);

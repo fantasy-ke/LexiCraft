@@ -38,7 +38,15 @@ public interface IUserPermissionRepository : IRepository<UserPermission>
     /// <param name="permissionName"></param>
     /// <returns></returns>
     Task RemoveUserPermissionAsync(Guid userId, string permissionName);
-    
+
+    /// <summary>
+    /// 批量移除用户的权限
+    /// </summary>
+    /// <param name="userId"></param>
+    /// <param name="permissionNames">权限名称列表</param>
+    /// <returns></returns>
+    Task RemoveUserPermissionsAsync(Guid userId, IEnumerable<string> permissionNames);
+
     /// <summary>
     /// 移除用户的所有权限
     /// </summary>
