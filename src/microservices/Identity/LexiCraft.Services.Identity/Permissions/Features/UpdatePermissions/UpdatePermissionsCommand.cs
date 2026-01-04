@@ -28,7 +28,7 @@ public class UpdatePermissionsCommandValidator : AbstractValidator<UpdatePermiss
 
 public class UpdatePermissionsCommandHandler(
     IUserPermissionRepository userPermissionRepository,
-    IPermissionCacheService permissionCacheService)
+    IPermissionCache permissionCache)
     : ICommandHandler<UpdatePermissionsCommand, bool>
 {
     public async Task<bool> Handle(UpdatePermissionsCommand command, CancellationToken cancellationToken)
@@ -40,7 +40,7 @@ public class UpdatePermissionsCommandHandler(
             await userPermissionRepository.AddUserPermissionsAsync(command.UserId, command.Permissions);
 
             // 同步更新缓存：直接设置完整的权限集合
-            await permissionCacheService.SetUserPermissionsAsync(
+            await permissionCache.SetUserPermissionsAsync(
                 command.UserId,
                 command.Permissions.ToHashSet()
             );

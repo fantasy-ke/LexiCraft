@@ -8,9 +8,9 @@ namespace BuildingBlocks.Authentication.Permission;
 /// <summary>
 /// Redis 权限缓存服务实现（仅负责数据操作）
 /// </summary>
-public class RedisPermissionCacheService(
+public class RedisPermissionCache(
     IConnectionMultiplexer redis,
-    ILogger<RedisPermissionCacheService> logger) : IPermissionCacheService
+    ILogger<RedisPermissionCache> logger) : IPermissionCache
 {
     private readonly IDatabase _database = redis.GetDatabase();
     private readonly IMemoryCache _localCache = new MemoryCache(new MemoryCacheOptions
@@ -120,13 +120,14 @@ public class RedisPermissionCacheService(
         try
         {
             var permissions = await GetUserPermissionsAsync(userId) ?? new HashSet<string>();
-            foreach (var permissionName in permissionNames)
+            var iEnumerable = permissionNames as string[] ?? permissionNames.ToArray();
+            foreach (var permissionName in iEnumerable)
             {
                 permissions.Add(permissionName);
             }
             await SetUserPermissionsAsync(userId, permissions);
 
-            logger.LogDebug("Permissions added to user: {UserId}, Count: {Count}", userId, permissionNames.Count());
+            logger.LogDebug("Permissions added to user: {UserId}, Count: {Count}", userId, iEnumerable.Count());
         }
         catch (Exception ex)
         {
@@ -177,7 +178,7 @@ public class RedisPermissionCacheService(
 
     private static string GetCacheKey(Guid userId)
     {
-        return $"permissions:user:{userId}";
+        return $"permissions:user:{userId:N}";
     }
 }
 

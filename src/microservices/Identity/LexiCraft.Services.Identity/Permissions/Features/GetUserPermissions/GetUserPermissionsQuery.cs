@@ -14,13 +14,13 @@ public record GetUserPermissionsResult(
 
 public class GetUserPermissionsQueryHandler(
     IUserPermissionRepository userPermissionRepository,
-    IPermissionCacheService permissionCacheService)
+    IPermissionCache permissionCache)
     : IQueryHandler<GetUserPermissionsQuery, GetUserPermissionsResult>
 {
     public async Task<GetUserPermissionsResult> Handle(GetUserPermissionsQuery query, CancellationToken cancellationToken)
     {
         // 先查询缓存
-        var cachedPermissions = await permissionCacheService.GetUserPermissionsAsync(query.UserId);
+        var cachedPermissions = await permissionCache.GetUserPermissionsAsync(query.UserId);
         if (cachedPermissions != null)
         {
             return new GetUserPermissionsResult(
@@ -35,7 +35,7 @@ public class GetUserPermissionsQueryHandler(
         // 回写到缓存
         if (permissions.Count > 0)
         {
-            await permissionCacheService.SetUserPermissionsAsync(
+            await permissionCache.SetUserPermissionsAsync(
                 query.UserId,
                 permissions.ToHashSet()
             );

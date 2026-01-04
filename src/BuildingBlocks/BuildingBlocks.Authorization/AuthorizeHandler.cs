@@ -49,8 +49,8 @@ public sealed class AuthorizeHandler(
         }
         
         // 检查是否启用Redis权限验证
-        var oauthOptions = _scope.ServiceProvider.GetRequiredService<IOptions<OAuthOptions>>();
-        var redisEnabled = oauthOptions.Value.OAuthRedis.Enable;
+        var oauthOptions = _scope.ServiceProvider.GetRequiredService<IOptionsMonitor<OAuthOptions>>();
+        var redisEnabled = oauthOptions.CurrentValue.OAuthRedis.Enable;
         // 如果未启用Redis权限验证，直接通过（降级策略）
         if (!redisEnabled)
            goto next;

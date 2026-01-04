@@ -9,7 +9,7 @@ namespace BuildingBlocks.Authentication;
 /// </summary>
 public class PermissionCheck(
     IUserContext userContext,
-    IPermissionCacheService permissionCacheService,
+    IPermissionCache permissionCache,
     IPermissionDefinitionManager permissionDefinitionManager)
     : IPermissionCheck
 {
@@ -35,7 +35,7 @@ public class PermissionCheck(
     /// </summary>
     private async Task<HashSet<string>> GetUserAllPermissionsAsync(Guid userId)
     {
-        var userPermissions = await permissionCacheService.GetUserPermissionsAsync(userId);
+        var userPermissions = await permissionCache.GetUserPermissionsAsync(userId);
         if (userPermissions == null)
         {
             return new HashSet<string>();

@@ -41,7 +41,6 @@ public static partial class HostApplicationBuilderExtensions
                 options.MapInboundClaims = false;
             });
         builder.Services.AddConfigurationOptions<OAuthOption>();
-        builder.Services.AddScoped<IPermissionCheck, DatabasePermissionCheck>();
         builder.Services.TryAddEnumerable(ServiceDescriptor.Scoped<IOAuthProvider, GitHubOAuthProvider>());
         builder.Services.TryAddEnumerable(ServiceDescriptor.Scoped<IOAuthProvider, GiteeOAuthProvider>());
         builder.Services.AddScoped<OAuthProviderFactory>();

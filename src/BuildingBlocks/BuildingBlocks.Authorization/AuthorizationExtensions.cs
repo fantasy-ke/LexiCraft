@@ -54,7 +54,7 @@ public static class AuthorizationExtensions
           });
 
           // 注册 Redis 权限缓存服务
-          builder.Services.AddSingleton<IPermissionCacheService, RedisPermissionCacheService>();
+          builder.Services.AddSingleton<IPermissionCache, RedisPermissionCache>();
           builder.Services.AddScoped<IPermissionCheck, PermissionCheck>();
           return builder;
       }

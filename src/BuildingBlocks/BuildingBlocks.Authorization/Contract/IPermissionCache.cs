@@ -3,7 +3,7 @@ namespace BuildingBlocks.Authentication.Contract;
 /// <summary>
 /// 权限缓存服务接口（仅负责数据操作）
 /// </summary>
-public interface IPermissionCacheService
+public interface IPermissionCache
 {
     /// <summary>
     /// 获取用户权限集合

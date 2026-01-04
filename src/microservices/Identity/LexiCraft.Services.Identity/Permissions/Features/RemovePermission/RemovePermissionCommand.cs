@@ -28,7 +28,7 @@ public class RemovePermissionCommandValidator : AbstractValidator<RemovePermissi
 
 public class RemovePermissionCommandHandler(
     IUserPermissionRepository userPermissionRepository,
-    IPermissionCacheService permissionCacheService)
+    IPermissionCache permissionCache)
     : ICommandHandler<RemovePermissionCommand, bool>
 {
     public async Task<bool> Handle(RemovePermissionCommand command, CancellationToken cancellationToken)
@@ -39,7 +39,7 @@ public class RemovePermissionCommandHandler(
             await userPermissionRepository.RemoveUserPermissionsAsync(command.UserId, command.Permissions);
 
             // 同步更新缓存：批量删除权限
-            await permissionCacheService.RemovePermissionsAsync(command.UserId, command.Permissions);
+            await permissionCache.RemovePermissionsAsync(command.UserId, command.Permissions);
 
             return true;
         }

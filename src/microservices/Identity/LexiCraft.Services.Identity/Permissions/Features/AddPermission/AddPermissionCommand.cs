@@ -28,7 +28,7 @@ public class AddPermissionCommandValidator : AbstractValidator<AddPermissionComm
 
 public class AddPermissionCommandHandler(
     IUserPermissionRepository userPermissionRepository,
-    IPermissionCacheService permissionCacheService)
+    IPermissionCache permissionCache)
     : ICommandHandler<AddPermissionCommand, bool>
 {
     public async Task<bool> Handle(AddPermissionCommand command, CancellationToken cancellationToken)
@@ -39,7 +39,7 @@ public class AddPermissionCommandHandler(
             await userPermissionRepository.AddUserPermissionsAsync(command.UserId, command.Permissions);
 
             // 同步更新缓存：批量添加权限（一次性写入，避免循环）
-            await permissionCacheService.AddPermissionsAsync(command.UserId, command.Permissions);
+            await permissionCache.AddPermissionsAsync(command.UserId, command.Permissions);
 
             return true;
         }
