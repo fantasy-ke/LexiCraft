@@ -14,7 +14,9 @@ public static class PermissionConstant
         public static readonly string[] Permissions =
         [
             Pages, 
-            UsersPermissions.Page
+            IdentityPermissions.Page,
+            IdentityPermissions.Users.Query,
+            IdentityPermissions.Users.UploadAvatar
         ];
     }
 }

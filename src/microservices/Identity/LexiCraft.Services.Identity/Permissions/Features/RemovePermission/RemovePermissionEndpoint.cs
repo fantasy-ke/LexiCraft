@@ -15,7 +15,7 @@ public static class RemovePermissionEndpoint
     {
         return endpoints
             .MapDelete("permissions", Handle)
-            .RequireAuthorization(PermissionsPermissions.Delete)
+            .RequireAuthorization(IdentityPermissions.Permissions.Delete)
             .WithName(nameof(RemovePermission))
             .WithDisplayName(nameof(RemovePermission).Humanize())
             .WithSummary("删除用户权限".Humanize())
@@ -38,7 +38,6 @@ public static class RemovePermissionEndpoint
 /// </summary>
 /// <param name="Mediator"></param>
 /// <param name="Request"></param>
-/// <param name="CancellationToken"></param>
 internal record RemovePermissionRequestParameters(
     IMediator Mediator,
     [FromBody] RemovePermissionRequest Request,
@@ -52,7 +51,8 @@ internal record RemovePermissionRequestParameters(
 /// <param name="Permissions">权限名称列表</param>
 public record RemovePermissionRequest(
     Guid UserId,
-    List<string> Permissions);
+    List<string> Permissions
+);
 
 /// <summary>
 /// 删除权限响应

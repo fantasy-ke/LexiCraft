@@ -15,7 +15,7 @@ public static class AddPermissionEndpoint
     {
         return endpoints
             .MapPost("permissions", Handle)
-            .RequireAuthorization(PermissionsPermissions.Create)
+            .RequireAuthorization(IdentityPermissions.Permissions.Create)
             .WithName(nameof(AddPermission))
             .WithDisplayName(nameof(AddPermission).Humanize())
             .WithSummary("为用户新增权限".Humanize())

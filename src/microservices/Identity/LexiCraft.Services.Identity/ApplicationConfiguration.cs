@@ -8,9 +8,7 @@ using LexiCraft.Services.Identity.Shared.Extensions.HostApplicationBuilderExtens
 using LexiCraft.Services.Identity.Shared.Extensions.WebApplicationExtensions;
 using LexiCraft.Services.Identity.Users;
 using Microsoft.AspNetCore.Builder;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Routing;
-using Microsoft.Extensions.DependencyInjection;
 
 namespace LexiCraft.Services.Identity;
 
@@ -23,8 +21,6 @@ public static class ApplicationConfiguration
         builder.AddStorage();
         builder.Services.AddMediator<IdentityMetadata>();
         builder.AddInfrastructure();
-        builder.AddUsersModuleServices();
-        builder.AddPermissionsModuleServices();
         builder.AddGrpcService<IFilesService>(builder.Configuration);
         builder.Services.WithMapster();
         builder.Services.WithIdGen();

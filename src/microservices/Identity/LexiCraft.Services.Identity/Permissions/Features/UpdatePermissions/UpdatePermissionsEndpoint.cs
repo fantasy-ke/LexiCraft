@@ -15,7 +15,7 @@ public static class UpdatePermissionsEndpoint
     {
         return endpoints
             .MapPut("permissions", Handle)
-            .RequireAuthorization(PermissionsPermissions.Update)
+            .RequireAuthorization(IdentityPermissions.Permissions.Update)
             .WithName(nameof(UpdatePermissions))
             .WithDisplayName(nameof(UpdatePermissions).Humanize())
             .WithSummary("批量更新用户权限".Humanize())
@@ -49,10 +49,11 @@ internal record UpdatePermissionsRequestParameters(
 /// 批量更新权限请求DTO
 /// </summary>
 /// <param name="UserId">用户ID</param>
-/// <param name="Permissions">权限列表</param>
+/// <param name="Permissions">权限名称列表</param>
 public record UpdatePermissionsRequest(
     Guid UserId,
-    List<string> Permissions);
+    List<string> Permissions
+);
 
 /// <summary>
 /// 批量更新权限响应

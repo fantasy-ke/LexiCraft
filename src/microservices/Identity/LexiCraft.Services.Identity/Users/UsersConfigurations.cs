@@ -1,5 +1,3 @@
-using BuildingBlocks.Authentication;
-using LexiCraft.Services.Identity.Users.Authorization;
 using LexiCraft.Services.Identity.Users.Features.GetUserInfo;
 using LexiCraft.Services.Identity.Users.Features.RegisterUser;
 using LexiCraft.Services.Identity.Users.Features.UploadAvatar;
@@ -16,8 +14,6 @@ internal static class UsersConfigurations
 
     internal static WebApplicationBuilder AddUsersModuleServices(this WebApplicationBuilder builder)
     {
-        // 注册权限定义提供程序
-        builder.Services.AddPermissionDefinitionProvider<UsersPermissionDefinitionProvider>();
         return builder;
     }
 

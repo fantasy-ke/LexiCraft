@@ -1,9 +1,9 @@
 using BuildingBlocks.Authentication;
-using LexiCraft.Services.Identity.Permissions.Authorization;
 using LexiCraft.Services.Identity.Permissions.Features.AddPermission;
 using LexiCraft.Services.Identity.Permissions.Features.GetUserPermissions;
 using LexiCraft.Services.Identity.Permissions.Features.RemovePermission;
 using LexiCraft.Services.Identity.Permissions.Features.UpdatePermissions;
+using LexiCraft.Services.Identity.Shared.Authorization;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Routing;
@@ -17,8 +17,6 @@ internal static class PermissionsConfigurations
 
     internal static WebApplicationBuilder AddPermissionsModuleServices(this WebApplicationBuilder builder)
     {
-        // 注册权限定义提供程序
-        builder.Services.AddPermissionDefinitionProvider<PermissionsPermissionDefinitionProvider>();
         return builder;
     }
 

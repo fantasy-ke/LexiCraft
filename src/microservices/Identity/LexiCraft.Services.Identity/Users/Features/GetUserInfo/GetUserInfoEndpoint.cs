@@ -14,11 +14,11 @@ public static class GetUserInfoEndpoint
     internal static RouteHandlerBuilder MapGetUserInfoEndpoint(this IEndpointRouteBuilder endpoints)
     {
         return endpoints
-            .MapGet("userInfo", Handle)
-            .RequireAuthorization(UsersPermissions.Query)
+            .MapGet("users/info", Handle)
+            .RequireAuthorization(IdentityPermissions.Users.Query)
             .WithName(nameof(GetUserInfo))
             .WithDisplayName(nameof(GetUserInfo).Humanize())
-            .WithSummary("获取当前登录用户信息".Humanize())
+            .WithSummary("获取当前用户信息".Humanize())
             .WithDescription(nameof(GetUserInfo).Humanize());
 
         async Task<GetUserInfoResponse> Handle(

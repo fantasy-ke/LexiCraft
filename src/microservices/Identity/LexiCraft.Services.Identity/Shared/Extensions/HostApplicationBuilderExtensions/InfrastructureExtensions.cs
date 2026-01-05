@@ -3,6 +3,7 @@ using BuildingBlocks.Cors;
 using BuildingBlocks.OpenApi.AspnetOpenApi.Extensions;
 using BuildingBlocks.Validation.Extensions;
 using BuildingBlocks.Validation.Pipelines;
+using LexiCraft.Services.Identity.Shared.Authorization;
 using MediatR;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
@@ -21,8 +22,9 @@ public static partial class HostApplicationBuilderExtensions
         builder.Services.AddEndpointsApiExplorer();
         
         builder.RegisterAuthorization();
-        
         builder.AddCustomAuthentication();
+        // 注册权限定义提供程序
+        builder.Services.AddPermissionDefinitionProvider<IdentityDefinitionProvider>();
         
         builder.AddCustomVersioning();
         builder.AddAspnetOpenApi(["v1", "v2"]);

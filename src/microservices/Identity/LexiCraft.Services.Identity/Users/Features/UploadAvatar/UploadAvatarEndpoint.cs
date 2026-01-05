@@ -16,7 +16,7 @@ public static class UploadAvatarEndpoint
     {
         return endpoints
             .MapPost("uploadAvatar", Handle)
-            .RequireAuthorization(UsersPermissions.UploadAvatar)
+            .RequireAuthorization(IdentityPermissions.Users.UploadAvatar)
             .WithName(nameof(UploadAvatar))
             .WithDisplayName(nameof(UploadAvatar).Humanize())
             .WithSummary("上传用户头像".Humanize())

@@ -13,9 +13,7 @@
     <Project Path="BuildingBlocks/BuildingBlocks/BuildingBlocks.csproj" />
     <Project Path="BuildingBlocks/BuildingBlocks.OSS/BuildingBlocks.OSS.csproj" />
   </Folder>
-  <Folder Name="/microservices/">
-    <Project Path="microservices/Shared/LexiCraft.Shared/LexiCraft.Shared.csproj" />
-  </Folder>
+  <Folder Name="/microservices/" />
   <Folder Name="/microservices/Files/">
     <File Path="microservices/Files/Dockerfile" />
     <Project Path="microservices/Files/LexiCraft.Files.Grpc/LexiCraft.Files.Grpc.csproj" />
@@ -25,6 +23,9 @@
     <File Path="microservices/Identity/Dockerfile" />
     <Project Path="microservices/Identity/LexiCraft.Services.Identity.Api/LexiCraft.Services.Identity.Api.csproj" />
     <Project Path="microservices/Identity/LexiCraft.Services.Identity/LexiCraft.Services.Identity.csproj" />
+  </Folder>
+  <Folder Name="/microservices/Shared/">
+    <Project Path="microservices/Shared/LexiCraft.Shared/LexiCraft.Shared.csproj" />
   </Folder>
   <Folder Name="/microservices/Vocabulary/">
     <File Path=".dockerignore" />
