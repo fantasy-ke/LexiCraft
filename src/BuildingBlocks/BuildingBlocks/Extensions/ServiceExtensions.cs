@@ -70,11 +70,6 @@ public static class ServiceExtensions
         public IServiceCollection WithCaptcha(IConfiguration configuration)
         {
             services.AddCaptcha(configuration);
-            services.AddStackExchangeRedisCache(options =>
-            {
-                options.Configuration = configuration.GetConnectionString("RedisCache");
-                options.InstanceName = "captcha:";
-            });
             return services;
         }
 
