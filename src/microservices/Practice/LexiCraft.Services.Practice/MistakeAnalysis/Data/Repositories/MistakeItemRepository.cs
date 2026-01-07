@@ -1,27 +1,22 @@
+using System.Linq.Expressions;
+using BuildingBlocks.MongoDB;
 using BuildingBlocks.MongoDB.Performance;
 using BuildingBlocks.Resilience;
 using LexiCraft.Services.Practice.MistakeAnalysis.Models;
 using LexiCraft.Services.Practice.Shared.Contracts;
 using LexiCraft.Services.Practice.Shared.Data;
 using Microsoft.Extensions.Logging;
-using MongoDB.Driver;
 
 namespace LexiCraft.Services.Practice.MistakeAnalysis.Data.Repositories;
 
-public class MistakeItemRepository : PerformantMongoRepository<MistakeItem>, IMistakeItemRepository
+public class MistakeItemRepository(
+    PracticeDbContext context,
+    IResilienceService resilienceService,
+    IMongoPerformanceMonitor performanceMonitor,
+    ILogger<MistakeItemRepository> logger)
+    : ResilientMongoRepository<MistakeItem>(context.Database, resilienceService, performanceMonitor, logger),
+        IMistakeItemRepository
 {
-    private readonly PracticeDbContext _context;
-
-    public MistakeItemRepository(
-        PracticeDbContext context,
-        IResilienceService resilienceService,
-        IMongoPerformanceMonitor performanceMonitor,
-        ILogger<MistakeItemRepository> logger) 
-        : base(context, resilienceService, performanceMonitor, logger)
-    {
-        _context = context;
-    }
-
     public async Task<List<MistakeItem>> GetUserMistakesAsync(Guid userId, DateTime? fromDate = null)
     {
         using var monitor = PerformanceMonitor.StartOperation("GetUserMistakes", "mistake_items");
@@ -29,18 +24,18 @@ public class MistakeItemRepository : PerformantMongoRepository<MistakeItem>, IMi
         return await ResilienceService.ExecuteWithRetryAsync(
             async () =>
             {
-                var filter = Builders<MistakeItem>.Filter.Eq(x => x.UserId, userId);
-                
-                if (fromDate.HasValue)
-                {
-                    filter = Builders<MistakeItem>.Filter.And(filter, 
-                        Builders<MistakeItem>.Filter.Gte(x => x.OccurredAt, fromDate.Value));
-                }
+                var predicate = fromDate.HasValue 
+                    ? (Expression<Func<MistakeItem, bool>>)(x => x.UserId == userId && x.OccurredAt >= fromDate.Value)
+                    : x => x.UserId == userId;
 
-                return await _context.MistakeItems
-                    .Find(filter)
-                    .SortByDescending(x => x.OccurredAt)
-                    .ToListAsync();
+                var (items, _) = await FindPagedAsync(
+                    filter: predicate,
+                    skip: 0,
+                    limit: int.MaxValue,
+                    sortBy: x => x.OccurredAt,
+                    sortDescending: true);
+
+                return items;
             },
             "GetUserMistakes");
     }
@@ -52,15 +47,14 @@ public class MistakeItemRepository : PerformantMongoRepository<MistakeItem>, IMi
         return await ResilienceService.ExecuteWithRetryAsync(
             async () =>
             {
-                var filter = Builders<MistakeItem>.Filter.And(
-                    Builders<MistakeItem>.Filter.Eq(x => x.UserId, userId),
-                    Builders<MistakeItem>.Filter.In(x => x.WordId, wordIds)
-                );
+                var (items, _) = await FindPagedAsync(
+                    filter: x => x.UserId == userId && wordIds.Contains(x.WordId),
+                    skip: 0,
+                    limit: int.MaxValue,
+                    sortBy: x => x.OccurredAt,
+                    sortDescending: true);
 
-                return await _context.MistakeItems
-                    .Find(filter)
-                    .SortByDescending(x => x.OccurredAt)
-                    .ToListAsync();
+                return items;
             },
             "GetMistakesByWordIds");
     }
@@ -77,33 +71,29 @@ public class MistakeItemRepository : PerformantMongoRepository<MistakeItem>, IMi
         return await ResilienceService.ExecuteWithRetryAsync(
             async () =>
             {
-                var filter = Builders<MistakeItem>.Filter.Eq(x => x.UserId, userId);
+                Expression<Func<MistakeItem, bool>> predicate = x => x.UserId == userId;
                 
-                if (fromDate.HasValue)
+                if (fromDate.HasValue && toDate.HasValue)
                 {
-                    filter = Builders<MistakeItem>.Filter.And(filter, 
-                        Builders<MistakeItem>.Filter.Gte(x => x.OccurredAt, fromDate.Value));
+                    predicate = x => x.UserId == userId && x.OccurredAt >= fromDate.Value && x.OccurredAt <= toDate.Value;
+                }
+                else if (fromDate.HasValue)
+                {
+                    predicate = x => x.UserId == userId && x.OccurredAt >= fromDate.Value;
+                }
+                else if (toDate.HasValue)
+                {
+                    predicate = x => x.UserId == userId && x.OccurredAt <= toDate.Value;
                 }
 
-                if (toDate.HasValue)
-                {
-                    filter = Builders<MistakeItem>.Filter.And(filter,
-                        Builders<MistakeItem>.Filter.Lte(x => x.OccurredAt, toDate.Value));
-                }
+                var (items, totalCount) = await FindPagedAsync(
+                    filter: predicate,
+                    skip: (pageIndex - 1) * pageSize,
+                    limit: pageSize,
+                    sortBy: x => x.OccurredAt,
+                    sortDescending: true);
 
-                // Use parallel execution for better performance
-                var findOptions = _context.MistakeItems.Find(filter);
-                var countTask = findOptions.CountDocumentsAsync();
-                
-                var mistakesTask = findOptions
-                    .SortByDescending(x => x.OccurredAt)
-                    .Skip((pageIndex - 1) * pageSize)
-                    .Limit(pageSize)
-                    .ToListAsync();
-
-                await Task.WhenAll(countTask, mistakesTask);
-                
-                return ((int)countTask.Result, mistakesTask.Result);
+                return ((int)totalCount, items);
             },
             "GetUserMistakesPaged");
     }
@@ -121,36 +111,36 @@ public class MistakeItemRepository : PerformantMongoRepository<MistakeItem>, IMi
         return await ResilienceService.ExecuteWithRetryAsync(
             async () =>
             {
-                var filter = Builders<MistakeItem>.Filter.And(
-                    Builders<MistakeItem>.Filter.Eq(x => x.UserId, userId),
-                    Builders<MistakeItem>.Filter.In(x => x.WordId, wordIds)
-                );
-
-                if (fromDate.HasValue)
+                Expression<Func<MistakeItem, bool>> predicate;
+                
+                if (fromDate.HasValue && toDate.HasValue)
                 {
-                    filter = Builders<MistakeItem>.Filter.And(filter,
-                        Builders<MistakeItem>.Filter.Gte(x => x.OccurredAt, fromDate.Value));
+                    predicate = x => x.UserId == userId && wordIds.Contains(x.WordId) && 
+                                   x.OccurredAt >= fromDate.Value && x.OccurredAt <= toDate.Value;
+                }
+                else if (fromDate.HasValue)
+                {
+                    predicate = x => x.UserId == userId && wordIds.Contains(x.WordId) && 
+                                   x.OccurredAt >= fromDate.Value;
+                }
+                else if (toDate.HasValue)
+                {
+                    predicate = x => x.UserId == userId && wordIds.Contains(x.WordId) && 
+                                   x.OccurredAt <= toDate.Value;
+                }
+                else
+                {
+                    predicate = x => x.UserId == userId && wordIds.Contains(x.WordId);
                 }
 
-                if (toDate.HasValue)
-                {
-                    filter = Builders<MistakeItem>.Filter.And(filter,
-                        Builders<MistakeItem>.Filter.Lte(x => x.OccurredAt, toDate.Value));
-                }
+                var (items, totalCount) = await FindPagedAsync(
+                    filter: predicate,
+                    skip: (pageIndex - 1) * pageSize,
+                    limit: pageSize,
+                    sortBy: x => x.OccurredAt,
+                    sortDescending: true);
 
-                // Use parallel execution for better performance
-                var findOptions = _context.MistakeItems.Find(filter);
-                var countTask = findOptions.CountDocumentsAsync();
-                
-                var mistakesTask = findOptions
-                    .SortByDescending(x => x.OccurredAt)
-                    .Skip((pageIndex - 1) * pageSize)
-                    .Limit(pageSize)
-                    .ToListAsync();
-
-                await Task.WhenAll(countTask, mistakesTask);
-                
-                return ((int)countTask.Result, mistakesTask.Result);
+                return ((int)totalCount, items);
             },
             "GetMistakesByWordIdsPaged");
     }

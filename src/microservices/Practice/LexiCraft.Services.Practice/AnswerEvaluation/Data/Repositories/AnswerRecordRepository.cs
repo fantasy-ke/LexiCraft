@@ -1,27 +1,22 @@
+using System.Linq.Expressions;
+using BuildingBlocks.MongoDB;
 using BuildingBlocks.MongoDB.Performance;
 using BuildingBlocks.Resilience;
 using LexiCraft.Services.Practice.AnswerEvaluation.Models;
 using LexiCraft.Services.Practice.Shared.Contracts;
 using LexiCraft.Services.Practice.Shared.Data;
 using Microsoft.Extensions.Logging;
-using MongoDB.Driver;
 
 namespace LexiCraft.Services.Practice.AnswerEvaluation.Data.Repositories;
 
-public class AnswerRecordRepository : PerformantMongoRepository<AnswerRecord>, IAnswerRecordRepository
+public class AnswerRecordRepository(
+    PracticeDbContext context,
+    IResilienceService resilienceService,
+    IMongoPerformanceMonitor performanceMonitor,
+    ILogger<AnswerRecordRepository> logger)
+    : ResilientMongoRepository<AnswerRecord>(context.Database, resilienceService, performanceMonitor, logger),
+        IAnswerRecordRepository
 {
-    private readonly PracticeDbContext _context;
-
-    public AnswerRecordRepository(
-        PracticeDbContext context,
-        IResilienceService resilienceService,
-        IMongoPerformanceMonitor performanceMonitor,
-        ILogger<AnswerRecordRepository> logger) 
-        : base(context, resilienceService, performanceMonitor, logger)
-    {
-        _context = context;
-    }
-
     public async Task<List<AnswerRecord>> GetUserAnswersAsync(Guid userId, DateTime? fromDate = null)
     {
         using var monitor = PerformanceMonitor.StartOperation("GetUserAnswers", "answer_records");
@@ -29,18 +24,18 @@ public class AnswerRecordRepository : PerformantMongoRepository<AnswerRecord>, I
         return await ResilienceService.ExecuteWithRetryAsync(
             async () =>
             {
-                var filter = Builders<AnswerRecord>.Filter.Eq(x => x.UserId, userId);
-                
-                if (fromDate.HasValue)
-                {
-                    filter = Builders<AnswerRecord>.Filter.And(filter, 
-                        Builders<AnswerRecord>.Filter.Gte(x => x.SubmittedAt, fromDate.Value));
-                }
+                var predicate = fromDate.HasValue 
+                    ? (Expression<Func<AnswerRecord, bool>>)(x => x.UserId == userId && x.SubmittedAt >= fromDate.Value)
+                    : x => x.UserId == userId;
 
-                return await _context.AnswerRecords
-                    .Find(filter)
-                    .SortByDescending(x => x.SubmittedAt)
-                    .ToListAsync();
+                var (items, _) = await FindPagedAsync(
+                    filter: predicate,
+                    skip: 0,
+                    limit: int.MaxValue,
+                    sortBy: x => x.SubmittedAt,
+                    sortDescending: true);
+
+                return items;
             },
             "GetUserAnswers");
     }
@@ -52,12 +47,14 @@ public class AnswerRecordRepository : PerformantMongoRepository<AnswerRecord>, I
         return await ResilienceService.ExecuteWithRetryAsync(
             async () =>
             {
-                var filter = Builders<AnswerRecord>.Filter.Eq(x => x.PracticeTaskId, taskId);
+                var (items, _) = await FindPagedAsync(
+                    filter: x => x.PracticeTaskId == taskId,
+                    skip: 0,
+                    limit: int.MaxValue,
+                    sortBy: x => x.SubmittedAt,
+                    sortDescending: true);
 
-                return await _context.AnswerRecords
-                    .Find(filter)
-                    .SortByDescending(x => x.SubmittedAt)
-                    .ToListAsync();
+                return items;
             },
             "GetAnswersByTaskId");
     }
@@ -74,33 +71,29 @@ public class AnswerRecordRepository : PerformantMongoRepository<AnswerRecord>, I
         return await ResilienceService.ExecuteWithRetryAsync(
             async () =>
             {
-                var filter = Builders<AnswerRecord>.Filter.Eq(x => x.UserId, userId);
+                Expression<Func<AnswerRecord, bool>> predicate = x => x.UserId == userId;
                 
-                if (fromDate.HasValue)
+                if (fromDate.HasValue && toDate.HasValue)
                 {
-                    filter = Builders<AnswerRecord>.Filter.And(filter, 
-                        Builders<AnswerRecord>.Filter.Gte(x => x.SubmittedAt, fromDate.Value));
+                    predicate = x => x.UserId == userId && x.SubmittedAt >= fromDate.Value && x.SubmittedAt <= toDate.Value;
+                }
+                else if (fromDate.HasValue)
+                {
+                    predicate = x => x.UserId == userId && x.SubmittedAt >= fromDate.Value;
+                }
+                else if (toDate.HasValue)
+                {
+                    predicate = x => x.UserId == userId && x.SubmittedAt <= toDate.Value;
                 }
 
-                if (toDate.HasValue)
-                {
-                    filter = Builders<AnswerRecord>.Filter.And(filter,
-                        Builders<AnswerRecord>.Filter.Lte(x => x.SubmittedAt, toDate.Value));
-                }
+                var (items, totalCount) = await FindPagedAsync(
+                    filter: predicate,
+                    skip: (pageIndex - 1) * pageSize,
+                    limit: pageSize,
+                    sortBy: x => x.SubmittedAt,
+                    sortDescending: true);
 
-                // Use parallel execution for better performance
-                var findOptions = _context.AnswerRecords.Find(filter);
-                var countTask = findOptions.CountDocumentsAsync();
-                
-                var answersTask = findOptions
-                    .SortByDescending(x => x.SubmittedAt)
-                    .Skip((pageIndex - 1) * pageSize)
-                    .Limit(pageSize)
-                    .ToListAsync();
-
-                await Task.WhenAll(countTask, answersTask);
-                
-                return ((int)countTask.Result, answersTask.Result);
+                return ((int)totalCount, items);
             },
             "GetUserAnswersPaged");
     }
@@ -118,36 +111,36 @@ public class AnswerRecordRepository : PerformantMongoRepository<AnswerRecord>, I
         return await ResilienceService.ExecuteWithRetryAsync(
             async () =>
             {
-                var filter = Builders<AnswerRecord>.Filter.And(
-                    Builders<AnswerRecord>.Filter.Eq(x => x.UserId, userId),
-                    Builders<AnswerRecord>.Filter.In(x => x.WordId, wordIds)
-                );
-
-                if (fromDate.HasValue)
+                Expression<Func<AnswerRecord, bool>> predicate;
+                
+                if (fromDate.HasValue && toDate.HasValue)
                 {
-                    filter = Builders<AnswerRecord>.Filter.And(filter,
-                        Builders<AnswerRecord>.Filter.Gte(x => x.SubmittedAt, fromDate.Value));
+                    predicate = x => x.UserId == userId && wordIds.Contains(x.WordId) && 
+                                   x.SubmittedAt >= fromDate.Value && x.SubmittedAt <= toDate.Value;
+                }
+                else if (fromDate.HasValue)
+                {
+                    predicate = x => x.UserId == userId && wordIds.Contains(x.WordId) && 
+                                   x.SubmittedAt >= fromDate.Value;
+                }
+                else if (toDate.HasValue)
+                {
+                    predicate = x => x.UserId == userId && wordIds.Contains(x.WordId) && 
+                                   x.SubmittedAt <= toDate.Value;
+                }
+                else
+                {
+                    predicate = x => x.UserId == userId && wordIds.Contains(x.WordId);
                 }
 
-                if (toDate.HasValue)
-                {
-                    filter = Builders<AnswerRecord>.Filter.And(filter,
-                        Builders<AnswerRecord>.Filter.Lte(x => x.SubmittedAt, toDate.Value));
-                }
+                var (items, totalCount) = await FindPagedAsync(
+                    filter: predicate,
+                    skip: (pageIndex - 1) * pageSize,
+                    limit: pageSize,
+                    sortBy: x => x.SubmittedAt,
+                    sortDescending: true);
 
-                // Use parallel execution for better performance
-                var findOptions = _context.AnswerRecords.Find(filter);
-                var countTask = findOptions.CountDocumentsAsync();
-                
-                var answersTask = findOptions
-                    .SortByDescending(x => x.SubmittedAt)
-                    .Skip((pageIndex - 1) * pageSize)
-                    .Limit(pageSize)
-                    .ToListAsync();
-
-                await Task.WhenAll(countTask, answersTask);
-                
-                return ((int)countTask.Result, answersTask.Result);
+                return ((int)totalCount, items);
             },
             "GetAnswersByWordIdsPaged");
     }

@@ -1,27 +1,22 @@
+using System.Linq.Expressions;
+using BuildingBlocks.MongoDB;
 using BuildingBlocks.MongoDB.Performance;
 using BuildingBlocks.Resilience;
 using LexiCraft.Services.Practice.PracticeTasks.Models;
 using LexiCraft.Services.Practice.Shared.Contracts;
 using LexiCraft.Services.Practice.Shared.Data;
 using Microsoft.Extensions.Logging;
-using MongoDB.Driver;
 
 namespace LexiCraft.Services.Practice.PracticeTasks.Data.Repositories;
 
-public class PracticeTaskRepository : PerformantMongoRepository<PracticeTask>, IPracticeTaskRepository
+public class PracticeTaskRepository(
+    PracticeDbContext context,
+    IResilienceService resilienceService,
+    IMongoPerformanceMonitor performanceMonitor,
+    ILogger<PracticeTaskRepository> logger)
+    : ResilientMongoRepository<PracticeTask>(context.Database, resilienceService, performanceMonitor, logger),
+        IPracticeTaskRepository
 {
-    private readonly PracticeDbContext _context;
-
-    public PracticeTaskRepository(
-        PracticeDbContext context,
-        IResilienceService resilienceService,
-        IMongoPerformanceMonitor performanceMonitor,
-        ILogger<PracticeTaskRepository> logger) 
-        : base(context, resilienceService, performanceMonitor, logger)
-    {
-        _context = context;
-    }
-
     public async Task<List<PracticeTask>> GetUserTasksAsync(Guid userId, PracticeTaskStatus? status = null)
     {
         using var monitor = PerformanceMonitor.StartOperation("GetUserTasks", "practice_tasks");
@@ -29,18 +24,18 @@ public class PracticeTaskRepository : PerformantMongoRepository<PracticeTask>, I
         return await ResilienceService.ExecuteWithRetryAsync(
             async () =>
             {
-                var filter = Builders<PracticeTask>.Filter.Eq(x => x.UserId, userId);
-                
-                if (status.HasValue)
-                {
-                    filter = Builders<PracticeTask>.Filter.And(filter, 
-                        Builders<PracticeTask>.Filter.Eq(x => x.Status, status.Value));
-                }
+                var predicate = status.HasValue 
+                    ? (Expression<Func<PracticeTask, bool>>)(x => x.UserId == userId && x.Status == status.Value)
+                    : x => x.UserId == userId;
 
-                return await _context.PracticeTasks
-                    .Find(filter)
-                    .SortByDescending(x => x.CreatedAt)
-                    .ToListAsync();
+                var (items, _) = await FindPagedAsync(
+                    filter: predicate,
+                    skip: 0,
+                    limit: int.MaxValue,
+                    sortBy: x => x.CreatedAt,
+                    sortDescending: true);
+
+                return items;
             },
             "GetUserTasks");
     }
@@ -52,15 +47,14 @@ public class PracticeTaskRepository : PerformantMongoRepository<PracticeTask>, I
         return await ResilienceService.ExecuteWithRetryAsync(
             async () =>
             {
-                var filter = Builders<PracticeTask>.Filter.And(
-                    Builders<PracticeTask>.Filter.Eq(x => x.UserId, userId),
-                    Builders<PracticeTask>.Filter.In(x => x.WordId, wordIds)
-                );
+                var (items, _) = await FindPagedAsync(
+                    filter: x => x.UserId == userId && wordIds.Contains(x.WordId),
+                    skip: 0,
+                    limit: int.MaxValue,
+                    sortBy: x => x.CreatedAt,
+                    sortDescending: true);
 
-                return await _context.PracticeTasks
-                    .Find(filter)
-                    .SortByDescending(x => x.CreatedAt)
-                    .ToListAsync();
+                return items;
             },
             "GetTasksByWordIds");
     }
@@ -78,39 +72,46 @@ public class PracticeTaskRepository : PerformantMongoRepository<PracticeTask>, I
         return await ResilienceService.ExecuteWithRetryAsync(
             async () =>
             {
-                var filter = Builders<PracticeTask>.Filter.Eq(x => x.UserId, userId);
+                Expression<Func<PracticeTask, bool>> predicate = x => x.UserId == userId;
                 
-                if (status.HasValue)
+                if (status.HasValue && fromDate.HasValue && toDate.HasValue)
                 {
-                    filter = Builders<PracticeTask>.Filter.And(filter, 
-                        Builders<PracticeTask>.Filter.Eq(x => x.Status, status.Value));
+                    predicate = x => x.UserId == userId && x.Status == status.Value && 
+                                   x.CreatedAt >= fromDate.Value && x.CreatedAt <= toDate.Value;
+                }
+                else if (status.HasValue && fromDate.HasValue)
+                {
+                    predicate = x => x.UserId == userId && x.Status == status.Value && x.CreatedAt >= fromDate.Value;
+                }
+                else if (status.HasValue && toDate.HasValue)
+                {
+                    predicate = x => x.UserId == userId && x.Status == status.Value && x.CreatedAt <= toDate.Value;
+                }
+                else if (fromDate.HasValue && toDate.HasValue)
+                {
+                    predicate = x => x.UserId == userId && x.CreatedAt >= fromDate.Value && x.CreatedAt <= toDate.Value;
+                }
+                else if (status.HasValue)
+                {
+                    predicate = x => x.UserId == userId && x.Status == status.Value;
+                }
+                else if (fromDate.HasValue)
+                {
+                    predicate = x => x.UserId == userId && x.CreatedAt >= fromDate.Value;
+                }
+                else if (toDate.HasValue)
+                {
+                    predicate = x => x.UserId == userId && x.CreatedAt <= toDate.Value;
                 }
 
-                if (fromDate.HasValue)
-                {
-                    filter = Builders<PracticeTask>.Filter.And(filter,
-                        Builders<PracticeTask>.Filter.Gte(x => x.CreatedAt, fromDate.Value));
-                }
+                var (items, totalCount) = await FindPagedAsync(
+                    filter: predicate,
+                    skip: (pageIndex - 1) * pageSize,
+                    limit: pageSize,
+                    sortBy: x => x.CreatedAt,
+                    sortDescending: true);
 
-                if (toDate.HasValue)
-                {
-                    filter = Builders<PracticeTask>.Filter.And(filter,
-                        Builders<PracticeTask>.Filter.Lte(x => x.CreatedAt, toDate.Value));
-                }
-
-                // Use parallel execution for better performance
-                var findOptions = _context.PracticeTasks.Find(filter);
-                var countTask = findOptions.CountDocumentsAsync();
-                
-                var tasksTask = findOptions
-                    .SortByDescending(x => x.CreatedAt)
-                    .Skip((pageIndex - 1) * pageSize)
-                    .Limit(pageSize)
-                    .ToListAsync();
-
-                await Task.WhenAll(countTask, tasksTask);
-                
-                return ((int)countTask.Result, tasksTask.Result);
+                return ((int)totalCount, items);
             },
             "GetUserTasksPaged");
     }
@@ -128,36 +129,36 @@ public class PracticeTaskRepository : PerformantMongoRepository<PracticeTask>, I
         return await ResilienceService.ExecuteWithRetryAsync(
             async () =>
             {
-                var filter = Builders<PracticeTask>.Filter.And(
-                    Builders<PracticeTask>.Filter.Eq(x => x.UserId, userId),
-                    Builders<PracticeTask>.Filter.In(x => x.WordId, wordIds)
-                );
-
-                if (fromDate.HasValue)
+                Expression<Func<PracticeTask, bool>> predicate;
+                
+                if (fromDate.HasValue && toDate.HasValue)
                 {
-                    filter = Builders<PracticeTask>.Filter.And(filter,
-                        Builders<PracticeTask>.Filter.Gte(x => x.CreatedAt, fromDate.Value));
+                    predicate = x => x.UserId == userId && wordIds.Contains(x.WordId) && 
+                                   x.CreatedAt >= fromDate.Value && x.CreatedAt <= toDate.Value;
+                }
+                else if (fromDate.HasValue)
+                {
+                    predicate = x => x.UserId == userId && wordIds.Contains(x.WordId) && 
+                                   x.CreatedAt >= fromDate.Value;
+                }
+                else if (toDate.HasValue)
+                {
+                    predicate = x => x.UserId == userId && wordIds.Contains(x.WordId) && 
+                                   x.CreatedAt <= toDate.Value;
+                }
+                else
+                {
+                    predicate = x => x.UserId == userId && wordIds.Contains(x.WordId);
                 }
 
-                if (toDate.HasValue)
-                {
-                    filter = Builders<PracticeTask>.Filter.And(filter,
-                        Builders<PracticeTask>.Filter.Lte(x => x.CreatedAt, toDate.Value));
-                }
+                var (items, totalCount) = await FindPagedAsync(
+                    filter: predicate,
+                    skip: (pageIndex - 1) * pageSize,
+                    limit: pageSize,
+                    sortBy: x => x.CreatedAt,
+                    sortDescending: true);
 
-                // Use parallel execution for better performance
-                var findOptions = _context.PracticeTasks.Find(filter);
-                var countTask = findOptions.CountDocumentsAsync();
-                
-                var tasksTask = findOptions
-                    .SortByDescending(x => x.CreatedAt)
-                    .Skip((pageIndex - 1) * pageSize)
-                    .Limit(pageSize)
-                    .ToListAsync();
-
-                await Task.WhenAll(countTask, tasksTask);
-                
-                return ((int)countTask.Result, tasksTask.Result);
+                return ((int)totalCount, items);
             },
             "GetTasksByWordIdsPaged");
     }
