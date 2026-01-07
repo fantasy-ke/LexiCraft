@@ -1,5 +1,4 @@
 using LexiCraft.Services.Practice.AnswerEvaluation.Models;
-using LexiCraft.Services.Practice.MistakeAnalysis.Services;
 using Microsoft.Extensions.Logging;
 
 namespace LexiCraft.Services.Practice.AnswerEvaluation.Services;
@@ -9,12 +8,10 @@ namespace LexiCraft.Services.Practice.AnswerEvaluation.Services;
 /// </summary>
 public class AnswerEvaluator : IAnswerEvaluator
 {
-    private readonly IErrorClassifier _errorClassifier;
     private readonly ILogger<AnswerEvaluator> _logger;
 
-    public AnswerEvaluator(IErrorClassifier errorClassifier, ILogger<AnswerEvaluator> logger)
+    public AnswerEvaluator(ILogger<AnswerEvaluator> logger)
     {
-        _errorClassifier = errorClassifier;
         _logger = logger;
     }
 
@@ -45,13 +42,6 @@ public class AnswerEvaluator : IAnswerEvaluator
             // Calculate accuracy score
             var accuracy = await CalculateAccuracyAsync(userAnswer, expectedAnswer);
 
-            // Analyze errors if not completely correct
-            var errors = new List<ErrorDetail>();
-            if (!isCorrect)
-            {
-                errors = await _errorClassifier.AnalyzeErrorsAsync(userAnswer, expectedAnswer);
-            }
-
             // Generate feedback
             var feedback = await GenerateFeedbackAsync(userAnswer, expectedAnswer, isCorrect, accuracy);
 
@@ -59,12 +49,12 @@ public class AnswerEvaluator : IAnswerEvaluator
             {
                 IsCorrect = isCorrect,
                 Accuracy = accuracy,
-                Errors = errors,
+                Errors = new List<ErrorDetail>(), // 错误分析现在由 CQRS 处理
                 Feedback = feedback
             };
 
-            _logger.LogDebug("Evaluation complete: IsCorrect={IsCorrect}, Accuracy={Accuracy}, ErrorCount={ErrorCount}", 
-                isCorrect, accuracy, errors.Count);
+            _logger.LogDebug("Evaluation complete: IsCorrect={IsCorrect}, Accuracy={Accuracy}", 
+                isCorrect, accuracy);
 
             return result;
         }

@@ -5,59 +5,59 @@ using MediatR;
 namespace LexiCraft.Services.Practice.PracticeTasks.Features.GeneratePracticeTasks;
 
 /// <summary>
-/// Command to generate practice tasks for a user
+/// 为用户生成练习任务的命令
 /// </summary>
 public class GeneratePracticeTasksCommand : IRequest<GeneratePracticeTasksResponse>
 {
     /// <summary>
-    /// The ID of the user requesting practice tasks
+    /// 请求练习任务的用户ID
     /// </summary>
     public Guid UserId { get; set; }
 
     /// <summary>
-    /// List of word IDs to generate practice tasks for
+    /// 要为其生成练习任务的单词ID列表
     /// </summary>
     public List<long> WordIds { get; set; } = new();
 
     /// <summary>
-    /// Type of practice exercise to generate
+    /// 要生成的练习类型
     /// </summary>
     public PracticeType PracticeType { get; set; }
 
     /// <summary>
-    /// Number of tasks to generate (optional, defaults to all words)
+    /// 生成任务的数量（可选，默认为所有单词）
     /// </summary>
     public int? Count { get; set; }
 }
 
 /// <summary>
-/// Response containing the generated practice tasks
+/// 包含生成的练习任务的响应
 /// </summary>
 public class GeneratePracticeTasksResponse
 {
     /// <summary>
-    /// List of generated practice tasks
+    /// 生成的练习任务列表
     /// </summary>
     public List<PracticeTask> Tasks { get; set; } = new();
 
     /// <summary>
-    /// Total number of tasks generated
+    /// 生成的任务总数
     /// </summary>
     public int TotalGenerated { get; set; }
 
     /// <summary>
-    /// Success indicator
+    /// 成功指示器
     /// </summary>
     public bool Success { get; set; }
 
     /// <summary>
-    /// Error message if generation failed
+    /// 如果生成失败则显示错误消息
     /// </summary>
     public string? ErrorMessage { get; set; }
 }
 
 /// <summary>
-/// Validator for GeneratePracticeTasksCommand
+/// GeneratePracticeTasksCommand的验证器
 /// </summary>
 public class GeneratePracticeTasksCommandValidator : AbstractValidator<GeneratePracticeTasksCommand>
 {
@@ -65,21 +65,21 @@ public class GeneratePracticeTasksCommandValidator : AbstractValidator<GenerateP
     {
         RuleFor(x => x.UserId)
             .NotEmpty()
-            .WithMessage("User ID is required");
+            .WithMessage("用户ID是必需的");
 
         RuleFor(x => x.WordIds)
             .NotEmpty()
-            .WithMessage("At least one word ID is required")
+            .WithMessage("至少需要一个单词ID")
             .Must(wordIds => wordIds.All(id => id > 0))
-            .WithMessage("All word IDs must be positive numbers");
+            .WithMessage("所有单词ID必须是正数");
 
         RuleFor(x => x.PracticeType)
             .IsInEnum()
-            .WithMessage("Practice type must be a valid enum value");
+            .WithMessage("练习类型必须是有效的枚举值");
 
         RuleFor(x => x.Count)
             .GreaterThan(0)
             .When(x => x.Count.HasValue)
-            .WithMessage("Count must be greater than 0 when specified");
+            .WithMessage("当指定时，数量必须大于0");
     }
 }

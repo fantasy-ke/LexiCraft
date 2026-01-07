@@ -4,71 +4,71 @@ using MongoDB.Bson.Serialization.Attributes;
 namespace LexiCraft.Services.Practice.AnswerEvaluation.Models;
 
 /// <summary>
-/// Represents a user's answer to a practice task with evaluation results
+/// 表示用户对练习任务的答案及评估结果
 /// </summary>
 public class AnswerRecord : MongoEntity
 {
     /// <summary>
-    /// The ID of the practice task this answer belongs to
+    /// 此答案所属的练习任务ID
     /// </summary>
     [BsonElement("practiceTaskId")]
     [BsonRequired]
     public string PracticeTaskId { get; set; } = string.Empty;
 
     /// <summary>
-    /// The ID of the user who submitted this answer
+    /// 提交此答案的用户ID
     /// </summary>
     [BsonElement("userId")]
     [BsonRepresentation(MongoDB.Bson.BsonType.String)]
     public Guid UserId { get; set; }
 
     /// <summary>
-    /// The ID of the word being practiced
+    /// 正在练习的单词ID
     /// </summary>
     [BsonElement("wordId")]
     public long WordId { get; set; }
 
     /// <summary>
-    /// The answer provided by the user
+    /// 用户提供的答案
     /// </summary>
     [BsonElement("userAnswer")]
     [BsonRequired]
     public string UserAnswer { get; set; } = string.Empty;
 
     /// <summary>
-    /// The expected correct answer
+    /// 期望的正确答案
     /// </summary>
     [BsonElement("expectedAnswer")]
     [BsonRequired]
     public string ExpectedAnswer { get; set; } = string.Empty;
 
     /// <summary>
-    /// Whether the answer is completely correct
+    /// 答案是否完全正确
     /// </summary>
     [BsonElement("isCorrect")]
     public bool IsCorrect { get; set; }
 
     /// <summary>
-    /// The score for this answer (0.0 to 1.0)
+    /// 此答案的得分(0.0到1.0)
     /// </summary>
     [BsonElement("score")]
     public double Score { get; set; }
 
     /// <summary>
-    /// Detailed evaluation results including errors and feedback
+    /// 详细的评估结果，包括错误和反馈
     /// </summary>
     [BsonElement("evaluationResult")]
     public AnswerEvaluationResult EvaluationResult { get; set; } = new();
 
     /// <summary>
-    /// When the answer was submitted
+    /// 答案提交时间
     /// </summary>
     [BsonElement("submittedAt")]
     [BsonDateTimeOptions(Kind = DateTimeKind.Utc)]
     public DateTime SubmittedAt { get; set; } = DateTime.UtcNow;
 
     /// <summary>
-    /// How long the user took to respond
+    /// 用户响应所花费的时间
     /// </summary>
     [BsonElement("responseTime")]
     [BsonTimeSpanOptions(MongoDB.Bson.BsonType.String)]
@@ -76,60 +76,60 @@ public class AnswerRecord : MongoEntity
 }
 
 /// <summary>
-/// Detailed evaluation results for an answer
+/// 详细的评估结果
 /// </summary>
 public class AnswerEvaluationResult
 {
     /// <summary>
-    /// Whether the answer is completely correct
+    /// 答案是否完全正确
     /// </summary>
     [BsonElement("isCorrect")]
     public bool IsCorrect { get; set; }
 
     /// <summary>
-    /// Accuracy score from 0.0 to 1.0
+    /// 准确度得分，范围从0.0到1.0
     /// </summary>
     [BsonElement("accuracy")]
     public double Accuracy { get; set; }
 
     /// <summary>
-    /// List of errors found in the answer
+    /// 答案中发现的错误列表
     /// </summary>
     [BsonElement("errors")]
     public List<ErrorDetail> Errors { get; set; } = new();
 
     /// <summary>
-    /// Feedback message for the user
+    /// 给用户的反馈信息
     /// </summary>
     [BsonElement("feedback")]
     public string Feedback { get; set; } = string.Empty;
 }
 
 /// <summary>
-/// Details about a specific error in the user's answer
+/// 用户答案中特定错误的详细信息
 /// </summary>
 public class ErrorDetail
 {
     /// <summary>
-    /// Position of the error in the answer
+    /// 答案中错误的位置
     /// </summary>
     [BsonElement("position")]
     public int Position { get; set; }
 
     /// <summary>
-    /// What was expected at this position
+    /// 此位置应该是什么内容
     /// </summary>
     [BsonElement("expected")]
     public string Expected { get; set; } = string.Empty;
 
     /// <summary>
-    /// What was actually provided at this position
+    /// 此位置实际提供的是什么内容
     /// </summary>
     [BsonElement("actual")]
     public string Actual { get; set; } = string.Empty;
 
     /// <summary>
-    /// Category of the error
+    /// 错误类别
     /// </summary>
     [BsonElement("category")]
     [BsonRepresentation(MongoDB.Bson.BsonType.Int32)]
@@ -137,32 +137,32 @@ public class ErrorDetail
 }
 
 /// <summary>
-/// Categories of errors that can occur in answers
+/// 答案中可能出现的错误类别
 /// </summary>
 public enum ErrorCategory
 {
     /// <summary>
-    /// A character was substituted with another
+    /// 字符被另一个字符替代
     /// </summary>
     CharacterSubstitution = 1,
 
     /// <summary>
-    /// An extra character was inserted
+    /// 插入了额外的字符
     /// </summary>
     CharacterInsertion = 2,
 
     /// <summary>
-    /// A character was deleted/missing
+    /// 字符被删除或缺失
     /// </summary>
     CharacterDeletion = 3,
 
     /// <summary>
-    /// Characters were swapped/transposed
+    /// 字符被交换或转置
     /// </summary>
     CharacterTransposition = 4,
 
     /// <summary>
-    /// The answer is completely wrong
+    /// 答案完全错误
     /// </summary>
     CompletelyWrong = 5
 }

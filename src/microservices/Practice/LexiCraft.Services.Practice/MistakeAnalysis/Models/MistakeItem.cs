@@ -5,59 +5,59 @@ using MongoDB.Bson.Serialization.Attributes;
 namespace LexiCraft.Services.Practice.MistakeAnalysis.Models;
 
 /// <summary>
-/// Represents a mistake made by a user during practice with error classification
+/// 表示用户在练习中犯的错误，包含错误分类
 /// </summary>
 public class MistakeItem : MongoEntity
 {
     /// <summary>
-    /// The ID of the answer record this mistake belongs to
+    /// 此错误所属的答案记录ID
     /// </summary>
     [BsonElement("answerRecordId")]
     [BsonRequired]
     public string AnswerRecordId { get; set; } = string.Empty;
 
     /// <summary>
-    /// The ID of the user who made this mistake
+    /// 犯此错误的用户ID
     /// </summary>
     [BsonElement("userId")]
     [BsonRepresentation(MongoDB.Bson.BsonType.String)]
     public Guid UserId { get; set; }
 
     /// <summary>
-    /// The ID of the word that was answered incorrectly
+    /// 回答错误的单词ID
     /// </summary>
     [BsonElement("wordId")]
     public long WordId { get; set; }
 
     /// <summary>
-    /// The correct spelling of the word
+    /// 单词的正确拼写
     /// </summary>
     [BsonElement("wordSpelling")]
     [BsonRequired]
     public string WordSpelling { get; set; } = string.Empty;
 
     /// <summary>
-    /// The incorrect answer provided by the user
+    /// 用户提供的错误答案
     /// </summary>
     [BsonElement("userAnswer")]
     [BsonRequired]
     public string UserAnswer { get; set; } = string.Empty;
 
     /// <summary>
-    /// The type of error made (spelling vs complete error)
+    /// 错误类型（拼写错误vs完全错误）
     /// </summary>
     [BsonElement("errorType")]
     [BsonRepresentation(MongoDB.Bson.BsonType.Int32)]
     public ErrorType ErrorType { get; set; }
 
     /// <summary>
-    /// Detailed breakdown of the errors found
+    /// 发现的错误详细分解
     /// </summary>
     [BsonElement("errorDetails")]
     public List<ErrorDetail> ErrorDetails { get; set; } = new();
 
     /// <summary>
-    /// When this mistake occurred
+    /// 此错误发生的时间
     /// </summary>
     [BsonElement("occurredAt")]
     [BsonDateTimeOptions(Kind = DateTimeKind.Utc)]
@@ -65,17 +65,17 @@ public class MistakeItem : MongoEntity
 }
 
 /// <summary>
-/// Types of errors that can be classified
+/// 可以分类的错误类型
 /// </summary>
 public enum ErrorType
 {
     /// <summary>
-    /// Minor spelling error - close to correct answer (拼写错误)
+    /// 轻微拼写错误 - 接近正确答案
     /// </summary>
     SpellingError = 1,
 
     /// <summary>
-    /// Complete error - answer is completely wrong (完全错误)
+    /// 完全错误 - 答案完全错误
     /// </summary>
     CompleteError = 2
 }

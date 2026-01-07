@@ -1,8 +1,9 @@
 using BuildingBlocks.Authentication.Contract;
 using LexiCraft.Services.Practice.AnswerEvaluation.Models;
 using LexiCraft.Services.Practice.AnswerEvaluation.Services;
+using LexiCraft.Services.Practice.MistakeAnalysis.Features.ClassifyError;
+using LexiCraft.Services.Practice.MistakeAnalysis.Features.CreateMistakeItem;
 using LexiCraft.Services.Practice.MistakeAnalysis.Models;
-using LexiCraft.Services.Practice.MistakeAnalysis.Services;
 using LexiCraft.Services.Practice.PracticeTasks.Models;
 using LexiCraft.Services.Practice.Shared.Contracts;
 using LexiCraft.Services.Practice.Shared.Services;
@@ -18,34 +19,31 @@ public class SubmitAnswerHandler : IRequestHandler<SubmitAnswerCommand, SubmitAn
 {
     private readonly IPracticeTaskRepository _taskRepository;
     private readonly IAnswerRecordRepository _answerRepository;
-    private readonly IMistakeItemRepository _mistakeRepository;
     private readonly IAnswerEvaluator _answerEvaluator;
-    private readonly IErrorClassifier _errorClassifier;
     private readonly IPracticeEventPublisher _eventPublisher;
     private readonly ILogger<SubmitAnswerHandler> _logger;
     private readonly IAuditLogger _auditLogger;
     private readonly IUserContext _userContext;
+    private readonly IMediator _mediator;
 
     public SubmitAnswerHandler(
         IPracticeTaskRepository taskRepository,
         IAnswerRecordRepository answerRepository,
-        IMistakeItemRepository mistakeRepository,
         IAnswerEvaluator answerEvaluator,
-        IErrorClassifier errorClassifier,
         IPracticeEventPublisher eventPublisher,
         ILogger<SubmitAnswerHandler> logger,
         IAuditLogger auditLogger,
-        IUserContext userContext)
+        IUserContext userContext,
+        IMediator mediator)
     {
         _taskRepository = taskRepository;
         _answerRepository = answerRepository;
-        _mistakeRepository = mistakeRepository;
         _answerEvaluator = answerEvaluator;
-        _errorClassifier = errorClassifier;
         _eventPublisher = eventPublisher;
         _logger = logger;
         _auditLogger = auditLogger;
         _userContext = userContext;
+        _mediator = mediator;
     }
 
     public async Task<SubmitAnswerResponse> Handle(SubmitAnswerCommand request, CancellationToken cancellationToken)
@@ -141,30 +139,42 @@ public class SubmitAnswerHandler : IRequestHandler<SubmitAnswerCommand, SubmitAn
 
             MistakeItem? mistakeItem = null;
 
-            // Create mistake item if answer is incorrect
+            // Create mistake item if answer is incorrect using CQRS
             if (!evaluationResult.IsCorrect)
             {
-                var errorType = await _errorClassifier.ClassifyErrorAsync(
-                    request.UserAnswer, practiceTask.ExpectedAnswer);
-                var errorDetails = await _errorClassifier.AnalyzeErrorsAsync(
-                    request.UserAnswer, practiceTask.ExpectedAnswer);
+                // 使用 CQRS 分类错误
+                var classifyErrorCommand = new ClassifyErrorCommand
+                {
+                    UserAnswer = request.UserAnswer,
+                    ExpectedAnswer = practiceTask.ExpectedAnswer
+                };
 
-                mistakeItem = new MistakeItem
+                var errorClassification = await _mediator.Send(classifyErrorCommand, cancellationToken);
+
+                // 使用 CQRS 创建错题项
+                var createMistakeCommand = new CreateMistakeItemCommand
                 {
                     AnswerRecordId = answerRecord.Id,
                     UserId = request.UserId,
                     WordId = practiceTask.WordId,
                     WordSpelling = practiceTask.WordSpelling,
                     UserAnswer = request.UserAnswer,
-                    ErrorType = errorType,
-                    ErrorDetails = errorDetails,
-                    OccurredAt = DateTime.UtcNow
+                    ErrorType = errorClassification.ErrorType,
+                    ErrorDetails = errorClassification.ErrorDetails
                 };
 
-                await _mistakeRepository.InsertAsync(mistakeItem);
-
-                _logger.LogInformation("Created mistake item for incorrect answer by user {UserId} on word {WordId}",
-                    request.UserId, practiceTask.WordId);
+                var mistakeResult = await _mediator.Send(createMistakeCommand, cancellationToken);
+                
+                if (mistakeResult.Success)
+                {
+                    mistakeItem = mistakeResult.MistakeItem;
+                    _logger.LogInformation("Created mistake item for incorrect answer by user {UserId} on word {WordId}",
+                        request.UserId, practiceTask.WordId);
+                }
+                else
+                {
+                    _logger.LogWarning("Failed to create mistake item: {ErrorMessage}", mistakeResult.ErrorMessage);
+                }
             }
 
             success = true;

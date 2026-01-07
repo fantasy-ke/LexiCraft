@@ -4,81 +4,81 @@ using MongoDB.Bson.Serialization.Attributes;
 namespace LexiCraft.Services.Practice.PracticeTasks.Models;
 
 /// <summary>
-/// Represents a practice task for vocabulary learning exercises
+/// 表示词汇学习练习的练习任务
 /// </summary>
 public class PracticeTask : MongoEntity
 {
     /// <summary>
-    /// The ID of the user who owns this practice task
+    /// 拥有此练习任务的用户ID
     /// </summary>
     [BsonElement("userId")]
     [BsonRepresentation(MongoDB.Bson.BsonType.String)]
     public Guid UserId { get; set; }
 
     /// <summary>
-    /// The ID of the word being practiced
+    /// 正在练习的单词ID
     /// </summary>
     [BsonElement("wordId")]
     public long WordId { get; set; }
 
     /// <summary>
-    /// The spelling of the word being practiced
+    /// 正在练习的单词拼写
     /// </summary>
     [BsonElement("wordSpelling")]
     [BsonRequired]
     public string WordSpelling { get; set; } = string.Empty;
 
     /// <summary>
-    /// The definition of the word being practiced
+    /// 正在练习的单词定义
     /// </summary>
     [BsonElement("wordDefinition")]
     [BsonRequired]
     public string WordDefinition { get; set; } = string.Empty;
 
     /// <summary>
-    /// The phonetic transcription of the word (optional)
+    /// 单词的音标（可选）
     /// </summary>
     [BsonElement("wordPhonetic")]
     [BsonIgnoreIfNull]
     public string? WordPhonetic { get; set; }
 
     /// <summary>
-    /// URL to the pronunciation audio file (optional)
+    /// 发音音频文件的URL（可选）
     /// </summary>
     [BsonElement("pronunciationUrl")]
     [BsonIgnoreIfNull]
     public string? PronunciationUrl { get; set; }
 
     /// <summary>
-    /// The type of practice exercise
+    /// 练习练习的类型
     /// </summary>
     [BsonElement("type")]
     [BsonRepresentation(MongoDB.Bson.BsonType.Int32)]
     public PracticeType Type { get; set; }
 
     /// <summary>
-    /// The expected correct answer for this practice task
+    /// 此练习任务的预期正确答案
     /// </summary>
     [BsonElement("expectedAnswer")]
     [BsonRequired]
     public string ExpectedAnswer { get; set; } = string.Empty;
 
     /// <summary>
-    /// The current status of the practice task
+    /// 练习任务的当前状态
     /// </summary>
     [BsonElement("status")]
     [BsonRepresentation(MongoDB.Bson.BsonType.Int32)]
     public PracticeTaskStatus Status { get; set; } = PracticeTaskStatus.Pending;
 
     /// <summary>
-    /// When the practice task was created
+    /// 练习任务创建时间
     /// </summary>
     [BsonElement("createdAt")]
     [BsonDateTimeOptions(Kind = DateTimeKind.Utc)]
     public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
 
     /// <summary>
-    /// When the practice task was completed (if applicable)
+    /// 练习任务完成时间（如果适用）
     /// </summary>
     [BsonElement("completedAt")]
     [BsonIgnoreIfNull]
@@ -87,43 +87,43 @@ public class PracticeTask : MongoEntity
 }
 
 /// <summary>
-/// Types of practice exercises available
+/// 可用的练习练习类型
 /// </summary>
 public enum PracticeType
 {
     /// <summary>
-    /// Dictation exercise - listen and write the word (听音写词)
+    /// 听写练习 - 听发音并写出单词
     /// </summary>
     Dictation = 1,
 
     /// <summary>
-    /// Definition to word exercise - read definition and write the word (看义写词)
+    /// 定义到单词练习 - 阅读定义并写出单词
     /// </summary>
     DefinitionToWord = 2
 }
 
 /// <summary>
-/// Status of a practice task
+/// 练习任务的状态
 /// </summary>
 public enum PracticeTaskStatus
 {
     /// <summary>
-    /// Task has been created but not started
+    /// 任务已创建但尚未开始
     /// </summary>
     Pending = 1,
 
     /// <summary>
-    /// Task is currently being worked on
+    /// 任务正在进行中
     /// </summary>
     InProgress = 2,
 
     /// <summary>
-    /// Task has been completed
+    /// 任务已完成
     /// </summary>
     Completed = 3,
 
     /// <summary>
-    /// Task was started but abandoned
+    /// 任务已开始但被放弃
     /// </summary>
     Abandoned = 4
 }

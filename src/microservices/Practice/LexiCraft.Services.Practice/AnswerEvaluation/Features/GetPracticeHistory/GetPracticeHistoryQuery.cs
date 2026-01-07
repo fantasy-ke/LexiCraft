@@ -5,94 +5,94 @@ using MediatR;
 namespace LexiCraft.Services.Practice.AnswerEvaluation.Features.GetPracticeHistory;
 
 /// <summary>
-/// Query to retrieve user's practice history with filtering and pagination
+/// 查询用户练习历史记录，支持过滤和分页
 /// </summary>
 public class GetPracticeHistoryQuery : IRequest<GetPracticeHistoryResponse>
 {
     /// <summary>
-    /// The ID of the user whose history to retrieve
+    /// 要检索历史记录的用户ID
     /// </summary>
     public Guid UserId { get; set; }
 
     /// <summary>
-    /// Start date for filtering (optional)
+    /// 过滤的起始日期（可选）
     /// </summary>
     public DateTime? FromDate { get; set; }
 
     /// <summary>
-    /// End date for filtering (optional)
+    /// 过滤的结束日期（可选）
     /// </summary>
     public DateTime? ToDate { get; set; }
 
     /// <summary>
-    /// List of word IDs to filter by (optional)
+    /// 按单词ID列表进行过滤（可选）
     /// </summary>
     public List<long>? WordIds { get; set; }
 
     /// <summary>
-    /// Page index for pagination (0-based)
+    /// 分页的页面索引（从0开始）
     /// </summary>
     public int PageIndex { get; set; } = 0;
 
     /// <summary>
-    /// Page size for pagination
+    /// 分页的页面大小
     /// </summary>
     public int PageSize { get; set; } = 20;
 }
 
 /// <summary>
-/// Response containing the practice history
+/// 包含练习历史记录的响应
 /// </summary>
 public class GetPracticeHistoryResponse
 {
     /// <summary>
-    /// List of answer records
+    /// 答案记录列表
     /// </summary>
     public List<AnswerRecord> AnswerRecords { get; set; } = new();
 
     /// <summary>
-    /// Total number of records matching the filter
+    /// 匹配过滤条件的记录总数
     /// </summary>
     public int TotalCount { get; set; }
 
     /// <summary>
-    /// Current page index
+    /// 当前页面索引
     /// </summary>
     public int PageIndex { get; set; }
 
     /// <summary>
-    /// Page size used
+    /// 使用的页面大小
     /// </summary>
     public int PageSize { get; set; }
 
     /// <summary>
-    /// Total number of pages
+    /// 总页数
     /// </summary>
     public int TotalPages { get; set; }
 
     /// <summary>
-    /// Whether there are more pages
+    /// 是否还有更多页面
     /// </summary>
     public bool HasNextPage { get; set; }
 
     /// <summary>
-    /// Whether there are previous pages
+    /// 是否有上一页
     /// </summary>
     public bool HasPreviousPage { get; set; }
 
     /// <summary>
-    /// Success indicator
+    /// 成功指示器
     /// </summary>
     public bool Success { get; set; }
 
     /// <summary>
-    /// Error message if retrieval failed
+    /// 如果检索失败则显示错误消息
     /// </summary>
     public string? ErrorMessage { get; set; }
 }
 
 /// <summary>
-/// Validator for GetPracticeHistoryQuery
+/// GetPracticeHistoryQuery的验证器
 /// </summary>
 public class GetPracticeHistoryQueryValidator : AbstractValidator<GetPracticeHistoryQuery>
 {
@@ -100,24 +100,24 @@ public class GetPracticeHistoryQueryValidator : AbstractValidator<GetPracticeHis
     {
         RuleFor(x => x.UserId)
             .NotEmpty()
-            .WithMessage("User ID is required");
+            .WithMessage("用户ID是必需的");
 
         RuleFor(x => x.PageIndex)
             .GreaterThanOrEqualTo(0)
-            .WithMessage("Page index must be non-negative");
+            .WithMessage("页面索引必须是非负数");
 
         RuleFor(x => x.PageSize)
             .GreaterThan(0)
             .LessThanOrEqualTo(100)
-            .WithMessage("Page size must be between 1 and 100");
+            .WithMessage("页面大小必须在1到100之间");
 
         RuleFor(x => x.FromDate)
             .LessThanOrEqualTo(x => x.ToDate)
             .When(x => x.FromDate.HasValue && x.ToDate.HasValue)
-            .WithMessage("From date must be less than or equal to to date");
+            .WithMessage("开始日期必须小于或等于结束日期");
 
         RuleFor(x => x.WordIds)
             .Must(wordIds => wordIds == null || wordIds.All(id => id > 0))
-            .WithMessage("All word IDs must be positive numbers when specified");
+            .WithMessage("当指定时，所有单词ID必须是正数");
     }
 }
