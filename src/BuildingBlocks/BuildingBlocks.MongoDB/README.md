@@ -1,84 +1,155 @@
 # BuildingBlocks.MongoDB
 
-该组件提供了基于 MongoDB Driver 的基础封装，支持 `DbContext` 模式、仓储模式、对象序列化配置以及 OpenTelemetry 链路追踪。
+Enhanced MongoDB support for LexiCraft with built-in resilience patterns and performance monitoring.
 
-## 特性
+## Features
 
-- **仓储模式**：提供统一的 `IRepository<T>` 接口实现，支持基础的 CRUD 操作。
-- **DbContext 支持**：通过 `MongoDbContext` 管理连接和 Database。
-- **自动注册**：支持扫描程序集并自动注册实体仓储。
-- **链路追踪**：集成 `DiagnosticsActivityEventSubscriber`，支持分布式链路追踪。
-- **序列化增强**：内置 `DateTimeSerializationProvider` 解决日期序列化时区问题。
+- **Resilience Patterns**: Automatic retry with exponential backoff and jitter
+- **Performance Monitoring**: Real-time operation tracking and metrics
+- **Connection Pooling**: Optimized connection management
+- **Error Handling**: MongoDB-specific error classification and handling
+- **Health Checks**: Built-in health monitoring
 
-## 配置
+## Quick Start
 
-在 `appsettings.json` 中添加如下配置：
+### 1. Register Resilience and MongoDB Context
+
+```csharp
+var builder = WebApplication.CreateBuilder(args);
+
+// First, register general resilience configuration
+builder.AddResilience();
+
+// Then, register MongoDB with resilience and monitoring
+builder.AddMongoDbContext<YourDbContext>("MongoOptions");
+```
+
+### 2. Configuration
+
+Add to your `appsettings.json`:
 
 ```json
 {
   "MongoOptions": {
-    "ConnectionString": "mongodb://localhost:27017/LexiCraft",
-    "DisableTracing": false
+    "ConnectionString": "mongodb://localhost:27017/your-database",
+    "MaxConnectionPoolSize": 100,
+    "MinConnectionPoolSize": 10,
+    "ConnectTimeout": "00:00:30",
+    "SocketTimeout": "00:01:00",
+    "ServerSelectionTimeout": "00:00:30"
+  },
+  "Resilience": {
+    "RetryCount": 3,
+    "BaseDelaySeconds": 1.0,
+    "UseExponentialBackoff": true,
+    "MaxDelaySeconds": 30.0,
+    "JitterFactor": 0.1
   }
 }
 ```
 
-## 快速开始
-
-### 1. 注册服务
-
-在 `Program.cs` 中添加：
+### 3. Use Resilient Repository
 
 ```csharp
-builder.AddMongoDbContext<MyDbContext>("MongoOptions");
-builder.AddMongoRepository<MyDbContext>();
-```
-
-### 2. 定义实体
-
-实体需继承 `MongoEntity`：
-
-```csharp
-public class User : MongoEntity
+public class YourRepository : ResilientMongoRepository<YourEntity>
 {
-    public string Name { get; set; } = string.Empty;
-    public string Email { get; set; } = string.Empty;
-}
-```
-
-### 3. 定义 DbContext
-
-```csharp
-public class MyDbContext(IMongoDatabase database) : MongoDbContext(database)
-{
-    // 可以定义 Collection 名称
-}
-```
-
-### 4. 使用仓储
-
-```csharp
-public class UserService(IRepository<User> userRepository)
-{
-    public async Task CreateUserAsync(User user)
+    public YourRepository(
+        IMongoDatabase database,
+        IResilienceService resilienceService,        // 使用接口
+        IMongoPerformanceMonitor performanceMonitor,
+        ILogger<YourRepository> logger)
+        : base(database, resilienceService, performanceMonitor, logger)
     {
-        await userRepository.AddAsync(user);
     }
 
-    public async Task<User?> GetUserAsync(Guid id)
+    public async Task<List<YourEntity>> GetCustomDataAsync()
     {
-        return await userRepository.GetByIdAsync(id);
+        // Automatic retry and performance monitoring
+        return await FindAsync(x => x.IsActive);
     }
 }
 ```
 
-## 核心 API
+## Resilience Configuration
 
-### IRepository<T>
+| Option | Default | Description |
+|--------|---------|-------------|
+| `RetryCount` | 3 | Number of retry attempts |
+| `BaseDelaySeconds` | 1.0 | Base delay between retries |
+| `UseExponentialBackoff` | true | Enable exponential backoff |
+| `MaxDelaySeconds` | 30.0 | Maximum delay between retries |
+| `JitterFactor` | 0.1 | Random jitter to prevent thundering herd |
 
-- `ListAsync(Expression<Func<T, bool>> predicate)`
-- `GetByIdAsync(Guid id)`
-- `AddAsync(T entity)`
-- `UpdateAsync(T entity)`
-- `DeleteAsync(T entity)`
-- `CountAsync(Expression<Func<T, bool>> predicate)`
+## Performance Monitoring
+
+The performance monitor automatically tracks:
+
+- Operation response times (min, max, average)
+- Operations per second
+- Slow operations (>200ms)
+- Operations by collection and type
+
+### Accessing Metrics
+
+```csharp
+public class MetricsController : ControllerBase
+{
+    private readonly IMongoPerformanceMonitor _monitor;
+
+    public MetricsController(IMongoPerformanceMonitor monitor)
+    {
+        _monitor = monitor;
+    }
+
+    [HttpGet("metrics")]
+    public async Task<PerformanceMetrics> GetMetrics()
+    {
+        return await _monitor.GetMetricsAsync(TimeSpan.FromMinutes(5));
+    }
+}
+```
+
+## Error Handling
+
+The resilience service automatically handles these MongoDB exceptions:
+
+- **Connection Errors**: `MongoConnectionException`, network timeouts
+- **Temporary Errors**: Write conflicts, node recovery, primary elections
+- **Timeout Errors**: `MongoExecutionTimeoutException`, operation timeouts
+
+Non-retryable errors (authentication, incompatible driver) are not retried.
+
+## Health Checks
+
+```csharp
+// Check MongoDB health
+var isHealthy = await resilienceService.IsHealthyAsync();
+```
+
+## Best Practices
+
+1. **Use the resilient repository base class** for automatic retry and monitoring
+2. **Configure appropriate timeouts** based on your application needs
+3. **Monitor slow operations** and optimize queries accordingly
+4. **Set reasonable retry limits** to avoid cascading failures
+5. **Use connection pooling** for better performance under load
+
+## Migration from Legacy Code
+
+If you have existing MongoDB repositories, you can easily migrate:
+
+1. Change base class from `MongoRepository<T>` to `ResilientMongoRepository<T>`
+2. Update constructor to include `MongoResilienceService` and `IMongoPerformanceMonitor`
+3. Remove manual retry logic - it's now handled automatically
+4. Remove manual performance tracking - it's built-in
+
+## Logging
+
+The system automatically logs:
+
+- Retry attempts with delay information
+- Slow operations (>200ms as warnings)
+- Very slow operations (>1000ms as errors)
+- Connection failures and recovery
+
+Configure your logging level to `Information` or higher to see retry attempts.

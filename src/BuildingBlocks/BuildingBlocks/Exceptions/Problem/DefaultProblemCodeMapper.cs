@@ -2,7 +2,7 @@
 
 namespace BuildingBlocks.Exceptions.Problem;
 
-public class ProblemCodeMapper : IProblemCodeMapper
+public class DefaultProblemCodeMapper : IProblemCodeMapper
 {
     public int GetMappedStatusCodes(Exception? exception)
     {
@@ -12,9 +12,12 @@ public class ProblemCodeMapper : IProblemCodeMapper
             ValidationException validationException => validationException.StatusCode,
             HttpRequestException httpRequestException => (int?)httpRequestException.StatusCode ??
                                                          StatusCodes.Status500InternalServerError,
+            ArgumentNullException => StatusCodes.Status400BadRequest,
             ArgumentOutOfRangeException => StatusCodes.Status400BadRequest,
-            OperationCanceledException => StatusCodes.Status499ClientClosedRequest,
             ArgumentException => StatusCodes.Status400BadRequest,
+            InvalidOperationException => StatusCodes.Status400BadRequest,
+            UnauthorizedAccessException => StatusCodes.Status403Forbidden,
+            OperationCanceledException => StatusCodes.Status499ClientClosedRequest,
             _ => StatusCodes.Status500InternalServerError,
         };
     }

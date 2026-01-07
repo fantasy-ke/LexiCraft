@@ -3,7 +3,10 @@ using BuildingBlocks.Abstractions;
 using BuildingBlocks.Domain;
 using BuildingBlocks.Extensions;
 using BuildingBlocks.MongoDB.Configuration;
+using BuildingBlocks.MongoDB.Performance;
+using BuildingBlocks.MongoDB.Resilience;
 using BuildingBlocks.MongoDB.Serialization;
+using BuildingBlocks.Resilience;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
 using Microsoft.Extensions.Hosting;
@@ -18,11 +21,12 @@ namespace BuildingBlocks.MongoDB.Extensions;
 public static class DependencyInjectionExtensions
 {
     public static IHostApplicationBuilder AddMongoDbContext<TContext>(this IHostApplicationBuilder builder,
-        string? sectionName)
+        string? sectionName = null)
         where TContext : class, IMongoDbContext
     {
         // 1. Configure Options
         builder.Services.AddConfigurationOptions<MongoOptions>(sectionName ?? nameof(MongoOptions));
+        
         var mongoOptions = builder.Configuration.BindOptions<MongoOptions>();
 
         var connectionString =
@@ -31,17 +35,21 @@ public static class DependencyInjectionExtensions
 
         // 2. Register IMongoClient
         builder.Services.AddSingleton<IMongoClient>(sp =>
-            CreateMongoDbClient(connectionString, mongoOptions.DisableTracing, sp)
+            CreateMongoDbClient(connectionString, mongoOptions, sp)
         );
 
         // 3. Register IMongoDatabase
         builder.AddMongoDatabase(connectionString);
 
-        // 4. Register DbContext
+        // 4. Register MongoDB-specific services
+        builder.Services.AddSingleton<IMongoPerformanceMonitor, MongoPerformanceMonitor>();
+        builder.Services.AddScoped<IResilienceService, MongoResilienceService>();
+
+        // 5. Register DbContext
         builder.Services.AddScoped<TContext>();
         builder.Services.AddScoped<IMongoDbContext>(sp => sp.GetRequiredService<TContext>());
 
-        // 5. Serialization
+        // 6. Serialization
         BsonSerializer.RegisterSerializationProvider(new DateTimeSerializationProvider());
         
         return builder;
@@ -51,25 +59,38 @@ public static class DependencyInjectionExtensions
     ///  创建MongoDbClient
     /// </summary>
     /// <param name="connectionString"></param>
-    /// <param name="disableTracing"></param>
+    /// <param name="mongoOptions"></param>
     /// <param name="sp"></param>
     /// <returns></returns>
     private static IMongoClient CreateMongoDbClient(
         string connectionString,
-        bool disableTracing,
+        MongoOptions mongoOptions,
         IServiceProvider sp
     )
     {
         var clientSettings = MongoClientSettings.FromConnectionString(connectionString);
 
-        if (!disableTracing)
+        // Configure connection pooling for performance
+        clientSettings.MaxConnectionPoolSize = mongoOptions.MaxConnectionPoolSize;
+        clientSettings.MinConnectionPoolSize = mongoOptions.MinConnectionPoolSize;
+        clientSettings.MaxConnectionIdleTime = mongoOptions.MaxConnectionIdleTime;
+        clientSettings.MaxConnectionLifeTime = mongoOptions.MaxConnectionLifeTime;
+        clientSettings.ConnectTimeout = mongoOptions.ConnectTimeout;
+        clientSettings.SocketTimeout = mongoOptions.SocketTimeout;
+        clientSettings.ServerSelectionTimeout = mongoOptions.ServerSelectionTimeout;
+
+        // Configure for concurrent operations
+        clientSettings.ReadConcern = ReadConcern.Local;
+        clientSettings.WriteConcern = WriteConcern.WMajority;
+
+        if (!mongoOptions.DisableTracing)
         {
             clientSettings.ClusterConfigurator = cb => cb.Subscribe(new DiagnosticsActivityEventSubscriber());
         }
 
         clientSettings.LoggingSettings ??= new LoggingSettings(sp.GetService<ILoggerFactory>());
 
-        return new MongoClient(connectionString);
+        return new MongoClient(clientSettings);
     }
 
     private static void AddMongoDatabase(this IHostApplicationBuilder builder, string? connectionString)

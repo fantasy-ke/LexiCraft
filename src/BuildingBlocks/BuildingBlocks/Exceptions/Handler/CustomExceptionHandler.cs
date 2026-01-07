@@ -11,7 +11,7 @@ namespace BuildingBlocks.Exceptions.Handler;
 
 public class CustomExceptionHandler(ILogger<CustomExceptionHandler> logger,
 IWebHostEnvironment webHostEnvironment,
-IProblemCodeMapper? problemCodeMapper = null)
+IEnumerable<IProblemCodeMapper> problemCodeMappers)
     : IExceptionHandler
 {
     public async ValueTask<bool> TryHandleAsync(HttpContext context, Exception exception,
@@ -21,7 +21,9 @@ IProblemCodeMapper? problemCodeMapper = null)
             "Error Message: {exceptionMessage}, Time of occurrence {time}",
             exception.Message, DateTime.UtcNow);
 
-        var statusCode = (problemCodeMapper ?? new ProblemCodeMapper()).GetMappedStatusCodes(exception);
+        var statusCode = !problemCodeMappers.Any()
+            ? new DefaultProblemCodeMapper().GetMappedStatusCodes(exception)
+            : problemCodeMappers.Select(m => m.GetMappedStatusCodes(exception)).FirstOrDefault();
         var extensions = new Dictionary<string, object?>
         {
             { "traceId", Activity.Current?.Id ?? context.TraceIdentifier },

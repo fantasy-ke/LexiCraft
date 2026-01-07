@@ -18,6 +18,8 @@
         <PackageReference Include="Lazy.Captcha.Core" />
         <PackageReference Include="Microsoft.EntityFrameworkCore" />
         <PackageReference Include="MongoDB.Driver" />
+        <PackageReference Include="Polly" />
+        <PackageReference Include="Polly.Extensions" />
     </ItemGroup>
 
     <ItemGroup>

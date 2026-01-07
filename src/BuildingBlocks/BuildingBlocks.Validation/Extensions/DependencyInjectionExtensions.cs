@@ -18,7 +18,7 @@ public static class DependencyInjectionExtensions
                 .WithTransientLifetime()
         );
 
-        services.AddSingleton<IProblemCodeMapper, ProblemCodeMapper>();
+        services.AddSingleton<IProblemCodeMapper, DefaultProblemCodeMapper>();
 
         return services;
     }

@@ -65,6 +65,8 @@
     <PackageVersion Include="IdGen.DependencyInjection" Version="3.0.7" />
     <PackageVersion Include="Lazy.Captcha.Core" Version="2.2.2" />
     <PackageVersion Include="FluentValidation" Version="12.1.1" />
+    <PackageVersion Include="Polly" Version="8.4.2" />
+    <PackageVersion Include="Polly.Extensions" Version="8.4.2" />
   </ItemGroup>
   <ItemGroup Label="API Documentation &amp; Versioning">
     <PackageVersion Include="Asp.Versioning.Mvc.ApiExplorer" Version="8.1.0" />

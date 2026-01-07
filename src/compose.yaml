@@ -23,3 +23,9 @@
       context: .
       dockerfile: microservices/Vocabulary/Dockerfile
 
+  practice-api:
+    image: lexicraft.services.practice.api
+    build:
+      context: .
+      dockerfile: microservices/Practice/Dockerfile
+
