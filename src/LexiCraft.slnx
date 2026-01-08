@@ -33,6 +33,11 @@
     <Project Path="microservices/Vocabulary/LexiCraft.Services.Vocabulary.Api/LexiCraft.Services.Vocabulary.Api.csproj" />
     <Project Path="microservices/Vocabulary/LexiCraft.Services.Vocabulary/LexiCraft.Services.Vocabulary.csproj" />
   </Folder>
+  <Folder Name="/microservices/Practice/">
+    <File Path="../.dockerignore" />
+    <Project Path="microservices/Practice/LexiCraft.Services.Practice.Api/LexiCraft.Services.Practice.Api.csproj" />
+    <Project Path="microservices/Practice/LexiCraft.Services.Practice/LexiCraft.Services.Practice.csproj" />
+  </Folder>
   <Folder Name="/ApiGateway/">
     <File Path="../.dockerignore" />
     <File Path="ApiGateway/Dockerfile" />
