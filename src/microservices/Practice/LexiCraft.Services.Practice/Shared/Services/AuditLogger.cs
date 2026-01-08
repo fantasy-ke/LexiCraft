@@ -10,16 +10,8 @@ namespace LexiCraft.Services.Practice.Shared.Services;
 /// <summary>
 /// 练习活动审计日志实现
 /// </summary>
-public class AuditLogger : IAuditLogger
+public class AuditLogger(ILogger<AuditLogger> logger, IUserContext userContext) : IAuditLogger
 {
-    private readonly ILogger<AuditLogger> _logger;
-    private readonly IUserContext _userContext;
-
-    public AuditLogger(ILogger<AuditLogger> logger, IUserContext userContext)
-    {
-        _logger = logger;
-        _userContext = userContext;
-    }
 
     public async Task LogPracticeTaskGenerationAsync(Guid userId, string userName, List<long> wordIds, PracticeType practiceType, int taskCount, bool success, string? errorMessage = null)
     {
@@ -39,11 +31,11 @@ public class AuditLogger : IAuditLogger
 
         if (success)
         {
-            _logger.LogInformation("Practice task generation completed successfully. {@AuditData}", auditData);
+            logger.LogInformation("Practice task generation completed successfully. {@AuditData}", auditData);
         }
         else
         {
-            _logger.LogWarning("Practice task generation failed. {@AuditData}", auditData);
+            logger.LogWarning("Practice task generation failed. {@AuditData}", auditData);
         }
 
         await Task.CompletedTask;
@@ -70,11 +62,11 @@ public class AuditLogger : IAuditLogger
 
         if (success)
         {
-            _logger.LogInformation("Answer submission completed successfully. {@AuditData}", auditData);
+            logger.LogInformation("Answer submission completed successfully. {@AuditData}", auditData);
         }
         else
         {
-            _logger.LogWarning("Answer submission failed. {@AuditData}", auditData);
+            logger.LogWarning("Answer submission failed. {@AuditData}", auditData);
         }
 
         await Task.CompletedTask;
@@ -101,11 +93,11 @@ public class AuditLogger : IAuditLogger
 
         if (success)
         {
-            _logger.LogInformation("Practice history access completed successfully. {@AuditData}", auditData);
+            logger.LogInformation("Practice history access completed successfully. {@AuditData}", auditData);
         }
         else
         {
-            _logger.LogWarning("Practice history access failed. {@AuditData}", auditData);
+            logger.LogWarning("Practice history access failed. {@AuditData}", auditData);
         }
 
         await Task.CompletedTask;
@@ -128,11 +120,11 @@ public class AuditLogger : IAuditLogger
 
         if (success)
         {
-            _logger.LogInformation("Authentication event completed successfully. {@AuditData}", auditData);
+            logger.LogInformation("Authentication event completed successfully. {@AuditData}", auditData);
         }
         else
         {
-            _logger.LogWarning("Authentication event failed. {@AuditData}", auditData);
+            logger.LogWarning("Authentication event failed. {@AuditData}", auditData);
         }
 
         await Task.CompletedTask;
@@ -156,11 +148,11 @@ public class AuditLogger : IAuditLogger
 
         if (success)
         {
-            _logger.LogInformation("Authorization check completed successfully. {@AuditData}", auditData);
+            logger.LogInformation("Authorization check completed successfully. {@AuditData}", auditData);
         }
         else
         {
-            _logger.LogWarning("Authorization check failed. {@AuditData}", auditData);
+            logger.LogWarning("Authorization check failed. {@AuditData}", auditData);
         }
 
         await Task.CompletedTask;
@@ -181,7 +173,7 @@ public class AuditLogger : IAuditLogger
             RequestId = GetRequestId()
         };
 
-        _logger.LogInformation("Performance data recorded. {@AuditData}", auditData);
+        logger.LogInformation("Performance data recorded. {@AuditData}", auditData);
 
         await Task.CompletedTask;
     }
@@ -202,7 +194,7 @@ public class AuditLogger : IAuditLogger
             RequestId = GetRequestId()
         };
 
-        _logger.LogError(exception, "Error occurred during operation. {@AuditData}", auditData);
+        logger.LogError(exception, "Error occurred during operation. {@AuditData}", auditData);
 
         await Task.CompletedTask;
     }

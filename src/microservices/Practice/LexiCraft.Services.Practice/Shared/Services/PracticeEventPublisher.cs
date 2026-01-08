@@ -10,30 +10,18 @@ namespace LexiCraft.Services.Practice.Shared.Services;
 /// <summary>
 /// 具有弹性模式的练习相关事件发布服务
 /// </summary>
-public class PracticeEventPublisher : IPracticeEventPublisher
+public class PracticeEventPublisher(
+    IEventBus<PracticeCompletionEvent> practiceCompletionEventBus,
+    IEventBus<MistakeIdentifiedEvent> mistakeEventBus,
+    IEventBus<PerformanceDataEvent> performanceEventBus,
+    ILogger<PracticeEventPublisher> logger)
+    : IPracticeEventPublisher
 {
-    private readonly IEventBus<PracticeCompletionEvent> _practiceCompletionEventBus;
-    private readonly IEventBus<MistakeIdentifiedEvent> _mistakeEventBus;
-    private readonly IEventBus<PerformanceDataEvent> _performanceEventBus;
-    private readonly ILogger<PracticeEventPublisher> _logger;
-    private readonly SemaphoreSlim _circuitBreakerSemaphore;
+    private readonly SemaphoreSlim _circuitBreakerSemaphore = new(1, 1);
     private DateTime _circuitBreakerOpenedAt = DateTime.MinValue;
     private int _consecutiveFailures = 0;
     private const int MaxConsecutiveFailures = 5;
     private static readonly TimeSpan CircuitBreakerTimeout = TimeSpan.FromMinutes(1);
-
-    public PracticeEventPublisher(
-        IEventBus<PracticeCompletionEvent> practiceCompletionEventBus,
-        IEventBus<MistakeIdentifiedEvent> mistakeEventBus,
-        IEventBus<PerformanceDataEvent> performanceEventBus,
-        ILogger<PracticeEventPublisher> logger)
-    {
-        _practiceCompletionEventBus = practiceCompletionEventBus;
-        _mistakeEventBus = mistakeEventBus;
-        _performanceEventBus = performanceEventBus;
-        _logger = logger;
-        _circuitBreakerSemaphore = new SemaphoreSlim(1, 1);
-    }
 
     public async Task PublishPracticeCompletionAsync(PracticeTask practiceTask, AnswerRecord answerRecord)
     {
@@ -51,7 +39,7 @@ public class PracticeEventPublisher : IPracticeEventPublisher
         };
 
         await PublishEventSafelyAsync(
-            async () => await _practiceCompletionEventBus.PublishAsync(completionEvent).AsTask(),
+            async () => await practiceCompletionEventBus.PublishAsync(completionEvent).AsTask(),
             "PracticeCompletion",
             practiceTask.UserId,
             practiceTask.Id);
@@ -73,7 +61,7 @@ public class PracticeEventPublisher : IPracticeEventPublisher
         };
 
         await PublishEventSafelyAsync(
-            async () => await _mistakeEventBus.PublishAsync(mistakeEvent).AsTask(),
+            async () => await mistakeEventBus.PublishAsync(mistakeEvent).AsTask(),
             "MistakeIdentified",
             mistakeItem.UserId,
             mistakeItem.Id);
@@ -83,7 +71,7 @@ public class PracticeEventPublisher : IPracticeEventPublisher
     {
         if (!answerRecords.Any())
         {
-            _logger.LogWarning("No answer records provided for performance data event for user {UserId}", userId);
+            logger.LogWarning("No answer records provided for performance data event for user {UserId}", userId);
             return;
         }
 
@@ -129,7 +117,7 @@ public class PracticeEventPublisher : IPracticeEventPublisher
         };
 
         await PublishEventSafelyAsync(
-            async () => await _performanceEventBus.PublishAsync(performanceEvent).AsTask(),
+            async () => await performanceEventBus.PublishAsync(performanceEvent).AsTask(),
             "PerformanceData",
             userId,
             performanceEvent.SessionId);
@@ -143,7 +131,7 @@ public class PracticeEventPublisher : IPracticeEventPublisher
         // 检查熔断器状态
         if (await IsCircuitBreakerOpenAsync())
         {
-            _logger.LogWarning("Circuit breaker is open, skipping {EventType} event publication for user {UserId}, entity {EntityId}", 
+            logger.LogWarning("Circuit breaker is open, skipping {EventType} event publication for user {UserId}, entity {EntityId}", 
                 eventType, userId, entityId);
             return;
         }
@@ -159,20 +147,20 @@ public class PracticeEventPublisher : IPracticeEventPublisher
                 // 成功时重置失败计数
                 await ResetCircuitBreakerAsync();
                 
-                _logger.LogDebug("Successfully published {EventType} event for user {UserId}, entity {EntityId}", 
+                logger.LogDebug("Successfully published {EventType} event for user {UserId}, entity {EntityId}", 
                     eventType, userId, entityId);
                 return;
             }
             catch (Exception ex)
             {
-                _logger.LogWarning(ex, "Event publishing attempt {Attempt}/{MaxRetries} failed for {EventType} event, user {UserId}, entity {EntityId}", 
+                logger.LogWarning(ex, "Event publishing attempt {Attempt}/{MaxRetries} failed for {EventType} event, user {UserId}, entity {EntityId}", 
                     attempt, maxRetries, eventType, userId, entityId);
 
                 if (attempt == maxRetries)
                 {
                     // 所有重试都失败 - 更新熔断器并记录错误
                     await RecordFailureAsync();
-                    _logger.LogError(ex, "Failed to publish {EventType} event for user {UserId}, entity {EntityId} after all retry attempts", 
+                    logger.LogError(ex, "Failed to publish {EventType} event for user {UserId}, entity {EntityId} after all retry attempts", 
                         eventType, userId, entityId);
                     return;
                 }
@@ -199,7 +187,7 @@ public class PracticeEventPublisher : IPracticeEventPublisher
                 {
                     // 熔断器超时已过期，重置为半开状态
                     _consecutiveFailures = 0;
-                    _logger.LogInformation("Event publishing circuit breaker reset after timeout");
+                    logger.LogInformation("Event publishing circuit breaker reset after timeout");
                     return false;
                 }
             }
@@ -220,7 +208,7 @@ public class PracticeEventPublisher : IPracticeEventPublisher
             if (_consecutiveFailures >= MaxConsecutiveFailures)
             {
                 _circuitBreakerOpenedAt = DateTime.UtcNow;
-                _logger.LogError("Event publishing circuit breaker opened after {FailureCount} consecutive failures", _consecutiveFailures);
+                logger.LogError("Event publishing circuit breaker opened after {FailureCount} consecutive failures", _consecutiveFailures);
             }
         }
         finally
@@ -237,7 +225,7 @@ public class PracticeEventPublisher : IPracticeEventPublisher
             if (_consecutiveFailures > 0)
             {
                 _consecutiveFailures = 0;
-                _logger.LogDebug("Event publishing circuit breaker reset after successful operation");
+                logger.LogDebug("Event publishing circuit breaker reset after successful operation");
             }
         }
         finally

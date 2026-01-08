@@ -1,7 +1,7 @@
 namespace LexiCraft.Services.Practice.PracticeTasks.Services;
 
 /// <summary>
-/// DTO for word information from vocabulary service
+/// 来自词汇服务的单词信息DTO
 /// </summary>
 public record WordDto(
     long Id,
@@ -13,21 +13,21 @@ public record WordDto(
     List<string> Tags);
 
 /// <summary>
-/// Client for communicating with the Vocabulary service
+/// 用于与词汇服务通信的客户端
 /// </summary>
 public interface IVocabularyServiceClient
 {
     /// <summary>
-    /// Gets word information by word ID
+    /// 根据单词ID获取单词信息
     /// </summary>
-    /// <param name="wordId">The word ID</param>
-    /// <returns>Word information or null if not found</returns>
+    /// <param name="wordId">单词ID</param>
+    /// <returns>单词信息，如果未找到则返回null</returns>
     Task<WordDto?> GetWordByIdAsync(long wordId);
 
     /// <summary>
-    /// Gets multiple words by their IDs
+    /// 根据ID获取多个单词
     /// </summary>
-    /// <param name="wordIds">List of word IDs</param>
-    /// <returns>List of word information</returns>
+    /// <param name="wordIds">单词ID列表</param>
+    /// <returns>单词信息列表</returns>
     Task<List<WordDto>> GetWordsByIdsAsync(List<long> wordIds);
 }

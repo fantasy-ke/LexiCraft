@@ -5,19 +5,11 @@ using Microsoft.Extensions.Logging;
 namespace LexiCraft.Services.Practice.PracticeTasks.Services;
 
 /// <summary>
-/// Service for managing practice task persistence and retrieval
+/// 用于管理练习任务持久化和检索的服务
 /// </summary>
-public class PracticeTaskService : IPracticeTaskService
+public class PracticeTaskService(IPracticeTaskRepository repository, ILogger<PracticeTaskService> logger)
+    : IPracticeTaskService
 {
-    private readonly IPracticeTaskRepository _repository;
-    private readonly ILogger<PracticeTaskService> _logger;
-
-    public PracticeTaskService(IPracticeTaskRepository repository, ILogger<PracticeTaskService> logger)
-    {
-        _repository = repository;
-        _logger = logger;
-    }
-
     public async Task<List<PracticeTask>> SaveTasksAsync(List<PracticeTask> tasks)
     {
         if (!tasks.Any())
@@ -27,22 +19,22 @@ public class PracticeTaskService : IPracticeTaskService
 
         try
         {
-            _logger.LogInformation("Saving {TaskCount} practice tasks", tasks.Count);
+            logger.LogInformation("Saving {TaskCount} practice tasks", tasks.Count);
 
             var savedTasks = new List<PracticeTask>();
             
             foreach (var task in tasks)
             {
-                var savedTask = await _repository.InsertAsync(task);
+                var savedTask = await repository.InsertAsync(task);
                 savedTasks.Add(savedTask);
             }
 
-            _logger.LogInformation("Successfully saved {TaskCount} practice tasks", savedTasks.Count);
+            logger.LogInformation("Successfully saved {TaskCount} practice tasks", savedTasks.Count);
             return savedTasks;
         }
         catch (Exception ex)
         {
-            _logger.LogError(ex, "Error saving practice tasks");
+            logger.LogError(ex, "Error saving practice tasks");
             throw;
         }
     }
@@ -56,17 +48,17 @@ public class PracticeTaskService : IPracticeTaskService
 
         try
         {
-            _logger.LogInformation("Saving practice task for user {UserId}, word {WordId}", 
+            logger.LogInformation("Saving practice task for user {UserId}, word {WordId}", 
                 task.UserId, task.WordId);
 
-            var savedTask = await _repository.InsertAsync(task);
+            var savedTask = await repository.InsertAsync(task);
 
-            _logger.LogInformation("Successfully saved practice task {TaskId}", savedTask.Id);
+            logger.LogInformation("Successfully saved practice task {TaskId}", savedTask.Id);
             return savedTask;
         }
         catch (Exception ex)
         {
-            _logger.LogError(ex, "Error saving practice task for user {UserId}, word {WordId}", 
+            logger.LogError(ex, "Error saving practice task for user {UserId}, word {WordId}", 
                 task.UserId, task.WordId);
             throw;
         }
@@ -86,7 +78,7 @@ public class PracticeTaskService : IPracticeTaskService
 
         try
         {
-            var task = await _repository.GetAsync(t => t.Id == taskId);
+            var task = await repository.GetAsync(t => t.Id == taskId);
             
             if (task == null)
             {
@@ -107,16 +99,16 @@ public class PracticeTaskService : IPracticeTaskService
                 task.CompletedAt = DateTime.UtcNow;
             }
 
-            var updatedTask = await _repository.UpdateAsync(task);
+            var updatedTask = await repository.UpdateAsync(task);
 
-            _logger.LogInformation("Updated task {TaskId} status from {OldStatus} to {NewStatus} for user {UserId}", 
+            logger.LogInformation("Updated task {TaskId} status from {OldStatus} to {NewStatus} for user {UserId}", 
                 taskId, oldStatus, status, userId);
 
             return updatedTask;
         }
         catch (Exception ex)
         {
-            _logger.LogError(ex, "Error updating task {TaskId} status to {Status} for user {UserId}", 
+            logger.LogError(ex, "Error updating task {TaskId} status to {Status} for user {UserId}", 
                 taskId, status, userId);
             throw;
         }
@@ -131,17 +123,17 @@ public class PracticeTaskService : IPracticeTaskService
 
         try
         {
-            _logger.LogDebug("Getting tasks for user {UserId} with status {Status}", userId, status);
+            logger.LogDebug("Getting tasks for user {UserId} with status {Status}", userId, status);
 
             // Use the paged method with a large page size to get all results
-            var (_, tasks) = await _repository.GetUserTasksPagedAsync(userId, 1, int.MaxValue, status, fromDate, toDate);
+            var (_, tasks) = await repository.GetUserTasksPagedAsync(userId, 1, int.MaxValue, status, fromDate, toDate);
 
-            _logger.LogDebug("Found {TaskCount} tasks for user {UserId}", tasks.Count, userId);
+            logger.LogDebug("Found {TaskCount} tasks for user {UserId}", tasks.Count, userId);
             return tasks;
         }
         catch (Exception ex)
         {
-            _logger.LogError(ex, "Error getting tasks for user {UserId}", userId);
+            logger.LogError(ex, "Error getting tasks for user {UserId}", userId);
             throw;
         }
     }
@@ -165,19 +157,19 @@ public class PracticeTaskService : IPracticeTaskService
 
         try
         {
-            _logger.LogDebug("Getting paged tasks for user {UserId}, page {PageIndex}, size {PageSize}", 
+            logger.LogDebug("Getting paged tasks for user {UserId}, page {PageIndex}, size {PageSize}", 
                 userId, pageIndex, pageSize);
 
-            var result = await _repository.GetUserTasksPagedAsync(userId, pageIndex, pageSize, status, fromDate, toDate);
+            var result = await repository.GetUserTasksPagedAsync(userId, pageIndex, pageSize, status, fromDate, toDate);
 
-            _logger.LogDebug("Found {Total} total tasks, returning {TaskCount} for user {UserId}", 
+            logger.LogDebug("Found {Total} total tasks, returning {TaskCount} for user {UserId}", 
                 result.total, result.tasks.Count, userId);
 
             return result;
         }
         catch (Exception ex)
         {
-            _logger.LogError(ex, "Error getting paged tasks for user {UserId}", userId);
+            logger.LogError(ex, "Error getting paged tasks for user {UserId}", userId);
             throw;
         }
     }
@@ -196,17 +188,17 @@ public class PracticeTaskService : IPracticeTaskService
 
         try
         {
-            var task = await _repository.GetAsync(t => t.Id == taskId);
+            var task = await repository.GetAsync(t => t.Id == taskId);
             
             if (task == null)
             {
-                _logger.LogDebug("Task {TaskId} not found", taskId);
+                logger.LogDebug("Task {TaskId} not found", taskId);
                 return null;
             }
 
             if (task.UserId != userId)
             {
-                _logger.LogWarning("User {UserId} attempted to access task {TaskId} owned by {TaskUserId}", 
+                logger.LogWarning("User {UserId} attempted to access task {TaskId} owned by {TaskUserId}", 
                     userId, taskId, task.UserId);
                 return null;
             }
@@ -215,7 +207,7 @@ public class PracticeTaskService : IPracticeTaskService
         }
         catch (Exception ex)
         {
-            _logger.LogError(ex, "Error getting task {TaskId} for user {UserId}", taskId, userId);
+            logger.LogError(ex, "Error getting task {TaskId} for user {UserId}", taskId, userId);
             throw;
         }
     }
@@ -234,9 +226,9 @@ public class PracticeTaskService : IPracticeTaskService
 
         try
         {
-            _logger.LogDebug("Getting tasks for user {UserId} and {WordCount} words", userId, wordIds.Count);
+            logger.LogDebug("Getting tasks for user {UserId} and {WordCount} words", userId, wordIds.Count);
 
-            var tasks = await _repository.GetTasksByWordIdsAsync(userId, wordIds);
+            var tasks = await repository.GetTasksByWordIdsAsync(userId, wordIds);
 
             // Filter by status if provided
             if (status.HasValue)
@@ -244,12 +236,12 @@ public class PracticeTaskService : IPracticeTaskService
                 tasks = tasks.Where(t => t.Status == status.Value).ToList();
             }
 
-            _logger.LogDebug("Found {TaskCount} tasks for user {UserId} and specified words", tasks.Count, userId);
+            logger.LogDebug("Found {TaskCount} tasks for user {UserId} and specified words", tasks.Count, userId);
             return tasks;
         }
         catch (Exception ex)
         {
-            _logger.LogError(ex, "Error getting tasks by word IDs for user {UserId}", userId);
+            logger.LogError(ex, "Error getting tasks by word IDs for user {UserId}", userId);
             throw;
         }
     }

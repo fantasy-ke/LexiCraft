@@ -4,45 +4,38 @@ using Microsoft.Extensions.Logging;
 namespace LexiCraft.Services.Practice.AnswerEvaluation.Services;
 
 /// <summary>
-/// Service for evaluating user answers against expected answers
+/// 用于评估用户答案与预期答案的服务
 /// </summary>
-public class AnswerEvaluator : IAnswerEvaluator
+public class AnswerEvaluator(ILogger<AnswerEvaluator> logger) : IAnswerEvaluator
 {
-    private readonly ILogger<AnswerEvaluator> _logger;
-
-    public AnswerEvaluator(ILogger<AnswerEvaluator> logger)
-    {
-        _logger = logger;
-    }
-
     public async Task<AnswerEvaluationResult> EvaluateAnswerAsync(string userAnswer, string expectedAnswer)
     {
         if (string.IsNullOrEmpty(userAnswer))
         {
-            throw new ArgumentException("User answer cannot be null or empty", nameof(userAnswer));
+            throw new ArgumentException("用户答案不能为空", nameof(userAnswer));
         }
 
         if (string.IsNullOrEmpty(expectedAnswer))
         {
-            throw new ArgumentException("Expected answer cannot be null or empty", nameof(expectedAnswer));
+            throw new ArgumentException("预期答案不能为空", nameof(expectedAnswer));
         }
 
         try
         {
-            _logger.LogDebug("Evaluating answer: '{UserAnswer}' against expected: '{ExpectedAnswer}'", 
+            logger.LogDebug("评估答案: '{UserAnswer}' 与预期: '{ExpectedAnswer}'", 
                 userAnswer, expectedAnswer);
 
-            // Normalize answers for comparison (trim whitespace, convert to lowercase)
+            // 规范化答案以进行比较（去除空白，转换为小写）
             var normalizedUserAnswer = userAnswer.Trim().ToLowerInvariant();
             var normalizedExpectedAnswer = expectedAnswer.Trim().ToLowerInvariant();
 
-            // Check if answer is completely correct
+            // 检查答案是否完全正确
             var isCorrect = normalizedUserAnswer == normalizedExpectedAnswer;
 
-            // Calculate accuracy score
+            // 计算准确率分数
             var accuracy = await CalculateAccuracyAsync(userAnswer, expectedAnswer);
 
-            // Generate feedback
+            // 生成反馈
             var feedback = await GenerateFeedbackAsync(userAnswer, expectedAnswer, isCorrect, accuracy);
 
             var result = new AnswerEvaluationResult
@@ -53,14 +46,14 @@ public class AnswerEvaluator : IAnswerEvaluator
                 Feedback = feedback
             };
 
-            _logger.LogDebug("Evaluation complete: IsCorrect={IsCorrect}, Accuracy={Accuracy}", 
+            logger.LogDebug("评估完成: IsCorrect={IsCorrect}, Accuracy={Accuracy}", 
                 isCorrect, accuracy);
 
             return result;
         }
         catch (Exception ex)
         {
-            _logger.LogError(ex, "Error evaluating answer '{UserAnswer}' against '{ExpectedAnswer}'", 
+            logger.LogError(ex, "评估答案 '{UserAnswer}' 与 '{ExpectedAnswer}' 时出错", 
                 userAnswer, expectedAnswer);
             throw;
         }
@@ -75,31 +68,31 @@ public class AnswerEvaluator : IAnswerEvaluator
 
         try
         {
-            // Normalize answers for comparison
+            // 规范化答案以进行比较
             var normalizedUserAnswer = userAnswer.Trim().ToLowerInvariant();
             var normalizedExpectedAnswer = expectedAnswer.Trim().ToLowerInvariant();
 
-            // If exactly correct, return 1.0
+            // 如果完全正确，返回1.0
             if (normalizedUserAnswer == normalizedExpectedAnswer)
             {
                 return 1.0;
             }
 
-            // Calculate similarity using Levenshtein distance
+            // 使用Levenshtein距离计算相似度
             var distance = CalculateLevenshteinDistance(normalizedUserAnswer, normalizedExpectedAnswer);
             var maxLength = Math.Max(normalizedUserAnswer.Length, normalizedExpectedAnswer.Length);
 
-            // Convert distance to accuracy (0.0 to 1.0)
+            // 将距离转换为准确率（0.0到1.0）
             var accuracy = maxLength == 0 ? 0.0 : Math.Max(0.0, 1.0 - (double)distance / maxLength);
 
-            _logger.LogDebug("Calculated accuracy: {Accuracy} (distance: {Distance}, maxLength: {MaxLength})", 
+            logger.LogDebug("计算准确率: {Accuracy} (距离: {Distance}, 最大长度: {MaxLength})", 
                 accuracy, distance, maxLength);
 
             return await Task.FromResult(accuracy);
         }
         catch (Exception ex)
         {
-            _logger.LogError(ex, "Error calculating accuracy for '{UserAnswer}' vs '{ExpectedAnswer}'", 
+            logger.LogError(ex, "计算 '{UserAnswer}' 与 '{ExpectedAnswer}' 的准确率时出错", 
                 userAnswer, expectedAnswer);
             return 0.0;
         }
@@ -111,34 +104,34 @@ public class AnswerEvaluator : IAnswerEvaluator
         {
             if (isCorrect)
             {
-                return await Task.FromResult("Correct! Well done!");
+                return await Task.FromResult("正确！做得好！");
             }
 
             if (accuracy >= 0.8)
             {
-                return await Task.FromResult($"Very close! The correct answer is '{expectedAnswer}'. You had a minor spelling error.");
+                return await Task.FromResult($"非常接近！正确答案是 '{expectedAnswer}'。您有一个拼写小错误。");
             }
 
             if (accuracy >= 0.5)
             {
-                return await Task.FromResult($"Good attempt! The correct answer is '{expectedAnswer}'. Check your spelling.");
+                return await Task.FromResult($"很好的尝试！正确答案是 '{expectedAnswer}'。请检查拼写。");
             }
 
-            return await Task.FromResult($"The correct answer is '{expectedAnswer}'. Keep practicing!");
+            return await Task.FromResult($"正确答案是 '{expectedAnswer}'。继续练习！");
         }
         catch (Exception ex)
         {
-            _logger.LogError(ex, "Error generating feedback");
-            return "Answer evaluated. Keep practicing!";
+            logger.LogError(ex, "生成反馈时出错");
+            return "答案已评估。继续练习！";
         }
     }
 
     /// <summary>
-    /// Calculates the Levenshtein distance between two strings
+    /// 计算两个字符串之间的Levenshtein距离
     /// </summary>
-    /// <param name="source">First string</param>
-    /// <param name="target">Second string</param>
-    /// <returns>The minimum number of single-character edits required to change one string into the other</returns>
+    /// <param name="source">第一个字符串</param>
+    /// <param name="target">第二个字符串</param>
+    /// <returns>将一个字符串转换为另一个字符串所需的最少单字符编辑次数</returns>
     private static int CalculateLevenshteinDistance(string source, string target)
     {
         if (string.IsNullOrEmpty(source))
@@ -155,7 +148,7 @@ public class AnswerEvaluator : IAnswerEvaluator
         var targetLength = target.Length;
         var matrix = new int[sourceLength + 1, targetLength + 1];
 
-        // Initialize first column and row
+        // 初始化第一列和第一行
         for (var i = 0; i <= sourceLength; i++)
         {
             matrix[i, 0] = i;
@@ -166,7 +159,7 @@ public class AnswerEvaluator : IAnswerEvaluator
             matrix[0, j] = j;
         }
 
-        // Fill the matrix
+        // 填充矩阵
         for (var i = 1; i <= sourceLength; i++)
         {
             for (var j = 1; j <= targetLength; j++)
@@ -175,9 +168,9 @@ public class AnswerEvaluator : IAnswerEvaluator
 
                 matrix[i, j] = Math.Min(
                     Math.Min(
-                        matrix[i - 1, j] + 1,     // deletion
-                        matrix[i, j - 1] + 1),    // insertion
-                    matrix[i - 1, j - 1] + cost  // substitution
+                        matrix[i - 1, j] + 1,     // 删除
+                        matrix[i, j - 1] + 1),    // 插入
+                    matrix[i - 1, j - 1] + cost  // 替换
                 );
             }
         }

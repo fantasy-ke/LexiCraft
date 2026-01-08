@@ -8,18 +8,12 @@ namespace LexiCraft.Services.Practice.MistakeAnalysis.Features.ClassifyError;
 /// <summary>
 /// Handler for ClassifyErrorCommand
 /// </summary>
-public class ClassifyErrorHandler : IRequestHandler<ClassifyErrorCommand, ClassifyErrorResponse>
+public class ClassifyErrorHandler(ILogger<ClassifyErrorHandler> logger)
+    : IRequestHandler<ClassifyErrorCommand, ClassifyErrorResponse>
 {
-    private readonly ILogger<ClassifyErrorHandler> _logger;
-
-    public ClassifyErrorHandler(ILogger<ClassifyErrorHandler> logger)
-    {
-        _logger = logger;
-    }
-
     public async Task<ClassifyErrorResponse> Handle(ClassifyErrorCommand request, CancellationToken cancellationToken)
     {
-        _logger.LogInformation("Classifying error for user answer: '{UserAnswer}' vs expected: '{ExpectedAnswer}'",
+        logger.LogInformation("Classifying error for user answer: '{UserAnswer}' vs expected: '{ExpectedAnswer}'",
             request.UserAnswer, request.ExpectedAnswer);
 
         try
@@ -36,7 +30,7 @@ public class ClassifyErrorHandler : IRequestHandler<ClassifyErrorCommand, Classi
             // 判断是否为拼写错误
             var isSpellingError = await IsSpellingErrorAsync(request.UserAnswer, request.ExpectedAnswer, accuracy);
 
-            _logger.LogInformation("Error classification completed. Type: {ErrorType}, IsSpellingError: {IsSpellingError}, ErrorCount: {ErrorCount}",
+            logger.LogInformation("Error classification completed. Type: {ErrorType}, IsSpellingError: {IsSpellingError}, ErrorCount: {ErrorCount}",
                 errorType, isSpellingError, errorDetails.Count);
 
             return new ClassifyErrorResponse
@@ -48,7 +42,7 @@ public class ClassifyErrorHandler : IRequestHandler<ClassifyErrorCommand, Classi
         }
         catch (Exception ex)
         {
-            _logger.LogError(ex, "Error occurred while classifying error for user answer: '{UserAnswer}'", request.UserAnswer);
+            logger.LogError(ex, "Error occurred while classifying error for user answer: '{UserAnswer}'", request.UserAnswer);
             throw;
         }
     }

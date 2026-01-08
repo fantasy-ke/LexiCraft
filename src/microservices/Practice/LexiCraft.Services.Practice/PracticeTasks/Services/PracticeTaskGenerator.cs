@@ -5,23 +5,15 @@ using Microsoft.Extensions.Logging;
 namespace LexiCraft.Services.Practice.PracticeTasks.Services;
 
 /// <summary>
-/// Service for generating practice tasks for vocabulary learning
+/// 用于生成词汇学习练习任务的服务
 /// </summary>
-public class PracticeTaskGenerator : IPracticeTaskGenerator
+public class PracticeTaskGenerator(
+    IVocabularyServiceClient vocabularyClient,
+    IPracticeTaskRepository practiceTaskRepository,
+    ILogger<PracticeTaskGenerator> logger)
+    : IPracticeTaskGenerator
 {
-    private readonly IVocabularyServiceClient _vocabularyClient;
-    private readonly IPracticeTaskRepository _practiceTaskRepository;
-    private readonly ILogger<PracticeTaskGenerator> _logger;
-
-    public PracticeTaskGenerator(
-        IVocabularyServiceClient vocabularyClient,
-        IPracticeTaskRepository practiceTaskRepository,
-        ILogger<PracticeTaskGenerator> logger)
-    {
-        _vocabularyClient = vocabularyClient;
-        _practiceTaskRepository = practiceTaskRepository;
-        _logger = logger;
-    }
+    private readonly IPracticeTaskRepository _practiceTaskRepository = practiceTaskRepository;
 
     public async Task<List<PracticeTask>> GenerateTasksAsync(Guid userId, List<long> wordIds, PracticeType type, int count)
     {
@@ -47,18 +39,18 @@ public class PracticeTaskGenerator : IPracticeTaskGenerator
 
         try
         {
-            _logger.LogInformation("Generating {Count} practice tasks for user {UserId} with type {Type}", 
+            logger.LogInformation("Generating {Count} practice tasks for user {UserId} with type {Type}", 
                 count, userId, type);
 
             // Take only the requested number of word IDs
             var selectedWordIds = wordIds.Take(count).ToList();
             
             // Get word information from vocabulary service
-            var words = await _vocabularyClient.GetWordsByIdsAsync(selectedWordIds);
+            var words = await vocabularyClient.GetWordsByIdsAsync(selectedWordIds);
             
             if (!words.Any())
             {
-                _logger.LogWarning("No words found for the provided word IDs");
+                logger.LogWarning("No words found for the provided word IDs");
                 return new List<PracticeTask>();
             }
 
@@ -70,14 +62,14 @@ public class PracticeTaskGenerator : IPracticeTaskGenerator
                 tasks.Add(task);
             }
 
-            _logger.LogInformation("Generated {TaskCount} practice tasks for user {UserId}", 
+            logger.LogInformation("Generated {TaskCount} practice tasks for user {UserId}", 
                 tasks.Count, userId);
 
             return tasks;
         }
         catch (Exception ex)
         {
-            _logger.LogError(ex, "Error generating practice tasks for user {UserId}", userId);
+            logger.LogError(ex, "Error generating practice tasks for user {UserId}", userId);
             throw;
         }
     }
@@ -101,11 +93,11 @@ public class PracticeTaskGenerator : IPracticeTaskGenerator
 
         try
         {
-            _logger.LogInformation("Generating single practice task for user {UserId}, word {WordId}, type {Type}", 
+            logger.LogInformation("Generating single practice task for user {UserId}, word {WordId}, type {Type}", 
                 userId, wordId, type);
 
             // Get word information from vocabulary service
-            var word = await _vocabularyClient.GetWordByIdAsync(wordId);
+            var word = await vocabularyClient.GetWordByIdAsync(wordId);
             
             if (word == null)
             {
@@ -114,14 +106,14 @@ public class PracticeTaskGenerator : IPracticeTaskGenerator
 
             var task = CreatePracticeTask(userId, word, type);
 
-            _logger.LogInformation("Generated practice task {TaskId} for user {UserId}", 
+            logger.LogInformation("Generated practice task {TaskId} for user {UserId}", 
                 task.Id, userId);
 
             return task;
         }
         catch (Exception ex)
         {
-            _logger.LogError(ex, "Error generating single practice task for user {UserId}, word {WordId}", 
+            logger.LogError(ex, "Error generating single practice task for user {UserId}, word {WordId}", 
                 userId, wordId);
             throw;
         }

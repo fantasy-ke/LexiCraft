@@ -1,6 +1,6 @@
 using BuildingBlocks.Authentication.Contract;
+using LexiCraft.Services.Practice.AnswerEvaluation.Features.EvaluateAnswer;
 using LexiCraft.Services.Practice.AnswerEvaluation.Models;
-using LexiCraft.Services.Practice.AnswerEvaluation.Services;
 using LexiCraft.Services.Practice.MistakeAnalysis.Features.ClassifyError;
 using LexiCraft.Services.Practice.MistakeAnalysis.Features.CreateMistakeItem;
 using LexiCraft.Services.Practice.MistakeAnalysis.Models;
@@ -19,7 +19,6 @@ public class SubmitAnswerHandler : IRequestHandler<SubmitAnswerCommand, SubmitAn
 {
     private readonly IPracticeTaskRepository _taskRepository;
     private readonly IAnswerRecordRepository _answerRepository;
-    private readonly IAnswerEvaluator _answerEvaluator;
     private readonly IPracticeEventPublisher _eventPublisher;
     private readonly ILogger<SubmitAnswerHandler> _logger;
     private readonly IAuditLogger _auditLogger;
@@ -29,7 +28,6 @@ public class SubmitAnswerHandler : IRequestHandler<SubmitAnswerCommand, SubmitAn
     public SubmitAnswerHandler(
         IPracticeTaskRepository taskRepository,
         IAnswerRecordRepository answerRepository,
-        IAnswerEvaluator answerEvaluator,
         IPracticeEventPublisher eventPublisher,
         ILogger<SubmitAnswerHandler> logger,
         IAuditLogger auditLogger,
@@ -38,7 +36,6 @@ public class SubmitAnswerHandler : IRequestHandler<SubmitAnswerCommand, SubmitAn
     {
         _taskRepository = taskRepository;
         _answerRepository = answerRepository;
-        _answerEvaluator = answerEvaluator;
         _eventPublisher = eventPublisher;
         _logger = logger;
         _auditLogger = auditLogger;
@@ -50,7 +47,7 @@ public class SubmitAnswerHandler : IRequestHandler<SubmitAnswerCommand, SubmitAn
     {
         var startTime = DateTime.UtcNow;
         var success = false;
-        string? errorMessage = null;
+        string? errorMessage;
         var responseTime = TimeSpan.FromMilliseconds(request.ResponseTimeMs);
 
         try
@@ -110,9 +107,14 @@ public class SubmitAnswerHandler : IRequestHandler<SubmitAnswerCommand, SubmitAn
                 };
             }
 
-            // Evaluate the answer
-            var evaluationResult = await _answerEvaluator.EvaluateAnswerAsync(
-                request.UserAnswer, practiceTask.ExpectedAnswer);
+            // 使用 CQRS 评估答案
+            var evaluateAnswerCommand = new EvaluateAnswerCommand
+            {
+                UserAnswer = request.UserAnswer,
+                ExpectedAnswer = practiceTask.ExpectedAnswer
+            };
+
+            var evaluationResult = await _mediator.Send(evaluateAnswerCommand, cancellationToken);
 
             // Create answer record
             var answerRecord = new AnswerRecord

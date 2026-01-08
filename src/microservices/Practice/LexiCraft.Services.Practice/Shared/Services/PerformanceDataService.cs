@@ -6,25 +6,13 @@ namespace LexiCraft.Services.Practice.Shared.Services;
 /// <summary>
 /// 性能数据聚合和发布处理服务
 /// </summary>
-public class PerformanceDataService : IPerformanceDataService
+public class PerformanceDataService(
+    IAnswerRecordRepository answerRepository,
+    IPracticeTaskRepository taskRepository,
+    IPracticeEventPublisher eventPublisher,
+    ILogger<PerformanceDataService> logger)
+    : IPerformanceDataService
 {
-    private readonly IAnswerRecordRepository _answerRepository;
-    private readonly IPracticeTaskRepository _taskRepository;
-    private readonly IPracticeEventPublisher _eventPublisher;
-    private readonly ILogger<PerformanceDataService> _logger;
-
-    public PerformanceDataService(
-        IAnswerRecordRepository answerRepository,
-        IPracticeTaskRepository taskRepository,
-        IPracticeEventPublisher eventPublisher,
-        ILogger<PerformanceDataService> logger)
-    {
-        _answerRepository = answerRepository;
-        _taskRepository = taskRepository;
-        _eventPublisher = eventPublisher;
-        _logger = logger;
-    }
-
     public async Task PublishRecentPerformanceDataAsync(Guid userId, DateTime? fromDate = null)
     {
         try
@@ -32,14 +20,14 @@ public class PerformanceDataService : IPerformanceDataService
             // 如果未指定日期，默认为最近24小时
             var startDate = fromDate ?? DateTime.UtcNow.AddDays(-1);
 
-            _logger.LogInformation("Publishing performance data for user {UserId} from {StartDate}", userId, startDate);
+            logger.LogInformation("Publishing performance data for user {UserId} from {StartDate}", userId, startDate);
 
             // 获取最近的答案记录
-            var answerRecords = await _answerRepository.GetUserAnswersAsync(userId, startDate);
+            var answerRecords = await answerRepository.GetUserAnswersAsync(userId, startDate);
 
             if (!answerRecords.Any())
             {
-                _logger.LogDebug("No recent answer records found for user {UserId} from {StartDate}", userId, startDate);
+                logger.LogDebug("No recent answer records found for user {UserId} from {StartDate}", userId, startDate);
                 return;
             }
 
@@ -49,7 +37,7 @@ public class PerformanceDataService : IPerformanceDataService
 
             foreach (var taskId in taskIds)
             {
-                var task = await _taskRepository.FirstOrDefaultAsync(t => t.Id == taskId);
+                var task = await taskRepository.FirstOrDefaultAsync(t => t.Id == taskId);
                 if (task != null)
                 {
                     practiceTasks.Add(task);
@@ -57,14 +45,14 @@ public class PerformanceDataService : IPerformanceDataService
             }
 
             // 发布性能数据事件
-            await _eventPublisher.PublishPerformanceDataAsync(userId, answerRecords, practiceTasks);
+            await eventPublisher.PublishPerformanceDataAsync(userId, answerRecords, practiceTasks);
 
-            _logger.LogInformation("Successfully published performance data for user {UserId} with {RecordCount} records", 
+            logger.LogInformation("Successfully published performance data for user {UserId} with {RecordCount} records", 
                 userId, answerRecords.Count);
         }
         catch (Exception ex)
         {
-            _logger.LogError(ex, "Error publishing performance data for user {UserId}", userId);
+            logger.LogError(ex, "Error publishing performance data for user {UserId}", userId);
             // 不重新抛出异常 - 这是后台操作，不应影响用户体验
         }
     }
