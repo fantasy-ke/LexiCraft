@@ -19,7 +19,8 @@ builder.AddProject<Projects.LexiCraft_Services_Practice_Api>("lexicraft-practice
     .WithReference(mongoPractice)
     .WithReference(redis);
 
-builder.AddProject<Projects.LexiCraft_Files_Grpc>("lexicraft-files-grpc");
+builder.AddProject<Projects.LexiCraft_Files_Grpc>("lexicraft-files-grpc")
+    .WithHttpHealthCheck("/health");
 
 builder.AddProject<Projects.LexiCraft_ApiGateway>("lexicraft-api-gateway")
     .WithHttpHealthCheck("/health");
