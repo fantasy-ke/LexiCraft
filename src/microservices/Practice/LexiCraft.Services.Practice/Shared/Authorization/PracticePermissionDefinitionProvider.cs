@@ -29,5 +29,6 @@ public class PracticePermissionDefinitionProvider : PermissionDefinitionProvider
         assessmentsGroup.CreateChildPermission(PracticePermissions.Assessments.Create, "创建评估", "允许创建练习评估记录");
         assessmentsGroup.CreateChildPermission(PracticePermissions.Assessments.Query, "查询评估", "允许查询评估记录");
         assessmentsGroup.CreateChildPermission(PracticePermissions.Assessments.Update, "更新评估", "允许更新评估记录");
+        assessmentsGroup.CreateChildPermission(PracticePermissions.Assessments.Submit, "提交评估", "允许提交练习评估");
     }
 }

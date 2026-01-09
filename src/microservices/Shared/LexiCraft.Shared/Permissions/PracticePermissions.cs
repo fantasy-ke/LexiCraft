@@ -21,5 +21,6 @@ public static class PracticePermissions
         public const string Create = "Pages.Practice.Assessments.Create";
         public const string Query = "Pages.Practice.Assessments.Query";
         public const string Update = "Pages.Practice.Assessments.Update";
+        public const string Submit = "Pages.Practice.Assessments.Submit";
     }
 }

@@ -1,11 +1,14 @@
 // 提交答案端点
 
+using Humanizer;
 using LexiCraft.Services.Practice.Tasks.Models;
 using MediatR;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Routing;
+
+using LexiCraft.Shared.Permissions;
 
 namespace LexiCraft.Services.Practice.Assessments.Features.SubmitAnswer;
 
@@ -19,19 +22,30 @@ public static class SubmitAnswerEndpoint
     /// </summary>
     /// <param name="endpoints">端点路由构建器</param>
     /// <returns>端点约束构建器</returns>
-    public static IEndpointRouteBuilder MapSubmitAnswerEndpoint(this IEndpointRouteBuilder endpoints)
+    internal static RouteHandlerBuilder MapSubmitAnswerEndpoint(this IEndpointRouteBuilder endpoints)
     {
-        endpoints.MapPost("/assessments/submit", async (
-            [FromBody] SubmitAnswerCommand command,
-            ISender sender) =>
-        {
-            var result = await sender.Send(command);
-            return Results.Ok(result);
-        })
-        .Produces<AssessmentResult>(StatusCodes.Status200OK)
-        .ProducesProblem(StatusCodes.Status400BadRequest)
-        .WithName("SubmitAnswer");
+        return endpoints
+            .MapPost("/assessments/submit", Handle)
+            .RequireAuthorization(PracticePermissions.Assessments.Submit)
+            .WithName(nameof(SubmitAnswer))
+            .WithDisplayName(nameof(SubmitAnswer).Humanize())
+            .WithSummary("提交答案".Humanize())
+            .WithDescription("提交练习任务的答案并获得评估结果".Humanize());
 
-        return endpoints;
+        async Task<AssessmentResult> Handle(
+            [AsParameters] SubmitAnswerRequestParameters requestParameters)
+        {
+            var (mediator, command, cancellationToken) = requestParameters;
+            
+            var result = await mediator.Send(command, cancellationToken);
+            
+            return result;
+        }
     }
 }
+
+internal record SubmitAnswerRequestParameters(
+    IMediator Mediator,
+    [FromBody] SubmitAnswerCommand Command,
+    CancellationToken CancellationToken = default
+);

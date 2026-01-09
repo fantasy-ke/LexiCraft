@@ -1,9 +1,12 @@
 // 创建练习任务端点
+using Humanizer;
 using MediatR;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Routing;
+
+using LexiCraft.Shared.Permissions;
 
 namespace LexiCraft.Services.Practice.Tasks.Features.CreatePracticeTask;
 
@@ -17,20 +20,30 @@ public static class CreatePracticeTaskEndpoint
     /// </summary>
     /// <param name="endpoints">端点路由构建器</param>
     /// <returns>端点约束构建器</returns>
-    public static IEndpointRouteBuilder MapCreatePracticeTaskEndpoint(this IEndpointRouteBuilder endpoints)
+    internal static RouteHandlerBuilder MapCreatePracticeTaskEndpoint(this IEndpointRouteBuilder endpoints)
     {
-        endpoints.MapPost("/tasks", async (
-            [FromBody] CreatePracticeTaskCommand command,
-            ISender sender) =>
-        {
-            var result = await sender.Send(command);
-            return Results.Ok(result);
-        })
-        .Produces<CreatePracticeTaskResult>(StatusCodes.Status200OK)
-        .ProducesProblem(StatusCodes.Status400BadRequest)
-        .WithName("CreatePracticeTask")
-        .WithOpenApi();
+        return endpoints
+            .MapPost("/tasks", Handle)
+            .RequireAuthorization(PracticePermissions.Tasks.Create)
+            .WithName(nameof(CreatePracticeTask))
+            .WithDisplayName(nameof(CreatePracticeTask).Humanize())
+            .WithSummary("创建练习任务".Humanize())
+            .WithDescription("为用户创建一个新的练习任务".Humanize());
 
-        return endpoints;
+        async Task<CreatePracticeTaskResult> Handle(
+            [AsParameters] CreatePracticeTaskRequestParameters requestParameters)
+        {
+            var (mediator, command, cancellationToken) = requestParameters;
+            
+            var result = await mediator.Send(command, cancellationToken);
+            
+            return result;
+        }
     }
 }
+
+internal record CreatePracticeTaskRequestParameters(
+    IMediator Mediator,
+    [FromBody] CreatePracticeTaskCommand Command,
+    CancellationToken CancellationToken = default
+);
