@@ -3,6 +3,10 @@ using Microsoft.EntityFrameworkCore;
 
 namespace LexiCraft.Files.Grpc.Data;
 
+/// <summary>
+/// 
+/// </summary>
+/// <param name="options"></param>
 public class FilesDbContext(DbContextOptions<FilesDbContext> options) : DbContext(options)
 {
     public DbSet<FileInfos> FileInfos { get; set; } = null!;

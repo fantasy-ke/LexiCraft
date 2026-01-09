@@ -5,19 +5,23 @@ var mongoPractice = builder.AddConnectionString("mongo-practice", "ConnectionStr
 var redis = builder.AddConnectionString("redis", "ConnectionStrings:redis");
 
 builder.AddProject<Projects.LexiCraft_Services_Identity_Api>("lexicraft-identity-api")
+    .WithHttpHealthCheck("/health")
     .WithReference(postgresIdentity)
     .WithReference(redis);
 
 builder.AddProject<Projects.LexiCraft_Services_Vocabulary_Api>("lexicraft-vocabulary-api")
+    .WithHttpHealthCheck("/health")
     .WithReference(postgresVocabulary)
     .WithReference(redis);
 
 builder.AddProject<Projects.LexiCraft_Services_Practice_Api>("lexicraft-practice-api")
+    .WithHttpHealthCheck("/health")
     .WithReference(mongoPractice)
     .WithReference(redis);
 
 builder.AddProject<Projects.LexiCraft_Files_Grpc>("lexicraft-files-grpc");
 
-builder.AddProject<Projects.LexiCraft_ApiGateway>("lexicraft-api-gateway");
+builder.AddProject<Projects.LexiCraft_ApiGateway>("lexicraft-api-gateway")
+    .WithHttpHealthCheck("/health");
 
 builder.Build().Run();

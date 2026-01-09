@@ -27,4 +27,10 @@
     <ProjectReference Include="..\..\..\microservices\Shared\LexiCraft.Shared\LexiCraft.Shared.csproj" />
    </ItemGroup>
 
+  <ItemGroup>
+    <Content Include="..\LexiCraft.Services.Practice.Api\appsettings.json">
+      <Link>appsettings.json</Link>
+    </Content>
+  </ItemGroup>
+
 </Project>

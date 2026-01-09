@@ -21,18 +21,16 @@ builder.Services.AddCodeFirstGrpc(options =>
 {
     options.EnableDetailedErrors = true;
 });
-
-builder.Services.AddGrpcSwagger();
-builder.Services.AddSwaggerGen(c =>
-{
-    // new OpenApiInfo { Title = "file gRPC transcoding", Version = "v1" }
-    c.SwaggerDoc("v1", 
-        new OpenApiInfo { Title = "词汇技艺 Files Api", Version = "v1", Description = "词汇技艺相关接口" });
-});
+//
+// builder.Services.AddGrpcSwagger();
+// builder.Services.AddSwaggerGen(c =>
+// {
+//     // new OpenApiInfo { Title = "file gRPC transcoding", Version = "v1" }
+//     c.SwaggerDoc("v1", 
+//         new OpenApiInfo { Title = "词汇技艺 Files Api", Version = "v1", Description = "词汇技艺相关接口" });
+// });
 builder.Services.WithLexiCraftDbAccess(builder.Configuration);
 builder.Services.WithMapster();
-// builder.Services.AddDbContext<FilesDbContext>(opts =>
-//     opts.UseSqlite(builder.Configuration.GetConnectionString("Database")));
 
 var app = builder.Build();
 
@@ -47,22 +45,22 @@ app.UseSerilogRequestLogging(options =>
 
 var uploads = Path.Combine(builder.Environment.ContentRootPath, "uploads");
 if (!Directory.Exists(uploads)) Directory.CreateDirectory(uploads);
-app.UseStaticFiles(new StaticFileOptions()
+app.UseStaticFiles(new StaticFileOptions
 {
     FileProvider = new PhysicalFileProvider(uploads),
     RequestPath = new PathString("/uploads"),
 });
 
 
-if (app.Environment.IsDevelopment())
-{
-    app.UseSwagger();
-    app.UseSwaggerUI(c =>
-    {
-        c.SwaggerEndpoint("/swagger/v1/swagger.json", "My API V1");
-        c.RoutePrefix = "swagger";
-    });
-}
+// if (app.Environment.IsDevelopment())
+// {
+//     app.UseSwagger();
+//     app.UseSwaggerUI(c =>
+//     {
+//         c.SwaggerEndpoint("/swagger/v1/swagger.json", "My API V1");
+//         c.RoutePrefix = "swagger";
+//     });
+// }
 
 // Configure the HTTP request pipeline.
 app.MapGrpcService<FilesService>();
