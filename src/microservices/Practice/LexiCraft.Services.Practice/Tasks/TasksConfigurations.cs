@@ -2,7 +2,6 @@
 using BuildingBlocks.Filters;
 using LexiCraft.Services.Practice.Shared.Contracts;
 using LexiCraft.Services.Practice.Tasks.Data.Repositories;
-using LexiCraft.Services.Practice.Tasks.Data.EntityConfigurations;
 using LexiCraft.Services.Practice.Tasks.Features.CreatePracticeTask;
 using LexiCraft.Services.Practice.Tasks.Features.CompletePractice;
 using Microsoft.AspNetCore.Builder;
@@ -30,10 +29,6 @@ public static class TasksConfigurations
     {
         // 注册仓库
         builder.Services.AddScoped<IPracticeTaskRepository, PracticeTaskRepository>();
-
-        // 配置MongoDB实体映射
-        // PracticeTaskConfiguration.Configure();
-        // PracticeTaskItemConfiguration.Configure();
 
         return builder;
     }

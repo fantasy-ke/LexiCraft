@@ -2,7 +2,6 @@
 using BuildingBlocks.Filters;
 using LexiCraft.Services.Practice.Shared.Contracts;
 using LexiCraft.Services.Practice.Assessments.Data.Repositories;
-using LexiCraft.Services.Practice.Assessments.Data.EntityConfigurations;
 using LexiCraft.Services.Practice.Assessments.Features.SubmitAnswer;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Http;
@@ -30,10 +29,6 @@ public static class AssessmentsConfigurations
         // 注册仓库
         builder.Services.AddScoped<IAnswerRecordRepository, AnswerRecordRepository>();
         builder.Services.AddScoped<IMistakeItemRepository, MistakeItemRepository>();
-
-        // 配置MongoDB实体映射
-        // AnswerRecordConfiguration.Configure();
-        // MistakeItemConfiguration.Configure();
 
         return builder;
     }

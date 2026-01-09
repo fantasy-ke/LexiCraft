@@ -11,7 +11,10 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
+using MongoDB.Bson;
 using MongoDB.Bson.Serialization;
+using MongoDB.Bson.Serialization.Conventions;
+using MongoDB.Bson.Serialization.Serializers;
 using MongoDB.Driver;
 using MongoDB.Driver.Core.Configuration;
 using MongoDB.Driver.Core.Extensions.DiagnosticSources;
@@ -24,7 +27,7 @@ public static class DependencyInjectionExtensions
         string? sectionName = null)
         where TContext : class, IMongoDbContext
     {
-        // 1. Configure Options
+        // 1. 配置选项
         builder.Services.AddConfigurationOptions<MongoOptions>(sectionName ?? nameof(MongoOptions));
         
         var mongoOptions = builder.Configuration.BindOptions<MongoOptions>();
@@ -33,24 +36,27 @@ public static class DependencyInjectionExtensions
             mongoOptions.ConnectionString
             ?? throw new InvalidOperationException("`MongoOptions.ConnectionString` can't be null.");
 
-        // 2. Register IMongoClient
+        // 2. 注册IMongoClient
         builder.Services.AddSingleton<IMongoClient>(sp =>
             CreateMongoDbClient(connectionString, mongoOptions, sp)
         );
 
-        // 3. Register IMongoDatabase
+        // 3. 注册IMongoDatabase
         builder.AddMongoDatabase(connectionString);
 
-        // 4. Register MongoDB-specific services
+        // 4. 注册MongoDB特定服务
         builder.Services.AddSingleton<IMongoPerformanceMonitor, MongoPerformanceMonitor>();
         builder.Services.AddScoped<IResilienceService, MongoResilienceService>();
 
-        // 5. Register DbContext
+        BsonSerializer.RegisterSerializationProvider(new DateTimeSerializationProvider());
+        BsonSerializer.RegisterSerializer(new GuidSerializer(GuidRepresentation.CSharpLegacy));
+
+        
+        RegisterConventions();
+        // 5. 注册数据库上下文
         builder.Services.AddScoped<TContext>();
         builder.Services.AddScoped<IMongoDbContext>(sp => sp.GetRequiredService<TContext>());
 
-        // 6. Serialization
-        BsonSerializer.RegisterSerializationProvider(new DateTimeSerializationProvider());
         
         return builder;
     }
@@ -58,10 +64,10 @@ public static class DependencyInjectionExtensions
     /// <summary>
     ///  创建MongoDbClient
     /// </summary>
-    /// <param name="connectionString"></param>
-    /// <param name="mongoOptions"></param>
-    /// <param name="sp"></param>
-    /// <returns></returns>
+    /// <param name="connectionString">连接字符串</param>
+    /// <param name="mongoOptions">MongoDB选项配置</param>
+    /// <param name="sp">服务提供程序</param>
+    /// <returns>MongoClient实例</returns>
     private static IMongoClient CreateMongoDbClient(
         string connectionString,
         MongoOptions mongoOptions,
@@ -70,7 +76,7 @@ public static class DependencyInjectionExtensions
     {
         var clientSettings = MongoClientSettings.FromConnectionString(connectionString);
 
-        // Configure connection pooling for performance
+        // 配置连接池以提高性能
         clientSettings.MaxConnectionPoolSize = mongoOptions.MaxConnectionPoolSize;
         clientSettings.MinConnectionPoolSize = mongoOptions.MinConnectionPoolSize;
         clientSettings.MaxConnectionIdleTime = mongoOptions.MaxConnectionIdleTime;
@@ -79,7 +85,7 @@ public static class DependencyInjectionExtensions
         clientSettings.SocketTimeout = mongoOptions.SocketTimeout;
         clientSettings.ServerSelectionTimeout = mongoOptions.ServerSelectionTimeout;
 
-        // Configure for concurrent operations
+        // 配置并发操作
         clientSettings.ReadConcern = ReadConcern.Local;
         clientSettings.WriteConcern = WriteConcern.WMajority;
 
@@ -99,14 +105,29 @@ public static class DependencyInjectionExtensions
         builder.Services.AddSingleton<IMongoDatabase>(sp => sp.GetRequiredService<IMongoClient>()
             .GetDatabase(mongoUrl.DatabaseName));
     }
+    
+    private static void RegisterConventions()
+    {
+        ConventionRegistry.Register(
+            "conventions",
+            new ConventionPack
+            {
+                new CamelCaseElementNameConvention(),
+                new IgnoreExtraElementsConvention(true),
+                new EnumRepresentationConvention(BsonType.String),
+                new IgnoreIfDefaultConvention(false)
+            },
+            _ => true
+        );
+    }
 
 
     /// <summary>
     ///  添加仓储
     /// </summary>
-    /// <param name="builder"></param>
-    /// <typeparam name="TDbContext"></typeparam>
-    /// <returns></returns>
+    /// <param name="builder">主机应用程序构建器</param>
+    /// <typeparam name="TDbContext">数据库上下文类型</typeparam>
+    /// <returns>更新后的主机应用程序构建器</returns>
     public static IHostApplicationBuilder AddMongoRepository<TDbContext>(
         this IHostApplicationBuilder builder)
     {
@@ -132,10 +153,10 @@ public static class DependencyInjectionExtensions
     /// <summary>
     ///  添加仓储
     /// </summary>
-    /// <param name="services"></param>
-    /// <param name="assemblies"></param>
-    /// <typeparam name="TDbContext"></typeparam>
-    /// <returns></returns>
+    /// <param name="services">服务集合</param>
+    /// <param name="assemblies">程序集集合</param>
+    /// <typeparam name="TDbContext">数据库上下文类型</typeparam>
+    /// <returns>更新后的服务集合</returns>
     public static IServiceCollection TryAddRepository<TDbContext>(
         this IServiceCollection services,
         IEnumerable<Assembly> assemblies)
@@ -146,6 +167,7 @@ public static class DependencyInjectionExtensions
         {
             var repositoryInterfaceType = typeof(IRepository<>).MakeGenericType(entityType);
             services.TryAddAddDefaultRepository(repositoryInterfaceType, GetRepositoryImplementationType(entityType));
+            services.TryAddAddDefaultRepository(repositoryInterfaceType, GetResilientRepositoryImplementationType(entityType));
         }
 
         return services;
@@ -166,4 +188,7 @@ public static class DependencyInjectionExtensions
 
     private static Type GetRepositoryImplementationType(Type entityType)
         => typeof(MongoRepository<>).MakeGenericType(entityType);
+    
+    private static Type GetResilientRepositoryImplementationType(Type entityType)
+        => typeof(ResilientMongoRepository<>).MakeGenericType(entityType);
 }

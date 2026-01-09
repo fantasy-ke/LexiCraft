@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Routing;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
+using Serilog;
 
 namespace LexiCraft.Services.Practice.Shared.Extensions.WebApplicationExtensions;
 
@@ -23,9 +24,7 @@ public static class WebApplicationExtensions
             }
             catch (Exception ex)
             {
-                // 记录异常但不中断启动
-                var logger = scope.ServiceProvider.GetService<ILogger<PracticeDbDataSeeder>>();
-                logger?.LogError(ex, "Failed to seed Practice database");
+                Log.Error(ex, "Failed to seed Practice database");
             }
         });
 
