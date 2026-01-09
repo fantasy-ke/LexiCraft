@@ -35,6 +35,7 @@
   </Folder>
   <Folder Name="/microservices/Practice/">
     <File Path="../.dockerignore" />
+    <File Path="microservices/Practice/Dockerfile" />
     <Project Path="microservices/Practice/LexiCraft.Services.Practice.Api/LexiCraft.Services.Practice.Api.csproj" />
     <Project Path="microservices/Practice/LexiCraft.Services.Practice/LexiCraft.Services.Practice.csproj" />
   </Folder>

@@ -8,17 +8,14 @@ using MongoDB.Driver;
 
 namespace LexiCraft.Services.Practice.Tasks.Data.Repositories;
 
-public class PracticeTaskRepository : ResilientMongoRepository<PracticeTask>, IPracticeTaskRepository
+public class PracticeTaskRepository(
+    IMongoDatabase database,
+    IResilienceService resilienceService,
+    IMongoPerformanceMonitor performanceMonitor,
+    ILogger<PracticeTaskRepository> logger)
+    : ResilientMongoRepository<PracticeTask>(database, resilienceService, performanceMonitor, logger, "practice_tasks"),
+        IPracticeTaskRepository
 {
-    public PracticeTaskRepository(
-        IMongoDatabase database,
-        IResilienceService resilienceService,
-        IMongoPerformanceMonitor performanceMonitor,
-        ILogger<PracticeTaskRepository> logger)
-        : base(database, resilienceService, performanceMonitor, logger, "practice_tasks")
-    {
-    }
-
     public async Task<PracticeTask?> GetActiveTaskForUserAsync(string userId, CancellationToken cancellationToken = default)
     {
         return await FirstOrDefaultAsync(x => x.UserId == userId && x.Status == PracticeStatus.InProgress);

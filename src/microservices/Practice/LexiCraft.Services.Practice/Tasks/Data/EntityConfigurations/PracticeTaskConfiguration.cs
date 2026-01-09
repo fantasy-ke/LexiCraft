@@ -14,9 +14,6 @@ public static class PracticeTaskConfiguration
                 cm.AutoMap();
                 cm.SetIgnoreExtraElements(true);
                 
-                // Don't map Id property - it's already handled by MongoEntity base class
-                
-                // Map properties with specific names if needed
                 cm.MapProperty(x => x.UserId).SetElementName("user_id");
                 cm.MapProperty(x => x.TaskType).SetElementName("task_type");
                 cm.MapProperty(x => x.SourceType).SetElementName("source_type");

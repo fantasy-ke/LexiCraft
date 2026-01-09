@@ -10,11 +10,11 @@ public static class WebApplicationExtensions
 {
     public static IEndpointRouteBuilder UseInfrastructure(this IEndpointRouteBuilder app)
     {
-        // Initialize database and run seeding if needed
+        // 初始化数据库并在需要时运行种子数据
         using var scope = app.ServiceProvider.CreateScope();
         var dataSeeder = scope.ServiceProvider.GetRequiredService<PracticeDbDataSeeder>();
         
-        // Run seeding asynchronously (fire and forget for startup performance)
+        // 异步运行种子数据（为启动性能考虑，启动后即忽略）
         _ = Task.Run(async () =>
         {
             try
@@ -23,7 +23,7 @@ public static class WebApplicationExtensions
             }
             catch (Exception ex)
             {
-                // Log the exception but don't fail startup
+                // 记录异常但不中断启动
                 var logger = scope.ServiceProvider.GetService<ILogger<PracticeDbDataSeeder>>();
                 logger?.LogError(ex, "Failed to seed Practice database");
             }

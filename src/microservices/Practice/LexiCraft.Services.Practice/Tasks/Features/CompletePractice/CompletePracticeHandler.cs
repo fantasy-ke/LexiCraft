@@ -1,4 +1,5 @@
 using BuildingBlocks.EventBus.Abstractions;
+using FluentValidation;
 using LexiCraft.Services.Practice.Assessments.Models;
 using LexiCraft.Services.Practice.Shared.Contracts;
 using LexiCraft.Services.Practice.Shared.Events.IntegrationEvents;
@@ -6,6 +7,28 @@ using LexiCraft.Services.Practice.Tasks.Models;
 using MediatR;
 
 namespace LexiCraft.Services.Practice.Tasks.Features.CompletePractice;
+
+/// <summary>
+/// 完成练习命令
+/// </summary>
+/// <param name="TaskId">任务ID</param>
+public record CompletePracticeCommand(string TaskId) : IRequest<bool>;
+
+/// <summary>
+/// 完成练习命令验证器
+/// </summary>
+public class CompletePracticeValidator : AbstractValidator<CompletePracticeCommand>
+{
+    /// <summary>
+    /// 初始化完成练习验证器
+    /// </summary>
+    public CompletePracticeValidator()
+    {
+        RuleFor(x => x.TaskId)
+            .NotEmpty()
+            .WithMessage("任务ID不能为空。");
+    }
+}
 
 /// <summary>
 /// 处理完成练习任务的命令处理器

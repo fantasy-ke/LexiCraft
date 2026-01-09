@@ -14,7 +14,6 @@ public static class PracticeTaskItemConfiguration
                 cm.AutoMap();
                 cm.SetIgnoreExtraElements(true);
                 
-                // Map properties with specific names
                 cm.MapProperty(x => x.Id).SetElementName("id");
                 cm.MapProperty(x => x.WordId).SetElementName("word_id");
                 cm.MapProperty(x => x.SpellingSnapshot).SetElementName("spelling_snapshot");

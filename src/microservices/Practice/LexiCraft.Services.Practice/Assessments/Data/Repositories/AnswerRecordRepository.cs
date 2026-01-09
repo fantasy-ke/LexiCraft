@@ -8,17 +8,14 @@ using MongoDB.Driver;
 
 namespace LexiCraft.Services.Practice.Assessments.Data.Repositories;
 
-public class AnswerRecordRepository : ResilientMongoRepository<AnswerRecord>, IAnswerRecordRepository
+public class AnswerRecordRepository(
+    IMongoDatabase database,
+    IResilienceService resilienceService,
+    IMongoPerformanceMonitor performanceMonitor,
+    ILogger<AnswerRecordRepository> logger)
+    : ResilientMongoRepository<AnswerRecord>(database, resilienceService, performanceMonitor, logger, "answer_records"),
+        IAnswerRecordRepository
 {
-    public AnswerRecordRepository(
-        IMongoDatabase database,
-        IResilienceService resilienceService,
-        IMongoPerformanceMonitor performanceMonitor,
-        ILogger<AnswerRecordRepository> logger)
-        : base(database, resilienceService, performanceMonitor, logger, "answer_records")
-    {
-    }
-
     public async Task<List<AnswerRecord>> GetTaskAnswersAsync(Guid practiceTaskItemId, CancellationToken cancellationToken = default)
     {
         return await FindAsync(x => x.PracticeTaskItemId == practiceTaskItemId, cancellationToken);

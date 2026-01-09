@@ -32,8 +32,8 @@ public static class TasksConfigurations
         builder.Services.AddScoped<IPracticeTaskRepository, PracticeTaskRepository>();
 
         // 配置MongoDB实体映射
-        PracticeTaskConfiguration.Configure();
-        PracticeTaskItemConfiguration.Configure();
+        // PracticeTaskConfiguration.Configure();
+        // PracticeTaskItemConfiguration.Configure();
 
         return builder;
     }

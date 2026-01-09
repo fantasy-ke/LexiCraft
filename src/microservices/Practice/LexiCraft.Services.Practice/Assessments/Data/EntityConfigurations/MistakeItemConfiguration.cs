@@ -14,9 +14,6 @@ public static class MistakeItemConfiguration
                 cm.AutoMap();
                 cm.SetIgnoreExtraElements(true);
                 
-                // Don't map Id property - it's already handled by MongoEntity base class
-                
-                // Map properties with specific names
                 cm.MapProperty(x => x.UserId).SetElementName("user_id");
                 cm.MapProperty(x => x.WordId).SetElementName("word_id");
                 cm.MapProperty(x => x.AnswerRecordId).SetElementName("answer_record_id");

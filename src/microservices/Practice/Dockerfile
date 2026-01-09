@@ -18,7 +18,6 @@ COPY ["BuildingBlocks/BuildingBlocks.EventBus/BuildingBlocks.EventBus.csproj", "
 COPY ["BuildingBlocks/BuildingBlocks.OpenApi/BuildingBlocks.OpenApi.csproj", "BuildingBlocks/BuildingBlocks.OpenApi/"]
 COPY ["BuildingBlocks/BuildingBlocks.Validation/BuildingBlocks.Validation.csproj", "BuildingBlocks/BuildingBlocks.Validation/"]
 COPY ["BuildingBlocks/BuildingBlocks.SerilogLogging/BuildingBlocks.SerilogLogging.csproj", "BuildingBlocks/BuildingBlocks.SerilogLogging/"]
-COPY ["BuildingBlocks/BuildingBlocks.Resilience/BuildingBlocks.Resilience.csproj", "BuildingBlocks/BuildingBlocks.Resilience/"]
 COPY ["microservices/Shared/LexiCraft.Shared/LexiCraft.Shared.csproj", "microservices/Shared/LexiCraft.Shared/"]
 COPY ["LexiCraft.Aspire.ServiceDefaults/LexiCraft.Aspire.ServiceDefaults.csproj", "LexiCraft.Aspire.ServiceDefaults/"]
 RUN dotnet restore "microservices/Practice/LexiCraft.Services.Practice.Api/LexiCraft.Services.Practice.Api.csproj"

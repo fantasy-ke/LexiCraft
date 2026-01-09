@@ -32,8 +32,8 @@ public static class AssessmentsConfigurations
         builder.Services.AddScoped<IMistakeItemRepository, MistakeItemRepository>();
 
         // 配置MongoDB实体映射
-        AnswerRecordConfiguration.Configure();
-        MistakeItemConfiguration.Configure();
+        // AnswerRecordConfiguration.Configure();
+        // MistakeItemConfiguration.Configure();
 
         return builder;
     }
