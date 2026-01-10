@@ -1,0 +1,16 @@
+{
+  "name": "Type Words - 词文记 | 单词跟打 · 文章跟打",
+  "short_name": "",
+  "start_url": ".",
+  "description": "在线英语打字练习平台，支持单词跟打与文章跟打，帮助提升打字速度与英语学习效率。",
+  "display": "standalone",
+  "background_color": "#ffffff",
+  "theme_color": "#ffffff",
+  "icons": [
+    {
+      "src": "/favicon.png",
+      "sizes": "800x800",
+      "type": "image/png"
+    }
+  ]
+}

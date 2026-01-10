@@ -52,6 +52,12 @@
     <File Path="Directory.Build.props" />
     <File Path="Directory.Packages.props" />
   </Folder>
+  <Folder Name="/UIs/">
+    <Project Path="UIs/lexicraft-vue-frontend/lexicraft-vue-frontend.esproj">
+      <BuildType Project="Debug" />
+      <Build />
+    </Project>
+  </Folder>
   <Project Path="LexiCraft.Aspire.Host/LexiCraft.Aspire.Host.csproj" />
   <Project Path="LexiCraft.Aspire.ServiceDefaults/LexiCraft.Aspire.ServiceDefaults.csproj" />
 </Solution>

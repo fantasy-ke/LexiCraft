@@ -1,6 +1,7 @@
 using System.Reflection;
 using BuildingBlocks.Abstractions;
 using BuildingBlocks.Domain;
+using BuildingBlocks.Exceptions.Problem;
 using BuildingBlocks.Extensions;
 using BuildingBlocks.MongoDB.Configuration;
 using BuildingBlocks.MongoDB.Performance;
@@ -56,7 +57,7 @@ public static class DependencyInjectionExtensions
         // 5. 注册数据库上下文
         builder.Services.AddScoped<TContext>();
         builder.Services.AddScoped<IMongoDbContext>(sp => sp.GetRequiredService<TContext>());
-
+        builder.Services.AddSingleton<IProblemCodeMapper, MongoDbProblemCodeMapper>();
         
         return builder;
     }

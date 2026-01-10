@@ -1,0 +1,781 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8"/>
+    <!-- 百度站长HTML标签验证 -->
+    <meta name="baidu-site-verification" content="codeva-NoSMtV313P" />
+
+    <title>Type Words 官网 - 词文记 | 单词跟打 · 文章跟打</title>
+    <!-- 搜索引擎描述 -->
+    <meta name="description"
+          content="Type Words 官方网站 - 在线英语练习平台，支持单词、文章跟打练习，提升英语学习效率。Practice English, one strike, one step forward">
+    <!-- 关键词（可选，搜索引擎基本不用，但能补充信息） -->
+    <meta name="keywords"
+          content="Type Words, Typing Word, Type Words 官网, 官方网站, 英语打字练习, 单词跟打, 文章跟打, 键盘练习, 英语学习, 文章学习, 打字练习软件, 单词记忆工具, 英语学习软件, 背单词神器, 英语肌肉记忆, 键盘工作者, 免费英语学习, 音标发音, 默写练习, 在线学英语, CET-4, CET-6, TOEFL, IELTS, GRE, GMAT, SAT, 考研英语, 专四专八, 程序员英语, JavaScript API, Node.js API, Java API, Linux命令, 编程词汇, 技术英语, VSCode插件, 开源项目, GitHub趋势榜, V2EX热搜, Gitee GVP, 少数派推荐, 英语打字训练, WPM统计, 准确率分析, 商务英语, BEC, 雅思听力, 日语学习, 多语言学习, 英语口语练习, 单词拼写训练">
+
+    <meta name="author" content="zyronon"/>
+    <meta name="robots" content="index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1"/>
+    <link rel="canonical" href="https://typewords.cc/"/>
+
+    <!-- Open Graph（用于社交媒体分享，微信/QQ/知乎/Facebook 等） -->
+    <meta property="og:title" content="Type Words 官网 - 英语打字练习平台">
+    <meta property="og:description"
+          content="Type Words 官方网站 - 在线英语练习平台，支持单词、文章跟打练习，提升英语学习效率。Practice English, one strike, one step forward">
+    <meta property="og:type" content="website">
+    <meta property="og:url" content="https://typewords.cc/">
+    <meta property="og:image" content="https://typewords.cc/favicon.png">
+
+    <!-- Twitter Card（用于 Twitter 分享） -->
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="Type Words 官网 - 英语打字练习平台">
+    <meta name="twitter:description"
+          content="Type Words 官方网站 - 在线英语练习平台，支持单词、文章跟打练习，提升英语学习效率。Practice English, one strike, one step forward">
+    <meta name="twitter:image" content="https://typewords.cc/favicon.png">
+
+    <link rel="icon" type="image/svg+xml" href="/favicon.png"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <!--    苹果设备（iOS Safari）在用户添加到主屏时显示的图标-->
+    <link rel="apple-touch-icon" sizes="180x180" href="/favicon.png"/>
+    <!--    设置浏览器地址栏颜色（在 Android Chrome 特别明显）。-->
+    <meta name="theme-color" content="#818CF8"/>
+    <link rel="manifest" href="/manifest.json">
+
+    <!--    阻止 iOS 自动把数字识别为电话号码。-->
+    <!--    HandheldFriendly 和 MobileOptimized 是旧手机浏览器的优化提示（现在作用不大）。-->
+    <meta name="format-detection" content="telephone=no"/>
+    <meta name="HandheldFriendly" content="True"/>
+    <meta name="MobileOptimized" content="320"/>
+
+    <!--    referrer 控制请求来源信息-->
+    <meta name="referrer" content="origin-when-cross-origin"/>
+    <!--    color-scheme 告诉浏览器支持亮/暗模式-->
+    <meta name="color-scheme" content="light dark"/>
+
+    <style>
+        :root {
+            --color-bg: #E6E8EB;
+            --color-card-bg: rgb(247, 247, 247);
+            --color-card-text: #111827;
+            --color-line: #cecece;
+            --color-h2: rgb(91, 91, 91);
+            --accent: #818CF8;
+            --accent-2: #60A5FA;
+            --shadow: 0 10px 30px rgba(0, 0, 0, .08);
+        }
+
+        html.dark {
+            --color-bg: #0E1217;
+            --color-card-bg: rgb(30, 31, 34);
+            --color-card-text: #c6c6c6;
+            --color-line: #333333;
+            --color-h2: rgb(151, 151, 151);
+            --shadow: 0 10px 30px rgba(0, 0, 0, .35);
+        }
+
+        body {
+            background: var(--color-bg);
+            font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, "Apple Color Emoji", "Segoe UI Emoji";
+            color: var(--color-card-text);
+        }
+
+        h1 {
+            font-size: 4.8rem !important;
+            background: linear-gradient(120deg, #bd34fe 30%, #41d1ff);
+            -webkit-text-fill-color: transparent;
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+            margin: 0;
+            font-weight: 800 !important;
+            letter-spacing: -0.02em;
+        }
+
+        h2 {
+            font-size: 1.4rem !important;
+            font-weight: normal !important;
+            color: var(--color-h2);
+            margin: 0;
+        }
+
+        .card {
+            position: relative;
+            border-radius: 1rem;
+            padding: 1.2rem;
+            box-sizing: border-box;
+            display: flex;
+            flex-direction: column;
+            align-items: flex-start;
+            gap: 0.6rem;
+            margin-bottom: 0;
+            background: var(--color-card-bg);
+            color: var(--color-card-text);
+            box-shadow: var(--shadow);
+            border: 1px solid var(--color-line);
+            transition: transform .2s ease, box-shadow .2s ease;
+        }
+
+        .card:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 12px 32px rgba(0, 0, 0, .12);
+        }
+
+        .card .emoji {
+            display: inline-block;
+            background: rgb(226 232 240 / 1);
+            padding: 0.3rem .6rem;
+            border-radius: 0.4rem;
+            font-size: 1.5rem;
+        }
+
+        .card .title {
+            font-weight: bold;
+        }
+
+        .card ul {
+            margin: 0;
+            padding-left: 1.2rem;
+        }
+
+        a {
+            color: dodgerblue !important;
+        }
+
+        .base-button {
+            cursor: pointer;
+            box-sizing: border-box;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            outline: none;
+            text-align: center;
+            transition: .2s ease;
+            user-select: none;
+            vertical-align: middle;
+            white-space: nowrap;
+            border-radius: .6rem;
+            color: #fff;
+            background: linear-gradient(135deg, var(--accent), var(--accent-2));
+            padding: 0 1.4rem;
+            height: 2.7rem;
+            font-size: 0.95rem;
+            box-shadow: 0 8px 20px rgba(129, 140, 248, .25);
+        }
+
+        .base-button + .base-button {
+            margin-left: 2rem;
+        }
+
+        .base-button:hover {
+            transform: translateY(-1px);
+            opacity: .95;
+        }
+
+        .base-button.secondary {
+            background: transparent;
+            color: var(--color-card-text);
+            border: 1px solid var(--color-line);
+            box-shadow: none;
+        }
+
+        .icon {
+            cursor: pointer;
+            width: 2rem;
+            height: 2rem;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: .3rem;
+            background: transparent;
+            transition: all .3s;
+            color: dimgray;
+        }
+
+        .icon:hover {
+            background: rgb(12, 140, 233);
+
+            svg {
+                color: white !important;
+            }
+        }
+
+        .mask {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            background: rgba(0, 0, 0, 0.3);
+            display: none;
+            opacity: 0;
+            transition: all .3s;
+        }
+
+        .dialog {
+            position: fixed;
+            left: 50%;
+            top: 50%;
+            transform: translate(-50%, -50%);
+            background: rgb(247, 247, 247);
+            width: 30rem;
+            max-width: 85vw;
+            border-radius: 1rem;
+            display: none;
+            opacity: 0;
+            transition: all .3s;
+        }
+
+        .dialog header {
+            padding: 1rem;
+            display: flex;
+            justify-content: space-between;
+        }
+
+        .dialog header .title {
+            font-size: 1.4rem;
+        }
+
+        .dialog-body {
+            padding: 0 1.2rem 1.2rem 1.2rem;
+        }
+
+        .wrapper {
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            min-height: 100vh;
+        }
+
+        .nav {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 64px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            backdrop-filter: saturate(180%) blur(8px);
+            display: none;
+        }
+
+        .nav-inner {
+            width: min(1200px, 90%);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .brand {
+            display: flex;
+            align-items: center;
+            gap: .6rem;
+            font-weight: 700;
+        }
+
+        .brand-dot {
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            background: var(--accent);
+        }
+
+        .nav-actions {
+            display: flex;
+            align-items: center;
+            gap: .6rem;
+        }
+
+        .content {
+            margin-top: 7rem;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            flex-direction: column;
+            gap: 2.2rem;
+        }
+
+        .text-center {
+            text-align: center;
+        }
+
+        .sky {
+            margin-top: 3rem;
+            border-top: 1px solid var(--color-line);
+            border-bottom: 1px solid var(--color-line);
+            padding: 1.2rem 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            flex-direction: column;
+            gap: 0.4rem;
+            width: 100%;
+            margin-bottom: 1rem;
+            color: var(--color-card-text);
+          display: none;
+        }
+
+        .container {
+            width: min(1200px, 92%);
+        }
+
+        .sky-img {
+            width: 100%;
+            border-radius: 0.5rem;
+        }
+
+        .card-wrap {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+            margin-bottom: 1.2rem;
+            gap: 1rem;
+        }
+
+        .card { width: auto; }
+
+        @media (max-width: 768px) {
+            h1 { font-size: 3rem !important; }
+            .content { margin-top: 4rem; gap: 1.4rem; }
+            .base-button { width: 100%; margin: .5rem 0; height: 2.8rem; font-size: 1rem; }
+            .base-button + .base-button{margin-left: 0;}
+            .bottom { flex-direction: column; align-items: flex-start; gap: .6rem; }
+            .sky a { width: 100% !important; }
+            .sky-img { width: 100%; }
+        }
+
+        @media (max-width: 480px) {
+            h1 { font-size: 2.4rem !important; }
+            .content { margin-top: 3.2rem; gap: 1.2rem; }
+        }
+
+
+        html, body { -webkit-tap-highlight-color: transparent; }
+        .icon { padding: .2rem; }
+
+        .bottom {
+            display: flex;
+            gap: 1rem;
+            margin: 1rem 0 2rem 0;
+            width: 100%;
+            padding-top: 1.5rem;
+            border-top: 1px solid var(--color-line);
+            justify-content: center;
+            align-items: center;
+        }
+
+        .gap-1 {
+            gap: 1rem;
+        }
+
+        .center {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .img {
+            width: 16rem;
+            border-radius: 1rem;
+            margin-top: 1.2rem;
+            box-shadow: var(--shadow);
+        }
+
+        .cursor-pointer {
+            cursor: pointer;
+        }
+    </style>
+
+    <script>
+        if (
+            !location.href.includes('localhost')
+            && !location.href.includes('192.168')
+            && !location.href.includes('172.16')
+            && !location.href.includes('10.0')
+        ) {
+            //51.la
+            (function () {
+                window.LA = window.LA || {
+                    ids: [{id: "3OH8ITYRgwzo58L2", ck: "3OH8ITYRgwzo58L2"}],
+                    id: "3OH8ITYRgwzo58L2",
+                    ck: "3OH8ITYRgwzo58L2",
+                    hashMode: true
+                };
+                const script = document.createElement('script');
+                script.src = `https://typewords.cc/libs/51.js`;
+                document.head.appendChild(script);
+            })();
+
+            // Cloudflare
+            (function () {
+                var cf = document.createElement("script");
+                cf.src = 'https://static.cloudflareinsights.com/beacon.min.js'
+                cf.setAttribute("data-cf-beacon", '{"token": "e5119992696d4155814400dd69781d68"}');
+                document.head.appendChild(cf);
+            })();
+
+            // google
+            (function () {
+                var ana = document.createElement("script");
+                ana.src = 'https://www.googletagmanager.com/gtag/js?id=G-50T6DRD837'
+                ana.onload = function () {
+                    window.dataLayer = window.dataLayer || [];
+
+                    function gtag() {
+                        dataLayer.push(arguments);
+                    }
+
+                    gtag('js', new Date());
+                    gtag('config', 'G-50T6DRD837');
+                }
+                document.head.appendChild(ana);
+            })();
+
+
+            // baidu
+            var _hmt = _hmt || [];
+            (function () {
+                var hm = document.createElement("script");
+                hm.src = "https://hm.baidu.com/hm.js?3dae52fcd5375a19905462e4ad3eb54e";
+                document.head.appendChild(hm);
+            })();
+
+            // umami
+            (function () {
+                var umami = document.createElement("script");
+                umami.src = 'https://typewords.cc/libs/s.js'
+                umami.setAttribute("data-website-id", "160308c9-7900-4b1d-a0b1-c3b25a9530f6");
+            document.head.appendChild(umami);
+            })();
+
+            // umami-saas
+            // (function () {
+            //     var umami2 = document.createElement("script");
+            //     umami2.src = 'https://stat.typewords.cc/script.js'
+            //     umami2.setAttribute("data-website-id", "4d728ae3-5393-4efe-81dc-30dcb4f33c00");
+            // document.head.appendChild(umami2);
+            // })();
+        }
+    </script>
+
+    <script>
+      if ('serviceWorker' in navigator) {
+        window.addEventListener('load', () => {
+          navigator.serviceWorker.register('/service-worker.js').then(registration => {
+            console.log('ServiceWorker registration successful with scope: ', registration.scope);
+          }).catch(error => {
+            console.log('ServiceWorker registration failed: ', error);
+          });
+        });
+      }
+    </script>
+
+    <script>
+      function nav(url) {
+        window.location.href = url;
+        // history.pushState(null, "", url);
+      }
+
+      function toggleEl(val, close = false) {
+        let le = document.querySelector(val)
+        if (le) {
+          if (['none', ''].includes(le.style.display) && !close) {
+            le.style.display = 'block';
+            setTimeout(function () {
+              le.style.opacity = 1;
+            }, 10)
+          } else {
+            le.style.opacity = 0;
+            setTimeout(function () {
+              le.style.display = 'none';
+            }, 300)
+          }
+        }
+      }
+
+      function toggleWechatDialog() {
+        toggleEl('.mask')
+        toggleEl('#wechatDialog')
+      }
+
+      function toggleQQDialog() {
+        toggleEl('.mask')
+        toggleEl('#qqDialog')
+      }
+
+      function toggleXhsDialog() {
+        toggleEl('.mask')
+        toggleEl('#xhsDialog')
+      }
+
+      function closeDialog() {
+        toggleEl('.mask')
+        toggleEl('#wechatDialog', true)
+        toggleEl('#xhsDialog', true)
+        toggleEl('#qqDialog', true)
+      }
+
+      window.onload = () => {
+        function getSystemTheme() {
+          if (window.matchMedia('(prefers-color-scheme: dark)').matches) {
+            return 'dark';
+          } else if (window.matchMedia('(prefers-color-scheme: light)').matches) {
+            return 'light';
+          }
+          return 'light'; // 默认浅色模式
+        }
+
+        document.documentElement.className = getSystemTheme()
+      }
+    </script>
+</head>
+<body>
+<div class="wrapper">
+    <div class="nav">
+        <div class="nav-inner">
+            <div class="brand">
+                <div class="brand-dot"></div>
+                <span>Type Words</span>
+            </div>
+            <div class="nav-actions">
+                <div class="base-button secondary" onclick="nav('/words')">单词练习</div>
+                <div class="base-button secondary" onclick="nav('/articles')">文章练习</div>
+                <div class="base-button secondary" onclick="nav('/vip')">会员介绍</div>
+                <div class="base-button" onclick="nav('/login')">登录</div>
+            </div>
+        </div>
+    </div>
+    <div class="content">
+        <h1>Type Words</h1>
+        <div class="text-center">
+            <h2>学习英语，一次敲击，一点进步，开源单词与文章练习工具</h2>
+        </div>
+        <div class="">
+            <div class="base-button" onclick="nav('/words')">开始单词练习</div>
+            <div class="base-button" onclick="nav('/articles')">开始文章练习</div>
+            <!--            <div class="base-button secondary" onclick="nav('/vip')">会员介绍</div>-->
+        </div>
+        <div class="sky">
+            <a href="https://skywork.ai/p/GrXQb4" style="width: 40%;" target="_blank">
+                <img src="https://typewords.cc/skywork-ai.png"
+                     alt="Skywork.AI"
+                     class="sky-img"></a>
+            <span>赞助：<a href="https://skywork.ai/p/GrXQb4" class="color-blue!" target="_blank">Skywork.AI: 10 tasks in 1 hour, not 10 hours →Limited free spots: 127 left</a></span>
+        </div>
+        <div class="container">
+            <div class="card-wrap">
+                <div class="card">
+                    <div class="emoji">📚</div>
+                    <div class="title">单词练习</div>
+                    <div class="desc">
+                        <ul>
+                            <li>四种模式：跟打/听写/辨认/默写</li>
+                            <li>智能模式：智能规划复习与默写</li>
+                            <li>自由模式：不受限制，自行规划</li>
+                        </ul>
+                    </div>
+                </div>
+                <div class="card">
+                    <div class="emoji">✍️</div>
+                    <div class="title">文章练习</div>
+                    <div class="desc">
+                        <ul>
+                            <li>内置常见书籍，也可自行添加文章</li>
+                            <li>跟打 + 默写双模式，让背诵更高效</li>
+                            <li>支持边听边默写，强化记忆</li>
+                        </ul>
+                    </div>
+                </div>
+                <div class="card">
+                    <div class="emoji">📕</div>
+                    <div class="title">收藏、错词本、已掌握</div>
+                    <div class="desc">
+                        <ul>
+                            <li>输入错误自动添加到错词本</li>
+                            <li>主动添加到已掌握，后续自动跳过</li>
+                            <li>主动添加到收藏中，以便巩固复习</li>
+                        </ul>
+                    </div>
+                </div>
+                <div class="card">
+                    <div class="emoji">🌐</div>
+                    <div class="title">海量词库</div>
+                    <div class="desc">
+                        内置小学、初中、高中、四六级、考研、雅思、托福、GRE、GMAT、SAT、BEC、专四、专八等词库
+                    </div>
+                </div>
+            </div>
+            <div class="card-wrap">
+                <div class="card">
+                    <div class="emoji">🆓</div>
+                    <div class="title">免费开源</div>
+                    <div class="desc">
+                        <ul>
+                            <li>完全开源，可审查、可修改</li>
+                            <li>免费使用</li>
+                            <li>私有部署</li>
+                        </ul>
+                    </div>
+                </div>
+                <div class="card">
+                    <div class="emoji">⚙️</div>
+                    <div class="title">高度自由</div>
+                    <div class="desc">
+                        <ul>
+                            <li>丰富的键盘音效</li>
+                            <li>可自定义快捷键</li>
+                            <li>高度定制化的设置选项</li>
+                        </ul>
+                    </div>
+                </div>
+                <div class="card">
+                    <div class="emoji">🎨</div>
+                    <div class="title">简洁高效</div>
+                    <div class="desc">
+                        <ul>
+                            <li>简洁设计，现代化UI</li>
+                            <li>界面清爽，操作简单</li>
+                            <li>不强制关注任何平台</li>
+                        </ul>
+                    </div>
+                </div>
+                <div class="card">
+                    <div class="emoji">🎯</div>
+                    <div class="title">个性学习</div>
+                    <div class="desc">
+                        <ul>
+                            <li>自由添加词典与文章</li>
+                            <li>定制个性学习计划</li>
+                            <li>多种学习复习策略</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="bottom">
+        <div class="center gap-1">
+            <a
+                    href="https://github.com/zyronon/TypeWords"
+                    target="_blank"
+                    rel="noreferrer"
+                    aria-label="Github Address">
+                <div class="icon">
+                    <svg viewBox="0 0 24 24" width="1.4em" height="1.4em">
+                        <path fill="currentColor"
+                              d="M12 .297c-6.63 0-12 5.373-12 12c0 5.303 3.438 9.8 8.205 11.385c.6.113.82-.258.82-.577c0-.285-.01-1.04-.015-2.04c-3.338.724-4.042-1.61-4.042-1.61C4.422 18.07 3.633 17.7 3.633 17.7c-1.087-.744.084-.729.084-.729c1.205.084 1.838 1.236 1.838 1.236c1.07 1.835 2.809 1.305 3.495.998c.108-.776.417-1.305.76-1.605c-2.665-.3-5.466-1.332-5.466-5.93c0-1.31.465-2.38 1.235-3.22c-.135-.303-.54-1.523.105-3.176c0 0 1.005-.322 3.3 1.23c.96-.267 1.98-.399 3-.405c1.02.006 2.04.138 3 .405c2.28-1.552 3.285-1.23 3.285-1.23c.645 1.653.24 2.873.12 3.176c.765.84 1.23 1.91 1.23 3.22c0 4.61-2.805 5.625-5.475 5.92c.42.36.81 1.096.81 2.22c0 1.606-.015 2.896-.015 3.286c0 .315.21.69.825.57C20.565 22.092 24 17.592 24 12.297c0-6.627-5.373-12-12-12"></path>
+                    </svg>
+                </div>
+            </a>
+
+            <div class="icon" onclick="toggleWechatDialog()">
+                <svg viewBox="0 0 24 24" width="1.4em" height="1.4em" color="#22C55E">
+                    <path fill="currentColor"
+                          d="M8.691 2.188C3.891 2.188 0 5.476 0 9.53c0 2.212 1.17 4.203 3.002 5.55a.59.59 0 0 1 .213.665l-.39 1.48c-.019.07-.048.141-.048.213c0 .163.13.295.29.295a.33.33 0 0 0 .167-.054l1.903-1.114a.86.86 0 0 1 .717-.098a10.2 10.2 0 0 0 2.837.403c.276 0 .543-.027.811-.05c-.857-2.578.157-4.972 1.932-6.446c1.703-1.415 3.882-1.98 5.853-1.838c-.576-3.583-4.196-6.348-8.596-6.348M5.785 5.991c.642 0 1.162.529 1.162 1.18a1.17 1.17 0 0 1-1.162 1.178A1.17 1.17 0 0 1 4.623 7.17c0-.651.52-1.18 1.162-1.18zm5.813 0c.642 0 1.162.529 1.162 1.18a1.17 1.17 0 0 1-1.162 1.178a1.17 1.17 0 0 1-1.162-1.178c0-.651.52-1.18 1.162-1.18m5.34 2.867c-1.797-.052-3.746.512-5.28 1.786c-1.72 1.428-2.687 3.72-1.78 6.22c.942 2.453 3.666 4.229 6.884 4.229c.826 0 1.622-.12 2.361-.336a.72.72 0 0 1 .598.082l1.584.926a.3.3 0 0 0 .14.047c.134 0 .24-.111.24-.247c0-.06-.023-.12-.038-.177l-.327-1.233a.6.6 0 0 1-.023-.156a.49.49 0 0 1 .201-.398C23.024 18.48 24 16.82 24 14.98c0-3.21-2.931-5.837-6.656-6.088V8.89c-.135-.01-.27-.027-.407-.03zm-2.53 3.274c.535 0 .969.44.969.982a.976.976 0 0 1-.969.983a.976.976 0 0 1-.969-.983c0-.542.434-.982.97-.982zm4.844 0c.535 0 .969.44.969.982a.976.976 0 0 1-.969.983a.976.976 0 0 1-.969-.983c0-.542.434-.982.969-.982"></path>
+                </svg>
+            </div>
+
+            <div class="icon" onclick="toggleQQDialog()">
+                <svg viewBox="0 0 24 24" width="1.4em" height="1.4em" color="#F87171">
+                    <g fill="none">
+                        <path d="m12.593 23.258l-.011.002l-.071.035l-.02.004l-.014-.004l-.071-.035q-.016-.005-.024.005l-.004.01l-.017.428l.005.02l.01.013l.104.074l.015.004l.012-.004l.104-.074l.012-.016l.004-.017l-.017-.427q-.004-.016-.017-.018m.265-.113l-.013.002l-.185.093l-.01.01l-.003.011l.018.43l.005.012l.008.007l.201.093q.019.005.029-.008l.004-.014l-.034-.614q-.005-.018-.02-.022m-.715.002a.02.02 0 0 0-.027.006l-.006.014l-.034.614q.001.018.017.024l.015-.002l.201-.093l.01-.008l.004-.011l.017-.43l-.003-.012l-.01-.01z"/>
+                        <path fill="currentColor"
+                              d="M12 2a6.285 6.285 0 0 0-6.276 5.937l-.146 2.63a28 28 0 0 0-.615 1.41c-1.24 3.073-1.728 5.773-1.088 6.032c.335.135.913-.426 1.566-1.432a6.67 6.67 0 0 0 1.968 3.593c-1.027.35-1.91.828-1.91 1.33c0 .509 2.48.503 4.239.5h.001c.549-.002 1.01-.008 1.38-.057a6.7 6.7 0 0 0 1.76 0c.37.05.833.055 1.382.056c1.76.004 4.239.01 4.239-.499c0-.502-.883-.979-1.909-1.33a6.67 6.67 0 0 0 1.967-3.586c.65 1.002 1.227 1.56 1.56 1.425c.64-.259.154-2.96-1.088-6.032a28 28 0 0 0-.607-1.395l-.147-2.645A6.285 6.285 0 0 0 12 2"/>
+                    </g>
+                </svg>
+            </div>
+            <div class="icon" onclick="toggleXhsDialog()">
+                <svg viewBox="0 0 24 24" width="1.4em" height="1.4em" color="#EF4444">
+                    <path fill="currentColor"
+                          d="M22.405 9.879c.002.016.01.02.07.019h.725a.797.797 0 0 0 .78-.972a.794.794 0 0 0-.884-.618a.795.795 0 0 0-.692.794c0 .101-.002.666.001.777m-11.509 4.808c-.203.001-1.353.004-1.685.003a2.5 2.5 0 0 1-.766-.126a.025.025 0 0 0-.03.014L7.7 16.127a.025.025 0 0 0 .01.032c.111.06.336.124.495.124c.66.01 1.32.002 1.981 0q.017 0 .023-.015l.712-1.545a.025.025 0 0 0-.024-.036zM.477 9.91c-.071 0-.076.002-.076.01l-.01.08c-.027.397-.038.495-.234 3.06c-.012.24-.034.389-.135.607c-.026.057-.033.042.003.112c.046.092.681 1.523.787 1.74c.008.015.011.02.017.02c.008 0 .033-.026.047-.044q.219-.282.371-.606c.306-.635.44-1.325.486-1.706c.014-.11.021-.22.03-.33l.204-2.616l.022-.293c.003-.029 0-.033-.03-.034zm7.203 3.757a1.4 1.4 0 0 1-.135-.607c-.004-.084-.031-.39-.235-3.06a.4.4 0 0 0-.01-.082c-.004-.011-.052-.008-.076-.008h-1.48c-.03.001-.034.005-.03.034l.021.293q.114 1.473.233 2.946c.05.4.186 1.085.487 1.706c.103.215.223.419.37.606c.015.018.037.051.048.049c.02-.003.742-1.642.804-1.765c.036-.07.03-.055.003-.112m3.861-.913h-.872a.126.126 0 0 1-.116-.178l1.178-2.625a.025.025 0 0 0-.023-.035l-1.318-.003a.148.148 0 0 1-.135-.21l.876-1.954a.025.025 0 0 0-.023-.035h-1.56q-.017 0-.024.015l-.926 2.068c-.085.169-.314.634-.399.938a.5.5 0 0 0-.02.191a.46.46 0 0 0 .23.378a1 1 0 0 0 .46.119h.59c.041 0-.688 1.482-.834 1.972a.5.5 0 0 0-.023.172a.47.47 0 0 0 .23.398c.15.092.342.12.475.12l1.66-.001q.017 0 .023-.015l.575-1.28a.025.025 0 0 0-.024-.035m-6.93-4.937H3.1a.032.032 0 0 0-.034.033c0 1.048-.01 2.795-.01 6.829c0 .288-.269.262-.28.262h-.74c-.04.001-.044.004-.04.047c.001.037.465 1.064.555 1.263c.01.02.03.033.051.033c.157.003.767.009.938-.014c.153-.02.3-.06.438-.132c.3-.156.49-.419.595-.765c.052-.172.075-.353.075-.533q.003-3.495-.007-6.991a.03.03 0 0 0-.032-.032zm11.784 6.896q-.002-.02-.024-.022h-1.465c-.048-.001-.049-.002-.05-.049v-4.66c0-.072-.005-.07.07-.07h.863c.08 0 .075.004.075-.074V8.393c0-.082.006-.076-.08-.076h-3.5c-.064 0-.075-.006-.075.073v1.445c0 .083-.006.077.08.077h.854c.075 0 .07-.004.07.07v4.624c0 .095.008.084-.085.084c-.37 0-1.11-.002-1.304 0c-.048.001-.06.03-.06.03l-.697 1.519s-.014.025-.008.036s.013.008.058.008q2.622.003 5.243.002c.03-.001.034-.006.035-.033zm4.177-3.43q0 .021-.02.024c-.346.006-.692.004-1.037.004q-.021-.003-.022-.024q-.006-.651-.01-1.303c0-.072-.006-.071.07-.07l.733-.003c.041 0 .081.002.12.015c.093.025.16.107.165.204c.006.431.002 1.153.001 1.153m2.67.244a1.95 1.95 0 0 0-.883-.222h-.18c-.04-.001-.04-.003-.042-.04V10.21q.001-.198-.025-.394a1.8 1.8 0 0 0-.153-.53a1.53 1.53 0 0 0-.677-.71a2.2 2.2 0 0 0-1-.258c-.153-.003-.567 0-.72 0c-.07 0-.068.004-.068-.065V7.76c0-.031-.01-.041-.046-.039H17.93s-.016 0-.023.007q-.008.008-.008.023v.546c-.008.036-.057.015-.082.022h-.95c-.022.002-.028.008-.03.032v1.481c0 .09-.004.082.082.082h.913c.082 0 .072.128.072.128v1.148s.003.117-.06.117h-1.482c-.068 0-.06.082-.06.082v1.445s-.01.068.064.068h1.457c.082 0 .076-.006.076.079v3.225c0 .088-.007.081.082.081h1.43c.09 0 .082.007.082-.08v-3.27c0-.029.006-.035.033-.035l2.323-.003a.7.7 0 0 1 .28.061a.46.46 0 0 1 .274.407c.008.395.003.79.003 1.185c0 .259-.107.367-.33.367h-1.218c-.023.002-.029.008-.028.033q.276.655.57 1.303a.05.05 0 0 0 .04.026c.17.005.34.002.51.003c.15-.002.517.004.666-.01a2 2 0 0 0 .408-.075c.59-.18.975-.698.976-1.313v-1.981q.001-.191-.034-.38c0 .078-.029-.641-.724-.998"></path>
+                </svg>
+            </div>
+
+            <a
+                    href="https://x.com/typewords2"
+                    target="_blank"
+                    rel="noreferrer"
+                    aria-label="关注我的 X 账户 typewords2">
+                <div class="icon">
+                    <svg viewBox="0 0 24 24" width="1.4em" height="1.4em" color="#60A5FA">
+                        <path fill="currentColor"
+                              d="M22.213 5.656a8.4 8.4 0 0 1-2.402.658A4.2 4.2 0 0 0 21.649 4c-.82.488-1.719.83-2.655 1.015a4.182 4.182 0 0 0-7.126 3.814a11.87 11.87 0 0 1-8.621-4.37a4.17 4.17 0 0 0-.566 2.103c0 1.45.739 2.731 1.86 3.481a4.2 4.2 0 0 1-1.894-.523v.051a4.185 4.185 0 0 0 3.355 4.102a4.2 4.2 0 0 1-1.89.072A4.185 4.185 0 0 0 8.02 16.65a8.4 8.4 0 0 1-6.192 1.732a11.83 11.83 0 0 0 6.41 1.88c7.694 0 11.9-6.373 11.9-11.9q0-.271-.012-.541a8.5 8.5 0 0 0 2.086-2.164"></path>
+                    </svg>
+                </div>
+            </a>
+            <a
+                    href="mailto:zyronon@163.com"
+                    target="_blank"
+                    rel="noreferrer"
+                    aria-label="发送邮件到 zyronon@163.com">
+                <div class="icon">
+                    <svg viewBox="0 0 24 24" width="1.4em" height="1.4em" color="#60A5FA">
+                        <path fill="currentColor"
+                              d="M4 20q-.825 0-1.412-.587T2 18V6q0-.825.588-1.412T4 4h16q.825 0 1.413.588T22 6v12q0 .825-.587 1.413T20 20zm8-7l8-5V6l-8 5l-8-5v2z"></path>
+                    </svg>
+                </div>
+            </a>
+        </div>
+
+        <div><a href="https://beian.mps.gov.cn/#/query/webSearch?code=51015602001426" target="_blank">川公网安备51015602001426号	</a></div>
+
+        <div><a href="https://beian.miit.gov.cn/" target="_blank">蜀ICP备2025157466号-2</a></div>
+    </div>
+
+    <div class="mask" onclick="closeDialog()"></div>
+
+    <div class="dialog" id="wechatDialog">
+        <header>
+            <div class="title">微信群</div>
+            <svg
+                    onclick="toggleWechatDialog()"
+                    viewBox="0 0 20 20" width="24" height="1.2em" class="cursor-pointer">
+                <path fill="currentColor"
+                      d="m4.089 4.216l.057-.07a.5.5 0 0 1 .638-.057l.07.057L10 9.293l5.146-5.147a.5.5 0 0 1 .638-.057l.07.057a.5.5 0 0 1 .057.638l-.057.07L10.707 10l5.147 5.146a.5.5 0 0 1 .057.638l-.057.07a.5.5 0 0 1-.638.057l-.07-.057L10 10.707l-5.146 5.147a.5.5 0 0 1-.638.057l-.07-.057a.5.5 0 0 1-.057-.638l.057-.07L9.293 10L4.146 4.854a.5.5 0 0 1-.057-.638l.057-.07z"></path>
+            </svg>
+        </header>
+        <div class="dialog-body">
+            <span>加入我们的用户社群后，您可以与我们的开发团队进行沟通，分享您的使用体验和建议，帮助我们改进产品，同时也能够及时了解我们的最新动态和更新内容。</span>
+            <div class="center">
+                <img src="/wechat.png" alt="微信群二维码" class="img">
+            </div>
+        </div>
+    </div>
+
+    <div class="dialog" id="xhsDialog">
+        <header>
+            <div class="title">小红书</div>
+            <svg
+                    onclick="toggleXhsDialog()"
+                    viewBox="0 0 20 20" width="24" height="1.2em" class="cursor-pointer">
+                <path fill="currentColor"
+                      d="m4.089 4.216l.057-.07a.5.5 0 0 1 .638-.057l.07.057L10 9.293l5.146-5.147a.5.5 0 0 1 .638-.057l.07.057a.5.5 0 0 1 .057.638l-.057.07L10.707 10l5.147 5.146a.5.5 0 0 1 .057.638l-.057.07a.5.5 0 0 1-.638.057l-.07-.057L10 10.707l-5.146 5.147a.5.5 0 0 1-.638.057l-.07-.057a.5.5 0 0 1-.057-.638l.057-.07L9.293 10L4.146 4.854a.5.5 0 0 1-.057-.638l.057-.07z"></path>
+            </svg>
+        </header>
+        <div class="dialog-body">
+            <span>关注小红书后，您可以获得开发团队的最新动态和更新内容，反馈您的使用体验和建议，帮助我们改进产品，同时也能够及时了解我们的最新动态和更新内容。</span>
+            <div class="center">
+                <img src="/xhs.png" alt="小红书二维码" class="img">
+            </div>
+        </div>
+    </div>
+
+    <div class="dialog" id="qqDialog">
+        <header>
+            <div class="title">QQ群</div>
+            <svg
+                    onclick="toggleQQDialog()"
+                    viewBox="0 0 20 20" width="24" height="1.2em" class="cursor-pointer">
+                <path fill="currentColor"
+                      d="m4.089 4.216l.057-.07a.5.5 0 0 1 .638-.057l.07.057L10 9.293l5.146-5.147a.5.5 0 0 1 .638-.057l.07.057a.5.5 0 0 1 .057.638l-.057.07L10.707 10l5.147 5.146a.5.5 0 0 1 .057.638l-.057.07a.5.5 0 0 1-.638.057l-.07-.057L10 10.707l-5.146 5.147a.5.5 0 0 1-.638.057l-.07-.057a.5.5 0 0 1-.057-.638l.057-.07L9.293 10L4.146 4.854a.5.5 0 0 1-.057-.638l.057-.07z"></path>
+            </svg>
+        </header>
+        <div class="dialog-body">
+            <span>加入我们的用户社群后，您可以与我们的开发团队进行沟通，分享您的使用体验和建议，帮助我们改进产品，同时也能够及时了解我们的最新动态和更新内容。</span>
+            <div class="center">
+                <img src="/qq.jpg" alt="QQ群二维码" class="img">
+            </div>
+        </div>
+    </div>
+</div>
+</body>
+</html>
