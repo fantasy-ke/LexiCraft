@@ -216,11 +216,13 @@ import { ref, computed } from 'vue'
 import { useRouter, useRoute } from 'vue-router'
 import useTheme from '@/hooks/theme'
 import { useRuntimeStore } from '@/stores/runtime'
+import { useUserStore } from '@/stores/user'
 
 const router = useRouter()
 const route = useRoute()
 const { setTheme, getTheme, getThemeSetting } = useTheme()
 const runtimeStore = useRuntimeStore()
+const userStore = useUserStore()
 
 // 响应式状态
 const sidebarExpanded = ref(true)
@@ -267,8 +269,9 @@ const navigateTo = (path: string) => {
   showUserMenu.value = false
 }
 
-const handleLogout = () => {
-  console.log('退出登录')
+const handleLogout = async () => {
+  await userStore.logout()
+  router.push('/login')
   showUserMenu.value = false
 }
 

@@ -24,7 +24,8 @@ import doc from "@/pages/doc.vue";
 import dashboard from "@/pages/dashboard.vue";
 import home from "@/pages/home.vue";
 import practiceLoading from "@/pages/practice-loading.vue";
-// import { useAuthStore } from "@/stores/user";
+
+import { LOGIN_PATH, REGISTER_PATH, CALLBACK_PATH, REDIRECT_PATH } from '@/config/logto.config'
 
 export const routes: RouteRecordRaw[] = [
   // 主页路由（营销页面）
@@ -35,7 +36,7 @@ export const routes: RouteRecordRaw[] = [
   // 应用入口重定向到仪表板
   {
     path: '/dashboard',
-    redirect: '/app/dashboard'
+    redirect: REDIRECT_PATH
   },
   // 加载页面路由
   {
@@ -52,43 +53,60 @@ export const routes: RouteRecordRaw[] = [
       { path: 'articles/:id', component: PracticeArticles },
     ]
   },
-  // 现代化应用路由
+  // 登录相关路由 - 独立于布局
+  {
+    path: LOGIN_PATH,
+    component: login,
+    meta: { public: true, title: '登录' }
+  },
+  {
+    path: REGISTER_PATH,
+    component: () => import('@/pages/(user)/register.vue'),
+    meta: { public: true, title: '注册' }
+  },
+  // OAuth 回调路由
+  {
+    path: CALLBACK_PATH,
+    component: () => import('@/pages/(user)/callback.vue'),
+    meta: { public: true, title: 'OAuth回调' }
+  },
+  // 现代化应用路由 - 需要登录
   {
     path: '/app',
     component: ModernLayout,
+    meta: { requiresAuth: true },
     children: [
-      { path: '', component: dashboard }, // 默认显示仪表板
-      { path: 'dashboard', component: dashboard },
-      { path: 'words', component: words },
+      { path: '', component: dashboard, meta: { title: '仪表板' } },
+      { path: 'dashboard', component: dashboard, meta: { title: '仪表板' } },
+      { path: 'words', component: words, meta: { title: '单词练习' } },
       { path: 'word', redirect: '/app/words' },
       { path: 'practice-words/:id', redirect: to => `/practice-loading/${to.params.id}?target=/practice/words` },
-      { path: 'word-test/:id', component: WordTest },
+      { path: 'word-test/:id', component: WordTest, meta: { title: '单词测试' } },
       { path: 'study-word', redirect: '/app/words' },
-      { path: 'dict-list', component: DictList },
-      { path: 'dict-detail', component: DictDetail },
+      { path: 'dict-list', component: DictList, meta: { title: '词典列表' } },
+      { path: 'dict-detail', component: DictDetail, meta: { title: '词典详情' } },
 
-      { path: 'articles', component: articles },
+      { path: 'articles', component: articles, meta: { title: '文章背诵' } },
       { path: 'article', redirect: '/app/articles' },
       { path: 'practice-articles/:id', redirect: to => `/practice-loading/${to.params.id}?target=/practice/articles` },
       { path: 'study-article', redirect: '/app/articles' },
-      { path: 'book-detail', component: BookDetail },
-      { path: 'book-list', component: BookList },
+      { path: 'book-detail', component: BookDetail, meta: { title: '书籍详情' } },
+      { path: 'book-list', component: BookList, meta: { title: '书籍列表' } },
 
-      { path: 'login', component: login },
-      { path: 'user', component: user },
-      { path: 'vip', component: vip },
+      { path: 'user', component: user, meta: { title: '个人中心' } },
+      { path: 'vip', component: vip, meta: { title: 'VIP会员' } },
 
-      { path: 'setting', component: setting },
-      { path: 'feedback', component: feedback },
-      { path: 'qa', component: qa },
-      { path: 'doc', component: doc },
+      { path: 'setting', component: setting, meta: { title: '设置' } },
+      { path: 'feedback', component: feedback, meta: { title: '反馈' } },
+      { path: 'qa', component: qa, meta: { title: '问答' } },
+      { path: 'doc', component: doc, meta: { title: '文档' } },
     ]
   },
   // 兼容旧路由 - 重定向到新的现代化布局
   { path: '/words', redirect: '/app/words' },
   { path: '/articles', redirect: '/app/articles' },
   { path: '/setting', redirect: '/app/setting' },
-  { path: '/login', redirect: '/app/login' },
+
   { path: '/user', redirect: '/app/user' },
   { path: '/feedback', redirect: '/app/feedback' },
   { path: '/doc', redirect: '/app/doc' },
@@ -99,10 +117,8 @@ export const routes: RouteRecordRaw[] = [
 
 const router = VueRouter.createRouter({
   history: VueRouter.createWebHistory(import.meta.env.VITE_ROUTE_BASE),
-  // history: VueRouter.createWebHashHistory(),
   routes,
   scrollBehavior(to, from, savedPosition) {
-    // console.log('savedPosition', savedPosition)
     if (savedPosition) {
       return savedPosition
     } else {
@@ -113,70 +129,31 @@ const router = VueRouter.createRouter({
 
 // 路由守卫
 router.beforeEach(async (to: any, from: any) => {
+  const { useUserStore } = await import('@/stores/user')
+  const userStore = useUserStore()
+
+  const isPublicRoute = to.meta?.public === true
+
+  if (isPublicRoute) {
+    return true
+  }
+
+  const requiresAuth = to.matched.some((record: any) => record.meta.requiresAuth)
+
+  if (requiresAuth) {
+    if (!userStore.isLogin) {
+      await userStore.init()
+    }
+
+    if (!userStore.isLogin && !userStore.logtoUser) {
+      return {
+        path: LOGIN_PATH,
+        query: { redirect: to.fullPath }
+      }
+    }
+  }
+
   return true
-
-  // const userStore = useAuthStore()
-  //
-  // // 公共路由，不需要登录验证
-  // const publicRoutes = ['/login', '/wechat/callback', '/user-agreement', '/privacy-policy']
-  //
-  // // 如果目标路由是公共路由，直接放行
-  // if (publicRoutes.includes(to.path)) {
-  //   return true
-  // }
-  //
-  // // 如果用户未登录，跳转到登录页
-  // if (!userStore.isLoggedIn) {
-  //   // 尝试初始化认证状态
-  //   const isInitialized = await userStore.initAuth()
-  //   if (!isInitialized) {
-  //     return {path: '/login', query: {redirect: to.fullPath}}
-  //   }
-  // }
-  //
-  // return true
-  // console.log('beforeEach-to',to.path)
-  // console.log('beforeEach-from',from.path)
-  // const runtimeStore = useRuntimeStore()
-  //
-  // //footer下面的5个按钮，对跳不要用动画
-  // let noAnimation = [
-  //   '/pc/practice',
-  //   '/pc/dict',
-  //   '/mobile',
-  //   '/'
-  // ]
-  //
-  // if (noAnimation.indexOf(from.path) !== -1 && noAnimation.indexOf(to.path) !== -1) {
-  //   return true
-  // }
-  //
-  // const toDepth = routes.findIndex(v => v.path === to.path)
-  // const fromDepth = routes.findIndex(v => v.path === from.path)
-  // // const fromDepth = routeDeep.indexOf(from.path)
-  //
-  // if (toDepth > fromDepth) {
-  //   if (to.matched && to.matched.length) {
-  //     let def = to.matched[0].components.default
-  //     let toComponentName = def.name ?? def.__name
-  //     runtimeStore.updateExcludeRoutes({type: 'remove', value: toComponentName})
-  //     // console.log('删除', toComponentName)
-  //     // console.log('前进')
-  //     // console.log('删除', toComponentName)
-  //   }
-  // } else {
-  //   if (from.matched && from.matched.length) {
-  //     let def = from.matched[0].components.default
-  //     let fromComponentName = def.name ?? def.__name
-  //     runtimeStore.updateExcludeRoutes({type: 'add', value: fromComponentName})
-  //     // console.log('添加', fromComponentName)
-  //     // console.log('后退')
-  //   }
-  // }
-  // ...
-  // 返回 false 以取消导航
-  // return true
 })
-
 
 export default router

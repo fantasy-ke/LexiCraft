@@ -245,13 +245,13 @@ const showMobileMenu = ref(false)
 
 // 开始学习按钮点击事件
 const startLearning = () => {
-  router.push('/words')
+  // 直接跳转到应用,路由守卫会处理登录检查
+  router.push('/app/dashboard')
 }
 
 // 登录按钮点击事件
 const handleLogin = () => {
-  // 这里可以添加登录逻辑
-  console.log('登录功能')
+  router.push('/login')
 }
 
 // 切换移动端菜单
