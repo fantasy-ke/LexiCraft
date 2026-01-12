@@ -26,6 +26,8 @@ export interface RegisterRequest {
   username?: string
   firstName?: string  // 保持可选，但前端不使用
   lastName?: string   // 保持可选，但前端不使用
+  captchaKey: string  // 验证码Key
+  captchaCode: string // 验证码
 }
 
 // 登录响应
@@ -121,6 +123,9 @@ export interface IAuthAPI {
   register(userData: RegisterRequest): Promise<ResultDto<RegisterResponse>>
   logout(): Promise<ResultDto<void>>
   
+  // 验证码
+  getCaptcha(): Promise<ResultDto<CaptchaResponse>>
+  
   // 用户资料
   getUserProfile(): Promise<ResultDto<UserProfile>>
   updateUserProfile(profile: Partial<UserProfile>): Promise<ResultDto<UserProfile>>
@@ -182,4 +187,10 @@ export interface TokenResponse {
   accessToken: string
   refreshToken: string
   expiresIn: number
+}
+
+// 验证码响应
+export interface CaptchaResponse {
+  captchaKey: string
+  captchaData: string // Base64 图片数据
 }

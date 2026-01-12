@@ -34,7 +34,23 @@ class AuthAPI implements IAuthAPI {
    * 用户注册
    */
   async register(userData: RegisterRequest): Promise<ResultDto<RegisterResponse>> {
-    return authPost<RegisterResponse>('/api/v1/identity/register', userData)
+    // 构建后端期望的请求格式
+    const registerData = {
+      userAccount: userData.username || userData.email, // 使用用户名或邮箱作为账号
+      email: userData.email,
+      password: userData.password,
+      captchaKey: userData.captchaKey,
+      captchaCode: userData.captchaCode
+    }
+    
+    return authPost<RegisterResponse>('/api/v1/identity/register', registerData)
+  }
+
+  /**
+   * 获取验证码
+   */
+  async getCaptcha(): Promise<ResultDto<CaptchaResponse>> {
+    return authGet<CaptchaResponse>('/api/v1/identity/users/captcha')
   }
 
   /**
@@ -186,6 +202,7 @@ export const {
   login,
   register,
   logout,
+  getCaptcha,
   getUserProfile,
   updateUserProfile,
   initiateOAuth,

@@ -10,7 +10,7 @@ const value = ref('')
 let error = $ref('')
 
 // 拿到 form 的 model 和注册函数
-const formModel = inject<ref>('formModel')
+const formModel = inject('formModel') as any
 const registerField = inject<Function>('registerField')
 const formRules = inject('formRules', {})
 
@@ -44,12 +44,14 @@ const validate = (rules, isBlur = false) => {
       return false
     }
     if (rule.validator) {
-      try {
-        rule.validator(rule, val)
-      } catch (e) {
-        error = e.message
-        return false
-      }
+      let hasError = false
+      rule.validator(rule, val, (err) => {
+        if (err) {
+          error = err.message || err.toString()
+          hasError = true
+        }
+      })
+      if (hasError) return false
     }
   }
   return true

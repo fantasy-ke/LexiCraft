@@ -271,7 +271,6 @@ export function useAuth() {
     authGuard,
     
     // 兼容旧代码的别名
-    initLogto: initAuth,
-    handleSignInCallback: handleSignInCallback
+    initLogto: initAuth
   }
 }

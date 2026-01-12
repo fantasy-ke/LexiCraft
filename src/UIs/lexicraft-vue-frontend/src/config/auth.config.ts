@@ -122,6 +122,14 @@ export const VALIDATION_RULES = {
       message: AUTH_ERROR_MESSAGES.USERNAME_INVALID, 
       trigger: 'blur' 
     }
+  ],
+  captchaCode: [
+    { required: true, message: '请输入验证码', trigger: 'blur' },
+    { 
+      len: 4,
+      message: '验证码长度为4位', 
+      trigger: 'blur' 
+    }
   ]
 } as const
 

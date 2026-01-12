@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref } from 'vue'
+import { ref, watch } from 'vue'
 import { useRouter } from 'vue-router'
 import BaseInput from '@/components/base/BaseInput.vue'
 import BaseButton from '@/components/BaseButton.vue'
@@ -8,6 +8,7 @@ import FormItem from '@/components/base/form/FormItem.vue'
 import Form from '@/components/base/form/Form.vue'
 import Notice from '@/components/user/Notice.vue'
 import ImagePlaceholder from '@/components/common/ImagePlaceholder.vue'
+import CaptchaInput from '@/components/auth/CaptchaInput.vue'
 import { FormInstance } from '@/components/base/form/types.ts'
 import { useAuth } from '@/hooks/useAuth'
 import { LOGIN_PATH, VALIDATION_RULES } from '@/config/auth.config'
@@ -24,7 +25,9 @@ const registerForm = ref<RegisterRequest>({
   email: '',
   password: '',
   confirmPassword: '',
-  username: ''
+  username: '',
+  captchaKey: '',
+  captchaCode: ''
 })
 
 const registerFormRef = ref<FormInstance>()
@@ -46,7 +49,8 @@ const registerFormRules = {
       trigger: 'blur'
     }
   ],
-  username: VALIDATION_RULES.username
+  username: VALIDATION_RULES.username,
+  captchaCode: VALIDATION_RULES.captchaCode
 }
 
 // 注册处理
@@ -66,6 +70,11 @@ async function handleRegister() {
       loading.value = false
     }
   })
+}
+
+// 处理验证码Key更新
+const handleCaptchaKeyUpdate = (key: string) => {
+  registerForm.value.captchaKey = key
 }
 
 const goToLogin = () => {
@@ -106,7 +115,7 @@ const goToLogin = () => {
             <p class="text-gray-500 text-base">创建您的学习账号，开始词汇学习之旅</p>
           </div>
 
-          <Form ref="registerFormRef" :rules="registerFormRules" :model="registerForm" class="space-y-4">
+          <Form ref="registerFormRef" :rules="registerFormRules" :model="registerForm" class="space-y-2">
             <FormItem prop="email" label="电子邮箱">
               <BaseInput
                 v-model="registerForm.email"
@@ -142,9 +151,16 @@ const goToLogin = () => {
                 placeholder="请再次输入密码（8-20位）"
               />
             </FormItem>
+            
+            <FormItem prop="captchaCode" label="验证码">
+              <CaptchaInput
+                v-model="registerForm.captchaCode"
+                @update:captchaKey="handleCaptchaKeyUpdate"
+              />
+            </FormItem>
           </Form>
 
-          <Notice class="my-4">
+          <Notice class="my-2">
             <span class="text-xs">注册即表示同意我们的服务条款和隐私政策</span>
           </Notice>
 
@@ -158,7 +174,7 @@ const goToLogin = () => {
             创建账号
           </BaseButton>
 
-          <div class="mt-8 text-center text-sm text-gray-600">
+          <div class="mt-6 text-center text-sm text-gray-600">
             已有账号? 
             <span class="text-green-600 font-bold hover:underline cursor-pointer" @click="goToLogin">立即登录</span>
           </div>
@@ -176,16 +192,26 @@ const goToLogin = () => {
 :deep(.form-item) {
   flex-direction: column;
   gap: 0;
+  margin-bottom: 0.5rem; /* 进一步减少底部间距 */
+  
   .w-20 {
     width: 100%;
     justify-content: flex-start;
     font-size: 0.875rem;
     font-weight: 600;
     color: #374151;
-    margin-bottom: 0.25rem;
+    margin-bottom: 0.125rem; /* 减少标签和输入框之间的间距 */
   }
   .flex-1 {
     width: 100%;
+  }
+  
+  /* 减少错误信息的高度 */
+  .form-error {
+    margin-top: 0.125rem;
+    margin-bottom: 0;
+    min-height: 0.875rem; /* 进一步减少错误信息高度 */
+    font-size: 0.75rem; /* 减小错误信息字体 */
   }
 }
 
