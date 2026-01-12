@@ -23,6 +23,8 @@ builder.AddApplicationServices();
 
 var app = builder.Build();
 
+// 异常处理中间件必须在最前面
+app.UseExceptionHandler(_ => { });
 app.MapDefaultEndpoints();
 app.UseApplication();
 
