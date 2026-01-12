@@ -325,7 +325,7 @@ let isNewHost = $ref(window.location.host === Host)
           >
             {{ isMultiple ? '取消' : '管理书籍' }}
           </div>
-          <div class="color-link cursor-pointer" @click="nav('/app/book-detail', { isAdd: true })">>
+          <div class="color-link cursor-pointer" @click="nav('/app/book-detail', { isAdd: true })">
             创建个人书籍
           </div>
         </div>

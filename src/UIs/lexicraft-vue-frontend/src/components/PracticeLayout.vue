@@ -3,42 +3,51 @@ import { useSettingStore } from '@/stores/setting'
 
 // 组件属性定义
 interface Props {
-  panelLeft: string
+  maxWidth?: string
 }
 
-const props = defineProps<Props>()
+const props = withDefaults(defineProps<Props>(), {
+  maxWidth: 'var(--toolbar-width)'
+})
 const settingStore = useSettingStore()
 </script>
 
 <template>
   <!-- 练习内容区域 - 使用栅格化布局 -->
   <div class="practice-content-wrapper" :class="!settingStore.showToolbar && 'footer-hide'">
-    <!-- 练习主体区域 - 栅格布局 -->
-    <div class="practice-grid">
-      <!-- 导航区域 - 固定高度 -->
-      <div class="navigation-area">
-        <slot name="navigation"></slot>
-      </div>
-      
-      <!-- 内容区域 - 自适应高度 -->
-      <div class="content-area">
-        <slot name="practice"></slot>
-      </div>
-      
-      <!-- 底部操作区域 - 固定高度 -->
-      <div class="action-area">
-        <!-- 预留给底部操作按钮 -->
-      </div>
+    <!-- 快捷键提示区域 -->
+    <div class="hints-wrap">
+      <slot name="hints"></slot>
     </div>
-    
-    <!-- 侧边面板 -->
-    <div
-      class="panel-wrap"
-      :style="{ left: props.panelLeft }"
-      :class="{ 'has-panel': settingStore.showPanel }"
-      @click.self="settingStore.showPanel = false"
-    >
-      <slot name="panel"></slot>
+
+    <!-- 布局内部容器 - 用于居中定位 -->
+    <div class="practice-layout-inner">
+      <!-- 练习主体区域 - 栅格布局 -->
+      <div class="practice-grid">
+        <!-- 导航区域 - 固定高度 -->
+        <div class="navigation-area">
+          <slot name="navigation"></slot>
+        </div>
+        
+        <!-- 内容区域 - 自适应高度 -->
+        <div class="content-area">
+          <slot name="practice"></slot>
+        </div>
+        
+        <!-- 底部操作区域 - 固定高度 -->
+        <div class="action-area">
+          <!-- 预留给底部操作按钮 -->
+        </div>
+      </div>
+      
+      <!-- 侧边面板 - 使用 fixed 或绝对定位相对于 inner 容器 -->
+      <div
+        class="panel-wrap"
+        :class="{ 'has-panel': settingStore.showPanel }"
+        @click.self="settingStore.showPanel = false"
+      >
+        <slot name="panel"></slot>
+      </div>
     </div>
     
     <!-- 底部工具栏 -->
@@ -56,6 +65,19 @@ const settingStore = useSettingStore()
   position: relative;
   overflow: hidden;
   transition: all var(--anim-time);
+  height: 100%; // 强制高度
+  min-height: 0; // 解决 flex 子元素高度计算问题
+}
+
+// 布局内部容器
+.practice-layout-inner {
+  height: 100%; // 必须有高度，否则内部 grid 无法撑开实现内部滚动
+  width: 100%;
+  max-width: v-bind('props.maxWidth');
+  margin: 0 auto;
+  position: relative;
+  display: flex;
+  flex-direction: column;
 }
 
 // 栅格化布局系统
@@ -69,6 +91,7 @@ const settingStore = useSettingStore()
     "actions";
   height: 100%;
   overflow: hidden;
+  width: 100%;
 }
 
 // 导航区域 - 固定高度，确保布局稳定
@@ -134,8 +157,23 @@ const settingStore = useSettingStore()
 .panel-wrap {
   position: absolute;
   top: 0;
+  left: calc(100% + 1rem); // 始终在容器右侧 1rem 处
   z-index: 100;
   height: 100%;
+  transition: all var(--anim-time);
+  
+  &.has-panel {
+    box-shadow: -5px 0 15px rgba(0, 0, 0, 0.05);
+  }
+}
+
+.hints-wrap {
+  position: fixed;
+  left: 1.5rem;
+  top: 50%;
+  transform: translateY(-50%);
+  z-index: 200;
+  transition: all var(--anim-time);
 }
 
 // 工具栏隐藏状态

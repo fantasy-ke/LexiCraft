@@ -228,7 +228,7 @@ let timer = -1
 async function beforeImport() {
   if (!IS_DEV) {
     importLoading = true
-    await exportData('已自动备份数据', 'TypeWords数据备份.zip')
+    await exportData('已自动备份数据', 'LexionCraft数据备份.zip')
     await sleep(1500)
   }
   let d: HTMLDivElement = document.querySelector('#import')

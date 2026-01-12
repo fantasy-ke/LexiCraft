@@ -7,9 +7,9 @@
           <!-- Logo -->
           <div class="flex items-center space-x-3">
             <div class="w-8 h-8 bg-gradient-to-r from-blue-500 to-blue-600 rounded-lg flex items-center justify-center">
-              <span class="text-white font-bold text-sm">TW</span>
+              <span class="text-white font-bold text-sm">LC</span>
             </div>
-            <span class="text-xl font-bold text-gray-900">TypeWords</span>
+            <span class="text-xl font-bold text-gray-900">LexionCraft</span>
           </div>
           
           <!-- 中间导航链接 -->
@@ -23,7 +23,7 @@
           <div class="flex items-center space-x-3">
             <!-- GitHub 按钮 - 优化边框颜色 -->
             <a 
-              href="https://github.com/zyronon/TypeWords" 
+              href="https://github.com/zyronon/LexionCraft" 
               target="_blank"
               class="hidden md:flex items-center space-x-2 bg-gray-900/90 hover:bg-gray-800 text-white px-4 py-2.5 rounded-xl font-medium shadow-lg hover:shadow-xl transition-all duration-200 cursor-pointer border border-gray-600/30"
             >
@@ -64,7 +64,7 @@
             
             <!-- 移动端 GitHub 按钮 -->
             <a 
-              href="https://github.com/zyronon/TypeWords" 
+              href="https://github.com/zyronon/LexionCraft" 
               target="_blank"
               class="flex items-center justify-center space-x-2 bg-gray-900/90 hover:bg-gray-800 text-white px-4 py-3 rounded-xl font-medium shadow-lg border border-gray-600/30 transition-all duration-200 cursor-pointer mt-2"
             >
@@ -99,7 +99,7 @@
           <div class="mb-8 animate-fade-in-up">
             <h1 class="text-5xl sm:text-6xl lg:text-7xl font-bold text-gray-900 mb-6 leading-tight">
               <span class="bg-gradient-to-r from-blue-600 to-blue-800 bg-clip-text text-transparent">
-                TypeWords
+                LexionCraft
               </span>
             </h1>
             <p class="text-xl sm:text-2xl text-gray-600 mb-4">
@@ -199,7 +199,7 @@
                 立即开始学习
               </button>
               <a 
-                href="https://github.com/zyronon/TypeWords" 
+                href="https://github.com/zyronon/LexionCraft" 
                 target="_blank"
                 class="bg-white/20 backdrop-blur-sm text-white px-8 py-4 rounded-xl font-semibold text-lg border border-white/30 hover:bg-white/30 transition-all duration-200 cursor-pointer inline-flex items-center justify-center space-x-2"
               >
@@ -219,15 +219,15 @@
       <div class="max-w-7xl mx-auto text-center">
         <div class="flex items-center justify-center space-x-3 mb-4">
           <div class="w-8 h-8 bg-gradient-to-r from-blue-500 to-blue-600 rounded-lg flex items-center justify-center">
-            <span class="text-white font-bold text-sm">TW</span>
+            <span class="text-white font-bold text-sm">LC</span>
           </div>
-          <span class="text-xl font-bold text-gray-900">TypeWords</span>
+          <span class="text-xl font-bold text-gray-900">LexionCraft</span>
         </div>
         <p class="text-gray-600 leading-relaxed mb-4">
           开源英语学习工具，让学习变得简单有趣。
         </p>
         <p class="text-gray-500">
-          &copy; 2024 TypeWords. 开源项目，MIT 许可证。
+          &copy; 2024 LexionCraft. 开源项目，MIT 许可证。
         </p>
       </div>
     </footer>

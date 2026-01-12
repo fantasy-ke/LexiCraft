@@ -5,9 +5,9 @@
       <div class="header-left">
         <button class="logo-section" @click="goHome">
           <div class="logo-icon">
-            <span class="text-white font-bold text-sm">TW</span>
+            <span class="text-white font-bold text-sm">LC</span>
           </div>
-          <span class="logo-text">TypeWords</span>
+          <span class="logo-text">LexionCraft</span>
         </button>
       </div>
 
@@ -192,19 +192,19 @@
     <!-- 移动端底部导航 -->
     <nav class="mobile-nav">
       <div class="mobile-nav-item" @click="navigateTo('/app/dashboard')" :class="{ active: isActiveRoute('/app/dashboard') }">
-        <i>🏠</i>
+        <IconFluentHome20Regular class="nav-icon" />
         <span>主页</span>
       </div>
       <div class="mobile-nav-item" @click="navigateTo('/app/words')" :class="{ active: isActiveRoute('/app/words') }">
-        <i>📝</i>
+        <IconFluentTextUnderlineDouble20Regular class="nav-icon" />
         <span>单词</span>
       </div>
       <div class="mobile-nav-item" @click="navigateTo('/app/articles')" :class="{ active: isActiveRoute('/app/articles') }">
-        <i>📖</i>
+        <IconFluentBookLetter20Regular class="nav-icon" />
         <span>文章</span>
       </div>
       <div class="mobile-nav-item" @click="navigateTo('/app/setting')" :class="{ active: isActiveRoute('/app/setting') }">
-        <i>⚙️</i>
+        <IconFluentSettings20Regular class="nav-icon" />
         <span>设置</span>
       </div>
     </nav>
@@ -363,7 +363,7 @@ const isActiveRoute = (path: string) => {
         height: 38px;
         padding: 0 1rem 0 2.5rem;
         border: 1px solid var(--border-color);
-        border-radius: 999px; /* Pill shape */
+        border-radius: 4px; // 统一硬朗风格
         background: var(--layout-bg);
         font-size: 0.875rem;
         transition: all 0.2s;
@@ -646,22 +646,23 @@ const isActiveRoute = (path: string) => {
       display: flex;
       align-items: center;
       gap: 0.75rem;
-      padding: 0.75rem 1rem;
-      margin: 0.25rem 0.5rem;
-      border-radius: 8px;
+      padding: 0.5rem 1rem; // 高度减小
+      margin: 0.1rem 0; // 紧凑布局
+      border-radius: 2px; // 菱角分明
       cursor: pointer;
       transition: all 0.2s;
       white-space: nowrap;
+      position: relative;
 
       .nav-icon {
-        font-size: 1.25rem;
-        min-width: 1.25rem;
+        font-size: 1.1rem; // 图标也微缩一点
+        min-width: 1.1rem;
         text-align: center;
         color: var(--text-tertiary);
       }
 
       .nav-text {
-        font-size: 0.9rem;
+        font-size: 0.85rem; // 文字也微缩一点
         color: var(--text-secondary);
         font-weight: 500;
       }
@@ -682,6 +683,17 @@ const isActiveRoute = (path: string) => {
         background: var(--active-bg);
         color: var(--text-active);
         
+        // 添加一个左侧激活条，增加菱角感
+        &::before {
+          content: '';
+          position: absolute;
+          left: 0;
+          top: 0;
+          bottom: 0;
+          width: 3px;
+          background: var(--text-active);
+        }
+
         .nav-text {
           color: var(--text-active);
           font-weight: 600;
@@ -733,8 +745,9 @@ const isActiveRoute = (path: string) => {
 .content-card {
   flex: 1;
   background: var(--header-bg);
-  border-radius: 12px;
-  box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px 0 rgba(0, 0, 0, 0.06);
+  border-radius: 2px; // 菱角分明
+  border: 1px solid var(--border-color);
+  box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
   display: flex;
   flex-direction: column;
   overflow: hidden;
@@ -742,7 +755,7 @@ const isActiveRoute = (path: string) => {
 }
 
 .content-header {
-  height: 50px;
+  height: 40px;
   display: flex;
   align-items: center;
   padding: 0 1rem;
@@ -815,23 +828,38 @@ const isActiveRoute = (path: string) => {
     display: flex;
     flex-direction: column;
     align-items: center;
-    gap: 0.25rem;
-    padding: 0.5rem;
+    gap: 0.2rem;
+    padding: 0.4rem;
     cursor: pointer;
+    flex: 1;
+    transition: all 0.2s;
 
-    i {
+    .nav-icon {
       font-size: 1.25rem;
       color: var(--text-tertiary);
+      transition: all 0.2s;
     }
 
     span {
-      font-size: 0.75rem;
+      font-size: 0.7rem;
       color: var(--text-tertiary);
+      font-weight: 500;
     }
 
     &.active {
-      i, span {
+      .nav-icon, span {
         color: var(--text-active);
+      }
+      
+      // 激活态的小横条
+      &::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        width: 20px;
+        height: 3px;
+        background: var(--text-active);
+        border-radius: 0 0 2px 2px;
       }
     }
   }

@@ -7,6 +7,7 @@ import ConflictNotice from '@/components/ConflictNotice.vue'
 import ArticleList from '@/components/list/ArticleList.vue'
 import Panel from '@/components/Panel.vue'
 import PracticeLayout from '@/components/PracticeLayout.vue'
+import ShortcutHints from '@/components/ShortcutHints.vue'
 import SettingDialog from '@/components/setting/SettingDialog.vue'
 import { AppEnv, DICT_LIST, LIB_JS_URL, TourConfig } from '@/config/env.ts'
 import { genArticleSectionData, usePlaySentenceAudio } from '@/hooks/article.ts'
@@ -461,7 +462,18 @@ const currentPractice = computed(() => {
 provide('currentPractice', currentPractice)
 </script>
 <template>
-  <PracticeLayout v-loading="loading" panelLeft="var(--article-panel-margin-left)">
+  <PracticeLayout v-loading="loading" maxWidth="var(--article-width)">
+    <template v-slot:hints>
+      <ShortcutHints
+        :hints="[
+          { key: ShortcutKey.PlayWordPronunciation, label: '播音' },
+          { key: ShortcutKey.ToggleDictation, label: '内容' },
+          { key: ShortcutKey.ToggleShowTranslate, label: '翻译' },
+          { key: ShortcutKey.Next, label: '跳过' },
+          { key: ShortcutKey.ShowWord, label: '提示' },
+        ]"
+      />
+    </template>
     <template v-slot:practice>
       <TypingArticle
         ref="typingArticleRef"

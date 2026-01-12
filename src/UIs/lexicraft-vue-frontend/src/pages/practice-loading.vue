@@ -14,22 +14,35 @@ const router = useRouter()
 const route = useRoute()
 
 const loadingProgress = ref(0)
-const loadingText = ref('正在准备学习内容...')
+const loadingText = ref('')
+
+const tips = [
+  '按下 Alt + S 可以快速打开设置面板',
+  '每天坚持练习 15 分钟，语感会显著提升',
+  '在文章练习中开启“听写模式”，挑战你的听力极限',
+  '快捷键 Ctrl + \' 可以播放当前句子的发音',
+  '遇到生词？按下 Ctrl + N 快速加入生词本',
+  '想要更清爽的界面？按下 Ctrl + L 开启简洁模式',
+  '深色模式对眼睛更友好，在设置中可以随时切换',
+  '由于没有输入框，练习过程更像是钢琴弹奏',
+  '如果你觉得某个单词太简单，可以按下 Ctrl + M 标记为已掌握',
+  '每一个微小的进步，都是通往流利道路上的基石'
+]
 
 // 模拟加载过程
 const simulateLoading = async () => {
-  const steps = [
-    { progress: 20, text: '正在加载词典数据...' },
-    { progress: 40, text: '正在准备练习内容...' },
-    { progress: 60, text: '正在初始化学习环境...' },
-    { progress: 80, text: '正在优化学习体验...' },
-    { progress: 100, text: '准备完成，即将开始学习...' }
-  ]
+  // 随机选一个贴士作为初始文本
+  loadingText.value = tips[Math.floor(Math.random() * tips.length)]
 
-  for (const step of steps) {
+  const steps = [20, 40, 60, 80, 100]
+
+  for (const progress of steps) {
     await new Promise(resolve => setTimeout(resolve, 300 + Math.random() * 200))
-    loadingProgress.value = step.progress
-    loadingText.value = step.text
+    loadingProgress.value = progress
+    // 进度过半时，可以考虑换一个提示语，增加互动感
+    if (progress === 60) {
+       loadingText.value = tips[Math.floor(Math.random() * tips.length)]
+    }
   }
 
   // 加载完成后跳转到实际的练习页面
@@ -40,10 +53,10 @@ const simulateLoading = async () => {
   const practiceId = route.params.id as string
   
   if (targetPath && practiceId) {
-    // 跳转到实际的练习页面，使用练习布局
-    router.replace(`${targetPath}/${practiceId}`)
+    const finalPath = `${targetPath}/${practiceId}`
+    console.log('Redirecting to:', finalPath)
+    router.replace(finalPath)
   } else {
-    // 如果参数不完整，返回主页
     router.replace('/app/dashboard')
   }
 }

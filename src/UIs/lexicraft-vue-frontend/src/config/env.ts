@@ -1,11 +1,11 @@
 import { offset } from '@floating-ui/dom'
 import { ShortcutKey, WordPracticeMode, WordPracticeStage } from '@/types/enum'
 
-export const GITHUB = 'https://github.com/zyronon/TypeWords'
-export const Host = 'typewords.cc'
+export const GITHUB = 'https://github.com/zyronon/LexionCraft'
+export const Host = 'lexioncraft.cc'
 export const EMAIL = 'zyronon@163.com'
 export const Origin = `https://${Host}`
-export const APP_NAME = 'Type Words'
+export const APP_NAME = 'LexionCraft'
 
 const common = {
   word_dict_list_version: 1,
@@ -54,7 +54,7 @@ export const SoundFileOptions = [
   { value: '笔记本键盘', label: '笔记本键盘' },
 ]
 export const APP_VERSION = {
-  key: 'type-words-app-version',
+  key: 'lexion-craft-app-version',
   version: 2,
 }
 export const SAVE_DICT_KEY = {

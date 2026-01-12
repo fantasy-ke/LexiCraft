@@ -1,5 +1,5 @@
 import * as VueRouter from 'vue-router'
-import {RouteRecordRaw} from 'vue-router'
+import { RouteRecordRaw } from 'vue-router'
 import Layout from "@/layout/default.vue";
 import ModernLayout from "@/layout/modern.vue";
 import PracticeLayout from "@/layout/practice.vue";
@@ -48,8 +48,8 @@ export const routes: RouteRecordRaw[] = [
     path: '/practice',
     component: PracticeLayout,
     children: [
-      {path: 'words/:id', component: PracticeWords},
-      {path: 'articles/:id', component: PracticeArticles},
+      { path: 'words/:id', component: PracticeWords },
+      { path: 'articles/:id', component: PracticeArticles },
     ]
   },
   // 现代化应用路由
@@ -57,44 +57,44 @@ export const routes: RouteRecordRaw[] = [
     path: '/app',
     component: ModernLayout,
     children: [
-      {path: '', component: dashboard}, // 默认显示仪表板
-      {path: 'dashboard', component: dashboard},
-      {path: 'words', component: words},
-      {path: 'word', redirect: '/app/words'},
-      {path: 'practice-words/:id', redirect: to => `/practice-loading/${to.params.id}?target=/practice/words`},
-      {path: 'word-test/:id', component: WordTest},
-      {path: 'study-word', redirect: '/app/words'},
-      {path: 'dict-list', component: DictList},
-      {path: 'dict-detail', component: DictDetail},
+      { path: '', component: dashboard }, // 默认显示仪表板
+      { path: 'dashboard', component: dashboard },
+      { path: 'words', component: words },
+      { path: 'word', redirect: '/app/words' },
+      { path: 'practice-words/:id', redirect: to => `/practice-loading/${to.params.id}?target=/practice/words` },
+      { path: 'word-test/:id', component: WordTest },
+      { path: 'study-word', redirect: '/app/words' },
+      { path: 'dict-list', component: DictList },
+      { path: 'dict-detail', component: DictDetail },
 
-      {path: 'articles', component: articles},
-      {path: 'article', redirect: '/app/articles'},
-      {path: 'practice-articles/:id', redirect: to => `/practice-loading/${to.params.id}?target=/practice/articles`},
-      {path: 'study-article', redirect: '/app/articles'},
-      {path: 'book-detail', component: BookDetail},
-      {path: 'book-list', component: BookList},
+      { path: 'articles', component: articles },
+      { path: 'article', redirect: '/app/articles' },
+      { path: 'practice-articles/:id', redirect: to => `/practice-loading/${to.params.id}?target=/practice/articles` },
+      { path: 'study-article', redirect: '/app/articles' },
+      { path: 'book-detail', component: BookDetail },
+      { path: 'book-list', component: BookList },
 
-      {path: 'login', component: login},
-      {path: 'user', component: user},
-      {path: 'vip', component: vip},
+      { path: 'login', component: login },
+      { path: 'user', component: user },
+      { path: 'vip', component: vip },
 
-      {path: 'setting', component: setting},
-      {path: 'feedback', component: feedback},
-      {path: 'qa', component: qa},
-      {path: 'doc', component: doc},
+      { path: 'setting', component: setting },
+      { path: 'feedback', component: feedback },
+      { path: 'qa', component: qa },
+      { path: 'doc', component: doc },
     ]
   },
   // 兼容旧路由 - 重定向到新的现代化布局
-  {path: '/words', redirect: '/app/words'},
-  {path: '/articles', redirect: '/app/articles'},
-  {path: '/setting', redirect: '/app/setting'},
-  {path: '/login', redirect: '/app/login'},
-  {path: '/user', redirect: '/app/user'},
-  {path: '/feedback', redirect: '/app/feedback'},
-  {path: '/doc', redirect: '/app/doc'},
-  {path: '/qa', redirect: '/app/qa'},
-  {path: '/batch-edit-article', component: () => import("@/pages/(articles)/batch-edit-article.vue")},
-  {path: '/:pathMatch(.*)*', redirect: '/'},
+  { path: '/words', redirect: '/app/words' },
+  { path: '/articles', redirect: '/app/articles' },
+  { path: '/setting', redirect: '/app/setting' },
+  { path: '/login', redirect: '/app/login' },
+  { path: '/user', redirect: '/app/user' },
+  { path: '/feedback', redirect: '/app/feedback' },
+  { path: '/doc', redirect: '/app/doc' },
+  { path: '/qa', redirect: '/app/qa' },
+  { path: '/batch-edit-article', component: () => import("@/pages/(articles)/batch-edit-article.vue") },
+  { path: '/:pathMatch(.*)*', redirect: '/' },
 ]
 
 const router = VueRouter.createRouter({
@@ -106,7 +106,7 @@ const router = VueRouter.createRouter({
     if (savedPosition) {
       return savedPosition
     } else {
-      return {top: 0}
+      return { top: 0 }
     }
   },
 })

@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { ref, computed } from 'vue'
 import { useRouter, useRoute } from 'vue-router'
-import ConfirmDialog from '@/components/base/ConfirmDialog.vue'
+import PracticeExitDialog from '@/components/PracticeExitDialog.vue'
 
 const router = useRouter()
 const route = useRoute()
@@ -15,28 +15,35 @@ const showStats = ref(true)
 // 退出确认对话框状态
 const showExitConfirm = ref(false)
 
+// 退出目标
+const listTarget = computed(() => {
+  if (route.path.includes('/words')) return '/app/words'
+  if (route.path.includes('/articles')) return '/app/articles'
+  return '/app/dashboard'
+})
+
+const listLabel = computed(() => {
+  if (route.path.includes('/words')) return '返回单词列表'
+  if (route.path.includes('/articles')) return '返回文章列表'
+  return '返回课程列表'
+})
+
 // 练习标题
 const practiceTitle = computed(() => {
-  if (route.path.includes('practice-words')) {
+  if (route.path.includes('/words')) {
     return '单词练习'
-  } else if (route.path.includes('practice-articles')) {
+  } else if (route.path.includes('/articles')) {
     return '文章背诵'
   }
   return '学习练习'
 })
 
-// 退出学习确认处理
-const handleExitConfirm = () => {
-  showExitConfirm.value = false
-  
-  // 根据当前路径决定返回哪个页面
-  if (route.path.includes('practice-words')) {
-    router.push('/app/words')
-  } else if (route.path.includes('practice-articles')) {
-    router.push('/app/articles')
-  } else {
-    router.push('/app/dashboard')
-  }
+const exitToHome = () => {
+  router.push('/app/dashboard')
+}
+
+const exitToList = () => {
+  router.push(listTarget.value)
 }
 
 // 暴露方法供子组件调用
@@ -59,9 +66,8 @@ defineExpose({
     <!-- 练习页面头部 -->
     <header class="practice-header">
       <div class="header-left">
-        <button class="exit-btn" @click="showExitConfirm = true" :title="'退出学习'">
-          <i class="exit-icon">←</i>
-          <span class="exit-text">退出</span>
+        <button class="exit-btn icon-only" @click="showExitConfirm = true" :title="'退出练习'">
+          <IconFluentArrowLeft24Filled class="exit-icon" />
         </button>
       </div>
       
@@ -88,14 +94,13 @@ defineExpose({
       <router-view></router-view>
     </main>
     
-    <!-- 退出确认对话框 -->
-    <ConfirmDialog
+    <!-- 退出确认弹出层 -->
+    <PracticeExitDialog
       v-model:visible="showExitConfirm"
-      title="退出学习"
-      message="确定要退出当前学习吗？学习进度将会保存。"
-      confirm-text="退出"
-      cancel-text="继续学习"
-      @confirm="handleExitConfirm"
+      :list-label="listLabel"
+      @exit-home="exitToHome"
+      @exit-list="exitToList"
+      @continue="showExitConfirm = false"
     />
   </div>
 </template>
@@ -128,28 +133,28 @@ defineExpose({
     .exit-btn {
       display: flex;
       align-items: center;
-      gap: 0.5rem;
-      padding: 0.5rem 1rem;
-      background: #f8fafc;
-      border: 1px solid #e2e8f0;
-      border-radius: 8px;
+      justify-content: center;
+      width: 40px;
+      height: 40px;
+      background: transparent;
+      border: 1px solid transparent;
+      border-radius: 10px;
       cursor: pointer;
       transition: all 0.2s;
-      font-size: 0.875rem;
       color: #475569;
 
       &:hover {
-        background: #e2e8f0;
-        border-color: #cbd5e1;
+        background: #f1f5f9;
+        color: #1e293b;
+        border-color: #e2e8f0;
+      }
+
+      &:active {
+        transform: scale(0.95);
       }
 
       .exit-icon {
-        font-size: 1.125rem;
-        font-weight: bold;
-      }
-
-      .exit-text {
-        font-weight: 500;
+        font-size: 1.25rem;
       }
     }
   }

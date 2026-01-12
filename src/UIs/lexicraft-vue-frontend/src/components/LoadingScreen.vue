@@ -1,34 +1,44 @@
 <template>
-  <div class="loading-screen">
-    <div class="loading-content">
-      <!-- Logo 图标 -->
-      <div class="loading-logo">
+  <div class="loading-screen" :class="settingStore.theme">
+    <!-- Logo 居中显示 -->
+    <div class="center-logo">
+      <div class="logo-box">
         <div class="logo-icon">
-          <span class="logo-text">TW</span>
+          <span class="text-white font-bold text-lg">LC</span>
         </div>
+        <span class="logo-text">LexionCraft</span>
       </div>
-      
-      <!-- 加载文本 -->
-      <div class="loading-text">
+    </div>
+    
+    <div class="loading-bottom-section">
+      <!-- 提示句子 -->
+      <div class="loading-tip" v-if="loadingText">
+        <span class="quote">“</span>
         {{ loadingText }}
+        <span class="quote">”</span>
       </div>
       
-      <!-- 进度条 -->
-      <div class="progress-container">
-        <div class="progress-bar">
-          <div class="progress-fill" :style="{ width: progress + '%' }"></div>
+      <!-- 进度条区域 -->
+      <div class="progress-area">
+        <span class="loading-label">LOADING</span>
+        <div class="progress-bar-container">
+          <div class="progress-bar-fill" :style="{ width: progress + '%' }"></div>
         </div>
-        <div class="progress-percentage">{{ Math.round(progress) }}%</div>
+        <span class="percentage-label">{{ Math.round(progress) }}%</span>
       </div>
     </div>
   </div>
 </template>
 
 <script setup lang="ts">
+import { useSettingStore } from '@/stores/setting.ts'
+
 interface Props {
   progress: number
   loadingText?: string
 }
+
+const settingStore = useSettingStore()
 
 withDefaults(defineProps<Props>(), {
   loadingText: '正在加载学习内容...'
@@ -38,131 +48,162 @@ withDefaults(defineProps<Props>(), {
 <style scoped lang="scss">
 .loading-screen {
   position: fixed;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  background: #1a1a1a;
+  inset: 0;
+  background: var(--color-primary);
   display: flex;
+  flex-direction: column;
   align-items: center;
   justify-content: center;
   z-index: 9999;
-  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  overflow: hidden;
+  transition: background 0.5s ease;
+
+  &.dark {
+    background: #000000;
+  }
 }
 
-.loading-content {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 2rem;
-  text-align: center;
-}
-
-.loading-logo {
-  .logo-icon {
-    width: 80px;
-    height: 80px;
-    background: linear-gradient(135deg, #667eea, #764ba2);
-    border-radius: 20px;
+.center-logo {
+  .logo-box {
     display: flex;
     align-items: center;
-    justify-content: center;
-    animation: pulse 2s ease-in-out infinite;
-    
+    gap: 1rem;
+    animation: breathing 3s ease-in-out infinite;
+
+    .logo-icon {
+      width: 48px;
+      height: 48px;
+      background: linear-gradient(135deg, #3b82f6, #1d4ed8);
+      border-radius: 8px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      box-shadow: 0 4px 15px rgba(59, 130, 246, 0.3);
+    }
+
     .logo-text {
-      font-size: 2rem;
-      font-weight: 700;
-      color: white;
+      font-size: 2.2rem;
+      font-weight: 800;
+      color: var(--text-primary, #ffffff);
+      letter-spacing: -0.02em;
     }
   }
 }
 
-.loading-text {
-  color: #ffffff;
-  font-size: 1.125rem;
-  font-weight: 500;
-  opacity: 0.9;
-}
-
-.progress-container {
+.loading-bottom-section {
+  position: absolute;
+  bottom: 12%;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 80%;
+  max-width: 600px;
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 0.75rem;
-  width: 300px;
+  gap: 1.5rem;
+}
+
+.loading-tip {
+  color: var(--text-secondary, #e5e7eb);
+  font-size: 0.9rem;
+  font-weight: 500;
+  letter-spacing: 0.02rem;
+  opacity: 0.9;
+  text-align: center;
+  max-width: 90%;
   
-  .progress-bar {
-    width: 100%;
-    height: 4px;
-    background: rgba(255, 255, 255, 0.1);
-    border-radius: 2px;
+  .quote {
+    color: #3b82f6; // 蓝色引号
+    font-weight: bold;
+    font-size: 1.2rem;
+    padding: 0 0.4rem;
+  }
+}
+
+.progress-area {
+  display: flex;
+  align-items: center;
+  gap: 1.2rem;
+  width: 100%;
+
+  .loading-label, .percentage-label {
+    font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+    font-size: 0.75rem;
+    font-weight: 800;
+    color: var(--text-tertiary, #9ca3af);
+    letter-spacing: 0.15rem;
+    min-width: 4rem;
+  }
+
+  .percentage-label {
+    text-align: right;
+  }
+
+  .progress-bar-container {
+    flex: 1;
+    height: 8px;
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 2px; // 硬朗风格
     overflow: hidden;
-    
-    .progress-fill {
+    position: relative;
+
+    .progress-bar-fill {
       height: 100%;
-      background: linear-gradient(90deg, #667eea, #764ba2);
-      border-radius: 2px;
-      transition: width 0.3s ease;
+      background: linear-gradient(90deg, #3b82f6, #1d4ed8); // 蓝色渐变
+      transition: width 0.4s cubic-bezier(0.4, 0, 0.2, 1);
       position: relative;
-      
+
       &::after {
         content: '';
         position: absolute;
-        top: 0;
-        left: 0;
-        right: 0;
-        bottom: 0;
-        background: linear-gradient(90deg, transparent, rgba(255,255,255,0.3), transparent);
-        animation: shimmer 1.5s infinite;
+        inset: 0;
+        background: linear-gradient(
+          90deg,
+          rgba(255, 255, 255, 0) 0%,
+          rgba(255, 255, 255, 0.2) 50%,
+          rgba(255, 255, 255, 0) 100%
+        );
+        animation: shimmer 2s infinite;
       }
     }
   }
-  
-  .progress-percentage {
-    color: #ffffff;
-    font-size: 0.875rem;
-    font-weight: 600;
-    opacity: 0.8;
-  }
 }
 
-@keyframes pulse {
+@keyframes breathing {
   0%, 100% {
     transform: scale(1);
     opacity: 1;
   }
   50% {
-    transform: scale(1.05);
-    opacity: 0.8;
+    transform: scale(1.03);
+    opacity: 0.9;
   }
 }
 
 @keyframes shimmer {
-  0% {
-    transform: translateX(-100%);
-  }
-  100% {
-    transform: translateX(100%);
-  }
+  0% { transform: translateX(-100%); }
+  100% { transform: translateX(100%); }
 }
 
 /* 响应式设计 */
 @media (max-width: 768px) {
-  .progress-container {
-    width: 250px;
+  .center-logo img {
+    height: 2.5rem;
   }
-  
-  .loading-logo .logo-icon {
-    width: 60px;
-    height: 60px;
+
+  .loading-bottom-section {
+    width: 90%;
+    bottom: 15%;
+  }
+
+  .progress-area {
+    gap: 0.5rem;
     
-    .logo-text {
-      font-size: 1.5rem;
+    .loading-label, .percentage-label {
+      font-size: 0.65rem;
+      min-width: 2.5rem;
     }
-  }
-  
-  .loading-text {
-    font-size: 1rem;
   }
 }
 </style>

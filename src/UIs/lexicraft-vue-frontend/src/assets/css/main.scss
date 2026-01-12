@@ -15,13 +15,13 @@
 
   --color-sub-gray: #c0bfbf;
 
-  --article-width: 90%;
-  --article-toolbar-width: 90%;
-  --article-panel-width: 20rem;
+  --article-width: 60vw;
+  --article-toolbar-width: 60vw;
+  --article-panel-width: 18rem;
   --article-panel-margin-left: calc(50% + var(--article-width) / 2 + 1rem);
 
-  --toolbar-width: 90%;
-  --panel-width: 24rem;
+  --toolbar-width: 50vw;
+  --panel-width: 20rem;
 
   --modal-padding: 1.3rem;
   --space: 0.9rem;
@@ -138,59 +138,67 @@ html.dark {
   --layout-bg: #292A2D;
   --header-bg: #292A2D;
   --sidebar-bg: #292A2D;
-  --border-color: #334155; /* Slate 700 */
+  --border-color: #334155;
+  /* Slate 700 */
 
-  --text-primary: #f1f5f9; /* Slate 100 */
-  --text-secondary: #94a3b8; /* Slate 400 */
-  --text-tertiary: #64748b; /* Slate 500 */
-  --text-active: #60a5fa; /* Blue 400 */
+  --text-primary: #f1f5f9;
+  /* Slate 100 */
+  --text-secondary: #94a3b8;
+  /* Slate 400 */
+  --text-tertiary: #64748b;
+  /* Slate 500 */
+  --text-active: #60a5fa;
+  /* Blue 400 */
 
-  --hover-bg: #334155; /* Slate 700 */
+  --hover-bg: #334155;
+  /* Slate 700 */
   // --active-bg: #1e293b; /* Slate 800 - distinct from hover? maybe darker blue */
-  --active-bg: rgba(59, 130, 246, 0.15); /* Translucent Blue */
+  --active-bg: rgba(59, 130, 246, 0.15);
+  /* Translucent Blue */
 
   --shadow-color: rgba(0, 0, 0, 0.3);
 }
 
 @media (max-width: 1720px) {
   :root {
-    --toolbar-width: 50vw;
+    --toolbar-width: 55vw;
     --panel-width: 20rem;
-    --space: 0.5rem;
+    --space: 0.7rem;
 
-    --article-width: 60vw;
-    --article-toolbar-width: 60vw;
+    --article-width: 65vw;
+    --article-toolbar-width: 65vw;
     --article-panel-width: 17rem;
   }
 }
 
 @media (max-width: 1560px) {
   :root {
-    --article-width: 60vw;
-    --article-toolbar-width: 60vw;
+    --article-width: 70vw;
+    --article-toolbar-width: 70vw;
     --article-panel-width: 15rem;
+    --toolbar-width: 60vw;
   }
 }
 
 @media (max-width: 1366px) {
   :root {
-    --panel-width: 20vw;
-    --toolbar-width: 50vw;
+    --toolbar-width: 65vw;
+    --panel-width: 18rem;
     --stat-gap: 0.5rem;
-    --space: 0.3rem;
+    --space: 0.5rem;
 
-
-    --article-width: 70vw;
-    --article-toolbar-width: 70vw;
-    --article-panel-width: 13rem;
+    --article-width: 75vw;
+    --article-toolbar-width: 75vw;
+    --article-panel-width: 12rem;
   }
 }
 
 @media (max-width: 1150px) {
   :root {
-    --article-width: 85vw;
-    --article-toolbar-width: 85vw;
-    --article-panel-width: 16rem;
+    --article-width: 90vw;
+    --article-toolbar-width: 90vw;
+    --article-panel-width: 15rem;
+    --toolbar-width: 80vw;
   }
 }
 
@@ -217,9 +225,9 @@ html.dark {
 
 .anim {
   transition: background var(--anim-time),
-  color var(--anim-time),
-  border var(--anim-time),
-  opacity var(--anim-time);
+    color var(--anim-time),
+    border var(--anim-time),
+    opacity var(--anim-time);
 }
 
 .en-article-family {
@@ -242,13 +250,13 @@ body {
 }
 
 .page {
-  @apply relative z-1 h-full w-full  flex flex-col;
+  @apply relative z-1 h-full w-full flex flex-col;
 }
 
 .mobile-page {
   @apply fixed left-0 right-0 bottom-0 top-0 overflow-auto font-size-18 w-full h-full flex flex-col;
 
-  & > .page-content {
+  &>.page-content {
     @apply p-10 box-border overflow-auto;
   }
 }
@@ -315,6 +323,7 @@ a {
 
   .left {
     @apply flex gap-1;
+
     .title-wrapper {
       @apply flex flex-col gap-0.5 word-break-break-word;
     }
@@ -476,6 +485,7 @@ a {
 }
 
 @keyframes underline {
+
   0%,
   100% {
     border-left: 0.1rem solid var(--color-article);
@@ -492,12 +502,12 @@ a {
 }
 
 .btn-no-margin {
-  .base-button + .base-button {
+  .base-button+.base-button {
     margin-left: 0 !important;
   }
 }
 
 .target-number {
-  @apply text-3xl!;
+  @apply text-3xl !;
   color: rgb(176, 116, 211) !important;
 }

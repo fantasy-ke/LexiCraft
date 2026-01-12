@@ -54,7 +54,7 @@ async function startPractice() {
     complete: sbook.complete,
     s: `name:${sbook.name},index:${sbook.lastLearnIndex},title:${sbook.articles[sbook.lastLearnIndex].title}`,
   })
-  nav('/practice-articles/' + sbook.id)
+  nav('/app/practice-articles/' + sbook.id)
 }
 
 const showBookDetail = computed(() => {
@@ -259,7 +259,7 @@ watch([() => displayMode, () => selectArticle.id, () => showTranslate], () => {
                     <span>开始学习</span>
                   </div>
                 </BaseButton>
-                <BaseButton type="info" size="large" @click="router.push('/app/batch-edit-article')">
+                <BaseButton type="info" size="large" @click="router.push('/batch-edit-article')">
                    <IconFluentAppsListDetail20Regular />
                    <span>文章管理</span>
                 </BaseButton>

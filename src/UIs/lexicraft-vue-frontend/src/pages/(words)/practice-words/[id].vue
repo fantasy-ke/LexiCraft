@@ -24,6 +24,7 @@ import Toast from '@/components/base/toast/Toast.ts'
 import { getDefaultDict, getDefaultWord } from '@/types/func.ts'
 import ConflictNotice from '@/components/ConflictNotice.vue'
 import PracticeLayout from '@/components/PracticeLayout.vue'
+import ShortcutHints from '@/components/ShortcutHints.vue'
 
 import { AppEnv, DICT_LIST, LIB_JS_URL, TourConfig, WordPracticeModeStageMap } from '@/config/env.ts'
 import { ToastInstance } from '@/components/base/toast/type.ts'
@@ -721,7 +722,18 @@ useEvents([
 </script>
 
 <template>
-  <PracticeLayout v-loading="loading" panelLeft="var(--word-panel-margin-left)">
+  <PracticeLayout v-loading="loading" maxWidth="var(--toolbar-width)">
+    <template v-slot:hints>
+      <ShortcutHints
+        :hints="[
+          { key: ShortcutKey.PlayWordPronunciation, label: '播音' },
+          { key: ShortcutKey.ToggleSimple, label: '掌握' },
+          { key: ShortcutKey.ToggleCollect, label: '生词' },
+          { key: ShortcutKey.Next, label: '跳过' },
+          { key: ShortcutKey.ShowWord, label: '提示' },
+        ]"
+      />
+    </template>
     <!-- 导航区域 -->
     <template v-slot:navigation>
       <div
@@ -827,8 +839,6 @@ useEvents([
   display: flex;
   flex-direction: column;
   position: relative;
-  max-width: 1000px;
-  margin: 0 auto;
 }
 
 // 导航按钮样式 - 分布在两侧，保持稳定高度
