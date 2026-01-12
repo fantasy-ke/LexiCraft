@@ -25,7 +25,7 @@ import dashboard from "@/pages/dashboard.vue";
 import home from "@/pages/home.vue";
 import practiceLoading from "@/pages/practice-loading.vue";
 
-import { LOGIN_PATH, REGISTER_PATH, CALLBACK_PATH, REDIRECT_PATH } from '@/config/logto.config'
+import { LOGIN_PATH, REGISTER_PATH, CALLBACK_PATH, REDIRECT_PATH } from '@/config/auth.config'
 
 export const routes: RouteRecordRaw[] = [
   // 主页路由（营销页面）
@@ -129,8 +129,8 @@ const router = VueRouter.createRouter({
 
 // 路由守卫
 router.beforeEach(async (to: any, from: any) => {
-  const { useUserStore } = await import('@/stores/user')
-  const userStore = useUserStore()
+  const { useAuthStore } = await import('@/stores/auth')
+  const authStore = useAuthStore()
 
   const isPublicRoute = to.meta?.public === true
 
@@ -141,11 +141,11 @@ router.beforeEach(async (to: any, from: any) => {
   const requiresAuth = to.matched.some((record: any) => record.meta.requiresAuth)
 
   if (requiresAuth) {
-    if (!userStore.isLogin) {
-      await userStore.init()
+    if (!authStore.isAuthenticated) {
+      await authStore.initializeAuth()
     }
 
-    if (!userStore.isLogin && !userStore.logtoUser) {
+    if (!authStore.isAuthenticated) {
       return {
         path: LOGIN_PATH,
         query: { redirect: to.fullPath }

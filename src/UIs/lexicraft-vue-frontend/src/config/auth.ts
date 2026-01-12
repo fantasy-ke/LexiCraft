@@ -45,7 +45,7 @@ export const EMAIL_CONFIG = {
 // 密码配置
 export const PASSWORD_CONFIG = {
   // 密码最小长度
-  minLength: 9,
+  minLength: 8,
 
   // 密码最大长度
   maxLength: 20

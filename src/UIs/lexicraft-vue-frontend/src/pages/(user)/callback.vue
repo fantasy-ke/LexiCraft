@@ -1,16 +1,13 @@
 <script setup lang="ts">
 import { onMounted, ref } from 'vue'
 import { useRouter, useRoute } from 'vue-router'
-import { useLogto } from '@/hooks/useLogto'
-import { useUserStore } from '@/stores/user'
+import { useAuth } from '@/hooks/useAuth'
 import Toast from '@/components/base/toast/Toast'
-
-import { LOGIN_PATH, REDIRECT_PATH } from '@/config/logto.config'
+import { LOGIN_PATH, REDIRECT_PATH } from '@/config/auth.config'
 
 const router = useRouter()
 const route = useRoute()
-const { handleSignInCallback, getUserInfo } = useLogto()
-const userStore = useUserStore()
+const { handleSignInCallback, getUserInfo } = useAuth()
 
 const loading = ref(true)
 const error = ref('')
@@ -19,18 +16,25 @@ onMounted(async () => {
   try {
     loading.value = true
     
+    // 从 URL 参数中提取 OAuth 回调信息
+    const code = route.query.code as string
+    const state = route.query.state as string
+    const provider = route.query.provider as string || 
+                    route.path.includes('github') ? 'github' : 'gitee'
+    
+    if (!code || !state) {
+      throw new Error('OAuth 回调参数不完整')
+    }
+    
     // 处理 OAuth 回调
-    const user = await handleSignInCallback()
+    const user = await handleSignInCallback({
+      code,
+      state,
+      provider: provider as any
+    })
     
     if (user) {
-      // 获取完整用户信息
-      const userInfo = await getUserInfo()
-      
-      // 存储用户信息到 store
-      if (userInfo) {
-        userStore.setUser(userInfo)
-        Toast.success('登录成功!')
-      }
+      Toast.success('登录成功!')
       
       // 获取重定向路径
       const redirect = (route.query.redirect as string) || REDIRECT_PATH

@@ -15,6 +15,8 @@ const map = {
     API: 'http://localhost/',
     // RESOURCE_URL: 'https://dicts.2study.top/',
     RESOURCE_URL: '/',
+    // Identity 服务地址 - 通过API网关访问
+    IDENTITY_API: 'http://localhost:5000/identity',
   },
 }
 

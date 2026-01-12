@@ -10,26 +10,25 @@ import FormItem from '@/components/base/form/FormItem.vue'
 import Form from '@/components/base/form/Form.vue'
 import Notice from '@/components/user/Notice.vue'
 import { FormInstance } from '@/components/base/form/types.ts'
-import { useLogto } from '@/hooks/useLogto'
-import { oauthProviders, REGISTER_PATH, REDIRECT_PATH } from '@/config/logto.config'
-
-import { useUserStore } from '@/stores/user'
+import { useAuth } from '@/hooks/useAuth'
+import { oauthProviders, REGISTER_PATH, REDIRECT_PATH } from '@/config/auth.config'
 
 // 状态管理
 const route = useRoute()
 const router = useRouter()
-const userStore = useUserStore()
-const { signInWithEmail, signInWithOAuth, isLoading } = useLogto()
+const { signInWithAccount, signInWithOAuth, isLoading } = useAuth()
 
 // 页面状态
 const loading = ref(false)
 const oauthLoading = ref<string | null>(null)
 
 // 登录表单
-const loginForm = ref({ email: '', password: '' })
+const loginForm = ref({ userAccount: '', password: '' })
 const loginFormRef = ref<FormInstance>()
 const loginFormRules = {
-  email: accountRules,
+  userAccount: [
+    { required: true, message: '请输入邮箱或用户名', trigger: 'blur' }
+  ],
   password: passwordRules,
 }
 
@@ -43,23 +42,16 @@ async function handleLogin() {
       loading.value = true
       
       // 特殊账户处理: admin@qq.com / 123456789
-      if (loginForm.value.email === 'admin@qq.com' && loginForm.value.password === '123456789') {
-        userStore.setToken('admin-mock-token')
-        userStore.setUser({
-          id: 'admin',
-          username: '超级管理员',
-          email: 'admin@qq.com',
-          avatar: '',
-          role: 'admin'
-        })
-        Toast.success('管理员登录成功')
-        router.push(REDIRECT_PATH)
+      if (loginForm.value.userAccount === 'admin@qq.com' && loginForm.value.password === '123456789') {
+        // 使用新的认证系统处理管理员登录
+        await signInWithAccount(loginForm.value.userAccount, loginForm.value.password)
         return
       }
 
-      await signInWithEmail(loginForm.value.email, loginForm.value.password)
+      await signInWithAccount(loginForm.value.userAccount, loginForm.value.password)
     } catch (error: any) {
-      Toast.error(error.message || '登录失败,请重试')
+      // 错误提示已经在 useAuth 中处理，这里不需要再次提示
+      console.error('Login failed:', error)
     } finally {
       loading.value = false
     }
@@ -70,9 +62,11 @@ async function handleLogin() {
 async function handleOAuthLogin(provider: string) {
   try {
     oauthLoading.value = provider
-    await signInWithOAuth(provider)
+    await signInWithOAuth(provider as any)
   } catch (error: any) {
-    Toast.error(error.message || 'OAuth登录失败,请重试')
+    // 错误提示已经在 useAuth 中处理，这里不需要再次提示
+    console.error('OAuth login failed:', error)
+  } finally {
     oauthLoading.value = null
   }
 }
@@ -114,12 +108,12 @@ const goToForgot = () => {
           </div>
 
           <Form ref="loginFormRef" :rules="loginFormRules" :model="loginForm" class="space-y-4">
-            <FormItem prop="email" label="电子邮箱">
+            <FormItem prop="userAccount" label="邮箱/用户名">
               <BaseInput
-                v-model="loginForm.email"
-                type="email"
+                v-model="loginForm.userAccount"
+                type="text"
                 size="large"
-                placeholder="请输入邮箱地址"
+                placeholder="请输入邮箱地址或用户名"
               />
             </FormItem>
             <FormItem prop="password" label="账号密码">
