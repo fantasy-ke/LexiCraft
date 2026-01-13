@@ -54,9 +54,9 @@ export function useAuth() {
     try {
       await authStore.login(credentials)
       
-      // 登录成功后跳转
+      // 登录成功后跳转 (使用 href 触发全量刷新)
       const redirect = router.currentRoute.value.query.redirect as string
-      router.push(redirect || AUTH_PATHS.REDIRECT)
+      window.location.href = redirect || AUTH_PATHS.REDIRECT
     } catch (error: any) {
       // 在这里统一处理错误提示
       const { parseAuthError } = await import('@/utils/authHelpers')
@@ -88,9 +88,9 @@ export function useAuth() {
     
     await authStore.login(credentials)
     
-    // 登录成功后跳转
+    // 登录成功后跳转 (使用 href 触发全量刷新)
     const redirect = router.currentRoute.value.query.redirect as string
-    router.push(redirect || AUTH_PATHS.REDIRECT)
+    window.location.href = redirect || AUTH_PATHS.REDIRECT
   }
 
   /**
@@ -154,9 +154,9 @@ export function useAuth() {
     
     await authStore.handleOAuthCallback(params)
     
-    // 回调成功后跳转
+    // 回调成功后跳转 (使用 href 触发全量刷新)
     const redirect = router.currentRoute.value.query.redirect as string
-    router.push(redirect || AUTH_PATHS.REDIRECT)
+    window.location.href = redirect || AUTH_PATHS.REDIRECT
     
     return authStore.user
   }

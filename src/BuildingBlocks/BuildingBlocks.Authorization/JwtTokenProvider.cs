@@ -41,8 +41,8 @@ public class JwtTokenProvider(IOptions<OAuthOptions> options):IJwtTokenProvider
             _options.Issuer, //Issuer
             _options.Audience, //Audience
             claims, //Claims,
-            DateTime.Now, //notBefore
-            DateTime.Now.AddMinutes(_options.ExpireMinute), //expires
+            DateTime.UtcNow, //notBefore
+            DateTime.UtcNow.AddMinutes(_options.ExpireMinute), //expires
             signingCredentials //Credentials
         );
 

@@ -12,6 +12,7 @@ import Notice from '@/components/user/Notice.vue'
 import { FormInstance } from '@/components/base/form/types.ts'
 import { useAuth } from '@/hooks/useAuth'
 import { oauthProviders, REGISTER_PATH, REDIRECT_PATH } from '@/config/auth.config'
+import LoadingScreen from '@/components/LoadingScreen.vue'
 
 // 状态管理
 const route = useRoute()
@@ -21,6 +22,7 @@ const { signInWithAccount, signInWithOAuth, isLoading } = useAuth()
 // 页面状态
 const loading = ref(false)
 const oauthLoading = ref<string | null>(null)
+const isRedirecting = ref(false)
 
 // 登录表单
 const loginForm = ref({ userAccount: '', password: '' })
@@ -49,6 +51,7 @@ async function handleLogin() {
       }
 
       await signInWithAccount(loginForm.value.userAccount, loginForm.value.password)
+      isRedirecting.value = true
     } catch (error: any) {
       // 错误提示已经在 useAuth 中处理，这里不需要再次提示
       console.error('Login failed:', error)
@@ -63,6 +66,7 @@ async function handleOAuthLogin(provider: string) {
   try {
     oauthLoading.value = provider
     await signInWithOAuth(provider as any)
+    isRedirecting.value = true
   } catch (error: any) {
     // 错误提示已经在 useAuth 中处理，这里不需要再次提示
     console.error('OAuth login failed:', error)
@@ -82,6 +86,7 @@ const goToForgot = () => {
 
 <template>
   <div class="min-h-screen flex items-center justify-center bg-gray-50 p-0 overflow-hidden">
+    <LoadingScreen v-if="isRedirecting" :progress="100" loading-text="登录成功，正在进入学习世界..." />
     <div class="flex flex-row w-full h-screen bg-white shadow-2xl overflow-hidden">
       <!-- 左侧插画区域 (3/7) -->
       <div class="hidden lg:flex lg:basis-[42.86%] relative overflow-hidden bg-gradient-to-br from-indigo-600 via-purple-600 to-blue-700 items-center justify-center p-8">

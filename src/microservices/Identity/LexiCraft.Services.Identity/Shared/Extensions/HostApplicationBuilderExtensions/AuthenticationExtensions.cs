@@ -10,6 +10,7 @@ using Microsoft.Extensions.DependencyInjection.Extensions;
 using Microsoft.Extensions.Hosting;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi;
+using System.Text;
 using OAuthOptions = BuildingBlocks.Authentication.Shared.OAuthOptions;
 
 namespace LexiCraft.Services.Identity.Shared.Extensions.HostApplicationBuilderExtensions;
@@ -19,14 +20,31 @@ public static partial class HostApplicationBuilderExtensions
     public static IHostApplicationBuilder AddCustomAuthentication(this IHostApplicationBuilder builder)
     {
         var oauthOptions = builder.Configuration.BindOptions<OAuthOptions>();
+        // builder.Services.AddAuthorization()
+        //     .AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
+        //     .AddJwtBearer(options =>
+        //     {
+        //         options.TokenValidationParameters = new TokenValidationParameters
+        //         {
+        //             ValidateIssuer = oauthOptions.ValidateIssuer,
+        //             ValidateAudience = oauthOptions.ValidateAudience,
+        //             ValidateLifetime = oauthOptions.ValidateLifetime,
+        //             ValidateIssuerSigningKey = true,
+        //             ValidIssuer = oauthOptions.Issuer,
+        //             ValidAudience = oauthOptions.Audience,
+        //             IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(oauthOptions.Secret))
+        //         };
+        //     });
         builder
-            .Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
+            .Services.AddAuthorization()
+            .AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
             .AddJwtBearer(options =>
             {
+                // 对于自签名的对称加密 Token，通常不设置 Authority，除非有 OIDC 元数据服务
                 options.Authority = oauthOptions.Authority;
                 options.Audience = oauthOptions.Audience;
                 options.RequireHttpsMetadata = !builder.Environment.IsDevelopment();
-
+        
                 options.TokenValidationParameters = new TokenValidationParameters
                 {
                     ValidateIssuer = oauthOptions.ValidateIssuer,
@@ -36,8 +54,9 @@ public static partial class HostApplicationBuilderExtensions
                     ValidateLifetime = oauthOptions.ValidateLifetime,
                     ClockSkew = oauthOptions.ClockSkew,
                     ValidateIssuerSigningKey = true,
+                    IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(oauthOptions.Secret!))
                 };
-
+        
                 options.MapInboundClaims = false;
             });
         builder.Services.AddConfigurationOptions<OAuthOption>();

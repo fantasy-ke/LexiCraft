@@ -15,6 +15,7 @@ import {
   OAuthCallbackParams,
   TokenPair,
   UpdateProfileRequest,
+  UserPermissionsResponse,
   IAuthAPI
 } from '@/types/auth'
 import { authGet, authPost, authPut } from '@/utils/authHttp'
@@ -187,6 +188,13 @@ class AuthAPI implements IAuthAPI {
   async revokeAllSessions(): Promise<ResultDto<void>> {
     return authPost<void>('/api/v1/identity/revoke-sessions')
   }
+
+  /**
+   * 查询用户权限列表
+   */
+  async getUserPermissions(userId: string): Promise<ResultDto<UserPermissionsResponse>> {
+    return authGet<UserPermissionsResponse>(`/api/v1/identity/permissions/${userId}`)
+  }
 }
 
 // 导出单例实例
@@ -219,5 +227,6 @@ export const {
   checkEmailExists,
   checkUsernameAvailable,
   getSessionInfo,
-  revokeAllSessions
+  revokeAllSessions,
+  getUserPermissions
 } = authAPI

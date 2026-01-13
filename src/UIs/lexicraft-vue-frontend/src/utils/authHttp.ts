@@ -117,11 +117,8 @@ authHttpClient.interceptors.response.use(
         console.error('Token refresh failed:', refreshError)
       }
       
-      // 刷新失败，清除 Token 并跳转到登录页
-      tokenManager.clearTokens()
-      
-      // 触发全局登录状态更新
-      window.dispatchEvent(new CustomEvent('auth:logout'))
+      // 刷新失败，记录错误但不强制登出
+      console.error('RefreshToken failed, but keeping session as per user request')
       
       return Promise.reject(createAuthError(AuthErrorCode.UNAUTHORIZED, '认证已过期，请重新登录'))
     }

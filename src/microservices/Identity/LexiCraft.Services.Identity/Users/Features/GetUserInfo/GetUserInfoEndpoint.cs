@@ -15,7 +15,7 @@ public static class GetUserInfoEndpoint
     {
         return endpoints
             .MapGet("users/info", Handle)
-            .RequireAuthorization(IdentityPermissions.Users.Query)
+            .RequireAuthorization()
             .WithName(nameof(GetUserInfo))
             .WithDisplayName(nameof(GetUserInfo).Humanize())
             .WithSummary("获取当前用户信息".Humanize())

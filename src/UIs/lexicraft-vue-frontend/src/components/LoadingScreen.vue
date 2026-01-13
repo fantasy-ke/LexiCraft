@@ -64,6 +64,8 @@ withDefaults(defineProps<Props>(), {
 }
 
 .center-logo {
+  margin-bottom: 8vh; // 向上移动一些
+  
   .logo-box {
     display: flex;
     align-items: center;
@@ -188,8 +190,19 @@ withDefaults(defineProps<Props>(), {
 
 /* 响应式设计 */
 @media (max-width: 768px) {
-  .center-logo img {
-    height: 2.5rem;
+  .center-logo {
+    margin-bottom: 4vh; // 移动端减少向上移动的幅度
+    
+    .logo-box {
+      .logo-icon {
+        width: 40px;
+        height: 40px;
+      }
+      
+      .logo-text {
+        font-size: 1.8rem;
+      }
+    }
   }
 
   .loading-bottom-section {

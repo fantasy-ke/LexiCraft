@@ -14,7 +14,7 @@ public static class GetUserPermissionsEndpoint
     {
         return endpoints
             .MapGet("permissions/{userId:guid}", Handle)
-            .RequireAuthorization(IdentityPermissions.Permissions.Query)
+            .RequireAuthorization()
             .WithName(nameof(GetUserPermissions))
             .WithDisplayName(nameof(GetUserPermissions).Humanize())
             .WithSummary("查询用户权限列表".Humanize())

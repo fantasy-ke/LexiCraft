@@ -27,6 +27,7 @@ export const useAuthStore = defineStore('auth', () => {
   const isAuthenticated = ref(false)
   const isLoading = ref(false)
   const tokens = ref<TokenPair | null>(null)
+  const permissions = ref<string[]>([])
 
   // 计算属性
   const authState = computed<AuthState>(() => ({
@@ -82,21 +83,20 @@ export const useAuthStore = defineStore('auth', () => {
       const response = await authAPI.login(credentials)
       
       if (response.status && response.data) {
-        const { token, refreshToken, user: userInfo, expiresIn } = response.data
+        const { token, refreshToken } = response.data
         
         // 存储 Token
         const tokenPair: TokenPair = {
           accessToken: token,
           refreshToken,
-          expiresIn
+          expiresIn: 3600 // 后端暂未返回时长，默认1小时
         }
         
         tokenManager.setTokens(tokenPair)
         tokens.value = tokenPair
         
-        // 设置用户信息
-        user.value = userInfo
-        isAuthenticated.value = true
+        // 登录成功后立即获取完整用户信息
+        await fetchUserProfile()
         
         Toast.success('登录成功!')
       } else {
@@ -200,21 +200,20 @@ export const useAuthStore = defineStore('auth', () => {
       const response = await authAPI.handleOAuthCallback(params)
       
       if (response.status && response.data) {
-        const { token, refreshToken, user: userInfo, expiresIn } = response.data
+        const { token, refreshToken } = response.data
         
         // 存储 Token
         const tokenPair: TokenPair = {
           accessToken: token,
           refreshToken,
-          expiresIn
+          expiresIn: 3600 // 后端暂未返回时长，默认1小时
         }
         
         tokenManager.setTokens(tokenPair)
         tokens.value = tokenPair
         
-        // 设置用户信息
-        user.value = userInfo
-        isAuthenticated.value = true
+        // 登录成功后立即获取完整用户信息
+        await fetchUserProfile()
         
         Toast.success('OAuth 登录成功!')
       } else {
@@ -235,16 +234,39 @@ export const useAuthStore = defineStore('auth', () => {
       const response = await authAPI.getUserProfile()
       
       if (response.status && response.data) {
-        user.value = response.data
+        // 进行字段映射，兼顾后端 PascalCase 转换为 camelCase 后的新字段以及前端旧字段
+        const userData = response.data
+        user.value = {
+          ...userData,
+          id: userData.userId, // 别名兼容
+          username: userData.userName // 别名兼容
+        }
         isAuthenticated.value = true
+
+        // 获取用户信息后，继续获取用户权限
+        if (user.value?.id) {
+          await fetchUserPermissions(user.value.id)
+        }
       } else {
         throw new Error(response.message || '获取用户信息失败')
       }
     } catch (error: any) {
       console.error('Fetch user profile error:', error)
-      // 获取用户信息失败，可能是 Token 无效
-      await logout()
+      // 根据用户要求，请求异常不需要退出登录
+      // await logout()
       throw error
+    }
+  }
+
+  // 获取用户权限
+  async function fetchUserPermissions(userId: string): Promise<void> {
+    try {
+      const response = await authAPI.getUserPermissions(userId)
+      if (response.status && response.data) {
+        permissions.value = response.data.permissions
+      }
+    } catch (error) {
+      console.error('Fetch user permissions error:', error)
     }
   }
 
@@ -322,6 +344,7 @@ export const useAuthStore = defineStore('auth', () => {
     loginWithOAuth,
     handleOAuthCallback,
     fetchUserProfile,
+    fetchUserPermissions,
     updateProfile,
     
     // 兼容旧代码的方法

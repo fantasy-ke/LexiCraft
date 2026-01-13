@@ -11,6 +11,11 @@ import { useRoute } from 'vue-router'
 import { APP_VERSION, AppEnv, DictId, LOCAL_FILE_KEY, Origin, SAVE_DICT_KEY, SAVE_SETTING_KEY } from '@/config/env'
 import { syncSetting } from '@/apis'
 import { useUserStore } from '@/stores/user'
+import LoadingScreen from '@/components/LoadingScreen.vue'
+import { ref } from 'vue'
+
+const initProgress = ref(0)
+const loadingText = ref('正在为您准备学习世界...')
 
 const store = useBaseStore()
 const runtimeStore = useRuntimeStore()
@@ -68,9 +73,19 @@ watch(
 
 async function init() {
   isInitializing = true // 开始初始化
+  initProgress.value = 10
+  loadingText.value = '正在加载身份信息...'
   await userStore.init()
+  
+  initProgress.value = 40
+  loadingText.value = '正在同步词典数据...'
   await store.init()
+  
+  initProgress.value = 70
+  loadingText.value = '正在应用个性化设置...'
   await settingStore.init()
+  
+  initProgress.value = 100
   store.load = true
   isInitializing = false // 初始化完成，允许保存数据
 
@@ -113,5 +128,10 @@ onMounted(init)
 </script>
 
 <template>
-  <router-view></router-view>
+  <LoadingScreen 
+    v-if="!store.load" 
+    :progress="initProgress" 
+    :loading-text="loadingText"
+  />
+  <router-view v-show="store.load"></router-view>
 </template>

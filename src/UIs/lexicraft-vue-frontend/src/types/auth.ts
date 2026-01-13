@@ -34,8 +34,6 @@ export interface RegisterRequest {
 export interface LoginResponse {
   token: string
   refreshToken: string
-  user: UserProfile
-  expiresIn: number
 }
 
 // 注册响应
@@ -46,14 +44,14 @@ export interface RegisterResponse {
 
 // 用户资料
 export interface UserProfile {
-  id: string
+  userId: string    // UUID
+  userName: string
   email: string
-  username: string
-  firstName?: string
-  lastName?: string
-  avatar?: string
-  createdAt: string
-  lastLoginAt?: string
+  phone?: string | null
+  avatar: string
+  // 兼容旧命名的别名（如果需要后期在 store 中映射）
+  id?: string
+  username?: string
 }
 
 // OAuth 提供商类型
@@ -136,6 +134,9 @@ export interface IAuthAPI {
   
   // Token 管理
   refreshToken(): Promise<ResultDto<TokenPair>>
+
+  // 权限管理
+  getUserPermissions(userId: string): Promise<ResultDto<UserPermissionsResponse>>
 }
 
 // 认证 Store Actions 接口
@@ -193,4 +194,12 @@ export interface TokenResponse {
 export interface CaptchaResponse {
   captchaKey: string
   captchaData: string // Base64 图片数据
+}
+
+/**
+ * 用户权限响应
+ */
+export interface UserPermissionsResponse {
+  userId: string
+  permissions: string[]
 }
