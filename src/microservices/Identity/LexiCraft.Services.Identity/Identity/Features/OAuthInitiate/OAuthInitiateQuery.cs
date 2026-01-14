@@ -1,6 +1,7 @@
 using FluentValidation;
 using LexiCraft.Services.Identity.Shared.Authorize;
 using MediatR;
+using Serilog;
 
 namespace LexiCraft.Services.Identity.Identity.Features.OAuthInitiate;
 
@@ -51,6 +52,7 @@ internal class OAuthInitiateQueryHandler(OAuthProviderFactory oauthProviderFacto
         // 获取授权URL
         var authorizationUrl = provider.GetAuthorizationUrl(state);
 
+        Log.Logger.Information("获取OAuth授权URL: {AuthorizationUrl}", authorizationUrl);
         return Task.FromResult(authorizationUrl);
     }
 }

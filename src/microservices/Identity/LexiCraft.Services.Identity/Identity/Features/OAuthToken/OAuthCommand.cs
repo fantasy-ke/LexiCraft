@@ -46,8 +46,6 @@ internal class OAuthCommandHandler(
     public async Task<string> Handle(OAuthCommand request, CancellationToken cancellationToken)
     {
         var client = httpClientFactory.CreateClient(nameof(OAuthCommand));
-        var httpContext = httpContextAccessor.HttpContext;
-
         // 获取对应的OAuth提供者
         var provider = oauthProviderFactory.GetProvider(request.Type);
         if (provider is null)

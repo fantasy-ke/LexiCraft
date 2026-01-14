@@ -118,7 +118,6 @@ export function useAuth() {
   const signUp = async (userData: RegisterRequest) => {
     try {
       await authStore.register(userData)
-      
       // 注册成功后跳转到登录页或直接跳转到应用
       router.push(AUTH_PATHS.REDIRECT)
     } catch (error: any) {

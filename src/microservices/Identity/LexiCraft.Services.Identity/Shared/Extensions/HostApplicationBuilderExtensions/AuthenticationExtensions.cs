@@ -1,18 +1,14 @@
-using BuildingBlocks.Authentication;
 using BuildingBlocks.Extensions;
 using BuildingBlocks.Shared;
 using LexiCraft.Services.Identity.Shared.Authorize;
 using LexiCraft.Services.Identity.Shared.Dtos;
-using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
-using Microsoft.AspNetCore.OpenApi;
 using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.DependencyInjection.Extensions;
 using Microsoft.Extensions.Hosting;
 using Microsoft.IdentityModel.Tokens;
-using Microsoft.OpenApi;
 using System.Text;
 using MrHuo.OAuth;
+using MrHuo.OAuth.Gitee;
 using MrHuo.OAuth.Github;
 using OAuthOptions = BuildingBlocks.Authentication.Shared.OAuthOptions;
 
@@ -28,7 +24,6 @@ public static partial class HostApplicationBuilderExtensions
             .AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
             .AddJwtBearer(options =>
             {
-                // 对于自签名的对称加密 Token，通常不设置 Authority，除非有 OIDC 元数据服务
                 options.Authority = oauthOptions.Authority;
                 options.Audience = oauthOptions.Audience;
                 options.RequireHttpsMetadata = !builder.Environment.IsDevelopment();
@@ -58,34 +53,34 @@ public static partial class HostApplicationBuilderExtensions
         var oauthCallbackOption = builder.Configuration.BindOptions<OAuthCallbackOption>();
         
         // 注册OAuth Provider
-        builder.Services.AddScoped<IOAuthProvider>(sp =>
+        builder.Services.AddScoped<IOAuthProvider>(_ =>
         {
             var oauth = new GithubOAuth(new OAuthConfig
             {
                 AppId = oauthCallbackOption.GitHub.ClientId,
                 AppKey = oauthCallbackOption.GitHub.ClientSecret,
-                RedirectUri = ""
+                Scope = oauthCallbackOption.GitHub.Scope
             });
-            return new MrHuoOAuthProvider<DefaultAccessTokenModel, GithubUserModel>(oauth, "github", user => new OAuthUserDto
+            return new OAuthProvider<DefaultAccessTokenModel, GithubUserModel>(oauth, "github", user => new OAuthUserDto
             {
-                Id = user.Bio,
+                Id = user.Name,
                 Name = user.Name,
                 Nickname = user.Name,
                 Email = user.Email,
                 AvatarUrl = user.Avatar
             });
         });
-        builder.Services.AddScoped<IOAuthProvider>(sp =>
+        builder.Services.AddScoped<IOAuthProvider>(_ =>
         {
-            var oauth = new MrHuo.OAuth.Gitee.GiteeOAuth(new OAuthConfig
+            var oauth = new GiteeOAuth(new OAuthConfig
             {
                 AppId = oauthCallbackOption.Gitee.ClientId,
                 AppKey = oauthCallbackOption.Gitee.ClientSecret,
-                RedirectUri = ""
+                Scope = oauthCallbackOption.Gitee.Scope
             });
-            return new MrHuoOAuthProvider<DefaultAccessTokenModel, MrHuo.OAuth.Gitee.GiteeUserModel>(oauth, "gitee", user => new OAuthUserDto
+            return new OAuthProvider<DefaultAccessTokenModel,GiteeUserModel>(oauth, "gitee", user => new OAuthUserDto
             {
-                Id = user.Bio,
+                Id = user.Name,
                 Name = user.Name,
                 Nickname = user.Name,
                 Email = user.Email,
