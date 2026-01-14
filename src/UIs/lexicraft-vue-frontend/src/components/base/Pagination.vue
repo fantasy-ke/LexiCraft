@@ -185,6 +185,7 @@ function next() {
     max-width: 100%;
     flex-wrap: wrap;
     justify-content: flex-end;
+    gap: 0.25rem;
   }
 
   .btn-prev,
@@ -245,6 +246,110 @@ function next() {
 
   .total {
     color: var(--color-main-text);
+  }
+}
+
+// 移动端适配
+@media (max-width: 768px) {
+  .pagination {
+    .pagination-container {
+      justify-content: center;
+      gap: 0.5rem;
+      padding: 0.5rem;
+    }
+
+    .btn-prev,
+    .btn-next {
+      min-width: 2.5rem;
+      height: 2.5rem;
+      font-size: 1.1rem;
+      padding: 0.5rem;
+      margin: 0;
+      border: 1px solid var(--color-input-border);
+      background-color: var(--color-bg);
+      border-radius: 0.5rem;
+
+      &:active:not(:disabled) {
+        transform: scale(0.95);
+        background-color: var(--color-third);
+      }
+    }
+
+    // 隐藏跳转输入框，移动端不需要
+    .flex.items-center.gap-1 {
+      display: none;
+    }
+
+    // 调整页码显示
+    .flex.items-center {
+      font-size: 0.9rem;
+
+      .w-12 {
+        width: 3.5rem;
+      }
+
+      .mx-2 {
+        margin-left: 0.5rem;
+        margin-right: 0.5rem;
+      }
+    }
+
+    // 每页条数选择器优化
+    .sizes {
+      select {
+        height: 2.5rem;
+        padding: 0 0.75rem;
+        font-size: 0.85rem;
+      }
+    }
+
+    // 总数文字
+    .total {
+      font-size: 0.85rem;
+    }
+  }
+}
+
+// 超小屏幕适配
+@media (max-width: 480px) {
+  .pagination {
+    .pagination-container {
+      gap: 0.375rem;
+      padding: 0.375rem;
+    }
+
+    .btn-prev,
+    .btn-next {
+      min-width: 2.25rem;
+      height: 2.25rem;
+      font-size: 1rem;
+      padding: 0.375rem;
+    }
+
+    .flex.items-center {
+      font-size: 0.85rem;
+
+      .w-12 {
+        width: 3rem;
+      }
+
+      .mx-2 {
+        margin-left: 0.375rem;
+        margin-right: 0.375rem;
+      }
+    }
+
+    .sizes {
+      select {
+        height: 2.25rem;
+        padding: 0 0.5rem;
+        font-size: 0.8rem;
+      }
+    }
+
+    .total {
+      font-size: 0.8rem;
+    }
   }
 }
 </style>

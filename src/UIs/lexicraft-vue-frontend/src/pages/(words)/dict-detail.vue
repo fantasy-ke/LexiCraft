@@ -790,6 +790,8 @@ defineRender(() => {
 <style scoped lang="scss">
 .dict-detail-card {
   height: calc(100vh - 3rem);
+  display: flex;
+  flex-direction: column;
 }
 
 /* Rich Content Header Styles */
@@ -799,6 +801,40 @@ defineRender(() => {
   padding: 1.5rem 2rem;
   border-bottom: 1px solid var(--border-color);
   margin-bottom: 1rem;
+  flex-shrink: 0;
+}
+
+.content-area {
+  display: flex;
+  flex: 1;
+  overflow: hidden;
+}
+
+.word-list-section {
+  flex: 1;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+}
+
+.edit-section {
+  width: 44%;
+  padding: 0 2rem;
+  overflow-y: auto;
+  border-left: 1px solid var(--border-color);
+  
+  .common-title {
+    font-size: 1.2rem;
+    font-weight: 600;
+    color: var(--text-primary);
+    margin-bottom: 1.5rem;
+    padding-bottom: 1rem;
+    border-bottom: 2px solid var(--border-color);
+  }
+}
+
+.mobile-hidden {
+  display: none !important;
 }
 
 // ... existing styles ...
@@ -955,74 +991,91 @@ defineRender(() => {
 
 /* Mobile Adaptation */
 @media (max-width: 768px) {
+  .dict-detail-card {
+    padding: 0 !important;
+  }
+
   .content-header {
     padding: 1rem;
-    background: var(--bg-primary);
+    background: var(--header-bg);
+    margin-bottom: 0;
   }
 
   .header-content {
     flex-direction: column;
     gap: 1rem;
+    align-items: stretch;
   }
 
   .left-section {
     width: 100%;
+    gap: 1rem;
   }
 
   .cover-box {
     width: 70px;
     height: 70px;
+    border-radius: 8px;
   }
   
   .info-box {
-    .title-row .dict-title {
-      font-size: 1.25rem;
+    .title-row {
+      .dict-title {
+        font-size: 1.25rem;
+      }
+      
+      .badge {
+        font-size: 0.7rem;
+        padding: 2px 6px;
+      }
+    }
+    
+    .meta-row {
+      font-size: 0.85rem;
+      gap: 1rem;
+    }
+    
+    .description {
+      font-size: 0.85rem;
+      -webkit-line-clamp: 3;
     }
   }
 
   .right-section {
     width: 100%;
     align-items: stretch;
+    gap: 0.75rem;
     
     .action-group {
       width: 100%;
+      gap: 0.5rem;
       
       .base-button {
         flex: 1;
+        font-size: 0.9rem;
+        padding: 0.625rem 1rem;
       }
     }
     
     .secondary-actions {
-       align-self: center;
+      align-self: center;
+      
+      .base-button {
+        font-size: 0.85rem;
+      }
     }
   }
 
-  .word-list-section {
-    padding-left: 0.5rem;
-    padding-right: 0.5rem;
-    width: 100%;
-  }
-
-  .dict-header .dict-back {
-    align-self: flex-start;
-  }
-
-  .dict-header .dict-title {
-    position: static !important;
-    width: 100%;
-  }
-
-  .dict-header .dict-actions {
-    width: 100%;
-    justify-content: center;
-    gap: 0.75rem;
-  }
-
+  // 标签页导航
   .tab-navigation {
     display: flex;
-    border-bottom: 2px solid var(--color-item-border);
-    margin-bottom: 1rem;
+    border-bottom: 2px solid var(--border-color);
+    margin: 0 1rem 1rem;
     gap: 0;
+    position: sticky;
+    top: 0;
+    background: var(--header-bg);
+    z-index: 5;
 
     .tab-item {
       flex: 1;
@@ -1031,35 +1084,149 @@ defineRender(() => {
       cursor: pointer;
       font-size: 0.95rem;
       font-weight: 500;
-      color: var(--color-sub-text);
+      color: var(--text-tertiary);
       border-bottom: 2px solid transparent;
       margin-bottom: -2px;
-      transition: all 0.3s ease;
+      transition: all 0.2s ease;
       user-select: none;
 
       &:active {
         transform: scale(0.98);
+        background: var(--hover-bg);
       }
 
       &.active {
-        color: var(--color-icon-hightlight);
-        border-bottom-color: var(--color-icon-hightlight);
+        color: var(--text-active);
+        border-bottom-color: var(--text-active);
+        font-weight: 600;
       }
     }
   }
 
+  // 内容区域
   .content-area {
     flex-direction: column;
+    padding: 0 1rem 1rem;
+  }
 
-    .word-list-section,
-    .edit-section {
-      width: 100% !important;
-      margin-left: 0 !important;
-      max-width: 100%;
+  .word-list-section {
+    width: 100% !important;
+    padding: 0 !important;
+    
+    &.mobile-hidden {
+      display: none;
+    }
+  }
+
+  .edit-section {
+    width: 100% !important;
+    margin-left: 0 !important;
+    padding: 0 !important;
+    
+    &.mobile-hidden {
+      display: none;
+    }
+    
+    .common-title {
+      font-size: 1rem;
+      margin-bottom: 1rem;
+      padding-bottom: 0.75rem;
+      border-bottom: 1px solid var(--border-color);
+    }
+    
+    :deep(.form-item) {
+      margin-bottom: 1rem;
+      
+      .form-item-label {
+        font-size: 0.875rem;
+        margin-bottom: 0.5rem;
+      }
+      
+      .base-input,
+      .textarea {
+        font-size: 0.9rem;
+      }
+    }
+    
+    .form-actions {
+      position: sticky;
+      bottom: 0;
+      background: var(--header-bg);
+      padding: 1rem 0;
+      border-top: 1px solid var(--border-color);
+      margin-top: 1rem;
+      display: flex;
+      gap: 0.75rem;
+      
+      .base-button {
+        flex: 1;
+      }
+    }
+  }
+
+  // 旧版头部样式（如果使用）
+  .dict-header {
+    flex-direction: column;
+    gap: 1rem;
+    padding: 1rem;
+    
+    .dict-back {
+      align-self: flex-start;
     }
 
-    .edit-section {
-      margin-top: 0;
+    .dict-title {
+      position: static !important;
+      width: 100%;
+      font-size: 1.25rem;
+      text-align: left;
+    }
+
+    .dict-actions {
+      width: 100%;
+      justify-content: center;
+      gap: 0.75rem;
+      flex-wrap: wrap;
+      
+      .base-button {
+        flex: 1;
+        min-width: calc(50% - 0.375rem);
+      }
+    }
+  }
+  
+  // 表格优化
+  :deep(.base-table) {
+    .table-header {
+      padding: 0.75rem;
+      flex-wrap: wrap;
+      gap: 0.5rem;
+      
+      .search-input {
+        width: 100%;
+        order: -1;
+      }
+      
+      .table-actions {
+        width: 100%;
+        justify-content: space-between;
+        
+        .base-button {
+          font-size: 0.85rem;
+          padding: 0.5rem 0.75rem;
+        }
+      }
+    }
+    
+    .word-item {
+      padding: 0.75rem;
+      
+      .word-content {
+        font-size: 0.9rem;
+      }
+      
+      .option-icon {
+        font-size: 1.1rem;
+      }
     }
   }
 }
@@ -1071,10 +1238,62 @@ defineRender(() => {
     min-height: calc(100vh - 1rem);
   }
 
+  .content-header {
+    padding: 0.75rem;
+  }
+
+  .left-section {
+    gap: 0.75rem;
+  }
+
+  .cover-box {
+    width: 60px;
+    height: 60px;
+    
+    .cover-placeholder {
+      font-size: 2rem;
+    }
+  }
+
+  .info-box {
+    .title-row .dict-title {
+      font-size: 1.1rem;
+    }
+    
+    .meta-row {
+      font-size: 0.8rem;
+      gap: 0.75rem;
+    }
+  }
+
+  .right-section {
+    .action-group {
+      flex-direction: column;
+      
+      .base-button {
+        width: 100%;
+      }
+    }
+  }
+
   .tab-navigation {
+    margin: 0 0.75rem 0.75rem;
+    
     .tab-item {
-      padding: 0.6rem 0.5rem;
-      font-size: 0.9rem;
+      padding: 0.625rem 0.75rem;
+      font-size: 0.875rem;
+    }
+  }
+
+  .content-area {
+    padding: 0 0.75rem 0.75rem;
+  }
+
+  .edit-section {
+    :deep(.form-item) {
+      .form-item-label {
+        font-size: 0.8rem;
+      }
     }
   }
 }

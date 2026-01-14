@@ -28,7 +28,7 @@ public class JwtTokenProvider(IOptions<OAuthOptions> options):IJwtTokenProvider
         }
 
         // 2. 从 appsettings.json 中读取SecretKey
-        var secretKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_options.Secret));
+        var secretKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_options.Secret ?? string.Empty));
 
         // 3. 选择加密算法
         var algorithm = SecurityAlgorithms.HmacSha256;

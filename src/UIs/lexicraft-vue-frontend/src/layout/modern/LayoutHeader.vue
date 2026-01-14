@@ -28,13 +28,20 @@
         </div>
       </div>
 
-      <div class="user-menu">
-        <button class="user-avatar" @click="toggleUserMenu" title="个人中心">
+      <div class="user-menu" ref="userMenuRef">
+        <!-- 移动端遮罩层 -->
+        <div 
+          v-if="showUserMenu" 
+          class="menu-overlay"
+          @click="emit('update:showUserMenu', false)"
+        ></div>
+        
+        <button class="user-avatar" @click.stop="toggleUserMenu" title="个人中心">
           <img :src="userStore.user?.avatar || `https://ui-avatars.com/api/?name=${userStore.user?.username || 'U'}&background=random`" alt="avatar" class="avatar-img" />
         </button>
 
         <transition name="dropdown">
-          <div v-if="showUserMenu" class="user-dropdown">
+          <div v-if="showUserMenu" class="user-dropdown" @click.stop>
             <!-- User Info Header -->
             <div class="user-header">
               <div class="user-info">
@@ -115,7 +122,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref } from 'vue'
+import { ref, onMounted, onUnmounted } from 'vue'
 import { useRouter } from 'vue-router'
 import useTheme from '@/hooks/theme'
 import { useUserStore } from '@/stores/user'
@@ -133,6 +140,7 @@ const emit = defineEmits<{
 const router = useRouter()
 const { setTheme, getThemeSetting } = useTheme()
 const userStore = useUserStore()
+const userMenuRef = ref<HTMLElement | null>(null)
 
 const toggleUserMenu = () => {
   emit('toggleUserMenu')
@@ -152,6 +160,23 @@ const handleLogout = async () => {
   router.push('/login')
   emit('update:showUserMenu', false)
 }
+
+// 点击外部区域关闭菜单
+const handleClickOutside = (event: MouseEvent) => {
+  if (userMenuRef.value && !userMenuRef.value.contains(event.target as Node)) {
+    if (props.showUserMenu) {
+      emit('update:showUserMenu', false)
+    }
+  }
+}
+
+onMounted(() => {
+  document.addEventListener('click', handleClickOutside)
+})
+
+onUnmounted(() => {
+  document.removeEventListener('click', handleClickOutside)
+})
 </script>
 
 <style scoped lang="scss">
@@ -275,6 +300,10 @@ const handleLogout = async () => {
 
     .user-menu {
       position: relative;
+      
+      .menu-overlay {
+        display: none;
+      }
 
       .user-avatar {
         width: 36px;
@@ -307,7 +336,7 @@ const handleLogout = async () => {
         border: 1px solid var(--border-color);
         border-radius: 12px;
         box-shadow: 0 10px 30px var(--shadow-color);
-        z-index: 1000;
+        z-index: 1001;
         overflow: hidden;
         padding-bottom: 0.5rem;
 
@@ -452,14 +481,26 @@ const handleLogout = async () => {
   }
 }
 
+// 下拉动画
+.dropdown-enter-active,
+.dropdown-leave-active {
+  transition: all 0.2s ease;
+}
+
+.dropdown-enter-from,
+.dropdown-leave-to {
+  opacity: 0;
+  transform: translateY(-10px);
+}
+
 @media (max-width: 768px) {
   .top-header {
     padding: 0 1rem;
-    gap: 1rem; /* 减小移动端间距 */
+    gap: 1rem;
     
     .header-left {
       .logo-section {
-        gap: 0.5rem; /* 减小 logo 间距 */
+        gap: 0.5rem;
         
         .logo-icon {
           width: 32px;
@@ -473,28 +514,80 @@ const handleLogout = async () => {
     }
     
     .header-stats { 
-      display: none !important; /* 强制隐藏统计信息 */
+      display: none !important;
     }
     
     .header-center { 
-      display: none !important; /* 强制隐藏搜索框 */
+      display: none !important;
     }
     
     .header-right {
-      gap: 0.75rem; /* 保持适当间距，避免太紧 */
-      margin-left: auto; /* 确保右侧内容靠右 */
+      gap: 0.75rem;
+      margin-left: auto;
       
       .user-menu {
+        // 移动端遮罩层
+        .menu-overlay {
+          display: block;
+          position: fixed;
+          inset: 0;
+          background: rgba(0, 0, 0, 0.3);
+          z-index: 999;
+          animation: fadeIn 0.2s ease;
+        }
+        
         .user-avatar {
           width: 32px;
           height: 32px;
         }
         
         .user-dropdown {
-          width: 240px; /* 移动端减小下拉菜单宽度 */
+          width: 280px;
+          max-width: calc(100vw - 2rem);
+          right: -0.5rem;
+          top: calc(100% + 8px);
+          z-index: 1001;
+          max-height: calc(100vh - 80px);
+          overflow-y: auto;
+          -webkit-overflow-scrolling: touch;
+          
+          .user-header {
+            padding: 1rem;
+          }
+          
+          .menu-list {
+            .menu-item {
+              padding: 0.75rem;
+              
+              &:active {
+                background: var(--active-bg);
+              }
+            }
+          }
+          
+          .preference-section {
+            padding: 0.5rem 1rem;
+          }
+          
+          .logout-item {
+            padding: 0.75rem;
+            
+            &:active {
+              background: #fee2e2;
+            }
+          }
         }
       }
     }
+  }
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
   }
 }
 

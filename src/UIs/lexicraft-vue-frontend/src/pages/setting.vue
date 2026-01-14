@@ -488,6 +488,17 @@ async function importData(e) {
             font-weight: 600;
           }
         }
+        
+        .red-point {
+          position: absolute;
+          top: 0.75rem;
+          right: 0.75rem;
+          width: 8px;
+          height: 8px;
+          background: #ef4444;
+          border-radius: 50%;
+          border: 2px solid var(--sidebar-bg);
+        }
       }
     }
   }
@@ -609,52 +620,184 @@ async function importData(e) {
 
 // 移动端适配
 @media (max-width: 768px) {
+  .setting-container {
+    position: relative;
+  }
+
   .setting {
-    flex-direction: column;
+    .flex {
+      flex-direction: column;
+      height: 100%;
+    }
 
     .setting-left {
       width: 100%;
       border-right: none;
       border-bottom: 1px solid var(--border-color);
+      flex-shrink: 0;
+      position: sticky;
+      top: 0;
+      z-index: 10;
+      background: var(--sidebar-bg);
 
       .tabs {
         flex-direction: row;
         overflow-x: auto;
+        overflow-y: hidden;
         padding: 0.5rem;
-        gap: 0.25rem;
+        gap: 0.5rem;
+        -webkit-overflow-scrolling: touch;
+        scrollbar-width: none; /* Firefox */
+        
+        &::-webkit-scrollbar {
+          display: none; /* Chrome, Safari */
+        }
 
         .tab {
           white-space: nowrap;
-          padding: 0.5rem 0.75rem;
+          padding: 0.625rem 1rem;
           flex-shrink: 0;
+          min-width: fit-content;
+          gap: 0.5rem;
+
+          .tab-icon {
+            font-size: 1.1rem;
+          }
 
           span {
-            display: inline;
+            font-size: 0.85rem;
+          }
+          
+          .red-point {
+            position: absolute;
+            top: 0.5rem;
+            right: 0.5rem;
+            width: 6px;
+            height: 6px;
+            background: #ef4444;
+            border-radius: 50%;
           }
         }
       }
     }
 
     .setting-content {
-      padding: 1rem;
+      flex: 1;
+      overflow-y: auto;
+      overflow-x: hidden;
+      padding: 1rem !important;
+      -webkit-overflow-scrolling: touch;
       
-      .shortcut-row {
-        flex-direction: column;
-        align-items: flex-start;
-        gap: 0.5rem;
-        
-        .wrapper {
-          width: 100%;
-          text-align: left;
+      .shortcut-body {
+        .shortcut-header {
+          flex-direction: column;
+          gap: 0.5rem;
+          align-items: flex-start;
           
-          .set-key {
-            align-items: flex-start;
-            input {
+          .wrapper {
+            font-size: 0.8rem;
+          }
+        }
+        
+        .shortcut-row {
+          flex-direction: column;
+          align-items: flex-start;
+          gap: 0.75rem;
+          padding: 1rem 0;
+          
+          .item-title {
+            font-size: 0.9rem;
+            font-weight: 500;
+          }
+          
+          .wrapper {
+            width: 100%;
+            
+            .key-display {
+              display: flex;
+              justify-content: flex-start;
+            }
+            
+            .set-key {
+              align-items: flex-start;
               width: 100%;
+              
+              input {
+                width: 100%;
+                max-width: 100%;
+              }
+              
+              .tip {
+                text-align: left;
+              }
             }
           }
         }
+        
+        .shortcut-footer {
+          position: sticky;
+          bottom: 0;
+          background: var(--header-bg);
+          padding: 1rem 0;
+          border-top: 1px solid var(--border-color);
+          margin-top: 1rem;
+        }
       }
+      
+      .data-management {
+        .info-card {
+          padding: 0.875rem;
+          font-size: 0.875rem;
+        }
+        
+        .section-title {
+          font-size: 1rem;
+        }
+        
+        .section-desc {
+          font-size: 0.85rem;
+        }
+        
+        .flex {
+          flex-direction: column;
+          
+          button {
+            width: 100%;
+          }
+        }
+      }
+      
+      .about-section {
+        padding: 2rem 0 !important;
+      }
+    }
+  }
+}
+
+// 超小屏幕优化
+@media (max-width: 375px) {
+  .setting {
+    .setting-left {
+      .tabs {
+        padding: 0.375rem;
+        gap: 0.375rem;
+        
+        .tab {
+          padding: 0.5rem 0.75rem;
+          
+          .tab-icon {
+            font-size: 1rem;
+          }
+          
+          span {
+            font-size: 0.8rem;
+          }
+        }
+      }
+    }
+    
+    .setting-content {
+      padding: 0.75rem !important;
     }
   }
 }
