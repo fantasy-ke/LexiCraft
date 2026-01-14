@@ -1,4 +1,3 @@
-using BuildingBlocks.Authentication.Contract;
 using Humanizer;
 using Mapster;
 using MediatR;
@@ -6,6 +5,7 @@ using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Routing;
+using LexiCraft.Services.Identity.Shared.Dtos;
 
 namespace LexiCraft.Services.Identity.Users.Features.RegisterUser;
 
@@ -21,14 +21,14 @@ public static class RegisterEndpoint
             .WithDescription(nameof(RegisterUser).Humanize())
             .AllowAnonymous(); // 注册接口允许匿名访问
 
-        async Task<RegisterResponse> Handle(
+        async Task<TokenResponse> Handle(
             [AsParameters] RegisterRequestParameters requestParameters)
         {
             var (mediator, request, cancellationToken) = requestParameters;
             
             var result = await mediator.Send(request.Adapt<RegisterCommand>(), cancellationToken);
             
-            return result.Adapt<RegisterResponse>();
+            return result;
         }
     }
 }
@@ -59,9 +59,3 @@ public record RegisterUserRequest(
     string Password,
     string CaptchaKey,
     string CaptchaCode);
-
-/// <summary>
-/// 用户注册响应
-/// </summary>
-/// <param name="Success">注册是否成功</param>
-internal record RegisterResponse(bool Success);

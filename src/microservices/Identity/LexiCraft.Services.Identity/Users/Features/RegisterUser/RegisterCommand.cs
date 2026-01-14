@@ -3,17 +3,17 @@ using BuildingBlocks.Mediator;
 using FluentValidation;
 using Lazy.Captcha.Core;
 using LexiCraft.Services.Identity.Identity.Events.LoginLog;
-using LexiCraft.Services.Identity.Identity.Models;
+using LexiCraft.Services.Identity.Identity.Features.GenerateToken;
 using LexiCraft.Services.Identity.Identity.Models.Enum;
-using LexiCraft.Services.Identity.Shared;
 using LexiCraft.Services.Identity.Shared.Contracts;
-using LexiCraft.Shared.Permissions;
+using LexiCraft.Services.Identity.Shared.Dtos;
+using LexiCraft.Services.Identity.Users.Features.CreateUser;
 using MediatR;
 
 namespace LexiCraft.Services.Identity.Users.Features.RegisterUser;
 
 public record RegisterCommand(string UserAccount, string Email, string Password, string CaptchaKey, string CaptchaCode)
-    : ICommand<bool>;
+    : ICommand<TokenResponse>;
 
 public class RegisterCommandValidator : AbstractValidator<RegisterCommand>
 {
@@ -42,12 +42,11 @@ public class RegisterCommandValidator : AbstractValidator<RegisterCommand>
 
 public class RegisterCommandHandler(
     IUserRepository userRepository,
-    IUserPermissionRepository userPermissionRepository,
     ICaptcha captcha,
     IMediator mediator)
-    : ICommandHandler<RegisterCommand, bool>
+    : ICommandHandler<RegisterCommand, TokenResponse>
 {
-    public async Task<bool> Handle(RegisterCommand command, CancellationToken cancellationToken)
+    public async Task<TokenResponse> Handle(RegisterCommand command, CancellationToken cancellationToken)
     {
         // 验证验证码
         if (!captcha.Validate(command.CaptchaKey, command.CaptchaCode))
@@ -66,21 +65,16 @@ public class RegisterCommandHandler(
 
         try
         {
-            // 创建用户
-            var user = new User(command.UserAccount, command.Email);
-            user.SetPassword(command.Password);
-            user.Avatar = "🦜";
-            user.Roles.Add(PermissionConstant.User);
-            user.UpdateLastLogin();
-            user.UpdateSource(SourceEnum.Register);
+            // 使用 CreateUserCommand 创建用户
+            var user = await mediator.Send(new CreateUserCommand(
+                command.UserAccount,
+                command.Email,
+                command.Password,
+                SourceEnum.Register
+            ), cancellationToken);
 
-            var afterUser = await userRepository.InsertAsync(user);
-            var isSuccess = await userRepository.SaveChangesAsync();
-
-            // 为用户分配默认权限
-            var defaultPermissions = PermissionConstant.DefaultUserPermissions.Permissions;
-            await userPermissionRepository.AddUserPermissionsAsync(afterUser.Id, defaultPermissions);
-            return isSuccess > 0;
+            // 注册成功后自动登录逻辑
+            return await mediator.Send(new GenerateTokenResponseCommand(user, "Register", "注册成功并登录"), cancellationToken);
         }
         catch (Exception e)
         {

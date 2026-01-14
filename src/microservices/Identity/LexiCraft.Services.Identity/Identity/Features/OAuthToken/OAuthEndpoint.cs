@@ -5,6 +5,7 @@ using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Routing;
+using LexiCraft.Services.Identity.Shared.Dtos;
 
 namespace LexiCraft.Services.Identity.Identity.Features.OAuthToken;
 
@@ -20,21 +21,15 @@ public static class OAuthEndpoint
             .WithDescription("处理OAuth提供商的授权回调，返回访问令牌和刷新令牌")
             .AllowAnonymous(); // OAuth回调接口允许匿名访问
 
-        async Task<OAuthTokenResponse> Handle(
+        async Task<TokenResponse> Handle(
             [AsParameters] OAuthCallbackRequestParameters requestParameters)
         {
             var (provider, request, mediator, cancellationToken) = requestParameters;
             
             var command = new OAuthCommand(provider, request.Code, request.RedirectUri);
-            var token = await mediator.Send(command, cancellationToken);
+            var result = await mediator.Send(command, cancellationToken);
             
-            // 返回标准的OAuth令牌响应
-            return new OAuthTokenResponse(
-                Token: token,
-                RefreshToken: null, // TODO: 实现刷新令牌逻辑
-                ExpiresIn: 3600, // 1小时，应该从JWT配置中读取
-                TokenType: "Bearer"
-            );
+            return result;
         }
     }
 }
@@ -59,18 +54,4 @@ internal record OAuthCallbackRequest(
     string Code,
     string State,
     string? RedirectUri = null
-);
-
-/// <summary>
-/// OAuth令牌响应
-/// </summary>
-/// <param name="Token">访问令牌</param>
-/// <param name="RefreshToken">刷新令牌（可选）</param>
-/// <param name="ExpiresIn">令牌过期时间（秒）</param>
-/// <param name="TokenType">令牌类型，通常为Bearer</param>
-internal record OAuthTokenResponse(
-    string Token,
-    string? RefreshToken,
-    int ExpiresIn,
-    string TokenType
 );

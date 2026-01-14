@@ -5,6 +5,7 @@ using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Routing;
+using LexiCraft.Services.Identity.Shared.Dtos;
 
 namespace LexiCraft.Services.Identity.Identity.Features.Login;
 
@@ -27,7 +28,7 @@ public static class LoginEndpoint
             
             var result = await mediator.Send(request.Adapt<LoginCommand>(), cancellationToken);
             
-            return result.Adapt<TokenResponse>();
+            return result;
         }
     }
 }
@@ -52,12 +53,3 @@ internal record LoginRequestParameters(
 public record LoginUserRequest(
     string UserAccount,
     string Password);
-
-/// <summary>
-/// 登录令牌响应
-/// </summary>
-/// <param name="Token">访问令牌</param>
-/// <param name="RefreshToken">刷新令牌</param>
-public record TokenResponse(
-    string Token,
-    string RefreshToken);

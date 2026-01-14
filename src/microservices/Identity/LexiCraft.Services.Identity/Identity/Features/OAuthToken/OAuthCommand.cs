@@ -1,18 +1,22 @@
-using System.Text.Json;
-using BuildingBlocks.Authentication;
-using BuildingBlocks.Authentication.Contract;
 using BuildingBlocks.Domain;
+using BuildingBlocks.Exceptions;
 using FluentValidation;
+using LexiCraft.Services.Identity.Identity.Features.GenerateToken;
 using LexiCraft.Services.Identity.Identity.Models;
+using LexiCraft.Services.Identity.Identity.Models.Enum;
 using LexiCraft.Services.Identity.Shared.Authorize;
+using LexiCraft.Services.Identity.Shared.Dtos;
+using LexiCraft.Services.Identity.Users.Features.BindUserOAuth;
+using LexiCraft.Services.Identity.Users.Features.CreateUser;
 using MediatR;
 using Microsoft.AspNetCore.Http;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Options;
 
 namespace LexiCraft.Services.Identity.Identity.Features.OAuthToken;
 
-public record OAuthCommand(string Type, string Code, string? RedirectUri) : IRequest<string>;
+public record OAuthCommand(string Type, string Code, string? RedirectUri) : IRequest<TokenResponse>;
 
 public class OAuthCommandValidator : AbstractValidator<OAuthCommand>
 {
@@ -21,11 +25,11 @@ public class OAuthCommandValidator : AbstractValidator<OAuthCommand>
         RuleFor(x => x.Type)
             .NotEmpty().WithMessage("OAuth类型不能为空")
             .Must(BeValidOAuthType).WithMessage("不支持的OAuth提供者类型");
-            
+
         RuleFor(x => x.Code)
             .NotEmpty().WithMessage("授权码不能为空");
     }
-    
+
     private bool BeValidOAuthType(string type)
     {
         // 根据OAuthProviderFactory中支持的类型进行验证
@@ -37,65 +41,112 @@ public class OAuthCommandValidator : AbstractValidator<OAuthCommand>
 internal class OAuthCommandHandler(
     OAuthProviderFactory oauthProviderFactory,
     IHttpClientFactory httpClientFactory,
-    IHttpContextAccessor httpContextAccessor,
-    IJwtTokenProvider jwtTokenProvider,
+    IUnitOfWork unitOfWork,
     ILogger<OAuthCommandHandler> logger,
+    IMediator mediator,
     IRepository<User> userRepository,
-    IRepository<UserOAuth> userOAuthRepository) : IRequestHandler<OAuthCommand, string>
+    IRepository<UserOAuth> userOAuthRepository) : IRequestHandler<OAuthCommand, TokenResponse>
 {
-    public async Task<string> Handle(OAuthCommand request, CancellationToken cancellationToken)
+    public async Task<TokenResponse> Handle(OAuthCommand request, CancellationToken cancellationToken)
+    {
+        return await unitOfWork.ExecuteAsync(async () =>
+        {
+            await unitOfWork.BeginTransactionAsync();
+            try
+            {
+                // 1. 获取OAuth用户信息
+                var userDto = await GetOAuthUserInfoAsync(request);
+
+                // 2. 处理登录与绑定逻辑
+                var user = await ProcessUserLoginAsync(request.Type, userDto, cancellationToken);
+
+                // 3. 生成Token与处理后续逻辑
+                return await HandlePostLoginAsync(user, request.Type, cancellationToken);
+            }
+            catch (Exception)
+            {
+                await unitOfWork.RollbackTransactionAsync();
+                throw;
+            }
+        });
+    }
+
+    private async Task<OAuthUserDto> GetOAuthUserInfoAsync(OAuthCommand request)
     {
         var client = httpClientFactory.CreateClient(nameof(OAuthCommand));
-        // 获取对应的OAuth提供者
         var provider = oauthProviderFactory.GetProvider(request.Type);
         if (provider is null)
         {
-            // TODO: 实现异常处理逻辑
-            throw new InvalidOperationException($"不支持的OAuth提供者: {request.Type}");
+            ThrowUserFriendlyException.ThrowException($"不支持的OAuth提供者: {request.Type}");
         }
-
-        Shared.Dtos.OAuthUserDto userDto;
         try
         {
-            // 使用提供者获取用户信息
-            userDto = await provider.GetUserInfoAsync(request.Code, request.RedirectUri, client);
+            return await provider.GetUserInfoAsync(request.Code, request.RedirectUri, client);
         }
         catch (Exception ex)
         {
-            // TODO: 实现异常处理逻辑
             logger.LogError(ex, "{Type}授权失败", request.Type);
-            throw new InvalidOperationException($"{request.Type}授权失败: {ex.Message}", ex);
+            throw ex.ThrowUserFriendly($"{request.Type}授权失败");
         }
+    }
 
-        // 获取是否存在当前渠道
+    private async Task<User> ProcessUserLoginAsync(string provider, Shared.Dtos.OAuthUserDto userDto,
+        CancellationToken cancellationToken)
+    {
+        // 查找OAuth绑定
         var oauth = await userOAuthRepository.QueryNoTracking()
-            .FirstOrDefaultAsync(x =>
-                x.Provider == request.Type && x.ProviderUserId == userDto.Id, cancellationToken);
+            .FirstOrDefaultAsync(x => x.Provider == provider && x.ProviderUserId == userDto.Id, cancellationToken);
 
-        if (oauth is null)
+        User? user;
+
+        if (oauth != null)
         {
-            // TODO: 实现异常处理逻辑
-            throw new InvalidOperationException("用户未绑定该OAuth账户");
+            user = await userRepository.QueryNoTracking()
+                .FirstOrDefaultAsync(x => x.Id == oauth.UserId, cancellationToken);
+        }
+        else
+        {
+            // 绑定不存在，尝试通过账号理论或邮箱查找用户
+            user = await userRepository.QueryNoTracking()
+                .FirstOrDefaultAsync(
+                    x => x.UserAccount == userDto.Name || (userDto.Email != null && x.Email == userDto.Email),
+                    cancellationToken);
+
+            if (user == null)
+            {
+                // 用户不存在，创建新用户
+                var source = provider.ToLower() switch
+                {
+                    "github" => SourceEnum.GitHub,
+                    "gitee" => SourceEnum.Gitee,
+                    _ => SourceEnum.Register
+                };
+
+                user = await mediator.Send(new CreateUserCommand(
+                    userDto.Name ?? userDto.Nickname ?? userDto.Id!,
+                    userDto.Email ?? $"{userDto.Id}@{provider}.com",
+                    null,
+                    source,
+                    userDto.AvatarUrl
+                ), cancellationToken);
+            }
+
+            // 绑定OAuth信息
+            await mediator.Send(new BindUserOAuthCommand(user.Id, provider, userDto.Id!), cancellationToken);
         }
 
-        var user = await userRepository.QueryNoTracking()
-            .FirstOrDefaultAsync(x => x.Id == oauth.UserId, cancellationToken);
-        if (user is null)
+        if (user == null)
         {
-            // TODO: 实现异常处理逻辑
             throw new InvalidOperationException("用户不存在");
         }
 
-        var userDit = new Dictionary<string, string>();
+        return user;
+    }
 
-        userDit.Add(UserInfoConst.UserId, user.Id.ToString());
-        userDit.Add(UserInfoConst.UserName, user.Username);
-        userDit.Add(UserInfoConst.UserAccount, user.UserAccount);
-        userDit.Add("UserInfo", JsonSerializer.Serialize(user, JsonSerializerOptions.Web));
-        // 注意：不再将权限添加到JWT中
-
-        var token = jwtTokenProvider.GenerateAccessToken(userDit, user.Id, user.Roles.ToArray());
-
-        return token;
+    private async Task<TokenResponse> HandlePostLoginAsync(User user, string provider,
+        CancellationToken cancellationToken)
+    {
+        return await mediator.Send(new GenerateTokenResponseCommand(user, provider, $"{provider}登录成功"),
+            cancellationToken);
     }
 }
