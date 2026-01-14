@@ -455,8 +455,71 @@ const handleLogout = async () => {
 @media (max-width: 768px) {
   .top-header {
     padding: 0 1rem;
-    .header-stats { display: none; }
-    .header-center { display: none; }
+    gap: 1rem; /* 减小移动端间距 */
+    
+    .header-left {
+      .logo-section {
+        gap: 0.5rem; /* 减小 logo 间距 */
+        
+        .logo-icon {
+          width: 32px;
+          height: 32px;
+        }
+        
+        .logo-text {
+          font-size: 1.1rem;
+        }
+      }
+    }
+    
+    .header-stats { 
+      display: none !important; /* 强制隐藏统计信息 */
+    }
+    
+    .header-center { 
+      display: none !important; /* 强制隐藏搜索框 */
+    }
+    
+    .header-right {
+      gap: 0.75rem; /* 保持适当间距，避免太紧 */
+      margin-left: auto; /* 确保右侧内容靠右 */
+      
+      .user-menu {
+        .user-avatar {
+          width: 32px;
+          height: 32px;
+        }
+        
+        .user-dropdown {
+          width: 240px; /* 移动端减小下拉菜单宽度 */
+        }
+      }
+    }
+  }
+}
+
+/* 超小屏幕优化 */
+@media (max-width: 375px) {
+  .top-header {
+    padding: 0 0.75rem;
+    gap: 0.5rem;
+    
+    .header-left {
+      .logo-section {
+        .logo-text {
+          font-size: 1rem;
+        }
+      }
+    }
+    
+    .header-right {
+      .user-menu {
+        .user-dropdown {
+          width: calc(100vw - 1.5rem); /* 超小屏幕下拉菜单几乎占满屏幕 */
+          right: -0.75rem; /* 调整位置 */
+        }
+      }
+    }
   }
 }
 </style>

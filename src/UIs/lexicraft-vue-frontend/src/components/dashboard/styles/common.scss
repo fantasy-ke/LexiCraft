@@ -1,0 +1,64 @@
+// 通用卡片样式
+.card {
+  background: var(--header-bg);
+  border-radius: 12px;
+  padding: 1.25rem;
+  box-shadow: 0 1px 3px var(--shadow-color);
+  border: 1px solid var(--border-color);
+  display: flex;
+  flex-direction: column;
+}
+
+.card-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1.25rem;
+  
+  .title {
+    font-size: 1.1rem;
+    font-weight: 700;
+    color: var(--text-primary);
+    margin: 0;
+  }
+}
+
+.icon-btn {
+  background: none;
+  border: none;
+  color: #94a3b8;
+  cursor: pointer;
+  padding: 4px;
+  
+  &:hover {
+    color: #64748b;
+  }
+}
+
+.date-selector {
+  display: flex;
+  align-items: center;
+  gap: 0.25rem;
+  font-size: 0.875rem;
+  color: var(--text-tertiary);
+  cursor: pointer;
+  
+  &:hover {
+    color: var(--text-primary);
+  }
+}
+
+// 移动端通用优化
+@media (max-width: 768px) {
+  .card {
+    padding: 1rem;
+  }
+
+  .card-header {
+    margin-bottom: 1rem;
+    
+    .title {
+      font-size: 1rem;
+    }
+  }
+}
