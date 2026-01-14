@@ -23,6 +23,9 @@
             <PrivateAssets>all</PrivateAssets>
             <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
         </PackageReference>
+        <PackageReference Include="MrHuo.OAuth.Core" />
+        <PackageReference Include="MrHuo.OAuth.Github" />
+        <PackageReference Include="MrHuo.OAuth.Gitee" />
     </ItemGroup>
 
     <ItemGroup>

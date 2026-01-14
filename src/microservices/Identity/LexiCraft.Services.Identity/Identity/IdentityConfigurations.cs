@@ -1,6 +1,7 @@
 using BuildingBlocks.Filters;
 using LexiCraft.Services.Identity.Identity.Features.Login;
 using LexiCraft.Services.Identity.Identity.Features.Logout;
+using LexiCraft.Services.Identity.Identity.Features.OAuthInitiate;
 using LexiCraft.Services.Identity.Identity.Features.OAuthToken;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Http;
@@ -35,6 +36,7 @@ internal static class IdentityConfigurations
             .AddEndpointFilter<ResultEndPointFilter>();
 
 
+        identityGroupV1.MapOAuthInitiateEndpoint();
         identityGroupV1.MapOAuthEndpoint();
         identityGroupV1.MapLogoutEndpoint();
         identityGroupV1.MapLoginEndpoint();

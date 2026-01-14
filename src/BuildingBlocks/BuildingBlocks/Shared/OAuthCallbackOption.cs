@@ -1,6 +1,6 @@
 ﻿namespace BuildingBlocks.Shared;
 
-public class OAuthOption
+public class OAuthCallbackOption
 {
     public GitHub GitHub { get; set; }
 

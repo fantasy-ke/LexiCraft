@@ -176,10 +176,10 @@ export const useAuthStore = defineStore('auth', () => {
       const response = await authAPI.initiateOAuth(provider)
       
       if (response.status && response.data) {
-        const { authUrl } = response.data
+        const { authorizationUrl } = response.data
         
         // 跳转到 OAuth 提供商
-        window.location.href = authUrl
+        window.location.href = authorizationUrl
       } else {
         throw new Error(response.message || 'OAuth 初始化失败')
       }

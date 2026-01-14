@@ -11,7 +11,7 @@ public class OAuthUserDto
     public string? Id { get; set; }
 
     /// <summary>
-    /// 用户名
+    /// 用户名login
     /// </summary>
     public string? Name { get; set; }
 
@@ -26,7 +26,7 @@ public class OAuthUserDto
     public string? Email { get; set; }
 
     /// <summary>
-    /// 头像链接
+    /// 头像链接avatar_url
     /// </summary>
     public string? AvatarUrl { get; set; }
 }

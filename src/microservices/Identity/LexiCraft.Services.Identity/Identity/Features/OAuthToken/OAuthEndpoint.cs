@@ -13,36 +13,64 @@ public static class OAuthEndpoint
     public static RouteHandlerBuilder MapOAuthEndpoint(this IEndpointRouteBuilder endpoints)
     {
         return endpoints
-            .MapPost("oauthToken", Handle)
+            .MapPost("oauth/{provider}/callback", Handle)
             .WithName(nameof(OAuthToken))
             .WithDisplayName(nameof(OAuthToken).Humanize())
-            .WithSummary("第三方授权登录".Humanize())
-            .WithDescription(nameof(OAuthToken).Humanize())
-            .AllowAnonymous(); // 注册接口允许匿名访问
+            .WithSummary("第三方OAuth回调接口")
+            .WithDescription("处理OAuth提供商的授权回调，返回访问令牌和刷新令牌")
+            .AllowAnonymous(); // OAuth回调接口允许匿名访问
 
         async Task<OAuthTokenResponse> Handle(
-            [AsParameters] RegisterRequestParameters requestParameters)
+            [AsParameters] OAuthCallbackRequestParameters requestParameters)
         {
-            var (type, code, redirectUri, mediator, cancellationToken) = requestParameters;
+            var (provider, request, mediator, cancellationToken) = requestParameters;
             
-            var command = new OAuthCommand(type, code, redirectUri);
-            var result = await mediator.Send(command, cancellationToken);
+            var command = new OAuthCommand(provider, request.Code, request.RedirectUri);
+            var token = await mediator.Send(command, cancellationToken);
             
-            return result.Adapt<OAuthTokenResponse>();
+            // 返回标准的OAuth令牌响应
+            return new OAuthTokenResponse(
+                Token: token,
+                RefreshToken: null, // TODO: 实现刷新令牌逻辑
+                ExpiresIn: 3600, // 1小时，应该从JWT配置中读取
+                TokenType: "Bearer"
+            );
         }
     }
 }
 
-internal record RegisterRequestParameters(
-    [FromQuery] string Type,
-    [FromQuery] string Code,
-    [FromQuery] string? RedirectUri,
+/// <summary>
+/// OAuth回调请求参数
+/// </summary>
+internal record OAuthCallbackRequestParameters(
+    [FromRoute] string Provider,
+    [FromBody] OAuthCallbackRequest Request,
     IMediator Mediator,
     CancellationToken CancellationToken
+);
+
+/// <summary>
+/// OAuth回调请求体
+/// </summary>
+/// <param name="Code">授权码</param>
+/// <param name="State">状态参数，用于防止CSRF攻击</param>
+/// <param name="RedirectUri">重定向URI（可选）</param>
+internal record OAuthCallbackRequest(
+    string Code,
+    string State,
+    string? RedirectUri = null
 );
 
 /// <summary>
 /// OAuth令牌响应
 /// </summary>
 /// <param name="Token">访问令牌</param>
-internal record OAuthTokenResponse(string Token);
+/// <param name="RefreshToken">刷新令牌（可选）</param>
+/// <param name="ExpiresIn">令牌过期时间（秒）</param>
+/// <param name="TokenType">令牌类型，通常为Bearer</param>
+internal record OAuthTokenResponse(
+    string Token,
+    string? RefreshToken,
+    int ExpiresIn,
+    string TokenType
+);

@@ -16,7 +16,8 @@ import {
   TokenPair,
   UpdateProfileRequest,
   UserPermissionsResponse,
-  IAuthAPI
+  IAuthAPI,
+  CaptchaResponse
 } from '@/types/auth'
 import { authGet, authPost, authPut } from '@/utils/authHttp'
 
@@ -79,7 +80,7 @@ class AuthAPI implements IAuthAPI {
    * 初始化 OAuth 登录
    */
   async initiateOAuth(provider: OAuthProvider): Promise<ResultDto<OAuthInitResponse>> {
-    return authPost<OAuthInitResponse>(`/api/v1/identity/oauth/${provider}/initiate`)
+    return authGet<OAuthInitResponse>(`/api/v1/identity/oauth/${provider}/initiate`)
   }
 
   /**

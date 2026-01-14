@@ -59,8 +59,7 @@ export type OAuthProvider = 'github' | 'gitee'
 
 // OAuth 初始化响应
 export interface OAuthInitResponse {
-  authUrl: string
-  state: string
+  authorizationUrl: string
 }
 
 // OAuth 回调参数
