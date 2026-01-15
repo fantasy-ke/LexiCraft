@@ -26,26 +26,23 @@ onMounted(async () => {
       throw new Error('OAuth 回调参数不完整')
     }
     
-    // 处理 OAuth 回调
-    const user = await handleSignInCallback({
+    // 处理 OAuth 回调 (内部已处理 Token 存储与状态更新)
+    await handleSignInCallback({
       code,
       state,
       provider: provider as any
     })
     
-    if (user) {
-      Toast.success('登录成功!')
-      
-      // 获取重定向路径
-      const redirect = (route.query.redirect as string) || REDIRECT_PATH
-      
-      // 延迟跳转,让用户看到成功提示
-      setTimeout(() => {
-        router.push(redirect)
-      }, 1000)
-    } else {
-      throw new Error('登录失败,未获取到用户信息')
-    }
+    Toast.success('登录成功!')
+    
+    // 获取重定向路径
+    const redirect = (route.query.redirect as string) || REDIRECT_PATH
+    
+    // 延迟跳转,让用户看到成功提示
+    setTimeout(() => {
+      // 使用 replace 替换当前历史记录，防止回退到回调页
+      router.replace(redirect)
+    }, 1000)
   } catch (err: any) {
     console.error('OAuth callback error:', err)
     error.value = err.message || '登录失败,请重试'

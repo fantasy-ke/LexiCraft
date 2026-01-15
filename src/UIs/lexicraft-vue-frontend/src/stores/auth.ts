@@ -43,10 +43,10 @@ export const useAuthStore = defineStore('auth', () => {
   async function initializeAuth(): Promise<void> {
     try {
       isLoading.value = true
-      
+
       const accessToken = tokenManager.getAccessToken()
       const refreshToken = tokenManager.getRefreshToken()
-      
+
       if (accessToken && refreshToken) {
         // 检查 Token 是否有效
         if (tokenManager.isTokenExpired(accessToken)) {
@@ -57,7 +57,7 @@ export const useAuthStore = defineStore('auth', () => {
             return
           }
         }
-        
+
         // 获取用户信息
         await fetchUserProfile()
       }
@@ -79,38 +79,38 @@ export const useAuthStore = defineStore('auth', () => {
   async function login(credentials: LoginRequest): Promise<void> {
     try {
       isLoading.value = true
-      
+
       const response = await authAPI.login(credentials)
-      
+
       if (response.status && response.data) {
         const { token, refreshToken } = response.data
-        
+
         // 存储 Token
         const tokenPair: TokenPair = {
           accessToken: token,
           refreshToken,
           expiresIn: 3600 // 后端暂未返回时长，默认1小时
         }
-        
+
         tokenManager.setTokens(tokenPair)
         tokens.value = tokenPair
-        
+
         // 登录成功后立即获取完整用户信息
         await fetchUserProfile()
-        
+
         Toast.success('登录成功!')
       } else {
         throw new Error(response.message || '登录失败')
       }
     } catch (error: any) {
       console.error('Login error:', error)
-      
+
       // 确保清除任何可能存在的无效 token
       tokenManager.clearTokens()
       tokens.value = null
       user.value = null
       isAuthenticated.value = false
-      
+
       // 不在这里显示错误提示，让上层处理
       throw error
     } finally {
@@ -122,17 +122,24 @@ export const useAuthStore = defineStore('auth', () => {
   async function register(userData: RegisterRequest): Promise<void> {
     try {
       isLoading.value = true
-      
+
       const response = await authAPI.register(userData)
-      
+
       if (response.status && response.data) {
         Toast.success('注册成功!')
-        
-        // 注册成功后自动登录
-        await login({
-          userAccount: userData.email,
-          password: userData.password
-        })
+
+        // 注册成功后直接使用返回的 Token 进行初始化，不再额外调用 login
+        const { token, refreshToken } = response.data
+
+        tokenManager.setTokens({ token, refreshToken })
+        tokens.value = {
+          accessToken: token,
+          refreshToken,
+          expiresIn: 3600
+        }
+
+        // 立即获取完整用户信息
+        await fetchUserProfile()
       } else {
         throw new Error(response.message || '注册失败')
       }
@@ -149,7 +156,7 @@ export const useAuthStore = defineStore('auth', () => {
   async function logout(): Promise<void> {
     try {
       isLoading.value = true
-      
+
       // 调用后端登出接口
       await authAPI.logout()
     } catch (error) {
@@ -162,7 +169,7 @@ export const useAuthStore = defineStore('auth', () => {
       isAuthenticated.value = false
       tokens.value = null
       isLoading.value = false
-      
+
       // 只在这里显示一次成功提示
       Toast.success('已退出登录')
     }
@@ -172,12 +179,12 @@ export const useAuthStore = defineStore('auth', () => {
   async function loginWithOAuth(provider: OAuthProvider): Promise<void> {
     try {
       isLoading.value = true
-      
+
       const response = await authAPI.initiateOAuth(provider)
-      
+
       if (response.status && response.data) {
         const { authorizationUrl } = response.data
-        
+
         // 跳转到 OAuth 提供商
         window.location.href = authorizationUrl
       } else {
@@ -196,25 +203,28 @@ export const useAuthStore = defineStore('auth', () => {
   async function handleOAuthCallback(params: OAuthCallbackParams): Promise<void> {
     try {
       isLoading.value = true
-      
+
       const response = await authAPI.handleOAuthCallback(params)
-      
+
       if (response.status && response.data) {
-        const { token, refreshToken } = response.data
-        
-        // 存储 Token
-        const tokenPair: TokenPair = {
-          accessToken: token,
+        // 后端返回的对象字段可能是 Token/RefreshToken (PascalCase) 或 token/refreshToken (camelCase)
+        // TokenManager.setTokens 已对此进行了兼容处理
+        tokenManager.setTokens(response.data)
+
+        // 同步更新 Store 状态
+        const data = response.data as any
+        const accessToken = data.accessToken || data.token || data.Token
+        const refreshToken = data.refreshToken || data.RefreshToken
+
+        tokens.value = {
+          accessToken,
           refreshToken,
-          expiresIn: 3600 // 后端暂未返回时长，默认1小时
+          expiresIn: 3600
         }
-        
-        tokenManager.setTokens(tokenPair)
-        tokens.value = tokenPair
-        
+
         // 登录成功后立即获取完整用户信息
         await fetchUserProfile()
-        
+
         Toast.success('OAuth 登录成功!')
       } else {
         throw new Error(response.message || 'OAuth 登录失败')
@@ -232,7 +242,7 @@ export const useAuthStore = defineStore('auth', () => {
   async function fetchUserProfile(): Promise<void> {
     try {
       const response = await authAPI.getUserProfile()
-      
+
       if (response.status && response.data) {
         // 进行字段映射，兼顾后端 PascalCase 转换为 camelCase 后的新字段以及前端旧字段
         const userData = response.data
@@ -274,9 +284,9 @@ export const useAuthStore = defineStore('auth', () => {
   async function updateProfile(profile: UpdateProfileRequest): Promise<void> {
     try {
       isLoading.value = true
-      
+
       const response = await authAPI.updateUserProfile(profile)
-      
+
       if (response.status && response.data) {
         user.value = response.data
         Toast.success('用户资料更新成功!')
@@ -305,7 +315,7 @@ export const useAuthStore = defineStore('auth', () => {
       refreshToken: '', // 如果没有 refresh token，设为空
       expiresIn: 3600 // 默认 1 小时
     }
-    
+
     tokenManager.setTokens(tokenPair)
     tokens.value = tokenPair
     isAuthenticated.value = true
@@ -334,7 +344,7 @@ export const useAuthStore = defineStore('auth', () => {
     tokens,
     authState,
     isLogin, // 兼容旧代码
-    
+
     // 操作
     initializeAuth,
     checkAuthStatus,
@@ -346,12 +356,12 @@ export const useAuthStore = defineStore('auth', () => {
     fetchUserProfile,
     fetchUserPermissions,
     updateProfile,
-    
+
     // 兼容旧代码的方法
     setUser,
     setToken,
     clearToken,
-    
+
     // 别名（兼容旧代码）
     init: initializeAuth
   }

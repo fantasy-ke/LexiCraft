@@ -30,16 +30,16 @@ export interface RegisterRequest {
   captchaCode: string // 验证码
 }
 
-// 登录响应
+// 登录响应 (对应后端 TokenResponse)
 export interface LoginResponse {
   token: string
   refreshToken: string
 }
 
-// 注册响应
+// 注册响应 (对应后端 TokenResponse)
 export interface RegisterResponse {
-  user: UserProfile
-  message: string
+  token: string
+  refreshToken: string
 }
 
 // 用户资料
@@ -119,18 +119,18 @@ export interface IAuthAPI {
   login(credentials: LoginRequest): Promise<ResultDto<LoginResponse>>
   register(userData: RegisterRequest): Promise<ResultDto<RegisterResponse>>
   logout(): Promise<ResultDto<void>>
-  
+
   // 验证码
   getCaptcha(): Promise<ResultDto<CaptchaResponse>>
-  
+
   // 用户资料
   getUserProfile(): Promise<ResultDto<UserProfile>>
   updateUserProfile(profile: Partial<UserProfile>): Promise<ResultDto<UserProfile>>
-  
+
   // OAuth 流程
   initiateOAuth(provider: OAuthProvider): Promise<ResultDto<OAuthInitResponse>>
   handleOAuthCallback(params: OAuthCallbackParams): Promise<ResultDto<LoginResponse>>
-  
+
   // Token 管理
   refreshToken(): Promise<ResultDto<TokenPair>>
 
@@ -144,15 +144,15 @@ export interface IAuthActions {
   login(credentials: LoginRequest): Promise<void>
   register(userData: RegisterRequest): Promise<void>
   logout(): Promise<void>
-  
+
   // OAuth 操作
   loginWithOAuth(provider: OAuthProvider): Promise<void>
   handleOAuthCallback(params: OAuthCallbackParams): Promise<void>
-  
+
   // 用户资料操作
   fetchUserProfile(): Promise<void>
   updateProfile(profile: Partial<UserProfile>): Promise<void>
-  
+
   // 状态管理
   initializeAuth(): Promise<void>
   checkAuthStatus(): boolean
@@ -165,11 +165,11 @@ export interface ITokenManager {
   getAccessToken(): string | null
   getRefreshToken(): string | null
   clearTokens(): void
-  
+
   // Token 验证
   isTokenValid(token: string): boolean
   isTokenExpired(token: string): boolean
-  
+
   // 自动刷新
   refreshTokenIfNeeded(): Promise<boolean>
 }

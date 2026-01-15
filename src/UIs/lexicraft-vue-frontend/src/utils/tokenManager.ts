@@ -17,13 +17,38 @@ class TokenManager implements ITokenManager {
   /**
    * 存储 Token 对
    */
-  setTokens(tokens: TokenPair): void {
+  setTokens(tokens: any): void {
     try {
-      localStorage.setItem(this.config.tokenStorageKey, tokens.accessToken)
-      localStorage.setItem(this.config.refreshTokenStorageKey, tokens.refreshToken)
-      
-      // 存储过期时间（当前时间 + expiresIn 秒）
-      const expiresAt = Date.now() + (tokens.expiresIn * 1000)
+      // 兼容两种格式：{ token, refreshToken } 或 { accessToken, refreshToken } 或 { Token, RefreshToken }
+      const accessToken = tokens.accessToken || tokens.token || tokens.Token
+      const refreshToken = tokens.refreshToken || tokens.RefreshToken
+
+      if (!accessToken) {
+        console.warn('Attempted to set tokens without an access token')
+        return
+      }
+
+      localStorage.setItem(this.config.tokenStorageKey, accessToken)
+      if (refreshToken) {
+        localStorage.setItem(this.config.refreshTokenStorageKey, refreshToken)
+      }
+
+      // 处理过期时间
+      let expiresIn = tokens.expiresIn
+
+      // 如果没有显式提供 expiresIn，尝试解析 JWT 的 exp 声明
+      if (!expiresIn && accessToken) {
+        const payload = this.parseTokenPayload(accessToken)
+        if (payload && payload.exp) {
+          // exp 是秒级时间戳，转换为剩余秒数
+          expiresIn = payload.exp - Math.floor(Date.now() / 1000)
+        }
+      }
+
+      // 默认提供 1 小时作为兜底，如果解析失败
+      const effectiveExpiresIn = expiresIn || 3600
+      const expiresAt = Date.now() + (effectiveExpiresIn * 1000)
+
       localStorage.setItem(`${this.config.tokenStorageKey}_expires_at`, expiresAt.toString())
     } catch (error) {
       console.error('Failed to store tokens:', error)
@@ -72,12 +97,12 @@ class TokenManager implements ITokenManager {
    */
   isTokenValid(token: string): boolean {
     if (!token) return false
-    
+
     try {
       // 简单的 JWT 格式检查
       const parts = token.split('.')
       if (parts.length !== 3) return false
-      
+
       // 尝试解析 payload
       const payload = JSON.parse(atob(parts[1]))
       return payload && typeof payload === 'object'
@@ -91,15 +116,15 @@ class TokenManager implements ITokenManager {
    */
   isTokenExpired(token: string): boolean {
     if (!this.isTokenValid(token)) return true
-    
+
     try {
       // 从存储中获取过期时间
       const expiresAtStr = localStorage.getItem(`${this.config.tokenStorageKey}_expires_at`)
       if (!expiresAtStr) return true
-      
+
       const expiresAt = parseInt(expiresAtStr, 10)
       const now = Date.now()
-      
+
       // 提前刷新阈值检查
       return (expiresAt - now) <= (this.config.autoRefreshThreshold * 1000)
     } catch (error) {
@@ -114,12 +139,12 @@ class TokenManager implements ITokenManager {
   async refreshTokenIfNeeded(): Promise<boolean> {
     const accessToken = this.getAccessToken()
     const refreshToken = this.getRefreshToken()
-    
+
     // 如果没有 refresh token，直接返回 false
     if (!refreshToken) {
       return false
     }
-    
+
     // 如果 access token 仍然有效，返回 true
     if (accessToken && !this.isTokenExpired(accessToken)) {
       return true
@@ -131,7 +156,7 @@ class TokenManager implements ITokenManager {
     }
 
     this.refreshPromise = this.performTokenRefresh()
-    
+
     try {
       const result = await this.refreshPromise
       return result
@@ -145,7 +170,7 @@ class TokenManager implements ITokenManager {
    */
   private async performTokenRefresh(): Promise<boolean> {
     const refreshToken = this.getRefreshToken()
-    
+
     if (!refreshToken) {
       this.clearTokens()
       return false
@@ -155,7 +180,7 @@ class TokenManager implements ITokenManager {
       // 动态导入避免循环依赖
       const { authAPI } = await import('@/apis/auth')
       const response = await authAPI.refreshToken()
-      
+
       if (response.status && response.data) {
         this.setTokens(response.data)
         return true
@@ -175,7 +200,7 @@ class TokenManager implements ITokenManager {
    */
   parseTokenPayload(token: string): any {
     if (!this.isTokenValid(token)) return null
-    
+
     try {
       const parts = token.split('.')
       const payload = JSON.parse(atob(parts[1]))
@@ -193,10 +218,10 @@ class TokenManager implements ITokenManager {
     try {
       const expiresAtStr = localStorage.getItem(`${this.config.tokenStorageKey}_expires_at`)
       if (!expiresAtStr) return 0
-      
+
       const expiresAt = parseInt(expiresAtStr, 10)
       const now = Date.now()
-      
+
       return Math.max(0, Math.floor((expiresAt - now) / 1000))
     } catch (error) {
       return 0
