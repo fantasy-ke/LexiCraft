@@ -421,7 +421,7 @@ public class FilesService(
     /// <param name="context"></param>
     /// <returns></returns>
     /// <exception cref="ArgumentException"></exception>
-    /// <exception cref="Exception"></exception>
+    /// <exception cref="UnauthorizedAccessException"></exception>
     /// <exception cref="FileNotFoundException"></exception>
     public async Task<FileResponseDto> GetFileByPathAsync(string relativePath, CallContext context = default)
     {
@@ -429,38 +429,62 @@ public class FilesService(
         {
             throw new ArgumentException("文件路径不能为空", nameof(relativePath));
         }
-        
-        // 确保路径安全，防止目录遍历攻击
-        if (relativePath.Contains(".."))
+
+        // 策略1: 规范化路径以防止目录遍历
+        var normalizedPath = Path.GetFullPath(relativePath);
+
+        // 策略2: 定义允许的基础目录
+        var allowedBasePath = Path.GetFullPath(Path.Combine(hostEnvironment.ContentRootPath, "uploads"));
+
+        // 策略3: 确保规范化路径以允许的基础目录开头
+        if (!normalizedPath.StartsWith(allowedBasePath, StringComparison.OrdinalIgnoreCase))
         {
-            throw new Exception("不允许使用相对路径导航符 '..'");
+            throw new UnauthorizedAccessException("访问被拒绝: 检测到路径遍历");
         }
-        
+
+        // 策略4: 验证文件扩展名以防止执行恶意文件
+        var fileExtension = Path.GetExtension(normalizedPath).ToLowerInvariant();
+        var allowedExtensions = new HashSet<string> { ".jpg", ".jpeg", ".png", ".gif", ".pdf", ".doc", ".docx", ".txt", ".zip", ".rar", ".mp3", ".mp4", ".avi" };
+
+        if (!allowedExtensions.Contains(fileExtension))
+        {
+            throw new UnauthorizedAccessException($"不允许的文件类型: {fileExtension}");
+        }
+
         // 构建完整路径
-        var fullPath = Path.Combine(hostEnvironment.ContentRootPath, "uploads", relativePath);
-        
+        var fullPath = Path.Combine(allowedBasePath, Path.GetFileName(normalizedPath));
+
+        // 双重检查最终路径是否仍在允许范围内
+        if (!fullPath.StartsWith(allowedBasePath, StringComparison.OrdinalIgnoreCase))
+        {
+            throw new UnauthorizedAccessException("访问被拒绝: 检测到路径遍历");
+        }
+
         // 检查文件是否存在
         if (!File.Exists(fullPath))
         {
             throw new FileNotFoundException($"文件不存在: {relativePath}");
         }
-        
+
         // 获取文件名
         var fileName = Path.GetFileName(fullPath);
-        
+
         // 尝试从数据库中查找文件记录，更新访问时间和下载次数
         var fileInfo = await fileRepository.FirstOrDefaultAsync(f => f.FilePath == relativePath);
-        fileInfo.LastAccessTime = DateTime.Now;
-        fileInfo.DownloadCount++;
-        await fileRepository.UpdateAsync(fileInfo);
-        await unitOfWork.SaveChangesAsync();
+        if (fileInfo != null)
+        {
+            fileInfo.LastAccessTime = DateTime.Now;
+            fileInfo.DownloadCount++;
+            await fileRepository.UpdateAsync(fileInfo);
+            await unitOfWork.SaveChangesAsync();
+        }
 
         // 使用FileExtensionContentTypeProvider获取MIME类型
         if (!_contentTypeProvider.TryGetContentType(fullPath, out var contentType))
         {
             contentType = "application/octet-stream";
         }
-        
+
         // 返回文件流
         var fileStream = new FileStream(fullPath, FileMode.Open, FileAccess.Read);
         return new FileResponseDto

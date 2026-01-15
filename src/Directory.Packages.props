@@ -4,6 +4,7 @@
     <ManagePackageVersionsCentrally>true</ManagePackageVersionsCentrally>
   </PropertyGroup>
   <ItemGroup Label="Entity Framework">
+    <PackageVersion Include="BCrypt.Net-Next" Version="4.0.3" />
     <PackageVersion Include="Microsoft.EntityFrameworkCore" Version="10.0.1" />
     <PackageVersion Include="Microsoft.EntityFrameworkCore.Tools" Version="10.0.1" />
     <PackageVersion Include="Microsoft.EntityFrameworkCore.Relational" Version="10.0.1" />
