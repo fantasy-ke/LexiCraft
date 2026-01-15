@@ -34,5 +34,5 @@ defineProps<{
 </script>
 
 <style scoped lang="scss">
-@import './styles/recent-card.scss';
+@use './styles/recent-card.scss';
 </style>

@@ -65,5 +65,5 @@ const weekDays = computed(() => {
 </script>
 
 <style scoped lang="scss">
-@import './styles/check-in-card.scss';
+@use './styles/check-in-card.scss';
 </style>

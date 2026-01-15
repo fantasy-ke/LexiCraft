@@ -42,5 +42,5 @@ defineProps<{
 </script>
 
 <style scoped lang="scss">
-@import './styles/heatmap-card.scss';
+@use './styles/heatmap-card.scss';
 </style>

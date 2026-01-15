@@ -46,5 +46,5 @@ const tabs = ['总计', '本周', '本月', '今年']
 </script>
 
 <style scoped lang="scss">
-@import './styles/stats-card.scss';
+@use './styles/stats-card.scss';
 </style>

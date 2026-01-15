@@ -55,5 +55,5 @@ defineEmits<{
 </script>
 
 <style scoped lang="scss">
-@import './styles/courses-card.scss';
+@use './styles/courses-card.scss';
 </style>

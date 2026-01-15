@@ -117,7 +117,7 @@ const recentItems = ref(FAKE_DATA.recent)
 </script>
 
 <style scoped lang="scss">
-@import '@/components/dashboard/styles/common.scss';
+@use '@/components/dashboard/styles/common.scss';
 
 .dashboard {
   display: flex;
