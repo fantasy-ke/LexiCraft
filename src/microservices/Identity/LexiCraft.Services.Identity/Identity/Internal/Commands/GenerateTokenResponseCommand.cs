@@ -3,12 +3,13 @@ using BuildingBlocks.Authentication;
 using BuildingBlocks.Authentication.Contract;
 using BuildingBlocks.Caching.Redis;
 using LexiCraft.Services.Identity.Identity.Models;
+using LexiCraft.Services.Identity.Identity.Models.Enum;
 using LexiCraft.Services.Identity.Shared.Dtos;
 using MediatR;
 
 namespace LexiCraft.Services.Identity.Identity.Internal.Commands;
 
-public record GenerateTokenResponseCommand(User User, string LoginType, string? Message = null) : IRequest<TokenResponse>;
+public record GenerateTokenResponseCommand(User User, string? Message = null) : IRequest<TokenResponse>;
 
 public class GenerateTokenResponseCommandHandler(
     IJwtTokenProvider jwtTokenProvider,
@@ -37,8 +38,8 @@ public class GenerateTokenResponseCommandHandler(
         var response = new TokenResponse(token, refreshToken);
 
         // 发布登录日志
-        var logMessage = request.Message ?? (request.LoginType == "Register" ? "注册成功" : "登录成功");
-        await mediator.Send(new PublishLoginLogCommand(user.UserAccount, logMessage, user.Id, true, request.LoginType), cancellationToken);
+        var logMessage = request.Message ?? (user.Source == SourceEnum.Register ? "注册成功" : "登录成功");
+        await mediator.Send(new PublishLoginLogCommand(user.UserAccount, logMessage, user.Id, true, user.Source.ToString()), cancellationToken);
 
         // 缓存令牌
         await redisManager.SetAsync(string.Format(UserInfoConst.RedisTokenKey, user.Id.ToString("N")), response, TimeSpan.FromDays(7));

@@ -18,21 +18,21 @@ public class HybridEventBus<TEvent>(
     IOptionsMonitor<EventBusOptions> options,
     IServiceProvider serviceProvider) : IEventBus<TEvent> where TEvent : class
 {
-    private EventBusOptions _options => options.CurrentValue;
+    private EventBusOptions Options => options.CurrentValue;
 
     public async ValueTask PublishAsync(TEvent @event)
     {
         ArgumentNullException.ThrowIfNull(@event);
 
         // 1. 本地分发 (如果启用)
-        if (_options.EnableLocal)
+        if (Options.EnableLocal)
         {
             var eventData = serializer.SerializeJson(@event);
             await localClient.PublishAsync(@event.GetType(), eventData);
         }
 
         // 2. Redis 分布式分发 (如果是集成事件且启用 Redis)
-        if (_options.EnableRedis && @event is ISagaIntegrationEvent)
+        if (Options.EnableRedis && @event is ISagaIntegrationEvent)
         {
             var redisClient = (FreeRedis.RedisClient?)serviceProvider.GetService(typeof(FreeRedis.RedisClient));
             if (redisClient != null)
@@ -40,7 +40,7 @@ public class HybridEventBus<TEvent>(
                 var eventType = @event.GetType();
                 var channelName = GetRedisChannelName(eventType);
                 var eventData = serializer.SerializeJson(@event);
-                var eventEto = new EventEto(eventType.FullName!, eventData);
+                var eventEto = new EventEto(eventType.FullName ?? string.Empty, eventData);
                 var payload = serializer.SerializeJson(eventEto);
 
                 try
@@ -58,7 +58,7 @@ public class HybridEventBus<TEvent>(
     private string GetRedisChannelName(Type eventType)
     {
         var attribute = eventType.GetCustomAttributes(typeof(EventSchemeAttribute), true).FirstOrDefault() as EventSchemeAttribute;
-        var name = attribute?.EventName ?? eventType.FullName!;
-        return string.IsNullOrEmpty(_options.Redis.Prefix) ? name : $"{_options.Redis.Prefix}:{name}";
+        var name = attribute?.EventName ?? eventType.FullName ?? string.Empty;
+        return string.IsNullOrEmpty(Options.Redis.Prefix) ? name : $"{Options.Redis.Prefix}:{name}";
     }
 }
