@@ -2,12 +2,11 @@ using System.Text.Json;
 using BuildingBlocks.Authentication;
 using BuildingBlocks.Authentication.Contract;
 using BuildingBlocks.Caching.Redis;
-using LexiCraft.Services.Identity.Identity.Events.LoginLog;
 using LexiCraft.Services.Identity.Identity.Models;
 using LexiCraft.Services.Identity.Shared.Dtos;
 using MediatR;
 
-namespace LexiCraft.Services.Identity.Identity.Features.GenerateToken;
+namespace LexiCraft.Services.Identity.Identity.Internal.Commands;
 
 public record GenerateTokenResponseCommand(User User, string LoginType, string? Message = null) : IRequest<TokenResponse>;
 

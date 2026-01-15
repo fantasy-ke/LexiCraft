@@ -4,7 +4,7 @@ using LexiCraft.Services.Identity.Identity.Models.Enum;
 using LexiCraft.Services.Identity.Shared.Contracts;
 using LexiCraft.Shared.Permissions;
 
-namespace LexiCraft.Services.Identity.Users.Features.CreateUser;
+namespace LexiCraft.Services.Identity.Users.Internal.Commands;
 
 /// <summary>
 /// 创建用户命令

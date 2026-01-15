@@ -2,12 +2,11 @@ using BuildingBlocks.Exceptions;
 using BuildingBlocks.Mediator;
 using FluentValidation;
 using Lazy.Captcha.Core;
-using LexiCraft.Services.Identity.Identity.Events.LoginLog;
-using LexiCraft.Services.Identity.Identity.Features.GenerateToken;
+using LexiCraft.Services.Identity.Identity.Internal.Commands;
 using LexiCraft.Services.Identity.Identity.Models.Enum;
 using LexiCraft.Services.Identity.Shared.Contracts;
 using LexiCraft.Services.Identity.Shared.Dtos;
-using LexiCraft.Services.Identity.Users.Features.CreateUser;
+using LexiCraft.Services.Identity.Users.Internal.Commands;
 using MediatR;
 
 namespace LexiCraft.Services.Identity.Users.Features.RegisterUser;

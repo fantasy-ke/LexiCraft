@@ -4,7 +4,7 @@ using LexiCraft.Services.Identity.Shared.Dtos;
 using Microsoft.AspNetCore.Http;
 using BuildingBlocks.EventBus.Abstractions;
 
-namespace LexiCraft.Services.Identity.Identity.Events.LoginLog;
+namespace LexiCraft.Services.Identity.Identity.Internal.Commands;
 
 public record PublishLoginLogCommand(
     string UserAccount,

@@ -2,11 +2,10 @@ using System.Text.RegularExpressions;
 using BuildingBlocks.Exceptions;
 using BuildingBlocks.Mediator;
 using FluentValidation;
-using LexiCraft.Services.Identity.Identity.Events.LoginLog;
+using LexiCraft.Services.Identity.Identity.Internal.Commands;
 using LexiCraft.Services.Identity.Shared.Contracts;
 using Microsoft.EntityFrameworkCore;
 using MediatR;
-using LexiCraft.Services.Identity.Identity.Features.GenerateToken;
 using LexiCraft.Services.Identity.Shared.Dtos;
 
 namespace LexiCraft.Services.Identity.Identity.Features.Login;

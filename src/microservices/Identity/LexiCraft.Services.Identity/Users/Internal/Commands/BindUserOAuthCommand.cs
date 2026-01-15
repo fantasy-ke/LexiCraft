@@ -4,7 +4,7 @@ using LexiCraft.Services.Identity.Identity.Models;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
 
-namespace LexiCraft.Services.Identity.Users.Features.BindUserOAuth;
+namespace LexiCraft.Services.Identity.Users.Internal.Commands;
 
 /// <summary>
 /// 绑定用户OAuth信息命令

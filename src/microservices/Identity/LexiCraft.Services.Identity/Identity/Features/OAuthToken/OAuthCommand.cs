@@ -1,18 +1,15 @@
 using BuildingBlocks.Domain;
 using BuildingBlocks.Exceptions;
 using FluentValidation;
-using LexiCraft.Services.Identity.Identity.Features.GenerateToken;
+using LexiCraft.Services.Identity.Identity.Internal.Commands;
 using LexiCraft.Services.Identity.Identity.Models;
 using LexiCraft.Services.Identity.Identity.Models.Enum;
 using LexiCraft.Services.Identity.Shared.Authorize;
 using LexiCraft.Services.Identity.Shared.Dtos;
-using LexiCraft.Services.Identity.Users.Features.BindUserOAuth;
-using LexiCraft.Services.Identity.Users.Features.CreateUser;
+using LexiCraft.Services.Identity.Users.Internal.Commands;
 using MediatR;
-using Microsoft.AspNetCore.Http;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
-using Microsoft.Extensions.Options;
 
 namespace LexiCraft.Services.Identity.Identity.Features.OAuthToken;
 
@@ -61,12 +58,18 @@ internal class OAuthCommandHandler(
                 var user = await ProcessUserLoginAsync(request.Type, userDto, cancellationToken);
 
                 // 3. 生成Token与处理后续逻辑
-                return await HandlePostLoginAsync(user, request.Type, cancellationToken);
+                
+                var tokenResponse = await HandlePostLoginAsync(user, request.Type, cancellationToken);
+                
+                await unitOfWork.CommitTransactionAsync();
+                
+                return tokenResponse;
+                
             }
-            catch (Exception)
+            catch (Exception ex)
             {
                 await unitOfWork.RollbackTransactionAsync();
-                throw;
+                throw ex.ThrowUserFriendly(ex.Message, 500);
             }
         });
     }
@@ -90,7 +93,7 @@ internal class OAuthCommandHandler(
         }
     }
 
-    private async Task<User> ProcessUserLoginAsync(string provider, Shared.Dtos.OAuthUserDto userDto,
+    private async Task<User> ProcessUserLoginAsync(string provider, OAuthUserDto userDto,
         CancellationToken cancellationToken)
     {
         // 查找OAuth绑定
