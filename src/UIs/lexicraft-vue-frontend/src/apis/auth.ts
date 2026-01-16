@@ -29,7 +29,7 @@ class AuthAPI implements IAuthAPI {
    * 用户登录
    */
   async login(credentials: LoginRequest): Promise<ResultDto<LoginResponse>> {
-    return authPost<LoginResponse>('/api/v1/identity/login', credentials)
+    return authPost<LoginResponse>('/v1/login', credentials)
   }
 
   /**
@@ -44,50 +44,50 @@ class AuthAPI implements IAuthAPI {
       captchaKey: userData.captchaKey,
       captchaCode: userData.captchaCode
     }
-    
-    return authPost<RegisterResponse>('/api/v1/identity/register', registerData)
+
+    return authPost<RegisterResponse>('/v1/register', registerData)
   }
 
   /**
    * 获取验证码
    */
   async getCaptcha(): Promise<ResultDto<CaptchaResponse>> {
-    return authGet<CaptchaResponse>('/api/v1/identity/users/captcha')
+    return authGet<CaptchaResponse>('/v1/users/captcha')
   }
 
   /**
    * 用户登出
    */
   async logout(): Promise<ResultDto<void>> {
-    return authPost<void>('/api/v1/identity/logout')
+    return authPost<void>('/v1/logout')
   }
 
   /**
    * 获取用户资料
    */
   async getUserProfile(): Promise<ResultDto<UserProfile>> {
-    return authGet<UserProfile>('/api/v1/identity/users/info')
+    return authGet<UserProfile>('/v1/users/info')
   }
 
   /**
    * 更新用户资料
    */
   async updateUserProfile(profile: UpdateProfileRequest): Promise<ResultDto<UserProfile>> {
-    return authPut<UserProfile>('/api/v1/identity/users/info', profile)
+    return authPut<UserProfile>('/v1/users/info', profile)
   }
 
   /**
    * 初始化 OAuth 登录
    */
   async initiateOAuth(provider: OAuthProvider): Promise<ResultDto<OAuthInitResponse>> {
-    return authGet<OAuthInitResponse>(`/api/v1/identity/oauth/${provider}/initiate`)
+    return authGet<OAuthInitResponse>(`/v1/oauth/${provider}/initiate`)
   }
 
   /**
    * 处理 OAuth 回调
    */
   async handleOAuthCallback(params: OAuthCallbackParams): Promise<ResultDto<LoginResponse>> {
-    return authPost<LoginResponse>(`/api/v1/identity/oauth/${params.provider}/callback`, {
+    return authPost<LoginResponse>(`/v1/oauth/${params.provider}/callback`, {
       code: params.code,
       state: params.state
     })
@@ -97,77 +97,77 @@ class AuthAPI implements IAuthAPI {
    * 刷新访问令牌
    */
   async refreshToken(): Promise<ResultDto<TokenPair>> {
-    return authPost<TokenPair>('/api/v1/identity/refresh-token')
+    return authPost<TokenPair>('/v1/refresh-token')
   }
 
   /**
    * 验证邮箱
    */
   async verifyEmail(token: string): Promise<ResultDto<void>> {
-    return authPost<void>('/api/v1/identity/verify-email', { token })
+    return authPost<void>('/v1/verify-email', { token })
   }
 
   /**
    * 发送密码重置邮件
    */
   async sendPasswordResetEmail(email: string): Promise<ResultDto<void>> {
-    return authPost<void>('/api/v1/identity/forgot-password', { email })
+    return authPost<void>('/v1/forgot-password', { email })
   }
 
   /**
    * 重置密码
    */
   async resetPassword(token: string, newPassword: string): Promise<ResultDto<void>> {
-    return authPost<void>('/api/v1/identity/reset-password', { token, newPassword })
+    return authPost<void>('/v1/reset-password', { token, newPassword })
   }
 
   /**
    * 修改密码
    */
   async changePassword(currentPassword: string, newPassword: string): Promise<ResultDto<void>> {
-    return authPost<void>('/api/v1/identity/change-password', { currentPassword, newPassword })
+    return authPost<void>('/v1/change-password', { currentPassword, newPassword })
   }
 
   /**
    * 获取 OAuth 提供商列表
    */
   async getOAuthProviders(): Promise<ResultDto<OAuthProvider[]>> {
-    return authGet<OAuthProvider[]>('/api/v1/identity/oauth/providers')
+    return authGet<OAuthProvider[]>('/v1/oauth/providers')
   }
 
   /**
    * 绑定 OAuth 账户
    */
   async linkOAuthAccount(provider: OAuthProvider, code: string, state: string): Promise<ResultDto<void>> {
-    return authPost<void>(`/api/v1/identity/oauth/${provider}/link`, { code, state })
+    return authPost<void>(`/v1/oauth/${provider}/link`, { code, state })
   }
 
   /**
    * 解绑 OAuth 账户
    */
   async unlinkOAuthAccount(provider: OAuthProvider): Promise<ResultDto<void>> {
-    return authPost<void>(`/api/v1/identity/oauth/${provider}/unlink`)
+    return authPost<void>(`/v1/oauth/${provider}/unlink`)
   }
 
   /**
    * 获取用户的 OAuth 绑定状态
    */
   async getOAuthBindings(): Promise<ResultDto<Record<OAuthProvider, boolean>>> {
-    return authGet<Record<OAuthProvider, boolean>>('/api/v1/identity/oauth/bindings')
+    return authGet<Record<OAuthProvider, boolean>>('/v1/oauth/bindings')
   }
 
   /**
    * 检查邮箱是否已注册
    */
   async checkEmailExists(email: string): Promise<ResultDto<boolean>> {
-    return authGet<boolean>('/api/v1/identity/check-email', { email })
+    return authGet<boolean>('/v1/check-email', { email })
   }
 
   /**
    * 检查用户名是否可用
    */
   async checkUsernameAvailable(username: string): Promise<ResultDto<boolean>> {
-    return authGet<boolean>('/api/v1/identity/check-username', { username })
+    return authGet<boolean>('/v1/check-username', { username })
   }
 
   /**
@@ -180,21 +180,21 @@ class AuthAPI implements IAuthAPI {
     ipAddress: string
     userAgent: string
   }>> {
-    return authGet('/api/v1/identity/session')
+    return authGet('/v1/session')
   }
 
   /**
    * 撤销所有会话（强制登出所有设备）
    */
   async revokeAllSessions(): Promise<ResultDto<void>> {
-    return authPost<void>('/api/v1/identity/revoke-sessions')
+    return authPost<void>('/v1/revoke-sessions')
   }
 
   /**
    * 查询用户权限列表
    */
   async getUserPermissions(userId: string): Promise<ResultDto<UserPermissionsResponse>> {
-    return authGet<UserPermissionsResponse>(`/api/v1/identity/permissions/${userId}`)
+    return authGet<UserPermissionsResponse>(`/v1/permissions/${userId}`)
   }
 }
 

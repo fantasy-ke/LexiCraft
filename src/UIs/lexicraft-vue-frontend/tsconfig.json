@@ -28,8 +28,7 @@
     ],
     "types": [
       "vite/client",
-      "unplugin-vue-macros/macros-global",
-      "unplugin-vue-components/types"  // 让 TS 识别自动导入组件
+      "unplugin-vue-macros/macros-global"
     ],
     "baseUrl": "src",
     //This is because TypeScript does not resolve webpack aliases automatically.
@@ -48,6 +47,7 @@
     "src/**/*.d.ts",
     "src/**/*.vue",
     "src/vite-env.d.ts",
+    "components.d.ts"
   ],
   "references": [
     {

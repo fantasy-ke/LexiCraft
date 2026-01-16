@@ -35,13 +35,6 @@ public class User: AuditEntity<Guid,Guid?>
     public string? PasswordHash { get; set; }
 
     /// <summary>
-    /// 用户密码的盐值。
-    /// 注意：使用BCrypt时，盐值由算法自动处理，不需要单独存储
-    /// </summary>
-    [Obsolete("不再需要单独的盐值，BCrypt已内置盐值处理")]
-    public string? PasswordSalt { get; set; }
-
-    /// <summary>
     ///  用户来源
     /// </summary>
     public SourceEnum Source { get; private set; }

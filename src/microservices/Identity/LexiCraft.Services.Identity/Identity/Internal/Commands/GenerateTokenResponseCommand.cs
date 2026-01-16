@@ -26,7 +26,6 @@ public class GenerateTokenResponseCommandHandler(
         if (userForClaims != null)
         {
             userForClaims.PasswordHash = null;
-            userForClaims.PasswordSalt = null;
             userDict.Add(UserInfoConst.UserId, user.Id.ToString());
             userDict.Add(UserInfoConst.UserName, user.Username);
             userDict.Add(UserInfoConst.UserAccount, user.UserAccount);

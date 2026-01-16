@@ -26,7 +26,7 @@ describe('authHttp', () => {
   it('should not add Authorization header for login endpoint', async () => {
     const mockTokenManager = await import('../tokenManager')
     mockTokenManager.tokenManager.getAccessToken = vi.fn().mockReturnValue('mock-token')
-    
+
     // Mock axios request
     const requestSpy = vi.spyOn(authHttpClient, 'request').mockResolvedValue({
       data: { status: true },
@@ -36,11 +36,11 @@ describe('authHttp', () => {
       config: {}
     })
 
-    await authHttpClient.post('/api/v1/identity/login', { userAccount: 'test', password: 'test' })
+    await authHttpClient.post('/v1/login', { userAccount: 'test', password: 'test' })
 
     // 验证请求被调用
     expect(requestSpy).toHaveBeenCalled()
-    
+
     // 验证没有尝试获取 token（因为是登录接口）
     expect(mockTokenManager.tokenManager.getAccessToken).not.toHaveBeenCalled()
   })
@@ -49,7 +49,7 @@ describe('authHttp', () => {
     const mockTokenManager = await import('../tokenManager')
     mockTokenManager.tokenManager.getAccessToken = vi.fn().mockReturnValue('mock-token')
     mockTokenManager.tokenManager.isTokenExpired = vi.fn().mockReturnValue(false)
-    
+
     // Mock axios request
     const requestSpy = vi.spyOn(authHttpClient, 'request').mockResolvedValue({
       data: { status: true },
@@ -59,11 +59,11 @@ describe('authHttp', () => {
       config: {}
     })
 
-    await authHttpClient.get('/api/v1/identity/users/info')
+    await authHttpClient.get('/v1/users/info')
 
     // 验证请求被调用
     expect(requestSpy).toHaveBeenCalled()
-    
+
     // 验证尝试获取 token
     expect(mockTokenManager.tokenManager.getAccessToken).toHaveBeenCalled()
   })
@@ -71,7 +71,7 @@ describe('authHttp', () => {
   it('should not retry login request on 401 error', async () => {
     const mockTokenManager = await import('../tokenManager')
     mockTokenManager.tokenManager.refreshTokenIfNeeded = vi.fn().mockResolvedValue(true)
-    
+
     // Mock 401 error for login endpoint
     const error = {
       response: {
@@ -79,7 +79,7 @@ describe('authHttp', () => {
         data: { message: 'Invalid credentials' }
       },
       config: {
-        url: '/api/v1/identity/login'
+        url: '/v1/login'
       }
     }
 
@@ -87,7 +87,7 @@ describe('authHttp', () => {
     vi.spyOn(authHttpClient, 'request').mockRejectedValue(error)
 
     try {
-      await authHttpClient.post('/api/v1/identity/login', { userAccount: 'test', password: 'wrong' })
+      await authHttpClient.post('/v1/login', { userAccount: 'test', password: 'wrong' })
     } catch (e) {
       // 验证没有尝试刷新 token
       expect(mockTokenManager.tokenManager.refreshTokenIfNeeded).not.toHaveBeenCalled()
@@ -98,7 +98,7 @@ describe('authHttp', () => {
     const mockTokenManager = await import('../tokenManager')
     mockTokenManager.tokenManager.refreshTokenIfNeeded = vi.fn().mockResolvedValue(true)
     mockTokenManager.tokenManager.getAccessToken = vi.fn().mockReturnValue('new-token')
-    
+
     // Mock 401 error for protected endpoint
     const error = {
       response: {
@@ -106,7 +106,7 @@ describe('authHttp', () => {
         data: { message: 'Token expired' }
       },
       config: {
-        url: '/api/v1/identity/users/info',
+        url: '/v1/users/info',
         headers: {}
       }
     }
@@ -126,14 +126,14 @@ describe('authHttp', () => {
       })
     })
 
-    const result = await authHttpClient.get('/api/v1/identity/users/info')
+    const result = await authHttpClient.get('/v1/users/info')
 
     // 验证尝试刷新 token
     expect(mockTokenManager.tokenManager.refreshTokenIfNeeded).toHaveBeenCalled()
-    
+
     // 验证请求被重试
     expect(callCount).toBe(2)
-    
+
     // 验证最终成功
     expect(result.data.status).toBe(true)
   })

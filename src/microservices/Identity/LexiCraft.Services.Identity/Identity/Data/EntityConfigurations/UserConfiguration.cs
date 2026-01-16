@@ -29,9 +29,6 @@ public class UserConfiguration : IEntityTypeConfiguration<User>
             .HasMaxLength(64)
             .HasComment("密码哈希值");
 
-        builder.Property(x => x.PasswordSalt)
-            .IsRequired();
-
         builder.Property(x => x.Email)
             .IsRequired()
             .HasMaxLength(64)
