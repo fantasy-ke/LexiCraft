@@ -7,6 +7,8 @@ EXPOSE 8081
 FROM mcr.microsoft.com/dotnet/sdk:10.0 AS build
 ARG BUILD_CONFIGURATION=Release
 WORKDIR /src
+COPY ["Directory.Packages.props", "."]
+COPY ["Directory.Build.props", "."]
 COPY ["microservices/Practice/LexiCraft.Services.Practice.Api/LexiCraft.Services.Practice.Api.csproj", "microservices/Practice/LexiCraft.Services.Practice.Api/"]
 COPY ["microservices/Practice/LexiCraft.Services.Practice/LexiCraft.Services.Practice.csproj", "microservices/Practice/LexiCraft.Services.Practice/"]
 COPY ["BuildingBlocks/BuildingBlocks.MongoDB/BuildingBlocks.MongoDB.csproj", "BuildingBlocks/BuildingBlocks.MongoDB/"]

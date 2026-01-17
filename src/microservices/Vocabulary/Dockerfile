@@ -7,6 +7,8 @@ EXPOSE 8081
 FROM mcr.microsoft.com/dotnet/sdk:10.0 AS build
 ARG BUILD_CONFIGURATION=Release
 WORKDIR /src
+COPY ["Directory.Packages.props", "."]
+COPY ["Directory.Build.props", "."]
 COPY ["microservices/Vocabulary/LexiCraft.Services.Vocabulary.Api/LexiCraft.Services.Vocabulary.Api.csproj", "microservices/Vocabulary/LexiCraft.Services.Vocabulary.Api/"]
 COPY ["microservices/Vocabulary/LexiCraft.Services.Vocabulary/LexiCraft.Services.Vocabulary.csproj", "microservices/Vocabulary/LexiCraft.Services.Vocabulary/"]
 COPY ["BuildingBlocks/BuildingBlocks.EntityFrameworkCore.Postgres/BuildingBlocks.EntityFrameworkCore.Postgres.csproj", "BuildingBlocks/BuildingBlocks.EntityFrameworkCore.Postgres/"]
