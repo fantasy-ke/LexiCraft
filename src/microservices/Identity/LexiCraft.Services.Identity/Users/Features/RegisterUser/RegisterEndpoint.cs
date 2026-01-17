@@ -1,5 +1,4 @@
 using Humanizer;
-using Mapster;
 using MediatR;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Http;
@@ -24,10 +23,10 @@ public static class RegisterEndpoint
         async Task<TokenResponse> Handle(
             [AsParameters] RegisterRequestParameters requestParameters)
         {
-            var (mediator, request, cancellationToken) = requestParameters;
-            
-            var result = await mediator.Send(request.Adapt<RegisterCommand>(), cancellationToken);
-            
+            var (mediator, command, cancellationToken) = requestParameters;
+
+            var result = await mediator.Send(command, cancellationToken);
+
             return result;
         }
     }
@@ -41,21 +40,6 @@ public static class RegisterEndpoint
 /// <param name="CancellationToken"></param>
 internal record RegisterRequestParameters(
     IMediator Mediator,
-    [FromBody] RegisterUserRequest Request,
+    [FromBody] RegisterCommand Command,
     CancellationToken CancellationToken
 );
-
-/// <summary>
-/// 注册用户请求DTO
-/// </summary>
-/// <param name="UserAccount">用户账号</param>
-/// <param name="Email">邮箱</param>
-/// <param name="Password">密码</param>
-/// <param name="CaptchaKey">验证码Key</param>
-/// <param name="CaptchaCode">验证码</param>
-public record RegisterUserRequest(
-    string UserAccount,
-    string Email,
-    string Password,
-    string CaptchaKey,
-    string CaptchaCode);

@@ -1,5 +1,4 @@
 using Humanizer;
-using Mapster;
 using MediatR;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Http;
@@ -24,10 +23,10 @@ public static class LoginEndpoint
         async Task<TokenResponse> Handle(
             [AsParameters] LoginRequestParameters requestParameters)
         {
-            var (mediator, request, cancellationToken) = requestParameters;
-            
-            var result = await mediator.Send(request.Adapt<LoginCommand>(), cancellationToken);
-            
+            var (mediator, command, cancellationToken) = requestParameters;
+
+            var result = await mediator.Send(command, cancellationToken);
+
             return result;
         }
     }
@@ -41,15 +40,6 @@ public static class LoginEndpoint
 /// <param name="CancellationToken"></param>
 internal record LoginRequestParameters(
     IMediator Mediator,
-    [FromBody] LoginUserRequest Request,
+    [FromBody] LoginCommand Command,
     CancellationToken CancellationToken
 );
-
-/// <summary>
-/// 登录用户请求DTO
-/// </summary>
-/// <param name="UserAccount">用户账号</param>
-/// <param name="Password">密码</param>
-public record LoginUserRequest(
-    string UserAccount,
-    string Password);

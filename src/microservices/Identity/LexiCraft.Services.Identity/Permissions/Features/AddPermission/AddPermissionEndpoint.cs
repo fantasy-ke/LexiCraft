@@ -1,6 +1,5 @@
 using Humanizer;
 using LexiCraft.Shared.Permissions;
-using Mapster;
 using MediatR;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Http;
@@ -24,11 +23,11 @@ public static class AddPermissionEndpoint
         async Task<AddPermissionResponse> Handle(
             [AsParameters] AddPermissionRequestParameters requestParameters)
         {
-            var (mediator, request, cancellationToken) = requestParameters;
+            var (mediator, command, cancellationToken) = requestParameters;
 
-            var result = await mediator.Send(request.Adapt<AddPermissionCommand>(), cancellationToken);
+            var result = await mediator.Send(command, cancellationToken);
 
-            return result.Adapt<AddPermissionResponse>();
+            return new AddPermissionResponse(result);
         }
     }
 }
@@ -41,18 +40,9 @@ public static class AddPermissionEndpoint
 /// <param name="CancellationToken"></param>
 internal record AddPermissionRequestParameters(
     IMediator Mediator,
-    [FromBody] AddPermissionRequest Request,
+    [FromBody] AddPermissionCommand Command,
     CancellationToken CancellationToken
 );
-
-/// <summary>
-/// 新增权限请求DTO
-/// </summary>
-/// <param name="UserId">用户ID</param>
-/// <param name="Permissions">权限名称列表</param>
-public record AddPermissionRequest(
-    Guid UserId,
-    List<string> Permissions);
 
 /// <summary>
 /// 新增权限响应

@@ -1,7 +1,6 @@
 using BuildingBlocks.Authentication.Contract;
 using Humanizer;
 using LexiCraft.Shared.Permissions;
-using Mapster;
 using MediatR;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Http;
@@ -25,10 +24,16 @@ public static class GetUserInfoEndpoint
             [AsParameters] GetUserInfoRequestParameters requestParameters
         )
         {
-            var (queryProcessor,userContext, cancellationToken) = requestParameters;
+            var (queryProcessor, userContext, cancellationToken) = requestParameters;
             var result = await queryProcessor.Send(new GetUserInfoQuery(userContext.UserId), cancellationToken);
-            
-            return result.Adapt<GetUserInfoResponse>();
+
+            return new GetUserInfoResponse(
+                result.UserId,
+                result.UserName,
+                result.Email,
+                result.Phone,
+                result.Avatar
+            );
         }
     }
 }

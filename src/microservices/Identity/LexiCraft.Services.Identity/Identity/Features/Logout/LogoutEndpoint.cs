@@ -1,6 +1,5 @@
 using BuildingBlocks.Authentication.Contract;
 using Humanizer;
-using Mapster;
 using MediatR;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Http;
@@ -23,10 +22,10 @@ public static class LogoutEndpoint
             [AsParameters] LogoutRequestParameters requestParameters)
         {
             var (mediator, userContext, cancellationToken) = requestParameters;
-            
+
             var result = await mediator.Send(new LogoutCommand(userContext.UserId), cancellationToken);
-            
-            return result.Adapt<LogoutResponse>();
+
+            return new LogoutResponse(result);
         }
     }
 }

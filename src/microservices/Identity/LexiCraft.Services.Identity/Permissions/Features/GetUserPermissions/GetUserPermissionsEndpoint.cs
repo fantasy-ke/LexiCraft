@@ -1,6 +1,5 @@
 using Humanizer;
 using LexiCraft.Shared.Permissions;
-using Mapster;
 using MediatR;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Http;
@@ -27,7 +26,7 @@ public static class GetUserPermissionsEndpoint
             var (queryProcessor, userId, cancellationToken) = requestParameters;
             var result = await queryProcessor.Send(new GetUserPermissionsQuery(userId), cancellationToken);
 
-            return result.Adapt<GetUserPermissionsResponse>();
+            return new GetUserPermissionsResponse(result.UserId, result.Permissions);
         }
     }
 }

@@ -1,6 +1,5 @@
 using Humanizer;
 using LexiCraft.Shared.Permissions;
-using Mapster;
 using MediatR;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Http;
@@ -24,11 +23,11 @@ public static class RemovePermissionEndpoint
         async Task<RemovePermissionResponse> Handle(
             [AsParameters] RemovePermissionRequestParameters requestParameters)
         {
-            var (mediator, request, cancellationToken) = requestParameters;
+            var (mediator, command, cancellationToken) = requestParameters;
 
-            var result = await mediator.Send(request.Adapt<RemovePermissionCommand>(), cancellationToken);
+            var result = await mediator.Send(command, cancellationToken);
 
-            return result.Adapt<RemovePermissionResponse>();
+            return new RemovePermissionResponse(result);
         }
     }
 }
@@ -40,18 +39,8 @@ public static class RemovePermissionEndpoint
 /// <param name="Request"></param>
 internal record RemovePermissionRequestParameters(
     IMediator Mediator,
-    [FromBody] RemovePermissionRequest Request,
+    [FromBody] RemovePermissionCommand Command,
     CancellationToken CancellationToken
-);
-
-/// <summary>
-/// 删除权限请求DTO
-/// </summary>
-/// <param name="UserId">用户ID</param>
-/// <param name="Permissions">权限名称列表</param>
-public record RemovePermissionRequest(
-    Guid UserId,
-    List<string> Permissions
 );
 
 /// <summary>

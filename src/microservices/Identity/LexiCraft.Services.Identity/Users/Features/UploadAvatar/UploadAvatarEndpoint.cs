@@ -1,7 +1,6 @@
 using BuildingBlocks.Authentication.Contract;
 using Humanizer;
 using LexiCraft.Shared.Permissions;
-using Mapster;
 using MediatR;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Http;
@@ -27,14 +26,15 @@ public static class UploadAvatarEndpoint
             [AsParameters] UploadAvatarRequestParameters requestParameters)
         {
             var (avatar, mediator, userContext, cancellationToken) = requestParameters;
-            
+
             if (avatar == null)
             {
                 throw new ArgumentException("头像文件不能为空");
             }
-            
+
             var result = await mediator.Send(new UploadAvatarCommand(avatar, userContext.UserId), cancellationToken);
-            return result.Adapt<UploadAvatarResponse>();
+
+            return new UploadAvatarResponse(result.AvatarUrl, result.FileId);
         }
     }
 }

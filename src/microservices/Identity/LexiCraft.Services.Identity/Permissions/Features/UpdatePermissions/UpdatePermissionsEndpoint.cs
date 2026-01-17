@@ -1,6 +1,5 @@
 using Humanizer;
 using LexiCraft.Shared.Permissions;
-using Mapster;
 using MediatR;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Http;
@@ -24,11 +23,11 @@ public static class UpdatePermissionsEndpoint
         async Task<UpdatePermissionsResponse> Handle(
             [AsParameters] UpdatePermissionsRequestParameters requestParameters)
         {
-            var (mediator, request, cancellationToken) = requestParameters;
+            var (mediator, command, cancellationToken) = requestParameters;
 
-            var result = await mediator.Send(request.Adapt<UpdatePermissionsCommand>(), cancellationToken);
+            var result = await mediator.Send(command, cancellationToken);
 
-            return result.Adapt<UpdatePermissionsResponse>();
+            return new UpdatePermissionsResponse(result);
         }
     }
 }
@@ -41,18 +40,8 @@ public static class UpdatePermissionsEndpoint
 /// <param name="CancellationToken"></param>
 internal record UpdatePermissionsRequestParameters(
     IMediator Mediator,
-    [FromBody] UpdatePermissionsRequest Request,
+    [FromBody] UpdatePermissionsCommand Command,
     CancellationToken CancellationToken
-);
-
-/// <summary>
-/// 批量更新权限请求DTO
-/// </summary>
-/// <param name="UserId">用户ID</param>
-/// <param name="Permissions">权限名称列表</param>
-public record UpdatePermissionsRequest(
-    Guid UserId,
-    List<string> Permissions
 );
 
 /// <summary>
