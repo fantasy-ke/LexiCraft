@@ -1,4 +1,4 @@
-﻿namespace BuildingBlocks.Authentication.Shared;
+namespace BuildingBlocks.Authentication.Shared;
 
 public class OAuthOptions
 {
@@ -29,6 +29,8 @@ public class OAuthOptions
     public bool ValidateIssuer { get; set; } = true;
     public bool ValidateAudience { get; set; } = true;
     public bool ValidateLifetime { get; set; } = true;
+
+    public bool? RequireHttpsMetadata { get; set; }
 
     public IList<string> ValidAudiences { get; set; } = new List<string>();
     public IList<string> ValidIssuers { get; set; } = new List<string>();

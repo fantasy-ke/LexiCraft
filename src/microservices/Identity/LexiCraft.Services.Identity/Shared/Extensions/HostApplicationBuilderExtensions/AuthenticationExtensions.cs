@@ -19,6 +19,8 @@ public static partial class HostApplicationBuilderExtensions
     public static IHostApplicationBuilder AddCustomAuthentication(this IHostApplicationBuilder builder)
     {
         var oauthOptions = builder.Configuration.BindOptions<OAuthOptions>();
+        var requireHttpsMetadata = oauthOptions.RequireHttpsMetadata ?? !builder.Environment.IsDevelopment();
+
         builder
             .Services.AddAuthorization()
             .AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
@@ -26,7 +28,7 @@ public static partial class HostApplicationBuilderExtensions
             {
                 options.Authority = oauthOptions.Authority;
                 options.Audience = oauthOptions.Audience;
-                options.RequireHttpsMetadata = !builder.Environment.IsDevelopment();
+                options.RequireHttpsMetadata = requireHttpsMetadata;
         
                 options.TokenValidationParameters = new TokenValidationParameters
                 {
