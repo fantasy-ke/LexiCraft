@@ -20,6 +20,7 @@
         <PackageReference Include="MongoDB.Driver" />
         <PackageReference Include="Polly" />
         <PackageReference Include="Polly.Extensions" />
+        <PackageReference Include="AgileConfig.Client" />
     </ItemGroup>
 
     <ItemGroup>

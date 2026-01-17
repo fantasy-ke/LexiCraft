@@ -6,6 +6,7 @@ using Microsoft.Extensions.Logging;
 using OpenTelemetry;
 using OpenTelemetry.Metrics;
 using OpenTelemetry.Trace;
+using BuildingBlocks.Extensions;
 
 namespace Microsoft.Extensions.Hosting;
 
@@ -20,6 +21,8 @@ public static class Extensions
     public static TBuilder AddServiceDefaults<TBuilder>(this TBuilder builder) where TBuilder : IHostApplicationBuilder
     {
         builder.ConfigureOpenTelemetry();
+
+        builder.Configuration.AddZAgileConfig();
 
         builder.AddDefaultHealthChecks();
 
