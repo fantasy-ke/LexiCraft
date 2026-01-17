@@ -49,6 +49,11 @@ var filesGrpc = builder.AddProject<Projects.LexiCraft_Files_Grpc>("lexicraft-fil
 
 var apiGateway = builder.AddProject<Projects.LexiCraft_ApiGateway>("lexicraft-api-gateway")
     .WithHttpHealthCheck("/health")
+    .WithExternalHttpEndpoints()
+    .WaitFor(identityApi)
+    .WaitFor(vocabularyApi)
+    .WaitFor(practiceApi)
+    .WaitFor(filesGrpc)
     .WithAgileConfig(agileConfig);
 
 builder.Build().Run();
