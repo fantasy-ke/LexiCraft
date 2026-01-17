@@ -4,6 +4,7 @@ using FreeRedis;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
 using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Options;
 using Newtonsoft.Json;
 
 namespace BuildingBlocks.Caching.Extensions;
@@ -35,7 +36,7 @@ public static class DependencyInjectionExtensions
     {
         services.TryAddSingleton(x =>
         {
-            var cacheOption = x.GetRequiredService<RedisCacheOptions>();
+			var cacheOption = x.GetRequiredService<IOptionsMonitor<RedisCacheOptions>>().CurrentValue;
             var logger = x.GetRequiredService<ILogger<RedisClient>>();
             
             var connectionString = cacheOption.GetConnectionString();

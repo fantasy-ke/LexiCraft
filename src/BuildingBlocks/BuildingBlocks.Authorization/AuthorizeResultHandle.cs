@@ -1,4 +1,4 @@
-﻿using System.Net;
+using System.Net;
 using System.Text.Json;
 using BuildingBlocks.Model;
 using Microsoft.AspNetCore.Authorization;
@@ -10,7 +10,7 @@ using Microsoft.Extensions.Options;
 
 namespace BuildingBlocks.Authentication;
 
-public class AuthorizeResultHandle(ILogger<IAuthorizationMiddlewareResultHandler> logger, IOptions<JsonOptions> options) : IAuthorizationMiddlewareResultHandler
+public class AuthorizeResultHandle(ILogger<IAuthorizationMiddlewareResultHandler> logger, IOptionsMonitor<JsonOptions> options) : IAuthorizationMiddlewareResultHandler
 {
 
     public async Task HandleAsync(RequestDelegate next, HttpContext context, AuthorizationPolicy policy, PolicyAuthorizationResult authorizeResult)
@@ -21,7 +21,7 @@ public class AuthorizeResultHandle(ILogger<IAuthorizationMiddlewareResultHandler
             context.Response.StatusCode = (int)HttpStatusCode.Unauthorized;
             context.Response.ContentType = "application/json";
             var response = ResultDto.Fail("Authentication failed, token invalid", 401);
-            await context.Response.WriteAsync(JsonSerializer.Serialize(response, options.Value.SerializerOptions));
+			await context.Response.WriteAsync(JsonSerializer.Serialize(response, options.CurrentValue.SerializerOptions));
         
             return;
         }
@@ -35,7 +35,7 @@ public class AuthorizeResultHandle(ILogger<IAuthorizationMiddlewareResultHandler
             context.Response.StatusCode = 599;
             context.Response.ContentType = "application/json";
             var response =  ResultDto.Fail( reason, 599);
-            await context.Response.WriteAsync(JsonSerializer.Serialize(response, options.Value.SerializerOptions));
+			await context.Response.WriteAsync(JsonSerializer.Serialize(response, options.CurrentValue.SerializerOptions));
             return;
         }
 

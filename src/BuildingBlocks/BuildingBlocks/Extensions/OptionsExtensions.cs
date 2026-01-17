@@ -21,9 +21,6 @@ public static partial class ServiceCollectionExtensions
         {
             optionBuilder = optionBuilder.Configure(configurator);
         }
-
-        services.TryAddSingleton(x => x.GetRequiredService<IOptions<T>>().Value);
-
         return services;
     }
 
@@ -45,9 +42,6 @@ public static partial class ServiceCollectionExtensions
         }
 
         optionBuilder.Validate(validator);
-
-        services.TryAddSingleton(x => x.GetRequiredService<IOptions<T>>().Value);
-
         return services;
     }
 }

@@ -11,7 +11,7 @@ namespace BuildingBlocks.MongoDB.Resilience;
 public class MongoResilienceService(
     IMongoClient mongoClient,
     ILogger<MongoResilienceService> logger,
-    IOptions<ResilienceOptions> options)
+    IOptionsMonitor<ResilienceOptions> options)
     : BaseResilienceService(logger, options)
 {
     protected override bool ShouldRetry(Exception exception)

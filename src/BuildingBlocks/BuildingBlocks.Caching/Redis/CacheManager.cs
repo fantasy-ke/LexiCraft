@@ -11,12 +11,12 @@ namespace BuildingBlocks.Caching.Redis;
 public class CacheManager : ICacheManager
 {
     private readonly RedisClient _redisClient;
-    private readonly IOptions<RedisCacheOptions> _options;
+	private readonly IOptionsMonitor<RedisCacheOptions> _options;
     private readonly ILogger<CacheManager> _logger;
 
     public CacheManager(
         RedisClient redisClient, 
-        IOptions<RedisCacheOptions> options,
+		IOptionsMonitor<RedisCacheOptions> options,
         ILogger<CacheManager> logger)
     {
         _redisClient = redisClient;
@@ -291,11 +291,12 @@ public class CacheManager : ICacheManager
     /// <summary>
     /// 组合 KeyPrefix 和 TypeName 进行格式化
     /// </summary>
-    protected string FormatKey(string key)
+	protected string FormatKey(string key)
     {
         var typePrefix = $"Cache_{GetType().Name}";
         var preKey = $"{typePrefix}_{key}";
-        return string.IsNullOrWhiteSpace(_options.Value.KeyPrefix) ? preKey : $"{_options.Value.KeyPrefix}:{preKey}";
+		var keyPrefix = _options.CurrentValue.KeyPrefix;
+		return string.IsNullOrWhiteSpace(keyPrefix) ? preKey : $"{keyPrefix}:{preKey}";
     }
 
     #endregion

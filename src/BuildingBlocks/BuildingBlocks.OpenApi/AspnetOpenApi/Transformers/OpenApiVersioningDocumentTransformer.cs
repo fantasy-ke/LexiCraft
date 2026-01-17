@@ -8,17 +8,17 @@ namespace BuildingBlocks.OpenApi.AspnetOpenApi.Transformers;
 // https://learn.microsoft.com/en-us/aspnet/core/fundamentals/openapi/customize-openapi?view=aspnetcore-9.0#customize-openapi-documents-with-transformers
 public class OpenApiVersioningDocumentTransformer(
     IApiVersionDescriptionProvider apiVersionDescriptionProvider,
-    IOptions<OpenApiOptions> options
+    IOptionsMonitor<OpenApiOptions> options
 ) : IOpenApiDocumentTransformer
 {
-    private readonly OpenApiOptions? _openApiOptions = options.Value;
-
     public Task TransformAsync(
         OpenApiDocument document,
         OpenApiDocumentTransformerContext context,
         CancellationToken cancellationToken
     )
     {
+		var openApiOptions = options.CurrentValue;
+		
         var apiDescription = apiVersionDescriptionProvider.ApiVersionDescriptions.SingleOrDefault(description =>
             description.GroupName == context.DocumentName
         );
@@ -30,22 +30,22 @@ public class OpenApiVersioningDocumentTransformer(
 
         document.Info.License = new OpenApiLicense
         {
-            Name = _openApiOptions?.LicenseName,
-            Url = _openApiOptions?.LicenseUrl,
+			Name = openApiOptions?.LicenseName,
+			Url = openApiOptions?.LicenseUrl,
         };
         
         document.Info.Contact = new OpenApiContact
         {
-            Name = _openApiOptions?.AuthorName,
-            Url = _openApiOptions?.AuthorUrl,
-            Email = _openApiOptions?.AuthorEmail,
+			Name = openApiOptions?.AuthorName,
+			Url = openApiOptions?.AuthorUrl,
+			Email = openApiOptions?.AuthorEmail,
         };
 
         document.Info.Version = apiDescription.ApiVersion.ToString();
 
-        document.Info.Title = _openApiOptions?.Title;
+        document.Info.Title = openApiOptions?.Title;
 
-        document.Info.Description = _openApiOptions?.Description;
+        document.Info.Description = openApiOptions?.Description;
 
         return Task.CompletedTask;
     }

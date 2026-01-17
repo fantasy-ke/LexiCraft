@@ -13,10 +13,10 @@ public abstract class BaseResilienceService : IResilienceService
     protected readonly ResilienceOptions Options;
     protected readonly IAsyncPolicy RetryPolicy;
 
-    protected BaseResilienceService(ILogger logger, IOptions<ResilienceOptions> options)
+    protected BaseResilienceService(ILogger logger, IOptionsMonitor<ResilienceOptions> options)
     {
         Logger = logger;
-        Options = options.Value;
+		Options = options.CurrentValue;
         RetryPolicy = CreateRetryPolicy();
     }
 

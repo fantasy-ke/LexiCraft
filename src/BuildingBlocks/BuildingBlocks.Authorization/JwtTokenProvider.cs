@@ -10,12 +10,12 @@ using Microsoft.IdentityModel.Tokens;
 
 namespace BuildingBlocks.Authentication;
 
-public class JwtTokenProvider(IOptions<OAuthOptions> options):IJwtTokenProvider
+public class JwtTokenProvider(IOptionsMonitor<OAuthOptions> options):IJwtTokenProvider
 {
-    readonly OAuthOptions _options = options.Value;
-    
-    public string GenerateAccessToken(Dictionary<string, string> dist, Guid userId, string[] roles)
+	public string GenerateAccessToken(Dictionary<string, string> dist, Guid userId, string[] roles)
     {
+		var currentOptions = options.CurrentValue;
+		
         var claims = new List<Claim>
         {
             new(ClaimTypes.Role, string.Join(',', roles)),
@@ -27,26 +27,21 @@ public class JwtTokenProvider(IOptions<OAuthOptions> options):IJwtTokenProvider
             claims.Add(new Claim(item.Key, item.Value));
         }
 
-        // 2. 从 appsettings.json 中读取SecretKey
-        var secretKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_options.Secret ?? string.Empty));
+		var secretKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(currentOptions.Secret ?? string.Empty));
 
-        // 3. 选择加密算法
         var algorithm = SecurityAlgorithms.HmacSha256;
 
-        // 4. 生成Credentials
         var signingCredentials = new SigningCredentials(secretKey, algorithm);
 
-        // 5. 根据以上，生成token
         var jwtSecurityToken = new JwtSecurityToken(
-            _options.Issuer, //Issuer
-            _options.Audience, //Audience
-            claims, //Claims,
-            DateTime.UtcNow, //notBefore
-            DateTime.UtcNow.AddMinutes(_options.ExpireMinute), //expires
-            signingCredentials //Credentials
+			currentOptions.Issuer,
+			currentOptions.Audience,
+			claims,
+			DateTime.UtcNow,
+			DateTime.UtcNow.AddMinutes(currentOptions.ExpireMinute),
+			signingCredentials
         );
 
-        // 6. 将token变为string
         var token = new JwtSecurityTokenHandler().WriteToken(jwtSecurityToken);
 
         return token;
