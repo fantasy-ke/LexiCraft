@@ -11,7 +11,7 @@
     <PackageVersion Include="Microsoft.EntityFrameworkCore.Sqlite" Version="10.0.1" />
     <PackageVersion Include="MongoDB.Driver.Core.Extensions.DiagnosticSources" Version="3.0.0" />
     <PackageVersion Include="Npgsql.EntityFrameworkCore.PostgreSQL" Version="10.0.0" />
-    <PackageVersion Include="EFCore.NamingConventions" Version="9.0.0" />
+    <PackageVersion Include="EFCore.NamingConventions" Version="10.0.0" />
   </ItemGroup>
   <ItemGroup Label="Microsoft Extensions">
     <PackageVersion Include="Microsoft.Extensions.Logging" Version="10.0.1" />

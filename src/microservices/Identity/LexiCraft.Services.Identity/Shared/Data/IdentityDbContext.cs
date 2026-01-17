@@ -1,4 +1,4 @@
-﻿using System.Linq.Expressions;
+using System.Linq.Expressions;
 using System.Reflection;
 using BuildingBlocks.Domain.Internal;
 using BuildingBlocks.Shared;
@@ -22,12 +22,12 @@ public class IdentityDbContext(DbContextOptions<IdentityDbContext> options,IServ
     
     public DbSet<UserPermission> UserPermissions { get; set; }
 
-    private ContextOption ContextOption { get; } = 
-        serviceProvider?.GetService<IOptionsSnapshot<ContextOption>>()!.Value;
+    private ContextOption? ContextOption { get; } = 
+        serviceProvider?.GetService<IOptionsSnapshot<ContextOption>>()?.Value;
     
     
     protected virtual bool IsSoftDeleteFilterEnabled
-        => ContextOption is { EnableSoftDelete: true };
+        => ContextOption?.EnableSoftDelete == true;
     
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -72,7 +72,7 @@ public class IdentityDbContext(DbContextOptions<IdentityDbContext> options,IServ
     protected virtual Expression<Func<TEntity, bool>>? CreateFilterExpression<TEntity>()
         where TEntity : class
     {
-        Expression<Func<TEntity, bool>> expression = null;
+        Expression<Func<TEntity, bool>>? expression = null;
 
         if (typeof(ISoftDeleted).IsAssignableFrom(typeof(TEntity)))
         {

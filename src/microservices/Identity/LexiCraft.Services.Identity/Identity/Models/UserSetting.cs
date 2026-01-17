@@ -1,4 +1,4 @@
-﻿using BuildingBlocks.Domain.Internal;
+using BuildingBlocks.Domain.Internal;
 
 namespace LexiCraft.Services.Identity.Identity.Models;
 
@@ -12,7 +12,7 @@ public class UserSetting : SimpleAuditEntity<Guid>
     /// <summary>
     /// 性别
     /// </summary>
-    public string Gender { get; set; }
+    public string Gender { get; set; } = string.Empty;
 
     /// <summary>
     /// 生日
@@ -22,7 +22,7 @@ public class UserSetting : SimpleAuditEntity<Guid>
     /// <summary>
     /// 个人简介
     /// </summary>
-    public string Bio { get; set; }
+    public string Bio { get; set; } = string.Empty;
 
     /// <summary>
     /// 个人资料是否公开

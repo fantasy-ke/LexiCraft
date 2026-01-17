@@ -458,6 +458,7 @@ export async function loadJsLib(key: string, url: string) {
       script.onload = async () => {
         try {
           // 使用动态 import 加载模块
+          /* @vite-ignore */
           const module = await import(url) // 动态导入 .mjs 模块
           window[key] = module.default || module // 将模块挂到 window 对象
           resolve(window[key])

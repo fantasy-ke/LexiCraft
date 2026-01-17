@@ -15,7 +15,7 @@ public class UserPermission : AuditEntity<long>
     /// <summary>
     /// 权限名称
     /// </summary>
-    public string PermissionName { get; private set; }
+    public string PermissionName { get; private set; } = string.Empty;
     
     
     private UserPermission() { } // EF Core需要的无参构造函数

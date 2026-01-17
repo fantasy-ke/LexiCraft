@@ -67,10 +67,10 @@ public static class AspireExtensions
 
         var nodes = agileConfig?.GetEndpoint("http").ToString() ?? serviceConfig.GetValue<string>("Nodes");
 
-        builder.WithEnvironment("ConfigClientOptions__Nodes", nodes)
-               .WithEnvironment("ConfigClientOptions__AppId", serviceConfig["AppId"])
-               .WithEnvironment("ConfigClientOptions__Secret", serviceConfig["Secret"])
-               .WithEnvironment("ConfigClientOptions__ENV", serviceConfig["Env"]);
+        builder.WithEnvironment("AgileConfig__Nodes", nodes)
+               .WithEnvironment("AgileConfig__AppId", serviceConfig["AppId"])
+               .WithEnvironment("AgileConfig__Secret", serviceConfig["Secret"])
+               .WithEnvironment("AgileConfig__ENV", serviceConfig["Env"]);
 
         if (agileConfig != null)
         {

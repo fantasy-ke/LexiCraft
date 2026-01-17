@@ -15,6 +15,7 @@
   </Folder>
   <Folder Name="/microservices/" />
   <Folder Name="/microservices/Files/">
+    <File Path="../.dockerignore" />
     <File Path="microservices/Files/Dockerfile" />
     <Project Path="microservices/Files/LexiCraft.Files.Grpc/LexiCraft.Files.Grpc.csproj" />
   </Folder>

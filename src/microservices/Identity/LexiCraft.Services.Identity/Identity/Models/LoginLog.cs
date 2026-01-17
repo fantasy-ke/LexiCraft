@@ -1,4 +1,4 @@
-﻿using BuildingBlocks.Domain.Internal;
+using BuildingBlocks.Domain.Internal;
 
 namespace LexiCraft.Services.Identity.Identity.Models;
 
@@ -42,7 +42,7 @@ public class LoginLog : Entity<long>
     /// <summary>
     /// 登录类型
     /// </summary>
-    public string LoginType { get; set; }
+    public string LoginType { get; set; } = string.Empty;
 
     /// <summary>
     /// 登录是否成功

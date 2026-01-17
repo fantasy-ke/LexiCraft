@@ -13,8 +13,8 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace LexiCraft.Services.Identity.Shared.Data.Migrations
 {
     [DbContext(typeof(IdentityDbContext))]
-    [Migration("20260116025109_update-user")]
-    partial class updateuser
+    [Migration("20260117152149_updateUser")]
+    partial class updateUser
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)

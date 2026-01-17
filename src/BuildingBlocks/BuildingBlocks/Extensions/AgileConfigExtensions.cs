@@ -23,10 +23,10 @@ public static class AgileConfigExtensions
     /// <summary>
     /// 统一集成 AgileConfig 到 IConfigurationBuilder
     /// </summary>
-    public static IConfigurationBuilder AddZAgileConfig(this IConfigurationBuilder builder)
+    public static IConfigurationBuilder AddZAgileConfig(this IConfigurationBuilder builder, string? sectionName = null)
     {
         var config = builder.Build();
-        var options = config.BindOptions<ConfigClientOptions>();
+        var options = config.BindOptions<ConfigClientOptions>(sectionName ?? nameof(ConfigClientOptions));
         
         // 如果配置中不存在 AgileConfig 节点，或者缺少关键信息 Nodes，则跳过
         if (string.IsNullOrEmpty(options.Nodes))

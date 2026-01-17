@@ -1,4 +1,4 @@
-﻿using System.Security.Cryptography;
+using System.Security.Cryptography;
 using BCrypt.Net;
 using BuildingBlocks.Domain.Internal;
 using LexiCraft.Services.Identity.Identity.Models.Enum;
@@ -7,7 +7,7 @@ namespace LexiCraft.Services.Identity.Identity.Models;
 
 public class User: AuditEntity<Guid,Guid?>
 {
-    public string Avatar { get; set; }
+    public string Avatar { get; set; } = string.Empty;
 
     /// <summary>
     /// 用户账号

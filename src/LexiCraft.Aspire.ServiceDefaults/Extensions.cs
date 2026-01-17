@@ -22,7 +22,7 @@ public static class Extensions
     {
         builder.ConfigureOpenTelemetry();
 
-        builder.Configuration.AddZAgileConfig();
+        builder.Configuration.AddZAgileConfig("AgileConfig");
 
         builder.AddDefaultHealthChecks();
 
