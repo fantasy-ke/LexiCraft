@@ -152,7 +152,7 @@ export function debounce<T extends (...args: any[]) => any>(
   func: T,
   wait: number
 ): (...args: Parameters<T>) => void {
-  let timeout: NodeJS.Timeout | null = null
+  let timeout = null
   
   return (...args: Parameters<T>) => {
     if (timeout) {
@@ -318,7 +318,7 @@ export function getUserAvatarUrl(user: {
 		if (/^https?:\/\//i.test(value) || value.startsWith('//')) {
 			return value
 		}
-		return `${ENV.FILES_API}/files/content?relativePath=${encodeURIComponent(value)}`
+		return `${ENV.FILES_API}/content?relativePath=${encodeURIComponent(value)}`
 	}
 	
 	return getDefaultAvatarUrl(user)

@@ -1,9 +1,11 @@
 using BuildingBlocks.Extensions;
+using BuildingBlocks.Grpc.Contracts.FileGrpc;
 using BuildingBlocks.OSS;
 using BuildingBlocks.SerilogLogging.Extensions;
 using BuildingBlocks.SerilogLogging.Utils;
 using LexiCraft.Files.Grpc.Data;
 using LexiCraft.Files.Grpc.Services;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.FileProviders;
 using Microsoft.OpenApi.Models;
 using ProtoBuf.Grpc.Server;
@@ -24,15 +26,16 @@ builder.Services.AddCodeFirstGrpc(options =>
     options.EnableDetailedErrors = true;
 });
 //
-// builder.Services.AddGrpcSwagger();
-// builder.Services.AddSwaggerGen(c =>
-// {
-//     // new OpenApiInfo { Title = "file gRPC transcoding", Version = "v1" }
-//     c.SwaggerDoc("v1", 
-//         new OpenApiInfo { Title = "词汇技艺 Files Api", Version = "v1", Description = "词汇技艺相关接口" });
-// });
+builder.Services.AddGrpcSwagger();
+builder.Services.AddSwaggerGen(c =>
+{
+    // new OpenApiInfo { Title = "file gRPC transcoding", Version = "v1" }
+    c.SwaggerDoc("v1", 
+        new OpenApiInfo { Title = "词汇技艺 Files Api", Version = "v1", Description = "词汇技艺相关接口" });
+});
 builder.Services.WithLexiCraftDbAccess(builder.Configuration);
 builder.Services.WithMapster();
+builder.Services.AddScoped<IFilesService, FilesService>();
 
 var app = builder.Build();
 
@@ -53,21 +56,21 @@ app.UseStaticFiles(new StaticFileOptions
     RequestPath = new PathString("/uploads"),
 });
 
-app.MapGet("/content", async (string relativePath, FilesService filesService) =>
+app.MapGet("/content", async ([FromQuery] string relativePath, [FromServices]IFilesService filesService) =>
 {
     var fileResponse = await filesService.GetFileByPathAsync(relativePath);
     return Results.File(fileResponse.FileStream, fileResponse.ContentType, fileResponse.FileName);
 });
 
-// if (app.Environment.IsDevelopment())
-// {
-//     app.UseSwagger();
-//     app.UseSwaggerUI(c =>
-//     {
-//         c.SwaggerEndpoint("/swagger/v1/swagger.json", "My API V1");
-//         c.RoutePrefix = "swagger";
-//     });
-// }
+if (app.Environment.IsDevelopment())
+{
+    app.UseSwagger();
+    app.UseSwaggerUI(c =>
+    {
+        c.SwaggerEndpoint("/swagger/v1/swagger.json", "My API V1");
+        c.RoutePrefix = "swagger";
+    });
+}
 
 // Configure the HTTP request pipeline.
 app.MapGrpcService<FilesService>();

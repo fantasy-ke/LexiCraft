@@ -30,7 +30,7 @@ public class FilesService : IFilesService
     private readonly IWebHostEnvironment _hostEnvironment;
     private readonly FileExtensionContentTypeProvider _contentTypeProvider = new();
     private readonly OSSOptions _ossOptions;
-    private readonly IOSSService _ossService;
+    private readonly IOSSService? _ossService;
 
     /// <summary>
     /// 
@@ -40,25 +40,26 @@ public class FilesService : IFilesService
     /// <param name="unitOfWork"></param>
     /// <param name="hostEnvironment"></param>
     /// <param name="ossOptions"></param>
-    /// <param name="ossService"></param>
+    /// <param name="serviceProvider"></param>
     public FilesService(
         ILogger<FilesService> logger,
         IRepository<FileInfos> fileRepository,
         IUnitOfWork unitOfWork,
         IWebHostEnvironment hostEnvironment,
         IOptions<OSSOptions> ossOptions,
-        IOSSService ossService)
+        IServiceProvider serviceProvider)
     {
         _logger = logger;
         _fileRepository = fileRepository;
         _unitOfWork = unitOfWork;
         _hostEnvironment = hostEnvironment;
         _ossOptions = ossOptions.Value;
-        _ossService = ossService;
+        _ossService = (IOSSService?)serviceProvider.GetService(typeof(IOSSService));
     }
 
     private bool IsOssEnabled =>
         _ossOptions.Enable
+        && _ossService != null
         && !string.IsNullOrWhiteSpace(_ossOptions.DefaultBucket)
         && _ossOptions.Provider != OSSProvider.Invalid;
 
