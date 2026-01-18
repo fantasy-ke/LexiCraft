@@ -36,9 +36,9 @@
           @click="emit('update:showUserMenu', false)"
         ></div>
         
-        <button class="user-avatar" @click.stop="toggleUserMenu" title="个人中心">
-          <img :src="userStore.user?.avatar || `https://ui-avatars.com/api/?name=${userStore.user?.username || 'U'}&background=random`" alt="avatar" class="avatar-img" />
-        </button>
+<button class="user-avatar" @click.stop="toggleUserMenu" title="个人中心">
+	<img :src="avatarUrl" alt="avatar" class="avatar-img" @error="handleAvatarError" />
+</button>
 
         <transition name="dropdown">
           <div v-if="showUserMenu" class="user-dropdown" @click.stop>
@@ -122,10 +122,11 @@
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted, onUnmounted } from 'vue'
+import { ref, onMounted, onUnmounted, computed } from 'vue'
 import { useRouter } from 'vue-router'
 import useTheme from '@/hooks/theme'
 import { useUserStore } from '@/stores/user'
+import { getUserAvatarUrl, getDefaultAvatarUrl } from '@/utils/authHelpers'
 
 const props = defineProps<{
   todayStats: { words: number; days: number };
@@ -141,6 +142,18 @@ const router = useRouter()
 const { setTheme, getThemeSetting } = useTheme()
 const userStore = useUserStore()
 const userMenuRef = ref<HTMLElement | null>(null)
+
+const avatarUrl = computed(() => {
+	const user = userStore.user
+	if (!user) {
+		return getDefaultAvatarUrl({ username: 'User' })
+	}
+	return getUserAvatarUrl({
+		avatar: user.avatar,
+		email: user.email,
+		username: user.username
+	})
+})
 
 const toggleUserMenu = () => {
   emit('toggleUserMenu')
@@ -159,6 +172,16 @@ const handleLogout = async () => {
   await userStore.logout()
   router.push('/login')
   emit('update:showUserMenu', false)
+}
+
+const handleAvatarError = (event: Event) => {
+	const img = event.target as HTMLImageElement | null
+	if (!img) return
+	const user = userStore.user
+	img.src = getDefaultAvatarUrl({
+		email: user?.email,
+		username: user?.username
+	})
 }
 
 // 点击外部区域关闭菜单

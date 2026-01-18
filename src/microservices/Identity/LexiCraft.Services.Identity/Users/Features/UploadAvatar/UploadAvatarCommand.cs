@@ -1,3 +1,4 @@
+using BuildingBlocks.Exceptions;
 using BuildingBlocks.Grpc.Contracts.FileGrpc;
 using BuildingBlocks.Mediator;
 using FluentValidation;
@@ -55,7 +56,7 @@ public class UploadAvatarCommandHandler(
         var user = await userRepository.FirstOrDefaultAsync(u => u.Id == command.UserId);
         if (user == null)
         {
-            throw new Exception("用户不存在");
+            ThrowUserFriendlyException.ThrowException("用户不存在");
         }
 
         using var memoryStream = new MemoryStream();
@@ -74,10 +75,12 @@ public class UploadAvatarCommandHandler(
 
         var fileInfoDto = await filesService.UploadFileAsync(requestDto);
 
-        // 更新用户头像路径
-        var avatarUrl = $"/FileDirectly?relativePath={fileInfoDto.FilePath}";
-        user.Avatar = avatarUrl;
+        var avatarPath = fileInfoDto.FilePath;
+        user.Avatar = avatarPath;
 
-        return new UploadAvatarResult(avatarUrl, fileInfoDto.Id);
+        await userRepository.UpdateAsync(user);
+        await userRepository.SaveChangesAsync();
+
+        return new UploadAvatarResult(avatarPath, fileInfoDto.Id);
     }
 }

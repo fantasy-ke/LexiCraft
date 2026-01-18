@@ -137,11 +137,13 @@ public class User: AuditEntity<Guid,Guid?>
         LastLoginAt = DateTime.UtcNow;
     }
 
-    /// <summary>
-    /// 来源
-    /// </summary>
     public void UpdateSource(SourceEnum source)
     {
         Source = source;
+    }
+
+    public void UpdateUserName(string username)
+    {
+        Username = username;
     }
 }

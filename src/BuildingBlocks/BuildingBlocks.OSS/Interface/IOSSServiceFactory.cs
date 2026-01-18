@@ -1,10 +1,7 @@
-using Minio;
-using BuildingBlocks.OSS.Interface.Service;
-
 namespace BuildingBlocks.OSS.Interface
 {
-    public interface IOSSServiceFactory<T>
+    public interface IOSSServiceFactory
     {
-        IOSSService<T> Create();
+        IOSSService Create();
     }
 }

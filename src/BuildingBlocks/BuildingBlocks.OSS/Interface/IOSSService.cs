@@ -4,10 +4,8 @@ using BuildingBlocks.OSS.Models.Policy;
 
 namespace BuildingBlocks.OSS.Interface
 {
-    public interface IOSSService<T>
+    public interface IOSSService
     {
-        OSSOptions Options { get; }
-
         /// <summary>
         /// 检查存储桶是否存在。
         /// </summary>
@@ -40,7 +38,6 @@ namespace BuildingBlocks.OSS.Interface
         /// 设置储存桶的访问权限
         /// </summary>
         /// <param name="bucketName"></param>
-        /// <param name="objectName"></param>
         /// <param name="mode"></param>
         /// <returns></returns>
         Task<bool> SetBucketAclAsync(string bucketName, AccessMode mode);
@@ -49,7 +46,6 @@ namespace BuildingBlocks.OSS.Interface
         /// 获取储存桶的访问权限
         /// </summary>
         /// <param name="bucketName"></param>
-        /// <param name="objectName"></param>
         /// <returns></returns>
         Task<AccessMode> GetBucketAclAsync(string bucketName);
 
@@ -65,8 +61,9 @@ namespace BuildingBlocks.OSS.Interface
         /// 列出存储桶里的对象。
         /// </summary>
         /// <param name="bucketName">存储桶名称。</param>
+        /// <param name="prefix"></param>
         /// <returns></returns>
-        Task<List<Item>> ListObjectsAsync(string bucketName, string prefix = null);
+        Task<List<Item>> ListObjectsAsync(string bucketName, string? prefix = null);
 
         /// <summary>
         /// 返回对象数据的流。
@@ -134,7 +131,7 @@ namespace BuildingBlocks.OSS.Interface
         Task<ItemMeta> GetObjectMetadataAsync(string bucketName
             , string objectName
             , string? versionId = null
-            , string matchEtag = null
+            , string? matchEtag = null
             , DateTime? modifiedSince = null);
 
         /// <summary>
@@ -151,8 +148,6 @@ namespace BuildingBlocks.OSS.Interface
         /// <summary>
         /// 删除一个对象。
         /// </summary>
-        /// <param name="bucketName">存储桶名称。</param>
-        /// <param name="objectName">存储桶里的对象名称。</param>
         /// <returns></returns>
         Task<bool> RemoveObjectAsync(OperateObjectInput input);
 
@@ -167,8 +162,6 @@ namespace BuildingBlocks.OSS.Interface
         /// <summary>
         /// 清除Presigned Object缓存
         /// </summary>
-        /// <param name="bucketName"></param>
-        /// <param name="objectName"></param>
         Task RemovePresignedUrlCache(OperateObjectInput input);
 
         /// <summary>
@@ -201,16 +194,12 @@ namespace BuildingBlocks.OSS.Interface
         /// <summary>
         /// 获取文件的访问权限
         /// </summary>
-        /// <param name="bucketName"></param>
-        /// <param name="objectName"></param>
         /// <returns></returns>
         Task<AccessMode> GetObjectAclAsync(OperateObjectInput input);
 
         /// <summary>
         /// 清空object的ACL，使对象ACL继承存储桶的设置
         /// </summary>
-        /// <param name="bucketName"></param>
-        /// <param name="objectName"></param>
         /// <returns></returns>
         Task<AccessMode> RemoveObjectAclAsync(OperateObjectInput input);
     }

@@ -44,14 +44,18 @@ export interface RegisterResponse {
 
 // 用户资料
 export interface UserProfile {
-  userId: string    // UUID
-  userName: string
-  email: string
-  phone?: string | null
-  avatar: string
-  // 兼容旧命名的别名（如果需要后期在 store 中映射）
-  id?: string
-  username?: string
+	userId: string
+	userName: string
+	email: string
+	phone?: string | null
+	avatar: string
+	id?: string
+	username?: string
+}
+
+export interface UploadAvatarResponse {
+	avatarUrl: string
+	fileId: string | null
 }
 
 // OAuth 提供商类型
@@ -125,7 +129,8 @@ export interface IAuthAPI {
 
   // 用户资料
   getUserProfile(): Promise<ResultDto<UserProfile>>
-  updateUserProfile(profile: Partial<UserProfile>): Promise<ResultDto<UserProfile>>
+  updateUserProfile(profile: UpdateProfileRequest): Promise<ResultDto<UserProfile>>
+	uploadAvatar(file: File): Promise<ResultDto<UploadAvatarResponse>>
 
   // OAuth 流程
   initiateOAuth(provider: OAuthProvider): Promise<ResultDto<OAuthInitResponse>>
@@ -151,7 +156,7 @@ export interface IAuthActions {
 
   // 用户资料操作
   fetchUserProfile(): Promise<void>
-  updateProfile(profile: Partial<UserProfile>): Promise<void>
+  updateProfile(profile: UpdateProfileRequest): Promise<void>
 
   // 状态管理
   initializeAuth(): Promise<void>

@@ -4,22 +4,23 @@
  */
 
 import {
-  ResultDto,
-  LoginRequest,
-  RegisterRequest,
-  LoginResponse,
-  RegisterResponse,
-  UserProfile,
-  OAuthProvider,
-  OAuthInitResponse,
-  OAuthCallbackParams,
-  TokenPair,
-  UpdateProfileRequest,
-  UserPermissionsResponse,
-  IAuthAPI,
-  CaptchaResponse
+	ResultDto,
+	LoginRequest,
+	RegisterRequest,
+	LoginResponse,
+	RegisterResponse,
+	UserProfile,
+	OAuthProvider,
+	OAuthInitResponse,
+	OAuthCallbackParams,
+	TokenPair,
+	UpdateProfileRequest,
+	UserPermissionsResponse,
+	IAuthAPI,
+	CaptchaResponse,
+	UploadAvatarResponse
 } from '@/types/auth'
-import { authGet, authPost, authPut } from '@/utils/authHttp'
+import { authGet, authPost, authPut, authRequest } from '@/utils/authHttp'
 
 /**
  * 认证 API 实现类
@@ -75,6 +76,20 @@ class AuthAPI implements IAuthAPI {
   async updateUserProfile(profile: UpdateProfileRequest): Promise<ResultDto<UserProfile>> {
     return authPut<UserProfile>('/v1/users/info', profile)
   }
+
+	async uploadAvatar(file: File): Promise<ResultDto<UploadAvatarResponse>> {
+		const formData = new FormData()
+		formData.append('Avatar', file)
+
+		return authRequest<UploadAvatarResponse>({
+			method: 'POST',
+			url: '/v1/uploadAvatar',
+			data: formData,
+			headers: {
+				'Content-Type': 'multipart/form-data'
+			}
+		})
+	}
 
   /**
    * 初始化 OAuth 登录
@@ -229,5 +244,6 @@ export const {
   checkUsernameAvailable,
   getSessionInfo,
   revokeAllSessions,
-  getUserPermissions
+		getUserPermissions,
+		uploadAvatar
 } = authAPI

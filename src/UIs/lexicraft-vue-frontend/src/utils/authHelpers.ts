@@ -3,6 +3,7 @@
  */
 
 import { AuthErrorCode, ResultDto } from '@/types/auth'
+import { ENV } from '@/config/env'
 import { AUTH_ERROR_MESSAGES } from '@/config/auth.config'
 
 /**
@@ -291,26 +292,34 @@ export function formatUserDisplayName(user: {
 /**
  * 获取用户头像 URL（如果没有则返回默认头像）
  */
-export function getUserAvatarUrl(user: {
-  avatar?: string
-  email?: string
-  username?: string
+export function getDefaultAvatarUrl(user: {
+	email?: string
+	username?: string
 }): string {
-  if (user.avatar) {
-    return user.avatar
-  }
-  
-  // 使用 Gravatar 作为默认头像
-  if (user.email) {
-    const hash = btoa(user.email.toLowerCase().trim())
-    return `https://www.gravatar.com/avatar/${hash}?d=identicon&s=200`
-  }
-  
-  // 使用用户名生成默认头像
-  if (user.username) {
-    return `https://ui-avatars.com/api/?name=${encodeURIComponent(user.username)}&background=random`
-  }
-  
-  // 默认头像
-  return 'https://ui-avatars.com/api/?name=User&background=random'
+	if (user.email) {
+		const hash = btoa(user.email.toLowerCase().trim())
+		return `https://www.gravatar.com/avatar/${hash}?d=identicon&s=200`
+	}
+	
+	if (user.username) {
+		return `https://ui-avatars.com/api/?name=${encodeURIComponent(user.username)}&background=random`
+	}
+	
+	return 'https://ui-avatars.com/api/?name=User&background=random'
+}
+
+export function getUserAvatarUrl(user: {
+	avatar?: string
+	email?: string
+	username?: string
+}): string {
+	if (user.avatar) {
+		const value = user.avatar.trim()
+		if (/^https?:\/\//i.test(value) || value.startsWith('//')) {
+			return value
+		}
+		return `${ENV.FILES_API}/files/content?relativePath=${encodeURIComponent(value)}`
+	}
+	
+	return getDefaultAvatarUrl(user)
 }

@@ -23,6 +23,7 @@
       <ProjectReference Include="..\..\..\BuildingBlocks\BuildingBlocks.Grpc.Contracts\BuildingBlocks.Grpc.Contracts.csproj" />
       <ProjectReference Include="..\..\..\LexiCraft.Aspire.ServiceDefaults\LexiCraft.Aspire.ServiceDefaults.csproj" />
       <ProjectReference Include="..\..\..\BuildingBlocks\BuildingBlocks.SerilogLogging\BuildingBlocks.SerilogLogging.csproj" />
+      <ProjectReference Include="..\..\..\BuildingBlocks\BuildingBlocks.OSS\BuildingBlocks.OSS.csproj" />
     </ItemGroup>
 
     <ItemGroup>

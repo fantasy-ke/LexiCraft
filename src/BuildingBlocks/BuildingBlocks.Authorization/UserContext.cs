@@ -23,11 +23,6 @@ public class UserContext(
     /// 用户名称
     /// </summary>
     public string UserName => FindClaimValue<string>(UserInfoConst.UserName) ?? string.Empty;
-
-    /// <summary>
-    /// 用户所有权限（包括继承的权限）
-    /// </summary>
-    public string[] UserAllPermissions => []; // 清理掉权限相关代码，返回空数组
     
     /// <summary>
     /// 用户账号

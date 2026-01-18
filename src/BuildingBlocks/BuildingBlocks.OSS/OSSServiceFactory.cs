@@ -6,16 +6,14 @@ using BuildingBlocks.OSS.Services;
 
 namespace BuildingBlocks.OSS
 {
-    public class OssServiceFactory<T>(IOptionsMonitor<OSSOptions> optionsMonitor, ICacheProvider provider)
-        : IOSSServiceFactory<T>
+    public class OssServiceFactory(IOptionsMonitor<OSSOptions> optionsMonitor, ICacheProvider provider)
+        : IOSSServiceFactory
     {
         private OSSOptions Options => optionsMonitor.CurrentValue ?? throw new ArgumentNullException();
         private readonly ICacheProvider _cache = provider ?? throw new ArgumentNullException(nameof(IMemoryCache));
 
-        public IOSSService<T> Create()
+        public IOSSService Create()
         {
-            #region 参数验证
-
             if (string.IsNullOrEmpty(Options.DefaultBucket))
             {
                 Options.DefaultBucket = DefaultOptionName.Name;
@@ -39,21 +37,17 @@ namespace BuildingBlocks.OSS
                 throw new ArgumentNullException(nameof(Options.Region), "When your provider is Minio, region can not null.");
             }
 
-            #endregion
-
-                // 如果没有找到匹配的类型，回退到根据Provider选择
-                switch (Options.Provider)
-                {
-                    case OSSProvider.Aliyun:
-                        return (IOSSService<T>)new AliyunOssService(_cache, Options);
-                    case OSSProvider.Minio:
-                        return (IOSSService<T>)new MinioOssService(_cache, Options);
-                    case OSSProvider.QCloud:
-                        return (IOSSService<T>)new QCloudOssService(_cache, Options);
-                    default:
-                        throw new Exception("未知的提供程序类型");
-                }
-            
+            switch (Options.Provider)
+            {
+                case OSSProvider.Aliyun:
+                    return new AliyunOssService(_cache, Options);
+                case OSSProvider.Minio:
+                    return new MinioOssService(_cache, Options);
+                case OSSProvider.QCloud:
+                    return new QCloudOssService(_cache, Options);
+                default:
+                    throw new Exception("未知的提供程序类型");
+            }
         }
     }
 }

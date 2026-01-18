@@ -2,6 +2,7 @@ using BuildingBlocks.Extensions;
 using BuildingBlocks.OSS.EntityType;
 using BuildingBlocks.OSS.Interface;
 using BuildingBlocks.OSS.Providers;
+using BuildingBlocks.OSS.Services;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
 using Microsoft.Extensions.Hosting;
@@ -27,20 +28,22 @@ namespace BuildingBlocks.OSS
             // 注册基础服务
             RegisterBaseServices(builder.Services);
 
-            // 根据 Provider 注册对应的 OSS 服务
+            builder.Services.TryAddSingleton<IOSSService>(sp =>
+                sp.GetRequiredService<IOSSServiceFactory>().Create());
+
             switch (options.Provider)
             {
                 case OSSProvider.Aliyun:
-                    builder.Services.TryAddSingleton(sp =>
-                        sp.GetRequiredService<IOSSServiceFactory<OSSAliyun>>().Create());
+                    builder.Services.TryAddSingleton<Interface.Service.IAliyunOssService>(sp =>
+                        (Interface.Service.IAliyunOssService)sp.GetRequiredService<IOSSService>());
                     break;
                 case OSSProvider.Minio:
-                    builder.Services.TryAddSingleton(sp =>
-                        sp.GetRequiredService<IOSSServiceFactory<OSSMinio>>().Create());
+                    builder.Services.TryAddSingleton<Interface.Service.IMinioOssService>(sp =>
+                        (Interface.Service.IMinioOssService)sp.GetRequiredService<IOSSService>());
                     break;
                 case OSSProvider.QCloud:
-                    builder.Services.TryAddSingleton(sp =>
-                        sp.GetRequiredService<IOSSServiceFactory<OSSQCloud>>().Create());
+                    builder.Services.TryAddSingleton<Interface.Service.IQCloudOSSService>(sp =>
+                        (Interface.Service.IQCloudOSSService)sp.GetRequiredService<IOSSService>());
                     break;
             }
 
@@ -53,16 +56,16 @@ namespace BuildingBlocks.OSS
         /// <param name="services">服务集合</param>
         private static void RegisterBaseServices(IServiceCollection services)
         {
-            // 对于 IOSSServiceFactory 只需要注册一次
-            if (services.Any(p => p.ServiceType == typeof(IOSSServiceFactory<>))) return;
-            
             // 如果未注册 ICacheProvider 则默认注册 MemoryCacheProvider
             if (services.All(p => p.ServiceType != typeof(ICacheProvider)))
             {
                 services.AddMemoryCache();
                 services.TryAddSingleton<ICacheProvider, MemoryCacheProvider>();
             }
-            services.AddSingleton(typeof(IOSSServiceFactory<>), typeof(OssServiceFactory<>));
+            if (services.All(p => p.ServiceType != typeof(IOSSServiceFactory)))
+            {
+                services.AddSingleton<IOSSServiceFactory, OssServiceFactory>();
+            }
         }
     }
 }

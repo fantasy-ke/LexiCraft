@@ -1,10 +1,10 @@
-﻿using BuildingBlocks.OSS.EntityType;
+using BuildingBlocks.OSS.EntityType;
 using BuildingBlocks.OSS.Models;
 using BuildingBlocks.OSS.Models.Policy;
 
 namespace BuildingBlocks.OSS.Interface.Service
 {
-    public interface IMinioOssService : IOSSService<OSSMinio>
+    public interface IMinioOssService : IOSSService
     {
         Task<bool> RemoveIncompleteUploadAsync(string bucketName, string objectName);
 

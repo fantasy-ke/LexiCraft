@@ -3,6 +3,7 @@ using LexiCraft.Services.Identity.Users.Features.GetUserInfo;
 using LexiCraft.Services.Identity.Users.Features.RegisterUser;
 using LexiCraft.Services.Identity.Users.Features.UploadAvatar;
 using LexiCraft.Services.Identity.Users.Features.Captcha;
+using LexiCraft.Services.Identity.Users.Features.UpdateUserInfo;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Routing;
@@ -34,6 +35,7 @@ internal static class UsersConfigurations
         usersGroupV1.MapRegisterEndpoint();
         usersGroupV1.MapCaptchaEndpoint();
         usersGroupV1.MapGetUserInfoEndpoint();
+        usersGroupV1.MapUpdateUserInfoEndpoint();
         usersGroupV1.MapUploadAvatarEndpoint();
 
         return endpoints;

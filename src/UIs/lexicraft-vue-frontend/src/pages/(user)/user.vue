@@ -18,6 +18,8 @@ import Toast from '@/components/base/toast/Toast.ts'
 import Code from '@/components/user/Code.vue'
 import { MessageBox } from '@/utils/MessageBox.tsx'
 import { CodeType } from '@/types/enum.ts'
+import { authAPI } from '@/apis/auth'
+import { getUserAvatarUrl, getDefaultAvatarUrl } from '@/utils/authHelpers'
 
 const userStore = useUserStore()
 const router = useRouter()
@@ -27,6 +29,19 @@ let showChangeEmail = $ref(false)
 let showChangeUsername = $ref(false)
 let showChangePhone = $ref(false)
 let loading = $ref(false)
+let uploadingAvatar = $ref(false)
+
+const avatarUrl = $computed(() => {
+	const user = userStore.user
+	if (!user) {
+		return getDefaultAvatarUrl({ username: 'User' })
+	}
+	return getUserAvatarUrl({
+		avatar: user.avatar,
+		email: user.email,
+		username: user.username
+	})
+})
 
 const handleLogout = () => {
   userStore.logout()
@@ -251,6 +266,49 @@ function subscribe() {
 function onFileChange(e) {
   console.log('e', e)
 }
+
+async function onAvatarFileChange(e: Event) {
+	const target = e.target as HTMLInputElement
+	const file = target && target.files && target.files[0]
+	if (!file) {
+		return
+	}
+
+	const maxSize = 5 * 1024 * 1024
+	if (file.size > maxSize) {
+		Toast.error('头像大小不能超过 5MB')
+		target.value = ''
+		return
+	}
+
+	try {
+		uploadingAvatar = true
+		const res = await authAPI.uploadAvatar(file)
+		if (res.status) {
+			Toast.success('头像上传成功')
+			await userStore.fetchUserInfo()
+		} else {
+			Toast.error(res.message || '头像上传失败')
+		}
+	} catch (error: any) {
+		Toast.error(error?.message || '头像上传失败，请重试')
+	} finally {
+		uploadingAvatar = false
+		if (target) {
+			target.value = ''
+		}
+	}
+}
+
+function onAvatarError(e: Event) {
+	const img = e.target as HTMLImageElement | null
+	if (!img) return
+	const user = userStore.user
+	img.src = getDefaultAvatarUrl({
+		email: user?.email,
+		username: user?.username
+	})
+}
 </script>
 
 <template>
@@ -280,6 +338,33 @@ function onFileChange(e) {
       <!-- Main Account Settings -->
       <div class="card-white flex-1 flex flex-col gap-2 px-6">
         <h1 class="text-2xl font-bold mt-0">帐户</h1>
+
+			<div class="item">
+				<div class="flex items-center gap-4 flex-1">
+					<div>
+						<div class="mb-2">头像</div>
+						<div class="text-xs text-gray-500">点击头像更换</div>
+					</div>
+					<div class="relative w-16 h-16">
+						<img
+							:src="avatarUrl"
+							alt="avatar"
+							class="w-16 h-16 rounded-full object-cover"
+							@error="onAvatarError"
+						/>
+						<input
+							type="file"
+							accept="image/*"
+							class="absolute left-0 top-0 w-full h-full opacity-0 cursor-pointer"
+							@change="onAvatarFileChange"
+						/>
+					</div>
+				</div>
+				<div class="ml-4" v-if="uploadingAvatar">
+					<span class="text-xs text-gray-500">上传中...</span>
+				</div>
+			</div>
+			<div class="line"></div>
 
         <!--        用户名-->
         <div class="item">

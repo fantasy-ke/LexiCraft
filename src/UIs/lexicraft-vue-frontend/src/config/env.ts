@@ -17,6 +17,7 @@ const map = {
     RESOURCE_URL: '/',
     // Identity 服务地址 - 通过API网关访问
     IDENTITY_API: 'http://localhost:5000/identity',
+    FILES_API: 'http://localhost:5000/files',
   },
 }
 

@@ -1,4 +1,5 @@
 using BuildingBlocks.Extensions;
+using BuildingBlocks.OSS;
 using BuildingBlocks.SerilogLogging.Extensions;
 using BuildingBlocks.SerilogLogging.Utils;
 using LexiCraft.Files.Grpc.Data;
@@ -13,6 +14,7 @@ var builder = WebApplication.CreateBuilder(args);
 builder.AddSerilogLogging();
 
 builder.AddServiceDefaults( );
+builder.AddOssService();
 // Add services to the container.
 // Learn more about configuring OpenAPI at https://aka.ms/aspnet/openapi
 
@@ -51,6 +53,11 @@ app.UseStaticFiles(new StaticFileOptions
     RequestPath = new PathString("/uploads"),
 });
 
+app.MapGet("/content", async (string relativePath, FilesService filesService) =>
+{
+    var fileResponse = await filesService.GetFileByPathAsync(relativePath);
+    return Results.File(fileResponse.FileStream, fileResponse.ContentType, fileResponse.FileName);
+});
 
 // if (app.Environment.IsDevelopment())
 // {

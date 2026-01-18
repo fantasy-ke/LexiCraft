@@ -40,8 +40,8 @@ public class GenerateTokenResponseCommandHandler(
         var logMessage = request.Message ?? (user.Source == SourceEnum.Register ? "注册成功" : "登录成功");
         await mediator.Send(new PublishLoginLogCommand(user.UserAccount, logMessage, user.Id, true, user.Source.ToString()), cancellationToken);
 
-        // 缓存令牌
         await redisManager.SetAsync(string.Format(UserInfoConst.RedisTokenKey, user.Id.ToString("N")), response, TimeSpan.FromDays(7));
+        await redisManager.SetAsync(string.Format(UserInfoConst.RedisRefreshTokenKey, refreshToken), user.Id.ToString("N"), TimeSpan.FromDays(7));
 
         return response;
     }

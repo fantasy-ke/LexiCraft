@@ -1,30 +1,14 @@
-﻿using BuildingBlocks.OSS.EntityType;
+using BuildingBlocks.OSS.EntityType;
 using BuildingBlocks.OSS.Models;
 
 namespace BuildingBlocks.OSS.Interface.Service
 {
-    public interface IAliyunOssService : IOSSService<OSSAliyun>
+    public interface IAliyunOssService : IOSSService
     {
-        /// <summary>
-        /// 获取储存桶地域
-        /// </summary>
-        /// <param name="bucketName"></param>
-        /// <returns></returns>
         Task<string> GetBucketLocationAsync(string bucketName);
 
-        /// <summary>
-        /// 管理桶跨域访问
-        /// </summary>
-        /// <param name="bucketName"></param>
-        /// <param name="rules"></param>
-        /// <returns></returns>
         Task<bool> SetBucketCorsRequestAsync(string bucketName, List<BucketCorsRule> rules);
 
-        /// <summary>
-        /// 获取桶外部访问URL
-        /// </summary>
-        /// <param name="bucketName"></param>
-        /// <returns></returns>
         Task<string> GetBucketEndpointAsync(string bucketName);
     }
 }

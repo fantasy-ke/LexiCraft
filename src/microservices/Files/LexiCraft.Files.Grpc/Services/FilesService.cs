@@ -2,9 +2,13 @@ using System.Linq.Expressions;
 using BuildingBlocks.Domain;
 using BuildingBlocks.Extensions;
 using BuildingBlocks.Grpc.Contracts.FileGrpc;
+using BuildingBlocks.OSS;
+using BuildingBlocks.OSS.EntityType;
+using BuildingBlocks.OSS.Interface;
 using LexiCraft.Files.Grpc.Model;
 using Mapster;
 using Microsoft.AspNetCore.StaticFiles;
+using Microsoft.Extensions.Options;
 using ProtoBuf.Grpc;
 using static System.Guid;
 
@@ -13,17 +17,55 @@ namespace LexiCraft.Files.Grpc.Services;
 /// <summary>
 /// 文件服务
 /// </summary>
-/// <param name="logger"></param>
-/// <param name="fileRepository"></param>
-/// <param name="unitOfWork"></param>
-/// <param name="hostEnvironment"></param>
-public class FilesService(
-    ILogger<FilesService> logger,
-    IRepository<FileInfos> fileRepository, 
-    IUnitOfWork unitOfWork, 
-    IWebHostEnvironment hostEnvironment) : IFilesService
+public class FilesService : IFilesService
 {
+    private static readonly HashSet<string> AllowedExtensions =
+    [
+        ".jpg", ".jpeg", ".png", ".gif", ".bmp", ".pdf", ".doc", ".docx", ".txt", ".zip", ".rar", ".mp3", ".mp4", ".avi"
+    ];
+
+    private readonly ILogger<FilesService> _logger;
+    private readonly IRepository<FileInfos> _fileRepository;
+    private readonly IUnitOfWork _unitOfWork;
+    private readonly IWebHostEnvironment _hostEnvironment;
     private readonly FileExtensionContentTypeProvider _contentTypeProvider = new();
+    private readonly OSSOptions _ossOptions;
+    private readonly IOSSService _ossService;
+
+    /// <summary>
+    /// 
+    /// </summary>
+    /// <param name="logger"></param>
+    /// <param name="fileRepository"></param>
+    /// <param name="unitOfWork"></param>
+    /// <param name="hostEnvironment"></param>
+    /// <param name="ossOptions"></param>
+    /// <param name="ossService"></param>
+    public FilesService(
+        ILogger<FilesService> logger,
+        IRepository<FileInfos> fileRepository,
+        IUnitOfWork unitOfWork,
+        IWebHostEnvironment hostEnvironment,
+        IOptions<OSSOptions> ossOptions,
+        IOSSService ossService)
+    {
+        _logger = logger;
+        _fileRepository = fileRepository;
+        _unitOfWork = unitOfWork;
+        _hostEnvironment = hostEnvironment;
+        _ossOptions = ossOptions.Value;
+        _ossService = ossService;
+    }
+
+    private bool IsOssEnabled =>
+        _ossOptions.Enable
+        && !string.IsNullOrWhiteSpace(_ossOptions.DefaultBucket)
+        && _ossOptions.Provider != OSSProvider.Invalid;
+
+    private static string NormalizeObjectName(string path)
+    {
+        return path.Replace('\\', '/').TrimStart('/');
+    }
     
     /// <summary>
     /// 上传文件
@@ -42,7 +84,7 @@ public class FilesService(
         // 检查父目录是否存在
         if (request.ParentId.HasValue)
         {
-            var parentDir = await fileRepository.FirstOrDefaultAsync(f => f.Id == request.ParentId);
+            var parentDir = await _fileRepository.FirstOrDefaultAsync(f => f.Id == request.ParentId);
             if (parentDir == null)
             {
                 throw new Exception($"父目录不存在: {request.ParentId}");
@@ -55,7 +97,7 @@ public class FilesService(
         }
 
         // 获取上传路径，默认存放在App_Data目录
-        var appDataPath = Path.Combine(hostEnvironment.ContentRootPath, "uploads", request.Directory ?? string.Empty);
+        var appDataPath = Path.Combine(_hostEnvironment.ContentRootPath, "uploads", request.Directory ?? string.Empty);
         if (!Directory.Exists(appDataPath))
         {
             Directory.CreateDirectory(appDataPath);
@@ -70,7 +112,7 @@ public class FilesService(
         string relativePath;
         if (request.ParentId.HasValue)
         {
-            var parentDir = await fileRepository.FirstOrDefaultAsync(f => f.Id == request.ParentId);
+            var parentDir = await _fileRepository.FirstOrDefaultAsync(f => f.Id == request.ParentId);
             relativePath = Path.Combine(parentDir.FilePath, fileName);
         }
         else
@@ -104,10 +146,9 @@ public class FilesService(
         }
         catch (Exception ex)
         {
-            logger.LogWarning(ex, "计算文件哈希值失败");
+            _logger.LogWarning(ex, "计算文件哈希值失败");
         }
 
-        // 创建文件信息实体
         var fileInfo = new FileInfos
         {
             FileName = request.FileName,
@@ -125,9 +166,10 @@ public class FilesService(
             Tags = request.Tags
         };
 
-        // 保存到数据库
-        await fileRepository.InsertAsync(fileInfo);
-        await unitOfWork.SaveChangesAsync();
+        await UploadToOssAsync(fileInfo, request.FileContent);
+
+        await _fileRepository.InsertAsync(fileInfo);
+        await _unitOfWork.SaveChangesAsync();
 
         return fileInfo.Adapt<FileInfoDto>();
     }
@@ -161,7 +203,7 @@ public class FilesService(
        // 检查父目录是否存在
         if (request.ParentId.HasValue)
         {
-            var parentDir = await fileRepository.FirstOrDefaultAsync(f => f.Id == request.ParentId);
+            var parentDir = await _fileRepository.FirstOrDefaultAsync(f => f.Id == request.ParentId);
             if (parentDir == null)
             {
                 throw new Exception($"父目录不存在: {request.ParentId}");
@@ -173,8 +215,7 @@ public class FilesService(
             }
         }
 
-        // 获取上传路径，默认存放在目录
-        var appDataPath = Path.Combine(hostEnvironment.ContentRootPath, "uploads", request.Directory ?? string.Empty);
+        var appDataPath = Path.Combine(_hostEnvironment.ContentRootPath, "uploads", request.Directory ?? string.Empty);
         if (!Directory.Exists(appDataPath))
         {
             Directory.CreateDirectory(appDataPath);
@@ -185,7 +226,7 @@ public class FilesService(
 
         if (request.ParentId.HasValue)
         {
-            var parentDir = await fileRepository.FirstOrDefaultAsync(f => f.Id == request.ParentId);
+            var parentDir = await _fileRepository.FirstOrDefaultAsync(f => f.Id == request.ParentId);
             var parentPath = parentDir!.FilePath;
             relativePath = Path.Combine(parentPath, request.FolderName);
         }
@@ -221,8 +262,8 @@ public class FilesService(
         };
 
         // 保存到数据库
-        await fileRepository.InsertAsync(folderInfo);
-        await unitOfWork.SaveChangesAsync();
+        await _fileRepository.InsertAsync(folderInfo);
+        await _unitOfWork.SaveChangesAsync();
 
         return folderInfo.Adapt<FileInfoDto>();
     }
@@ -237,7 +278,7 @@ public class FilesService(
     public async Task<FileInfoDto> GetFileInfoAsync(string id, CallContext context = default)
     {
         TryParse(id, out var guid);
-        var fileInfo = await fileRepository.FirstOrDefaultAsync(f => f.Id == guid);
+        var fileInfo = await _fileRepository.FirstOrDefaultAsync(f => f.Id == guid);
         if (fileInfo == null)
         {
             throw new Exception($"文件不存在: {id}");
@@ -309,7 +350,7 @@ public class FilesService(
         }
 
         // 执行查询并分页
-        var result = await fileRepository.GetPageListAsync(
+        var result = await _fileRepository.GetPageListAsync(
             predicate,
             queryDto.PageIndex,
             queryDto.PageSize,
@@ -335,7 +376,7 @@ public class FilesService(
     public async Task<DeleteResponseDto> DeleteAsync(string id, CallContext context = default)
     {
         TryParse(id, out var guid);
-        var fileInfo = await fileRepository.FirstOrDefaultAsync(f => f.Id == guid);
+        var fileInfo = await _fileRepository.FirstOrDefaultAsync(f => f.Id == guid);
         if (fileInfo == null)
         {
             throw new Exception($"文件不存在: {id}");
@@ -345,7 +386,7 @@ public class FilesService(
         if (fileInfo.IsDirectory)
         {
             // 获取所有子文件和子文件夹
-            var children = await fileRepository.GetListAsync(f => f.ParentId == guid);
+            var children = await _fileRepository.GetListAsync(f => f.ParentId == guid);
             
             // 递归删除所有子项
             foreach (var child in children)
@@ -368,9 +409,14 @@ public class FilesService(
             }
         }
 
-        // 删除数据库中的记录
-        await fileRepository.DeleteAsync(fileInfo);
-        await unitOfWork.SaveChangesAsync();
+        if (IsOssEnabled && !fileInfo.IsDirectory)
+        {
+            var objectName = NormalizeObjectName(fileInfo.FilePath);
+            await _ossService.RemoveObjectAsync(_ossOptions.DefaultBucket, [objectName]);
+        }
+
+        await _fileRepository.DeleteAsync(fileInfo);
+        await _unitOfWork.SaveChangesAsync();
 
         return new  DeleteResponseDto { Success = true };
     }
@@ -383,7 +429,7 @@ public class FilesService(
     public async Task<List<FileInfoDto>> GetDirectoryTreeAsync(CallContext context = default)
     {
         // 获取所有文件夹
-        var allDirectories = await fileRepository.GetListAsync(f => f.IsDirectory);
+        var allDirectories = await _fileRepository.GetListAsync(f => f.IsDirectory);
         
         // 创建根节点列表
         var rootDirectories = allDirectories.Where(d => d.ParentId == null).ToList();
@@ -408,7 +454,7 @@ public class FilesService(
             .Where(d => d.ParentId == parent.Id)
             .Adapt<List<FileInfoDto>>();
             
-        foreach (var child in parent.Children ?? new List<FileInfoDto>())
+        foreach (var child in parent.Children ?? [])
         {
             await BuildDirectoryTreeAsync(child, allDirectories);
         }
@@ -425,73 +471,123 @@ public class FilesService(
     /// <exception cref="FileNotFoundException"></exception>
     public async Task<FileResponseDto> GetFileByPathAsync(string relativePath, CallContext context = default)
     {
-        if (string.IsNullOrEmpty(relativePath))
+        if (string.IsNullOrWhiteSpace(relativePath))
         {
             throw new ArgumentException("文件路径不能为空", nameof(relativePath));
         }
 
-        // 策略1: 规范化路径以防止目录遍历
-        var normalizedPath = Path.GetFullPath(relativePath);
+        if (IsOssEnabled)
+        {
+            try
+            {
+                return await GetFileFromOssAsync(relativePath);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogWarning(ex, "从OSS获取文件失败，回退到本地存储: {Path}", relativePath);
+            }
+        }
 
-        // 策略2: 定义允许的基础目录
-        var allowedBasePath = Path.GetFullPath(Path.Combine(hostEnvironment.ContentRootPath, "uploads"));
+        var uploadsRoot = Path.GetFullPath(Path.Combine(_hostEnvironment.ContentRootPath, "uploads"));
+        var combinedPath = Path.Combine(uploadsRoot, relativePath.Replace('\\', Path.DirectorySeparatorChar));
+        var fullPath = Path.GetFullPath(combinedPath);
 
-        // 策略3: 确保规范化路径以允许的基础目录开头
-        if (!normalizedPath.StartsWith(allowedBasePath, StringComparison.OrdinalIgnoreCase))
+        if (!fullPath.StartsWith(uploadsRoot, StringComparison.OrdinalIgnoreCase))
         {
             throw new UnauthorizedAccessException("访问被拒绝: 检测到路径遍历");
         }
 
-        // 策略4: 验证文件扩展名以防止执行恶意文件
-        var fileExtension = Path.GetExtension(normalizedPath).ToLowerInvariant();
-        var allowedExtensions = new HashSet<string> { ".jpg", ".jpeg", ".png", ".gif", ".pdf", ".doc", ".docx", ".txt", ".zip", ".rar", ".mp3", ".mp4", ".avi" };
+        var fileExtension = Path.GetExtension(fullPath).ToLowerInvariant();
 
-        if (!allowedExtensions.Contains(fileExtension))
+        if (!AllowedExtensions.Contains(fileExtension))
         {
             throw new UnauthorizedAccessException($"不允许的文件类型: {fileExtension}");
         }
 
-        // 构建完整路径
-        var fullPath = Path.Combine(allowedBasePath, Path.GetFileName(normalizedPath));
-
-        // 双重检查最终路径是否仍在允许范围内
-        if (!fullPath.StartsWith(allowedBasePath, StringComparison.OrdinalIgnoreCase))
-        {
-            throw new UnauthorizedAccessException("访问被拒绝: 检测到路径遍历");
-        }
-
-        // 检查文件是否存在
         if (!File.Exists(fullPath))
         {
             throw new FileNotFoundException($"文件不存在: {relativePath}");
         }
 
-        // 获取文件名
         var fileName = Path.GetFileName(fullPath);
 
-        // 尝试从数据库中查找文件记录，更新访问时间和下载次数
-        var fileInfo = await fileRepository.FirstOrDefaultAsync(f => f.FilePath == relativePath);
+        var fileInfo = await _fileRepository.FirstOrDefaultAsync(f => f.FilePath == relativePath);
         if (fileInfo != null)
         {
             fileInfo.LastAccessTime = DateTime.Now;
             fileInfo.DownloadCount++;
-            await fileRepository.UpdateAsync(fileInfo);
-            await unitOfWork.SaveChangesAsync();
+            await _fileRepository.UpdateAsync(fileInfo);
+            await _unitOfWork.SaveChangesAsync();
         }
 
-        // 使用FileExtensionContentTypeProvider获取MIME类型
         if (!_contentTypeProvider.TryGetContentType(fullPath, out var contentType))
         {
             contentType = "application/octet-stream";
         }
 
-        // 返回文件流
         var fileStream = new FileStream(fullPath, FileMode.Open, FileAccess.Read);
         return new FileResponseDto
         {
             FileName = fileName,
             ContentType = contentType,
             FileStream = fileStream
+        };
+    }
+
+    private async Task UploadToOssAsync(FileInfos fileInfo, byte[] content)
+    {
+        if (!IsOssEnabled)
+        {
+            return;
+        }
+
+        var objectName = NormalizeObjectName(fileInfo.FilePath);
+        using var stream = new MemoryStream(content);
+        await _ossService.PutObjectAsync(_ossOptions.DefaultBucket, objectName, stream);
+    }
+
+    private async Task<FileResponseDto> GetFileFromOssAsync(string relativePath)
+    {
+        var objectName = NormalizeObjectName(relativePath);
+        var fileExtension = Path.GetExtension(objectName).ToLowerInvariant();
+
+        if (!AllowedExtensions.Contains(fileExtension))
+        {
+            throw new UnauthorizedAccessException($"不允许的文件类型: {fileExtension}");
+        }
+
+        var fileInfo = await _fileRepository.FirstOrDefaultAsync(f => f.FilePath == relativePath);
+        var fileName = fileInfo?.FileName ?? Path.GetFileName(objectName);
+
+        if (!_contentTypeProvider.TryGetContentType(fileName, out var contentType))
+        {
+            contentType = "application/octet-stream";
+        }
+
+        var memoryStream = new MemoryStream();
+
+        void WriteStream(Stream stream)
+        {
+            stream.CopyTo(memoryStream);
+        }
+
+        await _ossService.GetObjectAsync(_ossOptions.DefaultBucket, objectName, WriteStream);
+
+        memoryStream.Position = 0;
+
+        if (fileInfo != null)
+        {
+            fileInfo.LastAccessTime = DateTime.Now;
+            fileInfo.DownloadCount++;
+            await _fileRepository.UpdateAsync(fileInfo);
+            await _unitOfWork.SaveChangesAsync();
+        }
+
+        return new FileResponseDto
+        {
+            FileName = fileName,
+            ContentType = contentType,
+            FileStream = memoryStream
         };
     }
 

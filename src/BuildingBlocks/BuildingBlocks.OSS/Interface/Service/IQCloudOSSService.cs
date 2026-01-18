@@ -1,9 +1,8 @@
-﻿
-using BuildingBlocks.OSS.EntityType;
+﻿using BuildingBlocks.OSS.Models;
 
 namespace BuildingBlocks.OSS.Interface.Service
 {
-    public interface IQCloudOSSService : IOSSService<OSSQCloud>
+    public interface IQCloudOSSService : IOSSService
     {
     }
 }
