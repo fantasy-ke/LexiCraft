@@ -83,6 +83,8 @@
     <PackageVersion Include="FreeRedis.DistributedCache" Version="1.5.2" />
     <PackageVersion Include="StackExchange.Redis" Version="2.10.1" />
     <PackageVersion Include="Microsoft.Extensions.Caching.Abstractions" Version="10.0.1" />
+    <PackageVersion Include="MemoryPack" Version="1.21.3" />
+    <PackageVersion Include="MemoryPack.Core" Version="1.21.3" />
     <PackageVersion Include="Aliyun.OSS.SDK.NetCore" Version="2.14.1" />
     <PackageVersion Include="Minio" Version="6.0.3" />
     <PackageVersion Include="Tencent.QCloud.Cos.Sdk" Version="5.4.34" />
