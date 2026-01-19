@@ -25,7 +25,7 @@ public class DistributedLockException : Exception
     /// </summary>
     /// <param name="message">异常消息</param>
     /// <param name="lockKey">锁键</param>
-    public DistributedLockException(string message, string lockKey) : base(message)
+    protected DistributedLockException(string message, string lockKey) : base(message)
     {
         LockKey = lockKey;
     }

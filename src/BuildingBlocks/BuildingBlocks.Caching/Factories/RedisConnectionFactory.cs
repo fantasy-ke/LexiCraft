@@ -2,11 +2,7 @@ using BuildingBlocks.Caching.Configuration;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using StackExchange.Redis;
-using System;
 using System.Collections.Concurrent;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
 
 namespace BuildingBlocks.Caching.Factories;
 
@@ -18,7 +14,7 @@ public class RedisConnectionFactory : IRedisConnectionFactory, IDisposable
     private readonly ILogger<RedisConnectionFactory> _logger;
     private readonly RedisConnectionOptions _options;
     private readonly ConcurrentDictionary<string, IConnectionMultiplexer> _connections;
-    private readonly object _lock = new();
+    private readonly Lock _lock = new();
     private bool _disposed;
 
     /// <summary>
@@ -61,10 +57,8 @@ public class RedisConnectionFactory : IRedisConnectionFactory, IDisposable
         if (string.IsNullOrWhiteSpace(instanceName))
             instanceName = DefaultInstanceName;
 
-        if (_disposed)
-            throw new ObjectDisposedException(nameof(RedisConnectionFactory));
-
-        return _connections.GetOrAdd(instanceName, CreateConnection);
+        return _disposed ? throw new ObjectDisposedException(nameof(RedisConnectionFactory)) 
+            : _connections.GetOrAdd(instanceName, CreateConnection);
     }
 
     /// <summary>

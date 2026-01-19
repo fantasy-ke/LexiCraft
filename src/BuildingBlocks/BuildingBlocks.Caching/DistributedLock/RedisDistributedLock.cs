@@ -1,7 +1,5 @@
 using Microsoft.Extensions.Logging;
 using StackExchange.Redis;
-using System;
-using System.Threading.Tasks;
 
 namespace BuildingBlocks.Caching.DistributedLock;
 

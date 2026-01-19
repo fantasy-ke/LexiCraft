@@ -5,21 +5,16 @@ using System.IO.Compression;
 namespace BuildingBlocks.Caching.Serialization;
 
 /// <summary>
-/// GZip 缓存压缩器
+/// GZip 缓存压缩静态帮助类
 /// </summary>
-public class GZipCacheCompressor : ICacheCompressor
+public static class GZipCacheCompressor
 {
-    /// <summary>
-    /// 压缩器名称
-    /// </summary>
-    public string Name => "GZip";
-
     /// <summary>
     /// 压缩数据
     /// </summary>
     /// <param name="data">原始数据</param>
     /// <returns>压缩后的数据</returns>
-    public byte[] Compress(byte[] data)
+    public static byte[] Compress(byte[]? data)
     {
         if (data == null || data.Length == 0)
             return Array.Empty<byte>();
@@ -44,7 +39,7 @@ public class GZipCacheCompressor : ICacheCompressor
     /// </summary>
     /// <param name="compressedData">压缩的数据</param>
     /// <returns>解压缩后的数据</returns>
-    public byte[] Decompress(byte[] compressedData)
+    public static byte[] Decompress(byte[] compressedData)
     {
         if (compressedData == null || compressedData.Length == 0)
             return Array.Empty<byte>();

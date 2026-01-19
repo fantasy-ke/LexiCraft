@@ -1,9 +1,6 @@
 using BuildingBlocks.Caching.Factories;
 using Microsoft.Extensions.Logging;
 using StackExchange.Redis;
-using System;
-using System.Threading;
-using System.Threading.Tasks;
 
 namespace BuildingBlocks.Caching.DistributedLock;
 
@@ -91,8 +88,8 @@ public class RedisDistributedLockProvider : IDistributedLockProvider
                 var lockTimeoutMs = (long)lockTimeout.TotalMilliseconds;
                 var result = await database.ScriptEvaluateAsync(
                     AcquireLockScript,
-                    new RedisKey[] { fullLockKey },
-                    new RedisValue[] { lockValue, lockTimeoutMs });
+                    [fullLockKey],
+                    [lockValue, lockTimeoutMs]);
 
                 if (!result.IsNull)
                 {
@@ -146,12 +143,7 @@ public class RedisDistributedLockProvider : IDistributedLockProvider
     {
         var distributedLock = await TryAcquireLockAsync(lockKey, lockTimeout, acquireTimeout, redisInstanceName, cancellationToken);
 
-        if (distributedLock == null)
-        {
-            throw new LockAcquisitionTimeoutException(lockKey, acquireTimeout);
-        }
-
-        return distributedLock;
+        return distributedLock ?? throw new LockAcquisitionTimeoutException(lockKey, acquireTimeout);
     }
 
     /// <summary>

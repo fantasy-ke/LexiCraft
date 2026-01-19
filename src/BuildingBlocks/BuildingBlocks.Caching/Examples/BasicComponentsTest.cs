@@ -15,16 +15,14 @@ public static class BasicComponentsTest
     public static void TestJsonSerializer()
     {
         Console.WriteLine("=== 测试 JSON 序列化器 ===");
-        
-        var serializer = new JsonCacheSerializer();
         var testData = new { Name = "测试", Value = 123, Items = new[] { 1, 2, 3 } };
         
         // 序列化
-        var serialized = serializer.Serialize(testData);
+        var serialized = JsonCacheSerializer.Serialize(testData);
         Console.WriteLine($"序列化结果: {Encoding.UTF8.GetString(serialized)}");
         
         // 反序列化
-        var deserialized = serializer.Deserialize<dynamic>(serialized);
+        var deserialized = JsonCacheSerializer.Deserialize<dynamic>(serialized);
         Console.WriteLine($"反序列化成功: {deserialized != null}");
         
         Console.WriteLine();
@@ -36,20 +34,18 @@ public static class BasicComponentsTest
     public static void TestGZipCompressor()
     {
         Console.WriteLine("=== 测试 GZip 压缩器 ===");
-        
-        var compressor = new GZipCacheCompressor();
         var testData = "这是一个测试字符串，用于验证 GZip 压缩功能。重复内容：测试测试测试测试测试测试测试测试测试测试";
         var originalBytes = Encoding.UTF8.GetBytes(testData);
         
         Console.WriteLine($"原始数据大小: {originalBytes.Length} 字节");
         
         // 压缩
-        var compressed = compressor.Compress(originalBytes);
+        var compressed = GZipCacheCompressor.Compress(originalBytes);
         Console.WriteLine($"压缩后大小: {compressed.Length} 字节");
         Console.WriteLine($"压缩比: {(1.0 - (double)compressed.Length / originalBytes.Length) * 100:F1}%");
         
         // 解压缩
-        var decompressed = compressor.Decompress(compressed);
+        var decompressed = GZipCacheCompressor.Decompress(compressed);
         var decompressedText = Encoding.UTF8.GetString(decompressed);
         
         Console.WriteLine($"解压缩成功: {decompressedText == testData}");
@@ -65,15 +61,14 @@ public static class BasicComponentsTest
         
         try
         {
-            var serializer = new MemoryPackCacheSerializer();
             var testData = new TestModel { Name = "测试", Value = 123 };
             
             // 序列化
-            var serialized = serializer.Serialize(testData);
+            var serialized = MemoryPackCacheSerializer.Serialize(testData);
             Console.WriteLine($"序列化结果大小: {serialized.Length} 字节");
             
             // 反序列化
-            var deserialized = serializer.Deserialize<TestModel>(serialized);
+            var deserialized = MemoryPackCacheSerializer.Deserialize<TestModel>(serialized);
             Console.WriteLine($"反序列化成功: {deserialized?.Name == testData.Name && deserialized?.Value == testData.Value}");
         }
         catch (Exception ex)
