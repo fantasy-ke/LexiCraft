@@ -28,6 +28,9 @@ export const useAuthStore = defineStore('auth', () => {
   const isLoading = ref(false)
   const tokens = ref<TokenPair | null>(null)
   const permissions = ref<string[]>([])
+  
+  // 用于防止重复请求的 Promise
+  let fetchUserPromise: Promise<void> | null = null
 
   // 计算属性
   const authState = computed<AuthState>(() => ({
@@ -239,33 +242,44 @@ export const useAuthStore = defineStore('auth', () => {
   }
 
   // 获取用户资料
-  async function fetchUserProfile(): Promise<void> {
-    try {
-      const response = await authAPI.getUserProfile()
-
-      if (response.status && response.data) {
-        // 进行字段映射，兼顾后端 PascalCase 转换为 camelCase 后的新字段以及前端旧字段
-        const userData = response.data
-        user.value = {
-          ...userData,
-          id: userData.userId, // 别名兼容
-          username: userData.userName // 别名兼容
-        }
-        isAuthenticated.value = true
-
-        // 获取用户信息后，继续获取用户权限
-        if (user.value?.id) {
-          await fetchUserPermissions(user.value.id)
-        }
-      } else {
-        throw new Error(response.message || '获取用户信息失败')
-      }
-    } catch (error: any) {
-      console.error('Fetch user profile error:', error)
-      // 根据用户要求，请求异常不需要退出登录
-      // await logout()
-      throw error
+  async function fetchUserProfile(force: boolean = false): Promise<void> {
+    // 如果已有正在进行的请求，直接返回该 Promise
+    if (fetchUserPromise) {
+      return fetchUserPromise
     }
+
+    fetchUserPromise = (async () => {
+      try {
+        const response = await authAPI.getUserProfile()
+
+        if (response.status && response.data) {
+          // 进行字段映射，兼顾后端 PascalCase 转换为 camelCase 后的新字段以及前端旧字段
+          const userData = response.data
+          user.value = {
+            ...userData,
+            id: userData.userId, // 别名兼容
+            username: userData.userName // 别名兼容
+          }
+          isAuthenticated.value = true
+
+          // 获取用户信息后，继续获取用户权限
+          if (user.value?.id) {
+            await fetchUserPermissions(user.value.id)
+          }
+        } else {
+          throw new Error(response.message || '获取用户信息失败')
+        }
+      } catch (error: any) {
+        console.error('Fetch user profile error:', error)
+        // 根据用户要求，请求异常不需要退出登录
+        // await logout()
+        throw error
+      } finally {
+        fetchUserPromise = null
+      }
+    })()
+
+    return fetchUserPromise
   }
 
   // 获取用户权限

@@ -1,31 +1,20 @@
-using System.Text.Json;
 using BuildingBlocks.Authentication.Contract;
-using Microsoft.Extensions.Caching.Memory;
+using BuildingBlocks.Caching.Abstractions;
+using BuildingBlocks.Caching.Configuration;
 using Microsoft.Extensions.Logging;
-using StackExchange.Redis;
 
 namespace BuildingBlocks.Authentication.Permission;
 
 /// <summary>
-/// Redis 权限缓存服务实现（仅负责数据操作）
+/// Redis 权限缓存服务实现（使用通用缓存服务）
 /// </summary>
 public class RedisPermissionCache(
-    IConnectionMultiplexer redis,
-    ILogger<RedisPermissionCache> logger) : IPermissionCache
+    ICacheService cacheService,
+    ILogger<RedisPermissionCache> logger)
+    : IPermissionCache
 {
-    private readonly IDatabase _database = redis.GetDatabase();
-    private readonly IMemoryCache _localCache = new MemoryCache(new MemoryCacheOptions
-    {
-        SizeLimit = 1000,
-        CompactionPercentage = 0.25 // 当达到限制时压缩 25%
-    });
-
     private static readonly TimeSpan DefaultLocalCacheExpiration = TimeSpan.FromMinutes(30);
     private static readonly TimeSpan DefaultRedisCacheExpiration = TimeSpan.FromHours(1);
-    private static readonly JsonSerializerOptions JsonOptions = new()
-    {
-        PropertyNameCaseInsensitive = true
-    };
 
     public async Task<HashSet<string>?> GetUserPermissionsAsync(Guid userId)
     {
@@ -33,34 +22,22 @@ public class RedisPermissionCache(
 
         try
         {
-            // 使用 GetOrCreateAsync 简化本地缓存逻辑
-            return await _localCache.GetOrCreateAsync(cacheKey, async entry =>
+            var permissions = await cacheService.GetAsync<HashSet<string>>(cacheKey, ConfigureOptions);
+            
+            if (permissions != null)
             {
-                entry.SetAbsoluteExpiration(DefaultLocalCacheExpiration);
-                entry.SetSize(1);
+                logger.LogDebug("User permissions found in cache: {UserId}", userId);
+            }
+            else
+            {
+                logger.LogDebug("User permissions not found in cache: {UserId}", userId);
+            }
 
-                // 查询 Redis 缓存
-                var redisValue = await _database.StringGetAsync(cacheKey);
-                if (redisValue.HasValue)
-                {
-                    var permissions = JsonSerializer.Deserialize<HashSet<string>>(redisValue.ToString(), JsonOptions);
-                    if (permissions != null)
-                    {
-                        logger.LogDebug("User permissions found in Redis: {UserId}", userId);
-                        return permissions;
-                    }
-                }
-
-                logger.LogDebug("User permissions not found: {UserId}", userId);
-                return null;
-            });
+            return permissions;
         }
         catch (Exception ex)
         {
             logger.LogError(ex, "Failed to get user permissions: {UserId}", userId);
-            
-            // 发生异常时清除可能损坏的本地缓存
-            _localCache.Remove(cacheKey);
             return null;
         }
     }
@@ -72,28 +49,17 @@ public class RedisPermissionCache(
 
         try
         {
-            var json = JsonSerializer.Serialize(permissions, JsonOptions);
-
-            // 并行设置 Redis 和本地缓存
-            var redisTask = _database.StringSetAsync(cacheKey, json, cacheExpiration);
-            
-            var cacheEntryOptions = new MemoryCacheEntryOptions()
-                .SetAbsoluteExpiration(DefaultLocalCacheExpiration)
-                .SetSize(1)
-                .SetPriority(CacheItemPriority.Normal);
-            
-            _localCache.Set(cacheKey, permissions, cacheEntryOptions);
-
-            await redisTask;
+            await cacheService.SetAsync(cacheKey, permissions, options =>
+            {
+                ConfigureOptions(options);
+                options.Expiry = cacheExpiration;
+            });
 
             logger.LogDebug("User permissions set: {UserId}, Count: {Count}", userId, permissions.Count);
         }
         catch (Exception ex)
         {
             logger.LogError(ex, "Failed to set user permissions: {UserId}", userId);
-            
-            // 发生异常时清除可能不一致的缓存
-            _localCache.Remove(cacheKey);
             throw;
         }
     }
@@ -104,12 +70,7 @@ public class RedisPermissionCache(
 
         try
         {
-            // 先删除本地缓存，避免读取到旧数据
-            _localCache.Remove(cacheKey);
-
-            // 删除 Redis 缓存
-            await _database.KeyDeleteAsync(cacheKey);
-
+            await cacheService.RemoveAsync(cacheKey, ConfigureOptions);
             logger.LogDebug("User permissions removed: {UserId}", userId);
         }
         catch (Exception ex)
@@ -123,7 +84,7 @@ public class RedisPermissionCache(
     {
         try
         {
-            var permissions = await GetUserPermissionsAsync(userId) ?? [];
+            var permissions = await GetUserPermissionsAsync(userId) ?? new HashSet<string>();
             if (permissions.Add(permissionName))
             {
                 await SetUserPermissionsAsync(userId, permissions);
@@ -145,7 +106,7 @@ public class RedisPermissionCache(
     {
         try
         {
-            var permissions = await GetUserPermissionsAsync(userId) ?? [];
+            var permissions = await GetUserPermissionsAsync(userId) ?? new HashSet<string>();
             var permissionsArray = permissionNames as string[] ?? permissionNames.ToArray();
             
             var addedCount = 0;
@@ -229,5 +190,14 @@ public class RedisPermissionCache(
     {
         return $"permissions:user:{userId:N}";
     }
-}
 
+    private void ConfigureOptions(CacheServiceOptions options)
+    {
+        options.RedisInstanceName = "OAuthRedis";
+        options.UseLocal = true;
+        options.UseDistributed = true;
+        options.Expiry = DefaultRedisCacheExpiration;
+        options.LocalExpiry = DefaultLocalCacheExpiration;
+        options.HideErrors = false; // 不隐藏异常，由上层处理
+    }
+}

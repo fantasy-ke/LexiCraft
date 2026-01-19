@@ -2,14 +2,9 @@ using BuildingBlocks.Caching.Abstractions;
 using BuildingBlocks.Caching.Configuration;
 using BuildingBlocks.Caching.DistributedLock;
 using BuildingBlocks.Caching.Factories;
-using BuildingBlocks.Caching.Serialization;
 using BuildingBlocks.Caching.Services;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Options;
-using StackExchange.Redis;
-using System;
-using System.Collections.Generic;
 
 namespace BuildingBlocks.Caching.Extensions;
 
