@@ -1,4 +1,5 @@
 using BuildingBlocks.Authentication.Shared;
+using BuildingBlocks.Caching.Abstractions;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.DependencyInjection;
@@ -51,9 +52,13 @@ public sealed class AuthorizeHandler(
         // 检查是否启用Redis权限验证
         var oauthOptions = _scope.ServiceProvider.GetRequiredService<IOptionsMonitor<OAuthOptions>>();
         var redisEnabled = oauthOptions.CurrentValue.OAuthRedis.Enable;
+        
         // 如果未启用Redis权限验证，直接通过（降级策略）
         if (!redisEnabled)
            goto next;
+
+        // Redis白名单/黑名单校验：检查Token是否有效（是否在Redis中存在）
+        if (!await CheckTokenValidityAsync(context)) return;
         
         var permissionCheck = _scope.ServiceProvider.GetRequiredService<IPermissionCheck>();
         // 检查所有需要的权限
@@ -68,6 +73,34 @@ public sealed class AuthorizeHandler(
         }
         next:
         context.Succeed(requirement);
+    }
+
+    /// <summary>
+    /// 检查Token有效性（Redis白名单/黑名单校验）
+    /// </summary>
+    private async Task<bool> CheckTokenValidityAsync(AuthorizationHandlerContext context)
+    {
+        var cacheService = _scope.ServiceProvider.GetRequiredService<ICacheService>();
+        var userId = context.User.FindFirst(System.Security.Claims.ClaimTypes.Sid)?.Value;
+            
+        if (string.IsNullOrEmpty(userId))
+        {
+            var failureReason = new AuthorizationFailureReason(this, "Token无效，缺少用户ID Claim");
+            context.Fail(failureReason);
+            return false;
+        }
+
+        // 检查Redis中是否存在该用户的Token记录
+        var cacheKey = string.Format(UserInfoConst.RedisTokenKey, userId);
+        var tokenExists = await cacheService.ExistsAsync(cacheKey);
+
+        if (tokenExists) return true;
+        {
+            var failureReason = new AuthorizationFailureReason(this, "Token已失效或用户已登出，请重新登录");
+            context.Fail(failureReason);
+            return false;
+        }
+
     }
 
     private void Dispose(bool disposing)
