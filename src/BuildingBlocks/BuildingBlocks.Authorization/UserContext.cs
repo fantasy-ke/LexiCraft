@@ -8,7 +8,7 @@ namespace BuildingBlocks.Authentication;
 ///   用户上下文
 /// </summary>
 /// <param name="httpContextAccessor"></param>
-public class UserContext(
+public sealed class UserContext(
     IHttpContextAccessor httpContextAccessor)
     : IUserContext
 {
@@ -46,7 +46,7 @@ public class UserContext(
         }
     }
 
-    protected virtual Claim? FindClaim(string claimType)
+    private Claim? FindClaim(string claimType)
     {
         return Principal?.FindFirst(c => c.Type == claimType);
     }
