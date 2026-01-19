@@ -10,7 +10,13 @@ public class PracticeTaskItem
     public string DefinitionSnapshot { get; private set; }
     public int OrderIndex { get; private set; }
 
-    private PracticeTaskItem() { }
+    private PracticeTaskItem(string wordId, string spellingSnapshot, string phoneticSnapshot, string definitionSnapshot)
+    {
+        WordId = wordId;
+        SpellingSnapshot = spellingSnapshot;
+        PhoneticSnapshot = phoneticSnapshot;
+        DefinitionSnapshot = definitionSnapshot;
+    }
 
     public PracticeTaskItem(string wordId, string spelling, string phonetic, string? audio, string definition, int index)
     {

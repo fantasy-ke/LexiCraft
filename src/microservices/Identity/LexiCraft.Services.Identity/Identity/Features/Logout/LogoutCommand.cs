@@ -1,6 +1,6 @@
 using BuildingBlocks.Authentication;
 using BuildingBlocks.Mediator;
-using BuildingBlocks.Caching.Redis;
+using BuildingBlocks.Caching.Abstractions;
 using FluentValidation;
 
 namespace LexiCraft.Services.Identity.Identity.Features.Logout;
@@ -17,13 +17,13 @@ public class LogoutCommandValidator : AbstractValidator<LogoutCommand>
 }
 
 public class LogoutCommandHandler(
-    ICacheManager redisManager) 
+    ICacheService cacheService) 
     : ICommandHandler<LogoutCommand, bool>
 {
     public async Task<bool> Handle(LogoutCommand command, CancellationToken cancellationToken)
     {
         var cacheKey = string.Format(UserInfoConst.RedisTokenKey, command.UserId.ToString("N"));
-        await redisManager.RemoveAsync(cacheKey);
+        await cacheService.RemoveAsync(cacheKey, cancellationToken: cancellationToken);
         return true;
     }
 }

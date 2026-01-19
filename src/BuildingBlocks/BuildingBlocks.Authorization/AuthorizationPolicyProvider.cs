@@ -1,4 +1,4 @@
-﻿using Microsoft.AspNetCore.Authentication;
+using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authorization;
 
 namespace BuildingBlocks.Authentication;
@@ -11,7 +11,7 @@ public class AuthorizationPolicyProvider(IAuthenticationSchemeProvider authentic
     /// </summary>
     /// <param name="policyName"></param>
     /// <returns></returns>
-    public async Task<AuthorizationPolicy> GetPolicyAsync(string policyName)
+    public async Task<AuthorizationPolicy?> GetPolicyAsync(string policyName)
     {
         var policy = new AuthorizationPolicyBuilder();
 
@@ -41,7 +41,7 @@ public class AuthorizationPolicyProvider(IAuthenticationSchemeProvider authentic
     /// 返回回退授权策略（在未指定策略时由授权中间件使用的策略
     /// </summary>
     /// <returns></returns>
-    public async Task<AuthorizationPolicy> GetFallbackPolicyAsync()
+    public async Task<AuthorizationPolicy?> GetFallbackPolicyAsync()
     {
         var policy = new AuthorizationPolicyBuilder();
 
@@ -52,7 +52,7 @@ public class AuthorizationPolicyProvider(IAuthenticationSchemeProvider authentic
         return policy.Build();
     }
 
-    private void SetPolicy(AuthorizationPolicyBuilder policyBuilder, string policyName = null)
+    private void SetPolicy(AuthorizationPolicyBuilder policyBuilder, string? policyName = null)
     {
         if (!string.IsNullOrEmpty(policyName))
         {
@@ -68,7 +68,7 @@ public class AuthorizationPolicyProvider(IAuthenticationSchemeProvider authentic
         }
     }
 
-    private async Task SetScheme(AuthorizationPolicyBuilder policyBuilder, string policyName = null)
+    private async Task SetScheme(AuthorizationPolicyBuilder policyBuilder, string? policyName = null)
     {
         var schemes = await authenticationSchemeProvider.GetAllSchemesAsync();
 

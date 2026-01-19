@@ -48,8 +48,7 @@ public class MigrationSeedWorker<TContext>(IServiceProvider serviceProvider) : I
         return Task.CompletedTask;
     }
 
-    private static async Task ExecuteAsync<TContext>(IDataSeeder<TContext> seeder, TContext context)
-        where TContext : DbContext
+    private static async Task ExecuteAsync(IDataSeeder<TContext> seeder, TContext context)
     {
         using var activity = ActivitySource.StartActivity($"Migrating {typeof(TContext).Name}");
 
