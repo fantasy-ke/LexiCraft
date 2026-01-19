@@ -1,14 +1,8 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading;
-using System.Threading.Tasks;
 using BuildingBlocks.Caching.Abstractions;
 using BuildingBlocks.Caching.Configuration;
 using BuildingBlocks.Caching.DistributedLock;
 using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.Logging;
-using Microsoft.Extensions.Options;
 
 namespace BuildingBlocks.Caching.Services;
 
@@ -21,7 +15,6 @@ public class CacheService : ICacheService
     private readonly IMemoryCache _memoryCache;
     private readonly IDistributedLockProvider _lockProvider;
     private readonly ILogger<CacheService> _logger;
-    private readonly CacheServiceOptions _defaultOptions;
 
     /// <summary>
     /// 初始化缓存服务
@@ -30,19 +23,16 @@ public class CacheService : ICacheService
     /// <param name="memoryCache">内存缓存</param>
     /// <param name="lockProvider">分布式锁提供者</param>
     /// <param name="logger">日志记录器</param>
-    /// <param name="options">默认配置选项</param>
     public CacheService(
         IDistributedCacheService distributedCacheService,
         IMemoryCache memoryCache,
         IDistributedLockProvider lockProvider,
-        ILogger<CacheService> logger,
-        IOptions<CacheServiceOptions> options)
+        ILogger<CacheService> logger)
     {
         _distributedCacheService = distributedCacheService ?? throw new ArgumentNullException(nameof(distributedCacheService));
         _memoryCache = memoryCache ?? throw new ArgumentNullException(nameof(memoryCache));
         _lockProvider = lockProvider ?? throw new ArgumentNullException(nameof(lockProvider));
         _logger = logger ?? throw new ArgumentNullException(nameof(logger));
-        _defaultOptions = options?.Value ?? throw new ArgumentNullException(nameof(options));
     }
 
     /// <inheritdoc />
@@ -66,7 +56,7 @@ public class CacheService : ICacheService
             // 从分布式缓存读取
             if (options.UseDistributed)
             {
-                var distributedValue = await _distributedCacheService.GetAsync<T>(key, options.RedisInstanceName);
+                var distributedValue = await _distributedCacheService.GetAsync<T>(key, options);
                 if (distributedValue != null)
                 {
                     _logger.LogDebug("缓存命中 (分布式): {Key}", key);
@@ -97,7 +87,14 @@ public class CacheService : ICacheService
     public async Task SetAsync<T>(string key, T value, Action<CacheServiceOptions>? configure = null, CancellationToken cancellationToken = default)
     {
         var options = GetEffectiveOptions(configure);
-        
+        await SetAsyncInternal(key, value, options, cancellationToken);
+    }
+
+    /// <summary>
+    /// 内部设置缓存方法，使用已解析的配置选项
+    /// </summary>
+    private async Task SetAsyncInternal<T>(string key, T value, CacheServiceOptions options, CancellationToken cancellationToken)
+    {
         try
         {
             // 调整 TTL
@@ -106,7 +103,7 @@ public class CacheService : ICacheService
             // 设置分布式缓存
             if (options.UseDistributed)
             {
-                await _distributedCacheService.SetAsync(key, value, expiry, options.RedisInstanceName);
+                await _distributedCacheService.SetAsync(key, value, options, expiry);
                 _logger.LogDebug("设置分布式缓存: {Key}, TTL: {Expiry}", key, expiry);
             }
 
@@ -136,7 +133,7 @@ public class CacheService : ICacheService
             // 删除分布式缓存
             if (options.UseDistributed)
             {
-                var distributedResult = await _distributedCacheService.RemoveAsync(key, options.RedisInstanceName);
+                var distributedResult = await _distributedCacheService.RemoveAsync(key, options);
                 success = success && distributedResult;
                 _logger.LogDebug("删除分布式缓存: {Key}, 结果: {Success}", key, distributedResult);
             }
@@ -179,7 +176,7 @@ public class CacheService : ICacheService
             // 检查分布式缓存
             if (options.UseDistributed)
             {
-                var exists = await _distributedCacheService.ExistsAsync(key, options.RedisInstanceName);
+                var exists = await _distributedCacheService.ExistsAsync(key, options);
                 _logger.LogDebug("分布式缓存存在检查: {Key}, 结果: {Exists}", key, exists);
                 return exists;
             }
@@ -203,7 +200,7 @@ public class CacheService : ICacheService
             // 只有分布式缓存支持设置过期时间
             if (options.UseDistributed)
             {
-                var result = await _distributedCacheService.SetExpirationAsync(key, expirationTime, options.RedisInstanceName);
+                var result = await _distributedCacheService.SetExpirationAsync(key, expirationTime, options);
                 _logger.LogDebug("设置分布式缓存过期时间: {Key}, 过期时间: {Expiration}, 结果: {Success}", key, expirationTime, result);
                 return result;
             }
@@ -225,28 +222,7 @@ public class CacheService : ICacheService
     /// <returns>有效的配置选项</returns>
     private CacheServiceOptions GetEffectiveOptions(Action<CacheServiceOptions>? configure)
     {
-        var options = new CacheServiceOptions
-        {
-            UseDistributed = _defaultOptions.UseDistributed,
-            UseLocal = _defaultOptions.UseLocal,
-            Expiry = _defaultOptions.Expiry,
-            LocalExpiry = _defaultOptions.LocalExpiry,
-            HideErrors = _defaultOptions.HideErrors,
-            EnableCompression = _defaultOptions.EnableCompression,
-            EnableBinarySerialization = _defaultOptions.EnableBinarySerialization,
-            EnableLock = _defaultOptions.EnableLock,
-            LockTimeout = _defaultOptions.LockTimeout,
-            LockAcquireTimeout = _defaultOptions.LockAcquireTimeout,
-            FallbackToFactory = _defaultOptions.FallbackToFactory,
-            FallbackToDefault = _defaultOptions.FallbackToDefault,
-            DefaultValue = _defaultOptions.DefaultValue,
-            FallbackFunction = _defaultOptions.FallbackFunction,
-            OnError = _defaultOptions.OnError,
-            AdjustExpiryForHash = _defaultOptions.AdjustExpiryForHash,
-            AdjustExpiryForValue = _defaultOptions.AdjustExpiryForValue,
-            RedisInstanceName = _defaultOptions.RedisInstanceName
-        };
-
+        var options = new CacheServiceOptions();
         configure?.Invoke(options);
         
         // 应用 TTL 继承和覆盖逻辑
@@ -267,9 +243,10 @@ public class CacheService : ICacheService
         // 需求 2.1: 确保全局过期时间有效（不能为零或负数）
         if (options.Expiry <= TimeSpan.Zero)
         {
+            var defaultExpiry = new CacheServiceOptions().Expiry;
             _logger.LogWarning("全局过期时间无效: {Expiry}，使用默认值: {DefaultExpiry}", 
-                options.Expiry, _defaultOptions.Expiry);
-            options.Expiry = _defaultOptions.Expiry;
+                options.Expiry, defaultExpiry);
+            options.Expiry = defaultExpiry;
         }
 
         // 需求 2.2 & 2.3: 处理本地缓存过期时间的继承逻辑
@@ -574,7 +551,7 @@ public class CacheService : ICacheService
             // 首先尝试从缓存获取 Hash 数据
             if (options.UseDistributed)
             {
-                var hashData = await _distributedCacheService.HashGetAsync(hashKey, queryFieldsList, options.RedisInstanceName);
+                var hashData = await _distributedCacheService.HashGetAsync(hashKey, queryFieldsList, options);
                 if (hashData != null && hashData.Count > 0)
                 {
                     // 检查时间戳验证缓存是否过期
@@ -658,7 +635,7 @@ public class CacheService : ICacheService
                 if (value != null)
                 {
                     // 设置缓存
-                    await SetAsync(key, value, null, cancellationToken);
+                    await SetAsyncInternal(key, value, options, cancellationToken);
                     _logger.LogDebug("通过工厂方法获取值并设置缓存: {Key}", key);
                 }
 
@@ -692,7 +669,7 @@ public class CacheService : ICacheService
         if (value != null)
         {
             // 设置缓存
-            await SetAsync(key, value, null, cancellationToken);
+            await SetAsyncInternal(key, value, options, cancellationToken);
             _logger.LogDebug("通过工厂方法获取值并设置缓存 (无锁): {Key}", key);
         }
 
@@ -730,7 +707,7 @@ public class CacheService : ICacheService
                 // 再次检查缓存（双重检查锁定模式）
                 if (options.UseDistributed)
                 {
-                    var hashData = await _distributedCacheService.HashGetAsync(hashKey, queryFields, options.RedisInstanceName);
+                    var hashData = await _distributedCacheService.HashGetAsync(hashKey, queryFields, options);
                     if (hashData != null && hashData.Count > 0 && IsHashCacheValid(hashData, options))
                     {
                         _logger.LogDebug("Hash 双重检查缓存命中: {HashKey}", hashKey);
@@ -754,7 +731,7 @@ public class CacheService : ICacheService
                     // 设置 Hash 缓存
                     if (options.UseDistributed)
                     {
-                        await _distributedCacheService.HashSetAsync(hashKey, cacheDataWithTimestamp, expiry, options.RedisInstanceName);
+                        await _distributedCacheService.HashSetAsync(hashKey, cacheDataWithTimestamp, options, expiry);
                         _logger.LogDebug("通过工厂方法构建并设置 Hash 缓存: {HashKey}, TTL: {Expiry}", hashKey, expiry);
                     }
 
@@ -809,7 +786,7 @@ public class CacheService : ICacheService
             // 设置 Hash 缓存
             if (options.UseDistributed)
             {
-                await _distributedCacheService.HashSetAsync(hashKey, cacheDataWithTimestamp, expiry, options.RedisInstanceName);
+                await _distributedCacheService.HashSetAsync(hashKey, cacheDataWithTimestamp, options, expiry);
                 _logger.LogDebug("通过工厂方法构建并设置 Hash 缓存 (无锁): {HashKey}, TTL: {Expiry}", hashKey, expiry);
             }
 
@@ -901,7 +878,7 @@ public class CacheService : ICacheService
                 {
                     try
                     {
-                        await SetAsync(key, value, null, cancellationToken);
+                        await SetAsyncInternal(key, value, options, cancellationToken);
                     }
                     catch (Exception ex)
                     {
@@ -965,7 +942,7 @@ public class CacheService : ICacheService
                         
                         if (options.UseDistributed)
                         {
-                            await _distributedCacheService.HashSetAsync(hashKey, cacheDataWithTimestamp, expiry, options.RedisInstanceName);
+                            await _distributedCacheService.HashSetAsync(hashKey, cacheDataWithTimestamp, options, expiry);
                         }
                         
                         return parseFromHash(cacheDataWithTimestamp);

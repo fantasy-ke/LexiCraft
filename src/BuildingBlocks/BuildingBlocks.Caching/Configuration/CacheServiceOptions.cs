@@ -1,5 +1,3 @@
-using System;
-
 namespace BuildingBlocks.Caching.Configuration;
 
 /// <summary>
@@ -15,7 +13,7 @@ public class CacheServiceOptions
     /// <summary>
     /// 是否使用本地缓存
     /// </summary>
-    public bool UseLocal { get; set; } = false;
+    public bool UseLocal { get; set; }
 
     /// <summary>
     /// 全局缓存过期时间
@@ -35,12 +33,12 @@ public class CacheServiceOptions
     /// <summary>
     /// 是否启用 GZip 压缩
     /// </summary>
-    public bool EnableCompression { get; set; } = false;
+    public bool EnableCompression { get; set; }
 
     /// <summary>
     /// 是否启用二进制序列化
     /// </summary>
-    public bool EnableBinarySerialization { get; set; } = false;
+    public bool EnableBinarySerialization { get; set; }
 
     /// <summary>
     /// 是否启用分布式锁
@@ -65,7 +63,7 @@ public class CacheServiceOptions
     /// <summary>
     /// 是否回退到默认值
     /// </summary>
-    public bool FallbackToDefault { get; set; } = false;
+    public bool FallbackToDefault { get; set; }
 
     /// <summary>
     /// 默认降级值
