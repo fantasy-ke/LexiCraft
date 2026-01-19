@@ -111,8 +111,8 @@ class AuthAPI implements IAuthAPI {
   /**
    * 刷新访问令牌
    */
-  async refreshToken(): Promise<ResultDto<TokenPair>> {
-    return authPost<TokenPair>('/v1/refresh-token')
+  async refreshToken(refreshToken: string): Promise<ResultDto<TokenPair>> {
+    return authPost<TokenPair>('/v1/refresh-token', { refreshToken })
   }
 
   /**

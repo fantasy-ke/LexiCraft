@@ -137,7 +137,7 @@ export interface IAuthAPI {
   handleOAuthCallback(params: OAuthCallbackParams): Promise<ResultDto<LoginResponse>>
 
   // Token 管理
-  refreshToken(): Promise<ResultDto<TokenPair>>
+  refreshToken(refreshToken: string): Promise<ResultDto<TokenPair>>
 
   // 权限管理
   getUserPermissions(userId: string): Promise<ResultDto<UserPermissionsResponse>>

@@ -1,11 +1,13 @@
 using BuildingBlocks.Authentication.Contract;
 using BuildingBlocks.Authentication.Permission;
 using BuildingBlocks.Authentication.Shared;
+using BuildingBlocks.Caching.Configuration;
+using BuildingBlocks.Caching.Factories;
 using BuildingBlocks.Extensions;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.DependencyInjection.Extensions;
 using Microsoft.Extensions.Hosting;
-using StackExchange.Redis;
 
 namespace BuildingBlocks.Authentication;
 
@@ -42,16 +44,21 @@ public static class AuthorizationExtensions
           {
               return builder;
           }
-          // 注册 Redis 连接多路复用器（单例）
-          builder.Services.AddSingleton<IConnectionMultiplexer>(sp =>
+          
+          // 注册默认 Redis 配置 (如果存在)
+          builder.Services.Configure<RedisConnectionOptions>(builder.Configuration.GetSection("RedisCache"));
+          
+          // 配置 Redis 连接选项，添加 OAuth 实例
+          builder.Services.Configure<RedisConnectionOptions>(options =>
           {
-              var redisOptions = oauthOptions.OAuthRedis;
-              var configurationOptions = ConfigurationOptions.Parse(redisOptions.ConnectionString ?? string.Empty);
-              configurationOptions.ConnectTimeout = redisOptions.ConnectTimeout;
-              configurationOptions.SyncTimeout = redisOptions.SyncTimeout;
-              configurationOptions.DefaultDatabase = redisOptions.DefaultDatabase;
-              return ConnectionMultiplexer.Connect(configurationOptions);
+              if (!string.IsNullOrEmpty(oauthOptions.OAuthRedis.ConnectionString))
+              {
+                  options.Instances["OAuthRedis"] = oauthOptions.OAuthRedis.ConnectionString;
+              }
           });
+
+          // 确保 RedisConnectionFactory 已注册
+          builder.Services.TryAddSingleton<IRedisConnectionFactory, RedisConnectionFactory>();
 
           // 注册 Redis 权限缓存服务
           builder.Services.AddSingleton<IPermissionCache, RedisPermissionCache>();
@@ -61,6 +68,7 @@ public static class AuthorizationExtensions
       
       /// <summary>
       /// 添加权限定义提供程序
+
       /// </summary>
       /// <typeparam name="T"></typeparam>
       /// <param name="services"></param>

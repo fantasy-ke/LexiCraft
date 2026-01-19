@@ -10,13 +10,12 @@
     <ItemGroup>
       <PackageReference Include="Microsoft.AspNetCore.Authorization" />
         <PackageReference Include="Microsoft.AspNetCore.Authentication.JwtBearer" />
-        <PackageReference Include="Microsoft.Extensions.Caching.Memory" />
         <PackageReference Include="Newtonsoft.Json" />
-        <PackageReference Include="StackExchange.Redis" />
     </ItemGroup>
 
     <ItemGroup>
       <ProjectReference Include="..\BuildingBlocks\BuildingBlocks.csproj" />
+      <ProjectReference Include="..\BuildingBlocks.Caching\BuildingBlocks.Caching.csproj" />
     </ItemGroup>
 
 </Project>
