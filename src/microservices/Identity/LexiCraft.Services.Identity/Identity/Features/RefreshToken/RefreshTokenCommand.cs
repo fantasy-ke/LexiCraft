@@ -1,7 +1,7 @@
 using System.Text.Json;
 using BuildingBlocks.Authentication;
 using BuildingBlocks.Authentication.Contract;
-using BuildingBlocks.Caching.Redis;
+using BuildingBlocks.Caching.Abstractions;
 using BuildingBlocks.Exceptions;
 using BuildingBlocks.Mediator;
 using FluentValidation;
@@ -24,14 +24,14 @@ public class RefreshTokenCommandValidator : AbstractValidator<RefreshTokenComman
 }
 
 public class RefreshTokenCommandHandler(
-    ICacheManager cacheManager,
+    ICacheService cacheService,
     IUserRepository userRepository,
     IJwtTokenProvider jwtTokenProvider) : ICommandHandler<RefreshTokenCommand, TokenResponse>
 {
     public async Task<TokenResponse> Handle(RefreshTokenCommand command, CancellationToken cancellationToken)
     {
         var key = string.Format(UserInfoConst.RedisRefreshTokenKey, command.RefreshToken);
-        var userIdValue = await cacheManager.GetAsync<string>(key);
+        var userIdValue = await cacheService.GetAsync<string>(key, cancellationToken: cancellationToken);
         if (string.IsNullOrWhiteSpace(userIdValue))
         {
             ThrowUserFriendlyException.ThrowException("刷新令牌无效或已过期");
@@ -50,7 +50,7 @@ public class RefreshTokenCommandHandler(
             ThrowUserFriendlyException.ThrowException("用户不存在");
         }
 
-        await cacheManager.RemoveAsync(key);
+        await cacheService.RemoveAsync(key, cancellationToken: cancellationToken);
 
         var userDict = new Dictionary<string, string>();
         var userForClaims = JsonSerializer.Deserialize<User>(JsonSerializer.Serialize(user, JsonSerializerOptions.Web));
@@ -67,8 +67,8 @@ public class RefreshTokenCommandHandler(
         var newRefreshToken = jwtTokenProvider.GenerateRefreshToken();
         var response = new TokenResponse(token, newRefreshToken);
 
-        await cacheManager.SetAsync(string.Format(UserInfoConst.RedisTokenKey, user.Id.ToString("N")), response, TimeSpan.FromDays(7));
-        await cacheManager.SetAsync(string.Format(UserInfoConst.RedisRefreshTokenKey, newRefreshToken), user.Id.ToString("N"), TimeSpan.FromDays(7));
+        await cacheService.SetAsync(string.Format(UserInfoConst.RedisTokenKey, user.Id.ToString("N")), response, options => options.Expiry = TimeSpan.FromDays(7), cancellationToken);
+        await cacheService.SetAsync(string.Format(UserInfoConst.RedisRefreshTokenKey, newRefreshToken), user.Id.ToString("N"), options => options.Expiry = TimeSpan.FromDays(7), cancellationToken);
 
         return response;
     }

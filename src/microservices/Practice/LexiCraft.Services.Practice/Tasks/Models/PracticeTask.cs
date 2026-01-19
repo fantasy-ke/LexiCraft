@@ -1,24 +1,21 @@
 using BuildingBlocks.MongoDB;
-using MongoDB.Bson.Serialization.Attributes;
 using LexiCraft.Services.Practice.Assessments.Models;
 
 namespace LexiCraft.Services.Practice.Tasks.Models;
 
 public class PracticeTask : MongoEntity
 {
-    public string UserId { get; private set; }
+    public string UserId { get; private set; } = string.Empty;
     public PracticeTaskType TaskType { get; private set; }
     public PracticeTaskSource SourceType { get; private set; }
-    public string Category { get; private set; }
+    public string Category { get; private set; } = string.Empty;
     public PracticeStatus Status { get; private set; }
     public DateTime? StartedAt { get; private set; }
     public DateTime? FinishedAt { get; private set; }
     
     public List<PracticeTaskItem> Items { get; private set; } = new();
     public List<AnswerRecord> Answers { get; private set; } = new();
-
-    private PracticeTask() { }
-
+    
     public static PracticeTask Create(string userId, PracticeTaskType type, PracticeTaskSource source, string category, List<PracticeTaskItem> items)
     {
         var task = new PracticeTask
@@ -82,11 +79,9 @@ public class PracticeTask : MongoEntity
 
     public void Complete()
     {
-        if (Status != PracticeStatus.Finished)
-        {
-            Status = PracticeStatus.Finished;
-            FinishedAt = DateTime.UtcNow;
-        }
+        if (Status == PracticeStatus.Finished) return;
+        Status = PracticeStatus.Finished;
+        FinishedAt = DateTime.UtcNow;
     }
 }
 

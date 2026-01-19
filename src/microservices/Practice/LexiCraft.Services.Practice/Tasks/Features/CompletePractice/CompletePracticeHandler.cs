@@ -110,7 +110,7 @@ public class CompletePracticeHandler : IRequestHandler<CompletePracticeCommand, 
                 task.UserId,
                 item.WordId,
                 mistakeType.ToString(),
-                mistake.UserInput,
+                mistake.UserInput ?? string.Empty,
                 item.SpellingSnapshot,
                 mistake.SubmittedAt
             );

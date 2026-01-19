@@ -92,12 +92,8 @@ public class ImportWordsCommandHandler(
         var wordList = await wordListRepository.FirstOrDefaultAsync(x => x.Name == request.Name);
         if (wordList == null)
         {
-            wordList = new WordList
-            {
-                Name = request.Name,
-                Category = request.Category,
-                Description = request.Description
-            };
+            wordList = new WordList(request.Name, request.Category);
+            wordList.SetDescription(request.Description);
             await wordListRepository.InsertAsync(wordList);
             await unitOfWork.SaveChangesAsync();
         }
@@ -124,15 +120,14 @@ public class ImportWordsCommandHandler(
             }
             else
             {
-                var newWord = new Word
-                {
-                    Spelling = data.Spelling,
-                    Phonetic = data.Phonetic,
-                    PronunciationUrl = data.PronunciationUrl,
-                    Definitions = data.Definitions,
-                    Examples = data.Examples,
-                    Tags = data.Tags ?? new List<string>()
-                };
+                var newWord = Word.Create(
+                    data.Spelling,
+                    data.Phonetic,
+                    data.PronunciationUrl,
+                    data.Definitions,
+                    data.Examples,
+                    data.Tags
+                );
                 newWordsToInsert.Add(newWord);
                 wordMap[newWord.Spelling] = newWord; 
             }

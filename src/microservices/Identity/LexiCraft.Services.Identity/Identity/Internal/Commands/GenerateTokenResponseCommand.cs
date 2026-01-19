@@ -1,7 +1,7 @@
 using System.Text.Json;
 using BuildingBlocks.Authentication;
 using BuildingBlocks.Authentication.Contract;
-using BuildingBlocks.Caching.Redis;
+using BuildingBlocks.Caching.Abstractions;
 using LexiCraft.Services.Identity.Identity.Models;
 using LexiCraft.Services.Identity.Identity.Models.Enum;
 using LexiCraft.Services.Identity.Shared.Dtos;
@@ -13,7 +13,7 @@ public record GenerateTokenResponseCommand(User User, string? Message = null) : 
 
 public class GenerateTokenResponseCommandHandler(
     IJwtTokenProvider jwtTokenProvider,
-    ICacheManager redisManager,
+    ICacheService cacheService,
     IMediator mediator) : IRequestHandler<GenerateTokenResponseCommand, TokenResponse>
 {
     public async Task<TokenResponse> Handle(GenerateTokenResponseCommand request, CancellationToken cancellationToken)
@@ -40,8 +40,8 @@ public class GenerateTokenResponseCommandHandler(
         var logMessage = request.Message ?? (user.Source == SourceEnum.Register ? "注册成功" : "登录成功");
         await mediator.Send(new PublishLoginLogCommand(user.UserAccount, logMessage, user.Id, true, user.Source.ToString()), cancellationToken);
 
-        await redisManager.SetAsync(string.Format(UserInfoConst.RedisTokenKey, user.Id.ToString("N")), response, TimeSpan.FromDays(7));
-        await redisManager.SetAsync(string.Format(UserInfoConst.RedisRefreshTokenKey, refreshToken), user.Id.ToString("N"), TimeSpan.FromDays(7));
+        await cacheService.SetAsync(string.Format(UserInfoConst.RedisTokenKey, user.Id.ToString("N")), response, options => options.Expiry = TimeSpan.FromDays(7), cancellationToken);
+        await cacheService.SetAsync(string.Format(UserInfoConst.RedisRefreshTokenKey, refreshToken), user.Id.ToString("N"), options => options.Expiry = TimeSpan.FromDays(7), cancellationToken);
 
         return response;
     }

@@ -89,6 +89,7 @@ public class CacheServiceOptions
     /// 动态调整普通缓存 TTL
     /// </summary>
     public Func<TimeSpan, object?, TimeSpan>? AdjustExpiryForValue { get; set; }
+    
 
     /// <summary>
     /// Redis 实例名称
