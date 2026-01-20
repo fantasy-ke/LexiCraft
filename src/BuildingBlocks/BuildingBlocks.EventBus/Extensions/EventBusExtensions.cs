@@ -7,6 +7,7 @@ using BuildingBlocks.Extensions;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
+using StackExchange.Redis;
 
 namespace BuildingBlocks.EventBus.Extensions;
 
@@ -40,7 +41,8 @@ public static class EventBusExtensions
             throw new Exception("启用 Redis EventBus 时必须提供 ConnectionString");
         }
 
-        builder.Services.AddSingleton(new FreeRedis.RedisClient(options.Redis.ConnectionString));
+        builder.Services.AddSingleton<IConnectionMultiplexer>(sp => 
+            ConnectionMultiplexer.Connect(options.Redis.ConnectionString));
         builder.Services.AddHostedService<RedisEventConsumerService>();
 
         return builder;
