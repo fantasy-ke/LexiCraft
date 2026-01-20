@@ -79,8 +79,6 @@
     <PackageVersion Include="Swashbuckle.AspNetCore" Version="7.2.0" />
   </ItemGroup>
   <ItemGroup Label="Storage &amp; Data">
-    <PackageVersion Include="FreeRedis" Version="1.5.5" />
-    <PackageVersion Include="FreeRedis.DistributedCache" Version="1.5.2" />
     <PackageVersion Include="StackExchange.Redis" Version="2.10.1" />
     <PackageVersion Include="Microsoft.Extensions.Caching.Abstractions" Version="10.0.1" />
     <PackageVersion Include="MemoryPack" Version="1.21.3" />

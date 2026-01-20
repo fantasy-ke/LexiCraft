@@ -21,11 +21,15 @@ public static class LoginEndpoint
             .AllowAnonymous(); // 登录接口允许匿名访问
 
         async Task<TokenResponse> Handle(
-            [AsParameters] LoginRequestParameters requestParameters)
+            [AsParameters] LoginRequestParameters requestParameters,
+            HttpContext httpContext)
         {
             var (mediator, command, cancellationToken) = requestParameters;
 
-            var result = await mediator.Send(command, cancellationToken);
+            var ipAddress = httpContext.Connection.RemoteIpAddress?.ToString();
+            var commandWithIp = command with { IpAddress = ipAddress };
+
+            var result = await mediator.Send(commandWithIp, cancellationToken);
 
             return result;
         }

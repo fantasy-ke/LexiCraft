@@ -60,6 +60,21 @@ public class User: AuditEntity<Guid,Guid?>
     public UserSetting? Settings { get; set; }
 
     /// <summary>
+    /// 登录失败次数
+    /// </summary>
+    public int AccessFailedCount { get; private set; }
+
+    /// <summary>
+    /// 锁定结束时间
+    /// </summary>
+    public DateTimeOffset? LockoutEnd { get; private set; }
+
+    /// <summary>
+    /// 是否启用锁定
+    /// </summary>
+    public bool LockoutEnabled { get; private set; } = true;
+
+    /// <summary>
     /// 用户构造函数，初始化用户的基本信息。
     /// </summary>
     /// <param name="userAccount">用户名</param>
@@ -145,5 +160,31 @@ public class User: AuditEntity<Guid,Guid?>
     public void UpdateUserName(string username)
     {
         Username = username;
+    }
+
+    /// <summary>
+    /// 记录登录失败
+    /// </summary>
+    public void AccessFailed()
+    {
+        AccessFailedCount++;
+    }
+
+    /// <summary>
+    /// 重置登录失败次数
+    /// </summary>
+    public void ResetAccessFailedCount()
+    {
+        AccessFailedCount = 0;
+        LockoutEnd = null;
+    }
+
+    /// <summary>
+    /// 锁定用户
+    /// </summary>
+    /// <param name="lockoutEnd">锁定结束时间</param>
+    public void Lockout(DateTimeOffset lockoutEnd)
+    {
+        LockoutEnd = lockoutEnd;
     }
 }

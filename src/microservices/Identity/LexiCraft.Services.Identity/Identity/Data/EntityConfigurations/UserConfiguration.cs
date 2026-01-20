@@ -1,4 +1,4 @@
-﻿using LexiCraft.Services.Identity.Identity.Models;
+using LexiCraft.Services.Identity.Identity.Models;
 using LexiCraft.Services.Identity.Identity.Models.Enum;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
@@ -52,5 +52,16 @@ public class UserConfiguration : IEntityTypeConfiguration<User>
         builder.Property(x => x.Signature)
             .HasMaxLength(500)
             .HasComment("个性签名");
+
+        builder.Property(x => x.AccessFailedCount)
+            .HasDefaultValue(0)
+            .HasComment("登录失败次数");
+
+        builder.Property(x => x.LockoutEnd)
+            .HasComment("锁定结束时间");
+
+        builder.Property(x => x.LockoutEnabled)
+            .HasDefaultValue(true)
+            .HasComment("是否启用锁定");
     }
 }
