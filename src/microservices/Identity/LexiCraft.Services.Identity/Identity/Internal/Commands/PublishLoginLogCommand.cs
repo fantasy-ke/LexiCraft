@@ -15,7 +15,7 @@ public record PublishLoginLogCommand(
 
 public class PublishLoginLogCommandHandler(
     IHttpContextAccessor httpContextAccessor,
-    IEventBus<LoginLogDto> loginEventBus) : ICommandHandler<PublishLoginLogCommand>
+    IEventBus<LoginLogEvent> loginEventBus) : ICommandHandler<PublishLoginLogCommand>
 {
     public async Task Handle(PublishLoginLogCommand command, CancellationToken cancellationToken)
     {
@@ -24,7 +24,7 @@ public class PublishLoginLogCommandHandler(
         var userAgent = context?.Request.Headers["User-Agent"].ToString();
         var origin = context?.Request.Headers["Origin"].ToString();
 
-        var logDto = new LoginLogDto(
+        var logDto = new LoginLogEvent(
             command.UserId,
             command.UserAccount,
             DateTime.Now,

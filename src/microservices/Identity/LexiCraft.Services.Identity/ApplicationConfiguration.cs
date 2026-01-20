@@ -24,6 +24,7 @@ public static class ApplicationConfiguration
         builder.AddGrpcService<IFilesService>(builder.Configuration);
         builder.Services.WithMapster();
         builder.Services.WithIdGen();
+        builder.AddIdentityModuleServices();
         return builder;
     }
 

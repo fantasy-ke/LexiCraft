@@ -24,6 +24,7 @@ public class HybridEventBus<TEvent>(
     {
         ArgumentNullException.ThrowIfNull(@event);
 
+        logger.LogInformation("Publishing event: {@Event}", @event);
         // 1. 本地分发 (如果启用)
         if (Options.EnableLocal)
         {

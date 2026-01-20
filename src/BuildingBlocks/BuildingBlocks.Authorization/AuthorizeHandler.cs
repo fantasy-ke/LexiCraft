@@ -1,3 +1,4 @@
+using BuildingBlocks.Authentication.Contract;
 using BuildingBlocks.Authentication.Shared;
 using BuildingBlocks.Caching.Abstractions;
 using Microsoft.AspNetCore.Authorization;
@@ -37,7 +38,7 @@ public sealed class AuthorizeHandler(
 
         var authorizeData = currentEndpoint.Metadata.GetOrderedMetadata<IAuthorizeData>().ToList();
         //默认授权策略
-        if (!authorizeData.Any())
+        if (authorizeData is [])
         {
             context.Succeed(requirement);
             return;
@@ -48,6 +49,9 @@ public sealed class AuthorizeHandler(
             context.Fail();
             return;
         }
+
+        // Redis白名单/黑名单校验：检查Token是否有效（是否在Redis中存在）
+        if (!await CheckTokenValidityAsync(context)) return;
         
         // 检查是否启用Redis权限验证
         var oauthOptions = _scope.ServiceProvider.GetRequiredService<IOptionsMonitor<OAuthOptions>>();
@@ -56,9 +60,6 @@ public sealed class AuthorizeHandler(
         // 如果未启用Redis权限验证，直接通过（降级策略）
         if (!redisEnabled)
            goto next;
-
-        // Redis白名单/黑名单校验：检查Token是否有效（是否在Redis中存在）
-        if (!await CheckTokenValidityAsync(context)) return;
         
         var permissionCheck = _scope.ServiceProvider.GetRequiredService<IPermissionCheck>();
         // 检查所有需要的权限
@@ -81,9 +82,9 @@ public sealed class AuthorizeHandler(
     private async Task<bool> CheckTokenValidityAsync(AuthorizationHandlerContext context)
     {
         var cacheService = _scope.ServiceProvider.GetRequiredService<ICacheService>();
-        var userId = context.User.FindFirst(System.Security.Claims.ClaimTypes.Sid)?.Value;
+        var userContext = _scope.ServiceProvider.GetRequiredService<IUserContext>();
             
-        if (string.IsNullOrEmpty(userId))
+        if (userContext.UserId == Guid.Empty)
         {
             var failureReason = new AuthorizationFailureReason(this, "Token无效，缺少用户ID Claim");
             context.Fail(failureReason);
@@ -91,7 +92,7 @@ public sealed class AuthorizeHandler(
         }
 
         // 检查Redis中是否存在该用户的Token记录
-        var cacheKey = string.Format(UserInfoConst.RedisTokenKey, userId);
+        var cacheKey = string.Format(UserInfoConst.RedisTokenKey, userContext.UserId.ToString("N"));
         var tokenExists = await cacheService.ExistsAsync(cacheKey);
 
         if (tokenExists) return true;

@@ -12,7 +12,7 @@
 /// <param name="LoginType">登录类型</param>
 /// <param name="IsSuccess">登录是否成功</param>
 /// <param name="ErrorMessage">错误信息</param>
-public record LoginLogDto(
+public record LoginLogEvent(
     Guid? UserId,
     string? Username,
     DateTime LoginTime,

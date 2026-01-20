@@ -13,9 +13,9 @@ namespace LexiCraft.Services.Identity.Identity.Events;
 /// <param name="mapper"></param>
 public sealed class LoginEventHandler(IRepository<Models.LoginLog> loginLogRepository, 
     IMapper mapper, ILogger<LoginEventHandler> logger)
-    : IEventHandler<LoginLogDto>
+    : IEventHandler<LoginLogEvent>
 {
-    public async Task HandleAsync(LoginLogDto @event, CancellationToken cancellationToken = default)
+    public async Task HandleAsync(LoginLogEvent @event, CancellationToken cancellationToken = default)
     {
         try
         {
