@@ -13,6 +13,11 @@ services:
       AgileConfig__Secret: "bb123456"
       AgileConfig__ENV: "TEST"
     restart: unless-stopped
+    depends_on:
+      - files-grpc
+      - identity-api
+      - vocabulary-api
+      - practice-api
     networks:
       - lexicraft-net
 
