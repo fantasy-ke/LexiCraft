@@ -5,7 +5,7 @@ using LexiCraft.Services.Identity.Identity.Models.Enum;
 
 namespace LexiCraft.Services.Identity.Identity.Models;
 
-public class User: AuditEntity<Guid,Guid?>
+public class User: AuditAggregateRoot<Guid,Guid?>
 {
     public string Avatar { get; private set; } = string.Empty;
 

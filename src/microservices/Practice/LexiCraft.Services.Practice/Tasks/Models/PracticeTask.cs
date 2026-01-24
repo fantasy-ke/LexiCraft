@@ -3,7 +3,7 @@ using LexiCraft.Services.Practice.Assessments.Models;
 
 namespace LexiCraft.Services.Practice.Tasks.Models;
 
-public class PracticeTask : MongoEntity
+public class PracticeTask : MongoAggregateRoot
 {
     public string UserId { get; private set; } = string.Empty;
     public PracticeTaskType TaskType { get; private set; }
