@@ -2,7 +2,7 @@ using BuildingBlocks.Domain.Internal;
 
 namespace LexiCraft.Services.Vocabulary.Words.Models;
 
-public class WordList(string name, string? category = null) : AuditEntity<long>
+public class WordList(string name, string? category = null) : AuditAggregateRoot<long>
 {
     /// <summary>
     /// 词库名称

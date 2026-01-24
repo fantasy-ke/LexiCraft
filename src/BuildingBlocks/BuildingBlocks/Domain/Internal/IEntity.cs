@@ -14,3 +14,8 @@ public class Entity<TKey> : IEntity<TKey>
 ///     万物实体的接口
 /// </summary>
 public interface IEntity;
+
+/// <summary>
+/// 聚合根接口
+/// </summary>
+public interface IAggregateRoot : IEntity;
