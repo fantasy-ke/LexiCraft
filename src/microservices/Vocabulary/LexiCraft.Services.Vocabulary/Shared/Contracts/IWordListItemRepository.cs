@@ -3,6 +3,6 @@ using LexiCraft.Services.Vocabulary.Words.Models;
 
 namespace LexiCraft.Services.Vocabulary.Shared.Contracts;
 
-public interface IWordListItemRepository : IRepository<WordListItem>
+public interface IWordListItemRepository : IQueryRepository<WordListItem>
 {
 }

@@ -12,17 +12,17 @@ public class User: AuditAggregateRoot<Guid,Guid?>
     /// <summary>
     /// 用户账号
     /// </summary>
-    public string UserAccount { get; private set; }
+    public string UserAccount { get; private set; } = null!;
 
     /// <summary>
     /// 用户的用户名，必须唯一。
     /// </summary>
-    public string Username { get; private set; }
+    public string Username { get; private set; } = null!;
 
     /// <summary>
     /// 用户的电子邮件地址，必须唯一。
     /// </summary>
-    public string Email { get; private set; }
+    public string Email { get; private set; } = null!;
 
     /// <summary>
     /// 个人签名
@@ -47,7 +47,7 @@ public class User: AuditAggregateRoot<Guid,Guid?>
     /// <summary>
     /// 用户的角色列表。
     /// </summary>
-    public List<string> Roles { get; private set; }
+    public List<string> Roles { get; private set; } = [];
 
     /// <summary>
     /// 手机号
@@ -58,6 +58,16 @@ public class User: AuditAggregateRoot<Guid,Guid?>
     /// 用户设置
     /// </summary>
     public UserSetting? Settings { get; private set; }
+
+    /// <summary>
+    /// 用户权限
+    /// </summary>
+    public List<UserPermission> Permissions { get; private set; } = [];
+
+    /// <summary>
+    /// OAuth 绑定
+    /// </summary>
+    public List<UserOAuth> OAuths { get; private set; } = [];
 
     private User() { } // For EF Core
 
@@ -236,5 +246,69 @@ public class User: AuditAggregateRoot<Guid,Guid?>
     public void ClearPassword()
     {
         PasswordHash = null;
+    }
+
+    public void AddPermissions(IEnumerable<string> permissionNames)
+    {
+        foreach (var name in permissionNames)
+        {
+            AddPermission(name);
+        }
+    }
+
+    public void SetPermissions(IEnumerable<string> permissionNames)
+    {
+        Permissions.Clear();
+        foreach (var name in permissionNames)
+        {
+            Permissions.Add(new UserPermission(Id, name));
+        }
+    }
+
+    public void AddPermission(string permissionName)
+    {
+        if (Permissions.All(x => x.PermissionName != permissionName))
+        {
+            Permissions.Add(new UserPermission(Id, permissionName));
+        }
+    }
+
+    public void RemovePermissions(IEnumerable<string> permissionNames)
+    {
+        foreach (var name in permissionNames)
+        {
+            RemovePermission(name);
+        }
+    }
+
+    public void RemovePermission(string permissionName)
+    {
+        var permission = Permissions.FirstOrDefault(x => x.PermissionName == permissionName);
+        if (permission != null)
+        {
+            Permissions.Remove(permission);
+        }
+    }
+
+    public void BindOAuth(string provider, string providerUserId, string accessToken, DateTimeOffset expiresAt, string refreshToken)
+    {
+        var existing = OAuths.FirstOrDefault(x => x.Provider == provider);
+        if (existing == null)
+        {
+            OAuths.Add(new UserOAuth(Id, provider, providerUserId, accessToken, expiresAt, refreshToken));
+        }
+        else
+        {
+            existing.UpdateTokens(accessToken, expiresAt, refreshToken);
+        }
+    }
+
+    public void UnbindOAuth(string provider)
+    {
+        var existing = OAuths.FirstOrDefault(x => x.Provider == provider);
+        if (existing != null)
+        {
+            OAuths.Remove(existing);
+        }
     }
 }

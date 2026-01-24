@@ -7,7 +7,7 @@ using Microsoft.EntityFrameworkCore;
 namespace LexiCraft.Services.Vocabulary.Words.Data.Repositories;
 
 public class WordRepository(VocabularyDbContext context) 
-    : Repository<VocabularyDbContext, Word>(context), IWordRepository
+    : QueryRepository<VocabularyDbContext, Word>(context), IWordRepository
 {
     public async Task<Word?> GetByIdAsync(long id)
     {

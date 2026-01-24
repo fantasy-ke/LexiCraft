@@ -42,7 +42,7 @@ internal class OAuthCommandHandler(
     ILogger<OAuthCommandHandler> logger,
     IMediator mediator,
     IRepository<User> userRepository,
-    IRepository<UserOAuth> userOAuthRepository) : IRequestHandler<OAuthCommand, TokenResponse>
+    IQueryRepository<UserOAuth> userOAuthRepository) : IRequestHandler<OAuthCommand, TokenResponse>
 {
     public async Task<TokenResponse> Handle(OAuthCommand request, CancellationToken cancellationToken)
     {

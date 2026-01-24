@@ -28,5 +28,10 @@ public class WordListConfiguration : IEntityTypeConfiguration<WordList>
         builder.Property(x => x.Description)
             .HasMaxLength(512)
             .HasComment("描述");
+
+        builder.HasMany(x => x.Items)
+            .WithOne()
+            .HasForeignKey(x => x.WordListId)
+            .OnDelete(DeleteBehavior.Cascade);
     }
 }

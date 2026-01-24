@@ -3,6 +3,7 @@ using BuildingBlocks.Exceptions;
 using BuildingBlocks.Mediator;
 using FluentValidation;
 using LexiCraft.Services.Identity.Shared.Contracts;
+using Microsoft.EntityFrameworkCore;
 
 namespace LexiCraft.Services.Identity.Permissions.Features.UpdatePermissions;
 
@@ -27,7 +28,7 @@ public class UpdatePermissionsCommandValidator : AbstractValidator<UpdatePermiss
 }
 
 public class UpdatePermissionsCommandHandler(
-    IUserPermissionRepository userPermissionRepository,
+    IUserRepository userRepository,
     IPermissionCache permissionCache)
     : ICommandHandler<UpdatePermissionsCommand, bool>
 {
@@ -35,11 +36,25 @@ public class UpdatePermissionsCommandHandler(
     {
         try
         {
-            // 数据库操作：先删除用户所有权限，再批量新增
-            await userPermissionRepository.RemoveAllUserPermissionsAsync(command.UserId);
-            await userPermissionRepository.AddUserPermissionsAsync(command.UserId, command.Permissions);
+            // 通过聚合根操作：加载包含权限的用户实体（启用跟踪以支持集合变更）
+            var user = await userRepository.Query()
+                .Include(u => u.Permissions)
+                .FirstOrDefaultAsync(u => u.Id == command.UserId, cancellationToken);
 
-            // 同步更新缓存：直接设置完整的权限集合
+            if (user == null)
+            {
+                ThrowUserFriendlyException.ThrowException("未找到指定用户");
+                return false;
+            }
+
+            // 在领域模型中执行变更
+            user.SetPermissions(command.Permissions);
+
+            // 通过聚合根仓储级联持久化
+            await userRepository.UpdateAsync(user);
+            await userRepository.SaveChangesAsync();
+
+            // 同步更新缓存
             await permissionCache.SetUserPermissionsAsync(
                 command.UserId,
                 command.Permissions.ToHashSet()

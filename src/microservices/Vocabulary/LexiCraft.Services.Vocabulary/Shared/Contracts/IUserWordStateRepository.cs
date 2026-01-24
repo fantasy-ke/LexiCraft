@@ -3,7 +3,7 @@ using LexiCraft.Services.Vocabulary.UserStates.Models;
 
 namespace LexiCraft.Services.Vocabulary.Shared.Contracts;
 
-public interface IUserWordStateRepository : IRepository<UserWordState>
+public interface IUserWordStateRepository : IQueryRepository<UserWordState>
 {
     Task<UserWordState?> GetAsync(Guid userId, long wordId);
     Task AddOrUpdateAsync(UserWordState state);

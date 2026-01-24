@@ -4,7 +4,7 @@ using LexiCraft.Services.Practice.Assessments.Models;
 
 namespace LexiCraft.Services.Practice.Shared.Contracts;
 
-public interface IMistakeItemRepository : IRepository<MistakeItem>
+public interface IMistakeItemRepository : IQueryRepository<MistakeItem>
 {
     Task<List<MistakeItem>> GetUserMistakesAsync(string userId, CancellationToken cancellationToken = default);
     Task<List<MistakeItem>> GetWordMistakesAsync(string wordId, CancellationToken cancellationToken = default);

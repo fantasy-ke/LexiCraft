@@ -11,7 +11,7 @@ namespace LexiCraft.Services.Identity.Identity.Events;
 /// </summary>
 /// <param name="loginLogRepository"></param>
 /// <param name="mapper"></param>
-public sealed class LoginEventHandler(IRepository<Models.LoginLog> loginLogRepository, 
+public sealed class LoginEventHandler(Shared.Data.IdentityDbContext dbContext, 
     IMapper mapper, ILogger<LoginEventHandler> logger)
     : IEventHandler<LoginLogEvent>
 {
@@ -21,9 +21,9 @@ public sealed class LoginEventHandler(IRepository<Models.LoginLog> loginLogRepos
         {
             var entity = mapper.Map<Models.LoginLog>(@event);
 
-            await loginLogRepository.InsertAsync(entity);
+            await dbContext.LoginLogs.AddAsync(entity, cancellationToken);
 
-            await loginLogRepository.SaveChangesAsync();
+            await dbContext.SaveChangesAsync(cancellationToken);
         }
         catch (Exception e)
         {

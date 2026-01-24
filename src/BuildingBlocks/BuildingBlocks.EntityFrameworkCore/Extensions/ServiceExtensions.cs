@@ -72,8 +72,17 @@ public static class ServiceExtensions
         var entityTypes = allTypes.Where(type => type.IsEntity());
         foreach (var entityType in entityTypes)
         {
-            var repositoryInterfaceType = typeof(IRepository<>).MakeGenericType(entityType);
-            services.TryAddAddDefaultRepository(repositoryInterfaceType, GetRepositoryImplementationType(typeof(TDbContext), entityType));
+            // 注册只读仓储 (适用于所有实体)
+            var queryRepositoryInterfaceType = typeof(IQueryRepository<>).MakeGenericType(entityType);
+            var queryRepositoryImplementationType = typeof(QueryRepository<,>).MakeGenericType(typeof(TDbContext), entityType);
+            services.TryAddScoped(queryRepositoryInterfaceType, queryRepositoryImplementationType);
+
+            // 注册聚合根仓储 (仅适用于聚合根)
+            if (typeof(IAggregateRoot).IsAssignableFrom(entityType))
+            {
+                var repositoryInterfaceType = typeof(IRepository<>).MakeGenericType(entityType);
+                services.TryAddAddDefaultRepository(repositoryInterfaceType, GetRepositoryImplementationType(typeof(TDbContext), entityType));
+            }
         }
 
         return services;

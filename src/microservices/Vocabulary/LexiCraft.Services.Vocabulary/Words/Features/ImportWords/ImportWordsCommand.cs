@@ -45,7 +45,8 @@ public class ImportWordsCommandHandler(
     IUnitOfWork unitOfWork,
     IWordRepository wordRepository,
     IWordListRepository wordListRepository,
-    IWordListItemRepository wordListItemRepository) 
+    IWordListItemRepository wordListItemRepository,
+    Shared.Data.VocabularyDbContext dbContext) 
     : ICommandHandler<ImportWordsCommand, WordImportResult>
 {
     public async Task<WordImportResult> Handle(ImportWordsCommand command, CancellationToken cancellationToken)
@@ -135,8 +136,8 @@ public class ImportWordsCommandHandler(
 
         if (newWordsToInsert.Count > 0)
         {
-            await wordRepository.InsertAsync(newWordsToInsert);
-            await unitOfWork.SaveChangesAsync();
+            await dbContext.Words.AddRangeAsync(newWordsToInsert, cancellationToken);
+            await dbContext.SaveChangesAsync(cancellationToken);
             
             deployedWordsResult.AddRange(newWordsToInsert.Select(x => new WordDuplicateInfo(x.Spelling, x.Id)));
         }
@@ -146,28 +147,26 @@ public class ImportWordsCommandHandler(
 
     private async Task LinkWordsToListAsync(long wordListId, List<WordDuplicateInfo> deployedWords, CancellationToken cancellationToken)
     {
-        var currentLinkIds = await wordListItemRepository.QueryNoTracking()
+        var wordList = await wordListRepository.FirstOrDefaultAsync(x => x.Id == wordListId)
+            ?? throw new InvalidOperationException("WordList not found");
+
+        var currentWordIds = await wordListItemRepository.QueryNoTracking()
             .Where(x => x.WordListId == wordListId)
             .Select(x => x.WordId)
             .ToListAsync(cancellationToken);
 
-        var existingLinkSet = currentLinkIds.ToHashSet();
-        var linksToAdd = new List<WordListItem>();
-        int sortOrder = currentLinkIds.Count + 1;
+        var existingWordIds = currentWordIds.ToHashSet();
+        int sortOrder = currentWordIds.Count + 1;
 
         foreach (var mapping in deployedWords)
         {
-            if (!existingLinkSet.Contains(mapping.Id))
+            if (!existingWordIds.Contains(mapping.Id))
             {
-                linksToAdd.Add(new WordListItem(wordListId, mapping.Id, sortOrder++));
-                existingLinkSet.Add(mapping.Id); 
+                wordList.AddWord(mapping.Id, sortOrder++);
             }
         }
 
-        if (linksToAdd.Count > 0)
-        {
-            await wordListItemRepository.InsertAsync(linksToAdd);
-            await unitOfWork.SaveChangesAsync();
-        }
+        await wordListRepository.UpdateAsync(wordList);
+        await wordListRepository.SaveChangesAsync();
     }
 }

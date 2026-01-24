@@ -22,8 +22,7 @@ public record CreateUserCommand(
     string? Avatar = "🦜") : ICommand<User>;
 
 public class CreateUserCommandHandler(
-    IUserRepository userRepository,
-    IUserPermissionRepository userPermissionRepository)
+    IUserRepository userRepository)
     : ICommandHandler<CreateUserCommand, User>
 {
     public async Task<User> Handle(CreateUserCommand command, CancellationToken cancellationToken)
@@ -45,13 +44,16 @@ public class CreateUserCommandHandler(
         user.AddRole(PermissionConstant.User);
         user.UpdateLastLoginTime();
         
+        // 为用户分配默认权限
+        var defaultPermissions = PermissionConstant.DefaultUserPermissions.Permissions;
+        foreach (var permission in defaultPermissions)
+        {
+            user.AddPermission(permission);
+        }
+
         var afterUser = await userRepository.InsertAsync(user);
 
         await userRepository.SaveChangesAsync();
-
-        // 为用户分配默认权限
-        var defaultPermissions = PermissionConstant.DefaultUserPermissions.Permissions;
-        await userPermissionRepository.AddUserPermissionsAsync(afterUser.Id, defaultPermissions);
 
         return afterUser;
     }
