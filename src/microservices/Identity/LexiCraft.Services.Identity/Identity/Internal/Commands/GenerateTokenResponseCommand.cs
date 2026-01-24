@@ -25,7 +25,7 @@ public class GenerateTokenResponseCommandHandler(
         var userForClaims = JsonSerializer.Deserialize<User>(JsonSerializer.Serialize(user, JsonSerializerOptions.Web));
         if (userForClaims != null)
         {
-            userForClaims.PasswordHash = null;
+            userForClaims.ClearPassword();
             userDict.Add(UserInfoConst.UserId, user.Id.ToString());
             userDict.Add(UserInfoConst.UserName, user.Username);
             userDict.Add(UserInfoConst.UserAccount, user.UserAccount);

@@ -23,12 +23,11 @@ public class IdentityDbDataSeeder
     {
         if (context.Users.FirstOrDefault(b=>b.UserAccount == "admin") == null)
         {
-            var adduser = new User("admin", "one@fatnasyke.fun");
+            var adduser = new User("admin", "one@fatnasyke.fun", SourceEnum.Register);
             adduser.SetPassword("bb123456");
-            adduser.Avatar = "🦜";
-            adduser.Roles.Add(PermissionConstant.Admin);
-            adduser.UpdateLastLogin();
-            adduser.UpdateSource(SourceEnum.Register);
+            adduser.UpdateAvatar("🦜");
+            adduser.AddRole(PermissionConstant.Admin);
+            adduser.UpdateLastLoginTime();
             adduser.CreateById = Guid.Empty;
             adduser.CreateByName = "admin";
             await context.Users.AddAsync(adduser);

@@ -32,14 +32,14 @@ public class BindUserOAuthCommandHandler(
             return existing; 
         }
 
-        var userOAuth = new UserOAuth
-        {
-            UserId = command.UserId,
-            Provider = command.Provider,
-            ProviderUserId = command.ProviderUserId,
-            AccessToken = string.Empty,
-            RefreshToken = string.Empty
-        };
+        var userOAuth = new UserOAuth(
+            command.UserId,
+            command.Provider,
+            command.ProviderUserId,
+            string.Empty,
+            DateTimeOffset.MinValue,
+            string.Empty
+        );
 
         await userOAuthRepository.InsertAsync(userOAuth);
         await userOAuthRepository.SaveChangesAsync();
