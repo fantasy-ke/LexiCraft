@@ -3,6 +3,7 @@ using BuildingBlocks.Exceptions;
 using BuildingBlocks.Mediator;
 using FluentValidation;
 using LexiCraft.Services.Identity.Shared.Contracts;
+using Microsoft.EntityFrameworkCore;
 
 namespace LexiCraft.Services.Identity.Permissions.Features.AddPermission;
 
@@ -27,7 +28,7 @@ public class AddPermissionCommandValidator : AbstractValidator<AddPermissionComm
 }
 
 public class AddPermissionCommandHandler(
-    IUserPermissionRepository userPermissionRepository,
+    IUserRepository userRepository,
     IPermissionCache permissionCache)
     : ICommandHandler<AddPermissionCommand, bool>
 {
@@ -35,10 +36,25 @@ public class AddPermissionCommandHandler(
     {
         try
         {
-            // 数据库操作：批量添加权限
-            await userPermissionRepository.AddUserPermissionsAsync(command.UserId, command.Permissions);
+            // 通过聚合根操作：加载包含权限的用户实体
+            var user = await userRepository.Query()
+                .Include(u => u.Permissions)
+                .FirstOrDefaultAsync(u => u.Id == command.UserId, cancellationToken);
 
-            // 同步更新缓存：批量添加权限（一次性写入，避免循环）
+            if (user == null)
+            {
+                ThrowUserFriendlyException.ThrowException("未找到指定用户");
+                return false;
+            }
+
+            // 在领域模型中追加权限
+            user.AddPermissions(command.Permissions);
+
+            // 通过聚合根仓储级联持久化
+            await userRepository.UpdateAsync(user);
+            await userRepository.SaveChangesAsync();
+
+            // 同步更新缓存：批量添加权限
             await permissionCache.AddPermissionsAsync(command.UserId, command.Permissions);
 
             return true;

@@ -1,6 +1,7 @@
 using System.Reflection;
 using BuildingBlocks.Abstractions;
 using BuildingBlocks.Domain;
+using BuildingBlocks.Domain.Internal;
 using BuildingBlocks.Exceptions.Problem;
 using BuildingBlocks.Extensions;
 using BuildingBlocks.MongoDB.Configuration;
@@ -166,16 +167,29 @@ public static class DependencyInjectionExtensions
         var entityTypes = allTypes.Where(type => type.IsMongoEntity());
         foreach (var entityType in entityTypes)
         {
-            var repositoryInterfaceType = typeof(IRepository<>).MakeGenericType(entityType);
-            services.TryAddAddDefaultRepository(repositoryInterfaceType, GetRepositoryImplementationType(entityType));
-            services.TryAddAddDefaultRepository(repositoryInterfaceType, GetResilientRepositoryImplementationType(entityType));
+            // 注册只读仓储 (适用于所有实体)
+            var queryRepositoryInterfaceType = typeof(IQueryRepository<>).MakeGenericType(entityType);
+            var queryRepositoryImplementationType = typeof(MongoQueryRepository<>).MakeGenericType(entityType);
+            services.TryAddScoped(queryRepositoryInterfaceType, queryRepositoryImplementationType);
+
+            // 如果有 Resilient 版本，可以考虑替换或额外注册，这里保持默认实现
+            
+            // 注册聚合根仓储 (仅适用于聚合根)
+            if (typeof(IAggregateRoot).IsAssignableFrom(entityType))
+            {
+                var repositoryInterfaceType = typeof(IRepository<>).MakeGenericType(entityType);
+                // 默认使用非弹性版本，或者根据需求选择
+                services.TryAddAddDefaultRepository(repositoryInterfaceType, GetRepositoryImplementationType(entityType));
+                // 如果需要弹性版本，通常会覆盖注入
+                // services.TryAddAddDefaultRepository(repositoryInterfaceType, GetResilientRepositoryImplementationType(entityType));
+            }
         }
 
         return services;
     }
 
     private static bool IsMongoEntity(this Type type)
-        => type is { IsClass: true, IsGenericType: false, IsAbstract: true } &&
+        => type is { IsClass: true, IsGenericType: false, IsAbstract: false } &&
            typeof(MongoEntity).IsAssignableFrom(type);
 
     private static void TryAddAddDefaultRepository(this IServiceCollection services, Type repositoryInterfaceType,

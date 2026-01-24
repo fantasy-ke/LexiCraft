@@ -18,13 +18,14 @@ public record BindUserOAuthCommand(
     string ProviderUserId) : ICommand<UserOAuth>;
 
 public class BindUserOAuthCommandHandler(
-    IRepository<UserOAuth> userOAuthRepository)
+    IQueryRepository<UserOAuth> userOAuthQueryRepository,
+    IRepository<User> userRepository)
     : ICommandHandler<BindUserOAuthCommand, UserOAuth>
 {
     public async Task<UserOAuth> Handle(BindUserOAuthCommand command, CancellationToken cancellationToken)
     {
         // 检查是否已经存在绑定
-        var existing = await userOAuthRepository.QueryNoTracking()
+        var existing = await userOAuthQueryRepository.QueryNoTracking()
             .FirstOrDefaultAsync(x => x.Provider == command.Provider && x.ProviderUserId == command.ProviderUserId, cancellationToken);
             
         if (existing != null)
@@ -32,8 +33,10 @@ public class BindUserOAuthCommandHandler(
             return existing; 
         }
 
-        var userOAuth = new UserOAuth(
-            command.UserId,
+        var user = await userRepository.GetAsync(x => x.Id == command.UserId)
+            ?? throw new InvalidOperationException("User not found");
+
+        user.BindOAuth(
             command.Provider,
             command.ProviderUserId,
             string.Empty,
@@ -41,9 +44,9 @@ public class BindUserOAuthCommandHandler(
             string.Empty
         );
 
-        await userOAuthRepository.InsertAsync(userOAuth);
-        await userOAuthRepository.SaveChangesAsync();
+        await userRepository.UpdateAsync(user);
+        await userRepository.SaveChangesAsync();
 
-        return userOAuth;
+        return user.OAuths.First(x => x.Provider == command.Provider);
     }
 }

@@ -8,17 +8,14 @@ using MongoDB.Driver;
 
 namespace LexiCraft.Services.Practice.Assessments.Data.Repositories;
 
-public class MistakeItemRepository : ResilientMongoRepository<MistakeItem>, IMistakeItemRepository
+public class MistakeItemRepository(
+    IMongoDatabase database,
+    IResilienceService resilienceService,
+    IMongoPerformanceMonitor performanceMonitor,
+    ILogger<MistakeItemRepository> logger)
+    : ResilientMongoQueryRepository<MistakeItem>(database, resilienceService, performanceMonitor, logger,
+        "mistake_items"), IMistakeItemRepository
 {
-    public MistakeItemRepository(
-        IMongoDatabase database,
-        IResilienceService resilienceService,
-        IMongoPerformanceMonitor performanceMonitor,
-        ILogger<MistakeItemRepository> logger)
-        : base(database, resilienceService, performanceMonitor, logger, "mistake_items")
-    {
-    }
-
     public async Task<List<MistakeItem>> GetUserMistakesAsync(string userId, CancellationToken cancellationToken = default)
     {
         return await FindAsync(x => x.UserId == userId, cancellationToken);

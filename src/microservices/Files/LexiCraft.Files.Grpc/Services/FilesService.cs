@@ -1,4 +1,5 @@
 using System.Linq.Expressions;
+using Microsoft.EntityFrameworkCore;
 using BuildingBlocks.Domain;
 using BuildingBlocks.Extensions;
 using BuildingBlocks.Grpc.Contracts.FileGrpc;
@@ -25,7 +26,7 @@ public class FilesService : IFilesService
     ];
 
     private readonly ILogger<FilesService> _logger;
-    private readonly IRepository<FileInfos> _fileRepository;
+    private readonly Data.FilesDbContext _fileDbContext;
     private readonly IUnitOfWork _unitOfWork;
     private readonly IWebHostEnvironment _hostEnvironment;
     private readonly FileExtensionContentTypeProvider _contentTypeProvider = new();
@@ -36,21 +37,21 @@ public class FilesService : IFilesService
     /// 
     /// </summary>
     /// <param name="logger"></param>
-    /// <param name="fileRepository"></param>
+    /// <param name="fileDbContext"></param>
     /// <param name="unitOfWork"></param>
     /// <param name="hostEnvironment"></param>
     /// <param name="ossOptions"></param>
     /// <param name="serviceProvider"></param>
     public FilesService(
         ILogger<FilesService> logger,
-        IRepository<FileInfos> fileRepository,
+        Data.FilesDbContext fileDbContext,
         IUnitOfWork unitOfWork,
         IWebHostEnvironment hostEnvironment,
         IOptions<OSSOptions> ossOptions,
         IServiceProvider serviceProvider)
     {
         _logger = logger;
-        _fileRepository = fileRepository;
+        _fileDbContext = fileDbContext;
         _unitOfWork = unitOfWork;
         _hostEnvironment = hostEnvironment;
         _ossOptions = ossOptions.Value;
@@ -84,7 +85,7 @@ public class FilesService : IFilesService
         // 检查父目录是否存在
         if (request.ParentId.HasValue)
         {
-            var parentDir = await _fileRepository.FirstOrDefaultAsync(f => f.Id == request.ParentId);
+            var parentDir = await _fileDbContext.FileInfos.FirstOrDefaultAsync(f => f.Id == request.ParentId);
             if (parentDir == null)
             {
                 throw new Exception($"父目录不存在: {request.ParentId}");
@@ -112,7 +113,7 @@ public class FilesService : IFilesService
         string relativePath;
         if (request.ParentId.HasValue)
         {
-            var parentDir = await _fileRepository.FirstOrDefaultAsync(f => f.Id == request.ParentId);
+            var parentDir = await _fileDbContext.FileInfos.FirstOrDefaultAsync(f => f.Id == request.ParentId);
             relativePath = Path.Combine(parentDir.FilePath, fileName);
         }
         else
@@ -163,7 +164,7 @@ public class FilesService : IFilesService
 
         await UploadToOssAsync(fileInfo, request.FileContent);
 
-        await _fileRepository.InsertAsync(fileInfo);
+        await _fileDbContext.FileInfos.AddAsync(fileInfo);
         await _unitOfWork.SaveChangesAsync();
 
         return fileInfo.Adapt<FileInfoDto>();
@@ -198,7 +199,7 @@ public class FilesService : IFilesService
        // 检查父目录是否存在
         if (request.ParentId.HasValue)
         {
-            var parentDir = await _fileRepository.FirstOrDefaultAsync(f => f.Id == request.ParentId);
+            var parentDir = await _fileDbContext.FileInfos.FirstOrDefaultAsync(f => f.Id == request.ParentId);
             if (parentDir == null)
             {
                 throw new Exception($"父目录不存在: {request.ParentId}");
@@ -221,7 +222,7 @@ public class FilesService : IFilesService
 
         if (request.ParentId.HasValue)
         {
-            var parentDir = await _fileRepository.FirstOrDefaultAsync(f => f.Id == request.ParentId);
+            var parentDir = await _fileDbContext.FileInfos.FirstOrDefaultAsync(f => f.Id == request.ParentId);
             var parentPath = parentDir!.FilePath;
             relativePath = Path.Combine(parentPath, request.FolderName);
         }
@@ -252,7 +253,7 @@ public class FilesService : IFilesService
         folderInfo.UpdateMetadata(request.Description, request.Tags);
 
         // 保存到数据库
-        await _fileRepository.InsertAsync(folderInfo);
+        await _fileDbContext.FileInfos.AddAsync(folderInfo);
         await _unitOfWork.SaveChangesAsync();
 
         return folderInfo.Adapt<FileInfoDto>();
@@ -268,7 +269,7 @@ public class FilesService : IFilesService
     public async Task<FileInfoDto> GetFileInfoAsync(string id, CallContext context = default)
     {
         TryParse(id, out var guid);
-        var fileInfo = await _fileRepository.FirstOrDefaultAsync(f => f.Id == guid);
+        var fileInfo = await _fileDbContext.FileInfos.FirstOrDefaultAsync(f => f.Id == guid);
         if (fileInfo == null)
         {
             throw new Exception($"文件不存在: {id}");
@@ -340,19 +341,23 @@ public class FilesService : IFilesService
         }
 
         // 执行查询并分页
-        var result = await _fileRepository.GetPageListAsync(
-            predicate,
-            queryDto.PageIndex,
-            queryDto.PageSize,
-            f => f.UploadTime,
-            false);
+        var query = _fileDbContext.FileInfos.AsQueryable();
+        if (queryDto.IsDescending == true)
+            query = query.OrderByDescending(f => f.UploadTime);
+        else
+            query = query.OrderBy(f => f.UploadTime);
 
-        // 转换结果
-        var items = result.result.Adapt<List<FileInfoDto>>();
+        var total = await query.Where(predicate).CountAsync();
+        var itemsResult = await query.Where(predicate)
+            .Skip((queryDto.PageIndex - 1) * queryDto.PageSize)
+            .Take(queryDto.PageSize)
+            .ToListAsync();
+        
+        var items = itemsResult.Adapt<List<FileInfoDto>>();
         return new QueryFilesResponseDto
         {
             Items = items,
-            Total = result.total
+            Total = total
         };
     }
 
@@ -366,7 +371,7 @@ public class FilesService : IFilesService
     public async Task<DeleteResponseDto> DeleteAsync(string id, CallContext context = default)
     {
         TryParse(id, out var guid);
-        var fileInfo = await _fileRepository.FirstOrDefaultAsync(f => f.Id == guid);
+        var fileInfo = await _fileDbContext.FileInfos.FirstOrDefaultAsync(f => f.Id == guid);
         if (fileInfo == null)
         {
             throw new Exception($"文件不存在: {id}");
@@ -376,7 +381,7 @@ public class FilesService : IFilesService
         if (fileInfo.IsDirectory)
         {
             // 获取所有子文件和子文件夹
-            var children = await _fileRepository.GetListAsync(f => f.ParentId == guid);
+            var children = await _fileDbContext.FileInfos.Where(f => f.ParentId == guid).ToListAsync();
             
             // 递归删除所有子项
             foreach (var child in children)
@@ -405,7 +410,7 @@ public class FilesService : IFilesService
             await _ossService.RemoveObjectAsync(_ossOptions.DefaultBucket, [objectName]);
         }
 
-        await _fileRepository.DeleteAsync(fileInfo);
+        _fileDbContext.FileInfos.Remove(fileInfo);
         await _unitOfWork.SaveChangesAsync();
 
         return new  DeleteResponseDto { Success = true };
@@ -419,7 +424,7 @@ public class FilesService : IFilesService
     public async Task<List<FileInfoDto>> GetDirectoryTreeAsync(CallContext context = default)
     {
         // 获取所有文件夹
-        var allDirectories = await _fileRepository.GetListAsync(f => f.IsDirectory);
+        var allDirectories = await _fileDbContext.FileInfos.Where(f => f.IsDirectory).ToListAsync();
         
         // 创建根节点列表
         var rootDirectories = allDirectories.Where(d => d.ParentId == null).ToList();
@@ -501,11 +506,11 @@ public class FilesService : IFilesService
 
         var fileName = Path.GetFileName(fullPath);
 
-        var fileInfo = await _fileRepository.FirstOrDefaultAsync(f => f.FilePath == relativePath);
+        var fileInfo = await _fileDbContext.FileInfos.FirstOrDefaultAsync(f => f.FilePath == relativePath);
         if (fileInfo != null)
         {
             fileInfo.IncrementDownloadCount();
-            await _fileRepository.UpdateAsync(fileInfo);
+            _fileDbContext.FileInfos.Update(fileInfo);
             await _unitOfWork.SaveChangesAsync();
         }
 
@@ -545,7 +550,7 @@ public class FilesService : IFilesService
             throw new UnauthorizedAccessException($"不允许的文件类型: {fileExtension}");
         }
 
-        var fileInfo = await _fileRepository.FirstOrDefaultAsync(f => f.FilePath == relativePath);
+        var fileInfo = await _fileDbContext.FileInfos.FirstOrDefaultAsync(f => f.FilePath == relativePath);
         var fileName = fileInfo?.FileName ?? Path.GetFileName(objectName);
 
         if (!_contentTypeProvider.TryGetContentType(fileName, out var contentType))
@@ -567,7 +572,7 @@ public class FilesService : IFilesService
         if (fileInfo != null)
         {
             fileInfo.IncrementDownloadCount();
-            await _fileRepository.UpdateAsync(fileInfo);
+            _fileDbContext.FileInfos.Update(fileInfo);
             await _unitOfWork.SaveChangesAsync();
         }
 

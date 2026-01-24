@@ -19,6 +19,11 @@ public class WordList(string name, string? category = null) : AuditAggregateRoot
     /// </summary>
     public string? Description { get; private set; }
 
+    /// <summary>
+    /// 词库项
+    /// </summary>
+    public List<WordListItem> Items { get; private set; } = [];
+
     public void UpdateInfo(string name, string? category)
     {
         Name = name;
@@ -28,5 +33,22 @@ public class WordList(string name, string? category = null) : AuditAggregateRoot
     public void SetDescription(string? description)
     {
         Description = description;
+    }
+
+    public void AddWord(long wordId, int sortOrder = 0)
+    {
+        if (Items.All(x => x.WordId != wordId))
+        {
+            Items.Add(new WordListItem(Id, wordId, sortOrder));
+        }
+    }
+
+    public void RemoveWord(long wordId)
+    {
+        var item = Items.FirstOrDefault(x => x.WordId == wordId);
+        if (item != null)
+        {
+            Items.Remove(item);
+        }
     }
 }

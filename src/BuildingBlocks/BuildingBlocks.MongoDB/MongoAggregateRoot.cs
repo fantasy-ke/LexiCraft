@@ -4,13 +4,6 @@ using MongoDB.Bson.Serialization.Attributes;
 
 namespace BuildingBlocks.MongoDB;
 
-public abstract class MongoAggregateRoot : IAggregateRoot
+public abstract class MongoAggregateRoot : MongoEntity, IAggregateRoot
 {
-    [BsonId]
-    [BsonRepresentation(BsonType.ObjectId)]
-    public string Id { get; set; } = ObjectId.GenerateNewId().ToString();
-
-    public DateTime CreationTime { get; set; } = DateTime.Now;
-
-    public long? CreatorId { get; set; }
 }

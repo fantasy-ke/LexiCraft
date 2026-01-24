@@ -7,7 +7,7 @@ using Microsoft.EntityFrameworkCore;
 namespace LexiCraft.Services.Vocabulary.UserStates.Data.Repositories;
 
 public class UserWordStateRepository(VocabularyDbContext context) 
-    : Repository<VocabularyDbContext, UserWordState>(context), IUserWordStateRepository
+    : QueryRepository<VocabularyDbContext, UserWordState>(context), IUserWordStateRepository
 {
     public async Task<UserWordState?> GetAsync(Guid userId, long wordId)
     {
@@ -19,12 +19,12 @@ public class UserWordStateRepository(VocabularyDbContext context)
         var existing = await GetAsync(state.UserId, state.WordId);
         if (existing == null)
         {
-            await InsertAsync(state);
+            await DbContext.UserWordStates.AddAsync(state);
         }
         else
         {
             DbContext.Entry(existing).CurrentValues.SetValues(state);
         }
-        await SaveChangesAsync();
+        await DbContext.SaveChangesAsync();
     }
 }

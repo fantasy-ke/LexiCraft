@@ -13,7 +13,7 @@ public class AnswerRecordRepository(
     IResilienceService resilienceService,
     IMongoPerformanceMonitor performanceMonitor,
     ILogger<AnswerRecordRepository> logger)
-    : ResilientMongoRepository<AnswerRecord>(database, resilienceService, performanceMonitor, logger, "answer_records"),
+    : ResilientMongoQueryRepository<AnswerRecord>(database, resilienceService, performanceMonitor, logger, "answer_records"),
         IAnswerRecordRepository
 {
     public async Task<List<AnswerRecord>> GetTaskAnswersAsync(Guid practiceTaskItemId, CancellationToken cancellationToken = default)

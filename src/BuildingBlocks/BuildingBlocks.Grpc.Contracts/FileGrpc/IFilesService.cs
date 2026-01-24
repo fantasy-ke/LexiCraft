@@ -221,6 +221,12 @@ public class FileQueryDto
     /// </summary>
     [DataMember(Order = 10)]
     public int PageSize { get; set; } = 20;
+
+    /// <summary>
+    /// 是否降序
+    /// </summary>
+    [DataMember(Order = 11)]
+    public bool? IsDescending { get; set; }
 }
 
 [DataContract]

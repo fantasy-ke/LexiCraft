@@ -3,6 +3,7 @@ using BuildingBlocks.Exceptions;
 using BuildingBlocks.Mediator;
 using FluentValidation;
 using LexiCraft.Services.Identity.Shared.Contracts;
+using Microsoft.EntityFrameworkCore;
 
 namespace LexiCraft.Services.Identity.Permissions.Features.RemovePermission;
 
@@ -27,7 +28,7 @@ public class RemovePermissionCommandValidator : AbstractValidator<RemovePermissi
 }
 
 public class RemovePermissionCommandHandler(
-    IUserPermissionRepository userPermissionRepository,
+    IUserRepository userRepository,
     IPermissionCache permissionCache)
     : ICommandHandler<RemovePermissionCommand, bool>
 {
@@ -35,8 +36,23 @@ public class RemovePermissionCommandHandler(
     {
         try
         {
-            // 数据库操作：批量删除权限（一次性删除，避免循环）
-            await userPermissionRepository.RemoveUserPermissionsAsync(command.UserId, command.Permissions);
+            // 通过聚合根操作：加载包含权限的用户实体
+            var user = await userRepository.Query()
+                .Include(u => u.Permissions)
+                .FirstOrDefaultAsync(u => u.Id == command.UserId, cancellationToken);
+
+            if (user == null)
+            {
+                ThrowUserFriendlyException.ThrowException("未找到指定用户");
+                return false;
+            }
+
+            // 在领域模型中移除权限
+            user.RemovePermissions(command.Permissions);
+
+            // 通过聚合根仓储级联持久化
+            await userRepository.UpdateAsync(user);
+            await userRepository.SaveChangesAsync();
 
             // 同步更新缓存：批量删除权限
             await permissionCache.RemovePermissionsAsync(command.UserId, command.Permissions);
