@@ -7,7 +7,7 @@ namespace LexiCraft.Services.Identity.Identity.Models;
 
 public class User: AuditEntity<Guid,Guid?>
 {
-    public string Avatar { get; set; } = string.Empty;
+    public string Avatar { get; private set; } = string.Empty;
 
     /// <summary>
     /// 用户账号
@@ -27,12 +27,12 @@ public class User: AuditEntity<Guid,Guid?>
     /// <summary>
     /// 个人签名
     /// </summary>
-    public string? Signature { get; set; }
+    public string? Signature { get; private set; }
 
     /// <summary>
     /// 用户的密码哈希值。
     /// </summary>
-    public string? PasswordHash { get; set; }
+    public string? PasswordHash { get; private set; }
 
     /// <summary>
     ///  用户来源
@@ -52,12 +52,14 @@ public class User: AuditEntity<Guid,Guid?>
     /// <summary>
     /// 手机号
     /// </summary>
-    public string? Phone { get; set; }
+    public string? Phone { get; private set; }
 
     /// <summary>
     /// 用户设置
     /// </summary>
-    public UserSetting? Settings { get; set; }
+    public UserSetting? Settings { get; private set; }
+
+    private User() { } // For EF Core
 
     /// <summary>
     /// 登录失败次数
@@ -79,13 +81,56 @@ public class User: AuditEntity<Guid,Guid?>
     /// </summary>
     /// <param name="userAccount">用户名</param>
     /// <param name="email">电子邮件地址</param>
-    public User(string userAccount, string email)
+    /// <param name="source"></param>
+    public User(string userAccount, string email, SourceEnum source = SourceEnum.Register)
     {
         Id = Guid.NewGuid();
         Username = userAccount;
         UserAccount = userAccount;
         Email = email;
+        Source = source;
         Roles = [];
+    }
+
+    public void UpdateAvatar(string avatar)
+    {
+        Avatar = avatar;
+    }
+
+    public void UpdateSignature(string signature)
+    {
+        Signature = signature;
+    }
+
+    public void UpdatePhone(string phone)
+    {
+        Phone = phone;
+    }
+
+    public void ConfigureSettings(UserSetting settings)
+    {
+        Settings = settings;
+    }
+
+    public void UpdateLastLoginTime()
+    {
+        LastLoginAt = DateTime.UtcNow;
+    }
+
+    public void AddRole(string role)
+    {
+        if (!Roles.Contains(role))
+        {
+            Roles.Add(role);
+        }
+    }
+
+    public void RemoveRole(string role)
+    {
+        if (Roles.Contains(role))
+        {
+            Roles.Remove(role);
+        }
     }
 
     /// <summary>
@@ -186,5 +231,10 @@ public class User: AuditEntity<Guid,Guid?>
     public void Lockout(DateTimeOffset lockoutEnd)
     {
         LockoutEnd = lockoutEnd;
+    }
+    
+    public void ClearPassword()
+    {
+        PasswordHash = null;
     }
 }

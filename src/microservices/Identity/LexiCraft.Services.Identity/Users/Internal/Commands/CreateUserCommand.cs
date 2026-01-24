@@ -36,16 +36,15 @@ public class CreateUserCommandHandler(
         }
 
         // 创建用户
-        var user = new User(command.UserAccount, command.Email);
+        var user = new User(command.UserAccount, command.Email, command.Source);
         if (!string.IsNullOrEmpty(command.Password))
         {
             user.SetPassword(command.Password);
         }
-        user.Avatar = command.Avatar ?? "🦜";
-        user.Roles.Add(PermissionConstant.User);
-        user.UpdateLastLogin();
-        user.UpdateSource(command.Source);
-
+        user.UpdateAvatar(command.Avatar ?? "🦜");
+        user.AddRole(PermissionConstant.User);
+        user.UpdateLastLoginTime();
+        
         var afterUser = await userRepository.InsertAsync(user);
 
         await userRepository.SaveChangesAsync();

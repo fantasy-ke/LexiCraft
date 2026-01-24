@@ -76,7 +76,7 @@ public class UploadAvatarCommandHandler(
         var fileInfoDto = await filesService.UploadFileAsync(requestDto);
 
         var avatarPath = fileInfoDto.FilePath;
-        user.Avatar = avatarPath;
+        user.UpdateAvatar(avatarPath);
 
         await userRepository.UpdateAsync(user);
         await userRepository.SaveChangesAsync();

@@ -159,10 +159,7 @@ public class ImportWordsCommandHandler(
         {
             if (!existingLinkSet.Contains(mapping.Id))
             {
-                linksToAdd.Add(new WordListItem(wordListId, mapping.Id)
-                {
-                    SortOrder = sortOrder++
-                });
+                linksToAdd.Add(new WordListItem(wordListId, mapping.Id, sortOrder++));
                 existingLinkSet.Add(mapping.Id); 
             }
         }

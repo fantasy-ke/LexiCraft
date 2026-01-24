@@ -4,19 +4,25 @@ namespace LexiCraft.Services.Vocabulary.Words.Models;
 
 public class WordListItem : AuditEntity<long>
 {
-    public long WordListId { get; set; }
-    public long WordId { get; set; }
+    public long WordListId { get; private set; }
+    public long WordId { get; private set; }
 
     /// <summary>
     /// 排序权重
     /// </summary>
-    public int SortOrder { get; set; }
+    public int SortOrder { get; private set; }
 
-    public WordListItem() { }
+    private WordListItem() { }
 
-    public WordListItem(long wordListId, long wordId)
+    public WordListItem(long wordListId, long wordId, int sortOrder = 0)
     {
         WordListId = wordListId;
         WordId = wordId;
+        SortOrder = sortOrder;
+    }
+
+    public void UpdateSortOrder(int sortOrder)
+    {
+        SortOrder = sortOrder;
     }
 }

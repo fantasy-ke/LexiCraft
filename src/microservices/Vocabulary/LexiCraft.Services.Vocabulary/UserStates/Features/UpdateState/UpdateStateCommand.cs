@@ -35,13 +35,16 @@ public class UpdateStateCommandHandler(IUserWordStateRepository repository)
             state = new UserWordState(command.UserId, command.WordId);
         }
 
-        state.State = command.State;
-        if (command.IsInWordBook.HasValue)
-            state.IsInWordBook = command.IsInWordBook.Value;
-        if (command.MasteryScore.HasValue)
-            state.MasteryScore = command.MasteryScore.Value;
+        state.UpdateState(command.State);
         
-        state.LastReviewedAt = DateTime.UtcNow;
+        if (command.IsInWordBook.HasValue)
+            state.ToggleWordBook(command.IsInWordBook.Value);
+            
+        if (command.MasteryScore.HasValue)
+            state.UpdateScore(command.MasteryScore.Value);
+        
+        // Ensure reviewed time is updated (UpdateState and UpdateScore do it, but to be safe/consistent with original intent)
+        state.MarkReviewed();
 
         await repository.AddOrUpdateAsync(state);
         

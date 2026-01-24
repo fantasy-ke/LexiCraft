@@ -30,7 +30,7 @@ public class FilesService : IFilesService
     private readonly IWebHostEnvironment _hostEnvironment;
     private readonly FileExtensionContentTypeProvider _contentTypeProvider = new();
     private readonly OSSOptions _ossOptions;
-    private readonly IOSSService? _ossService;
+    private readonly IOSSService _ossService;
 
     /// <summary>
     /// 
@@ -54,12 +54,11 @@ public class FilesService : IFilesService
         _unitOfWork = unitOfWork;
         _hostEnvironment = hostEnvironment;
         _ossOptions = ossOptions.Value;
-        _ossService = (IOSSService?)serviceProvider.GetService(typeof(IOSSService));
+        _ossService = (IOSSService)serviceProvider.GetRequiredService(typeof(IOSSService));
     }
 
     private bool IsOssEnabled =>
         _ossOptions.Enable
-        && _ossService != null
         && !string.IsNullOrWhiteSpace(_ossOptions.DefaultBucket)
         && _ossOptions.Provider != OSSProvider.Invalid;
 
@@ -150,22 +149,17 @@ public class FilesService : IFilesService
             _logger.LogWarning(ex, "计算文件哈希值失败");
         }
 
-        var fileInfo = new FileInfos
-        {
-            FileName = request.FileName,
-            FilePath = $"{request.Directory}/{relativePath}",
-            FullPath = fullPath,
-            Extension = fileExtension,
-            FileSize = request.FileSize,
-            ContentType = request.ContentType,
-            IsDirectory = false,
-            ParentId = request.ParentId,
-            FileHash = fileHash,
-            UploadTime = DateTime.Now,
-            LastAccessTime = DateTime.Now,
-            Description = request.Description,
-            Tags = request.Tags
-        };
+        var fileInfo = new FileInfos(
+            request.FileName,
+            $"{request.Directory}/{relativePath}",
+            fullPath,
+            request.FileSize,
+            request.ContentType,
+            false,
+            request.ParentId,
+            fileHash
+        );
+        fileInfo.UpdateMetadata(request.Description, request.Tags);
 
         await UploadToOssAsync(fileInfo, request.FileContent);
 
@@ -245,22 +239,17 @@ public class FilesService : IFilesService
         }
 
         // 创建文件夹信息实体
-        var folderInfo = new FileInfos
-        {
-            FileName = request.FolderName,
-            FilePath =  $"{request.Directory}/{relativePath}",
-            FullPath = fullPath,
-            Extension = null,
-            FileSize = 0,
-            ContentType = "application/x-directory",
-            IsDirectory = true,
-            ParentId = request.ParentId,
-            FileHash = null,
-            UploadTime = DateTime.Now,
-            LastAccessTime = DateTime.Now,
-            Description = request.Description,
-            Tags = request.Tags
-        };
+        var folderInfo = new FileInfos(
+            request.FolderName,
+            $"{request.Directory}/{relativePath}",
+            fullPath,
+            0,
+            "application/x-directory",
+            true,
+            request.ParentId,
+            null
+        );
+        folderInfo.UpdateMetadata(request.Description, request.Tags);
 
         // 保存到数据库
         await _fileRepository.InsertAsync(folderInfo);
@@ -515,8 +504,7 @@ public class FilesService : IFilesService
         var fileInfo = await _fileRepository.FirstOrDefaultAsync(f => f.FilePath == relativePath);
         if (fileInfo != null)
         {
-            fileInfo.LastAccessTime = DateTime.Now;
-            fileInfo.DownloadCount++;
+            fileInfo.IncrementDownloadCount();
             await _fileRepository.UpdateAsync(fileInfo);
             await _unitOfWork.SaveChangesAsync();
         }
@@ -578,8 +566,7 @@ public class FilesService : IFilesService
 
         if (fileInfo != null)
         {
-            fileInfo.LastAccessTime = DateTime.Now;
-            fileInfo.DownloadCount++;
+            fileInfo.IncrementDownloadCount();
             await _fileRepository.UpdateAsync(fileInfo);
             await _unitOfWork.SaveChangesAsync();
         }

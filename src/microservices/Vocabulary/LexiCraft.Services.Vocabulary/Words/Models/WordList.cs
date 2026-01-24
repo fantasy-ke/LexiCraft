@@ -7,17 +7,23 @@ public class WordList(string name, string? category = null) : AuditEntity<long>
     /// <summary>
     /// 词库名称
     /// </summary>
-    public string Name { get; set; } = name;
+    public string Name { get; private set; } = name;
 
     /// <summary>
     /// 分类 (考试 / 主题 / 难度)
     /// </summary>
-    public string? Category { get; set; } = category;
+    public string? Category { get; private set; } = category;
 
     /// <summary>
     /// 描述
     /// </summary>
-    public string? Description { get; set; }
+    public string? Description { get; private set; }
+
+    public void UpdateInfo(string name, string? category)
+    {
+        Name = name;
+        Category = category;
+    }
 
     public void SetDescription(string? description)
     {

@@ -55,7 +55,7 @@ public class UpdateUserInfoCommandHandler(IUserRepository userRepository)
 
         if (!string.IsNullOrWhiteSpace(command.Avatar))
         {
-            user!.Avatar = command.Avatar!;
+            user!.UpdateAvatar(command.Avatar!);
         }
 
         await userRepository.UpdateAsync(user!);
