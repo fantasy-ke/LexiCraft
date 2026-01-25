@@ -39,6 +39,7 @@
     <ItemGroup>
         <Folder Include="Identity\Features\"/>
         <Folder Include="Identity\Internal\Queries\"/>
+        <Folder Include="Shared\Data\Migrations\" />
         <Folder Include="Users\Features\GetUserInfo\"/>
     </ItemGroup>
 

@@ -61,6 +61,7 @@ internal class OAuthCommandHandler(
 
                 var tokenResponse = await HandlePostLoginAsync(user, cancellationToken);
 
+                await unitOfWork.SaveChangesAsync();
                 await unitOfWork.CommitTransactionAsync();
 
                 return tokenResponse;
@@ -106,7 +107,9 @@ internal class OAuthCommandHandler(
         else
         {
             // 绑定不存在，尝试通过账号理论或邮箱查找用户
-            user = await userRepository.QueryNoTracking()
+            // 使用 Query() + Include 确保获取受跟踪且包含 OAuths 的实体，以便直接传递给 BindUserOAuthCommand
+            user = await userRepository.Query()
+                .Include(u => u.OAuths)
                 .FirstOrDefaultAsync(
                     x => x.UserAccount == userDto.Name || (userDto.Email != null && x.Email == userDto.Email),
                     cancellationToken);
@@ -130,8 +133,8 @@ internal class OAuthCommandHandler(
                 ), cancellationToken);
             }
 
-            // 绑定OAuth信息
-            await mediator.Send(new BindUserOAuthCommand(user.Id, provider, userDto.Id!), cancellationToken);
+            // 绑定OAuth信息，直接传递 TrackedUser
+            await mediator.Send(new BindUserOAuthCommand(user.Id, provider, userDto.Id!, user), cancellationToken);
         }
 
         if (user == null) throw new InvalidOperationException("用户不存在");

@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
 using Microsoft.EntityFrameworkCore.Migrations;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
@@ -36,6 +35,36 @@ namespace LexiCraft.Services.Identity.Shared.Data.Migrations
                 });
 
             migrationBuilder.CreateTable(
+                name: "users",
+                columns: table => new
+                {
+                    id = table.Column<Guid>(type: "uuid", nullable: false),
+                    avatar = table.Column<string>(type: "text", nullable: false),
+                    user_account = table.Column<string>(type: "text", nullable: false),
+                    username = table.Column<string>(type: "text", nullable: false),
+                    email = table.Column<string>(type: "text", nullable: false),
+                    signature = table.Column<string>(type: "text", nullable: true),
+                    password_hash = table.Column<string>(type: "text", nullable: true),
+                    source = table.Column<int>(type: "integer", nullable: false),
+                    last_login_at = table.Column<DateTime>(type: "timestamp with time zone", nullable: true),
+                    phone = table.Column<string>(type: "text", nullable: true),
+                    create_by_name = table.Column<string>(type: "text", nullable: true),
+                    create_at = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
+                    create_by_id = table.Column<Guid>(type: "uuid", nullable: true),
+                    is_deleted = table.Column<bool>(type: "boolean", nullable: false),
+                    delete_by_name = table.Column<string>(type: "text", nullable: true),
+                    delete_at = table.Column<DateTime>(type: "timestamp with time zone", nullable: true),
+                    delete_by_id = table.Column<Guid>(type: "uuid", nullable: true),
+                    update_by_name = table.Column<string>(type: "text", nullable: true),
+                    update_at = table.Column<DateTime>(type: "timestamp with time zone", nullable: true),
+                    update_by_id = table.Column<Guid>(type: "uuid", nullable: true)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("pk_users", x => x.id);
+                });
+
+            migrationBuilder.CreateTable(
                 name: "user_o_auths",
                 columns: table => new
                 {
@@ -56,6 +85,12 @@ namespace LexiCraft.Services.Identity.Shared.Data.Migrations
                 constraints: table =>
                 {
                     table.PrimaryKey("pk_user_o_auths", x => x.id);
+                    table.ForeignKey(
+                        name: "fk_user_o_auths_users_user_id",
+                        column: x => x.user_id,
+                        principalTable: "users",
+                        principalColumn: "id",
+                        onDelete: ReferentialAction.Cascade);
                 });
 
             migrationBuilder.CreateTable(
@@ -76,6 +111,12 @@ namespace LexiCraft.Services.Identity.Shared.Data.Migrations
                 constraints: table =>
                 {
                     table.PrimaryKey("pk_user_permissions", x => x.id);
+                    table.ForeignKey(
+                        name: "fk_user_permissions_users_user_id",
+                        column: x => x.user_id,
+                        principalTable: "users",
+                        principalColumn: "id",
+                        onDelete: ReferentialAction.Cascade);
                 });
 
             migrationBuilder.CreateTable(
@@ -83,7 +124,7 @@ namespace LexiCraft.Services.Identity.Shared.Data.Migrations
                 columns: table => new
                 {
                     id = table.Column<Guid>(type: "uuid", nullable: false),
-                    user_id = table.Column<long>(type: "bigint", nullable: false),
+                    user_id = table.Column<Guid>(type: "uuid", nullable: false),
                     gender = table.Column<string>(type: "text", nullable: false),
                     birthday = table.Column<DateTime>(type: "timestamp with time zone", nullable: true),
                     bio = table.Column<string>(type: "text", nullable: false),
@@ -104,50 +145,29 @@ namespace LexiCraft.Services.Identity.Shared.Data.Migrations
                 constraints: table =>
                 {
                     table.PrimaryKey("pk_user_settings", x => x.id);
-                });
-
-            migrationBuilder.CreateTable(
-                name: "users",
-                columns: table => new
-                {
-                    id = table.Column<Guid>(type: "uuid", nullable: false),
-                    avatar = table.Column<string>(type: "text", nullable: false),
-                    user_account = table.Column<string>(type: "text", nullable: false),
-                    username = table.Column<string>(type: "text", nullable: false),
-                    email = table.Column<string>(type: "text", nullable: false),
-                    signature = table.Column<string>(type: "text", nullable: true),
-                    password_hash = table.Column<string>(type: "text", nullable: true),
-                    password_salt = table.Column<string>(type: "text", nullable: true),
-                    source = table.Column<int>(type: "integer", nullable: false),
-                    last_login_at = table.Column<DateTime>(type: "timestamp with time zone", nullable: true),
-                    roles = table.Column<List<string>>(type: "text[]", nullable: false),
-                    phone = table.Column<string>(type: "text", nullable: true),
-                    settings_id = table.Column<Guid>(type: "uuid", nullable: true),
-                    create_by_name = table.Column<string>(type: "text", nullable: true),
-                    create_at = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
-                    create_by_id = table.Column<Guid>(type: "uuid", nullable: true),
-                    is_deleted = table.Column<bool>(type: "boolean", nullable: false),
-                    delete_by_name = table.Column<string>(type: "text", nullable: true),
-                    delete_at = table.Column<DateTime>(type: "timestamp with time zone", nullable: true),
-                    delete_by_id = table.Column<Guid>(type: "uuid", nullable: true),
-                    update_by_name = table.Column<string>(type: "text", nullable: true),
-                    update_at = table.Column<DateTime>(type: "timestamp with time zone", nullable: true),
-                    update_by_id = table.Column<Guid>(type: "uuid", nullable: true)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("pk_users", x => x.id);
                     table.ForeignKey(
-                        name: "fk_users_user_settings_settings_id",
-                        column: x => x.settings_id,
-                        principalTable: "user_settings",
-                        principalColumn: "id");
+                        name: "fk_user_settings_users_user_id",
+                        column: x => x.user_id,
+                        principalTable: "users",
+                        principalColumn: "id",
+                        onDelete: ReferentialAction.Cascade);
                 });
 
             migrationBuilder.CreateIndex(
-                name: "ix_users_settings_id",
-                table: "users",
-                column: "settings_id");
+                name: "ix_user_o_auths_user_id",
+                table: "user_o_auths",
+                column: "user_id");
+
+            migrationBuilder.CreateIndex(
+                name: "ix_user_permissions_user_id",
+                table: "user_permissions",
+                column: "user_id");
+
+            migrationBuilder.CreateIndex(
+                name: "ix_user_settings_user_id",
+                table: "user_settings",
+                column: "user_id",
+                unique: true);
         }
 
         /// <inheritdoc />
@@ -163,10 +183,10 @@ namespace LexiCraft.Services.Identity.Shared.Data.Migrations
                 name: "user_permissions");
 
             migrationBuilder.DropTable(
-                name: "users");
+                name: "user_settings");
 
             migrationBuilder.DropTable(
-                name: "user_settings");
+                name: "users");
         }
     }
 }

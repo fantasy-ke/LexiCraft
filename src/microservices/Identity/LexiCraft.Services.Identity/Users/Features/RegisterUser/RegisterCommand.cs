@@ -75,6 +75,8 @@ public class RegisterCommandHandler(
                 SourceEnum.Register
             ), cancellationToken);
 
+            await userRepository.SaveChangesAsync();
+
             // 注册成功后自动登录逻辑
             return await mediator.Send(new GenerateTokenResponseCommand(user, "注册成功并登录"), cancellationToken);
         }
