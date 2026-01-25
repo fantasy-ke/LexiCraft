@@ -1,12 +1,11 @@
-using BuildingBlocks.Abstractions;
-using LexiCraft.Services.Practice.Tasks.Models;
 using LexiCraft.Services.Practice.Assessments.Models;
+using LexiCraft.Services.Practice.Tasks.Models;
 using MongoDB.Driver;
 
 namespace LexiCraft.Services.Practice.Shared.Data;
 
 /// <summary>
-/// Data seeder for PracticeDbContext
+///     Data seeder for PracticeDbContext
 /// </summary>
 public class PracticeDbDataSeeder(PracticeDbContext context)
 {
@@ -32,7 +31,7 @@ public class PracticeDbDataSeeder(PracticeDbContext context)
                 Builders<PracticeTask>.IndexKeys.Ascending(x => x.UserId).Ascending(x => x.Status))
         };
 
-        await context.PracticeTasks.Indexes.CreateManyAsync(practiceTaskIndexes, cancellationToken: cancellationToken);
+        await context.PracticeTasks.Indexes.CreateManyAsync(practiceTaskIndexes, cancellationToken);
 
         // Create indexes for AnswerRecords
         var answerRecordIndexes = new[]
@@ -43,7 +42,7 @@ public class PracticeDbDataSeeder(PracticeDbContext context)
                 Builders<AnswerRecord>.IndexKeys.Ascending(x => x.SubmittedAt))
         };
 
-        await context.AnswerRecords.Indexes.CreateManyAsync(answerRecordIndexes, cancellationToken: cancellationToken);
+        await context.AnswerRecords.Indexes.CreateManyAsync(answerRecordIndexes, cancellationToken);
 
         // Create indexes for MistakeItems
         var mistakeItemIndexes = new[]
@@ -56,7 +55,7 @@ public class PracticeDbDataSeeder(PracticeDbContext context)
                 Builders<MistakeItem>.IndexKeys.Ascending(x => x.AnswerRecordId))
         };
 
-        await context.MistakeItems.Indexes.CreateManyAsync(mistakeItemIndexes, cancellationToken: cancellationToken);
+        await context.MistakeItems.Indexes.CreateManyAsync(mistakeItemIndexes, cancellationToken);
 
         // Create indexes for PracticeTaskItems
         var practiceTaskItemIndexes = new[]
@@ -67,7 +66,7 @@ public class PracticeDbDataSeeder(PracticeDbContext context)
                 Builders<PracticeTaskItem>.IndexKeys.Ascending(x => x.OrderIndex))
         };
 
-        await context.PracticeTaskItems.Indexes.CreateManyAsync(practiceTaskItemIndexes, cancellationToken: cancellationToken);
+        await context.PracticeTaskItems.Indexes.CreateManyAsync(practiceTaskItemIndexes, cancellationToken);
     }
 
     private async Task SeedInitialDataAsync(CancellationToken cancellationToken = default)

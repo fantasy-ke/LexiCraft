@@ -1,6 +1,6 @@
 <template>
-  <Transition name="message-fade" appear>
-    <div v-if="visible" class="message" :class="type" :style="style" @mouseenter="handleMouseEnter"
+  <Transition appear name="message-fade">
+    <div v-if="visible" :class="type" :style="style" class="message" @mouseenter="handleMouseEnter"
          @mouseleave="handleMouseLeave">
       <div class="message-content">
         <IconFluentCheckmarkCircle20Filled v-if="props.type === 'success'" class="message-icon"/>
@@ -14,7 +14,7 @@
   </Transition>
 </template>
 
-<script setup lang="ts">
+<script lang="ts" setup>
 import {computed, onBeforeUnmount, onMounted, ref} from 'vue'
 
 interface Props {
@@ -86,7 +86,7 @@ defineExpose({
 })
 </script>
 
-<style scoped lang="scss">
+<style lang="scss" scoped>
 .message {
   position: relative;
   min-width: 16rem;

@@ -3,7 +3,7 @@ using System.Linq.Expressions;
 namespace BuildingBlocks.Domain;
 
 /// <summary>
-/// 只读仓储接口
+///     只读仓储接口
 /// </summary>
 /// <typeparam name="TEntity"></typeparam>
 public interface IQueryRepository<TEntity>

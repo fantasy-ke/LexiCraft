@@ -1,4 +1,4 @@
-﻿namespace BuildingBlocks.Domain.Internal;
+namespace BuildingBlocks.Domain.Internal;
 
 public interface IEntity<TKey> : IEntity
 {
@@ -7,7 +7,7 @@ public interface IEntity<TKey> : IEntity
 
 public class Entity<TKey> : IEntity<TKey>
 {
-    public TKey Id { get; set; }
+    public TKey Id { get; set; } = default!;
 }
 
 /// <summary>
@@ -16,6 +16,6 @@ public class Entity<TKey> : IEntity<TKey>
 public interface IEntity;
 
 /// <summary>
-/// 聚合根接口
+///     聚合根接口
 /// </summary>
 public interface IAggregateRoot : IEntity;

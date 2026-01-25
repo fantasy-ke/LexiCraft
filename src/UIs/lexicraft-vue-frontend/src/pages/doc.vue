@@ -1,5 +1,5 @@
-<script setup lang="ts">
-import { computed, ref } from 'vue'
+<script lang="ts" setup>
+import {computed, ref} from 'vue'
 import BasePage from '@/components/BasePage.vue'
 import BaseButton from '@/components/BaseButton.vue'
 import ResourceCard from '@/components/ResourceCard.vue'
@@ -149,7 +149,7 @@ const categories = ref<Category[]>([
             name: '英语语法新思维',
             author: '张满胜',
             features:
-              '从思维角度讲解语法，注重理解而非死记硬背，分为初级、中级、高级三册，循序渐进',
+                '从思维角度讲解语法，注重理解而非死记硬背，分为初级、中级、高级三册，循序渐进',
             suitable: '希望系统建立语法体系的学习者',
             difficulty: '',
             link: 'https://pan.quark.cn/s/d06abef6c737',
@@ -197,7 +197,7 @@ const categories = ref<Category[]>([
             name: 'Oxford English Grammar(牛津英语语法)',
             author: 'Sidney Greenbaum & Gerald Nelson',
             features:
-              '分为基础、提升、高级三册，英式语法权威，解释清晰、例句地道，适合备考雅思/托福',
+                '分为基础、提升、高级三册，英式语法权威，解释清晰、例句地道，适合备考雅思/托福',
             suitable: '想全面系统梳理语法体系的人',
             difficulty: '英文版',
             link: 'https://pan.quark.cn/s/ca505875e68c',
@@ -278,16 +278,16 @@ const openLink = (url: string) => {
       <!-- 分类筛选 -->
       <div class="card-white flex flex-wrap justify-center gap-2 mb-8 p-4">
         <BaseButton
-          :type="selectedCategory === 'all' ? 'primary' : 'info'"
-          @click="selectedCategory = 'all'"
+            :type="selectedCategory === 'all' ? 'primary' : 'info'"
+            @click="selectedCategory = 'all'"
         >
           全部资源
         </BaseButton>
         <BaseButton
-          v-for="category in categories"
-          :key="category.id"
-          :type="selectedCategory === category.id ? 'primary' : 'info'"
-          @click="selectedCategory = category.id"
+            v-for="category in categories"
+            :key="category.id"
+            :type="selectedCategory === category.id ? 'primary' : 'info'"
+            @click="selectedCategory = category.id"
         >
           {{ category.name }}
         </BaseButton>
@@ -306,9 +306,9 @@ const openLink = (url: string) => {
           <!-- 如果有子分类，显示子分类 -->
           <template v-if="category.subcategories">
             <div
-              v-for="subcategory in category.subcategories"
-              :key="subcategory.name"
-              class="mb-10"
+                v-for="subcategory in category.subcategories"
+                :key="subcategory.name"
+                class="mb-10"
             >
               <div class="text-center mb-4">
                 <h3 class="text-xl font-semibold mb-2 text-gray-800 dark:text-gray-200">
@@ -321,10 +321,10 @@ const openLink = (url: string) => {
 
               <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
                 <ResourceCard
-                  v-for="resource in subcategory.resources"
-                  :key="resource.name"
-                  :resource="resource"
-                  @openLink="openLink"
+                    v-for="resource in subcategory.resources"
+                    :key="resource.name"
+                    :resource="resource"
+                    @openLink="openLink"
                 />
               </div>
             </div>
@@ -334,10 +334,10 @@ const openLink = (url: string) => {
           <template v-else>
             <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
               <ResourceCard
-                v-for="resource in category.resources"
-                :key="resource.name"
-                :resource="resource"
-                @openLink="openLink"
+                  v-for="resource in category.resources"
+                  :key="resource.name"
+                  :resource="resource"
+                  @openLink="openLink"
               />
             </div>
           </template>

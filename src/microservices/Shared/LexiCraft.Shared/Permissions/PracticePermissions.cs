@@ -1,7 +1,7 @@
 namespace LexiCraft.Shared.Permissions;
 
 /// <summary>
-/// 练习服务相关权限定义
+///     练习服务相关权限定义
 /// </summary>
 public static class PracticePermissions
 {

@@ -1,31 +1,14 @@
-﻿namespace BuildingBlocks.OSS.Models.Dto;
+using System.Diagnostics.CodeAnalysis;
+
+namespace BuildingBlocks.OSS.Models.Dto;
 
 public class UploadObjectInput
 {
-    /// <summary>
-    /// 命名空间
-    /// </summary>
-    public string BucketName { get; set; }
+    public UploadObjectInput()
+    {
+    }
 
-    /// <summary>
-    /// 对象名称
-    /// </summary>
-    public string ObjectName { get; set; }
-
-    /// <summary>
-    /// 文件类型
-    /// </summary>
-    public string ContentType { get; set; }
-
-    /// <summary>
-    /// 文件流
-    /// </summary>
-    public Stream Stream { get; set; }
-
-    public CancellationToken CancellationToken { get; set; } = CancellationToken.None;
-
-    public UploadObjectInput() { }
-
+    [SetsRequiredMembers]
     public UploadObjectInput(string bucketName, string objectName, string contentType, Stream stream)
     {
         BucketName = bucketName;
@@ -33,4 +16,26 @@ public class UploadObjectInput
         ContentType = contentType;
         Stream = stream;
     }
+
+    /// <summary>
+    ///     命名空间
+    /// </summary>
+    public required string BucketName { get; set; }
+
+    /// <summary>
+    ///     对象名称
+    /// </summary>
+    public required string ObjectName { get; set; }
+
+    /// <summary>
+    ///     文件类型
+    /// </summary>
+    public required string ContentType { get; set; }
+
+    /// <summary>
+    ///     文件流
+    /// </summary>
+    public required Stream Stream { get; set; }
+
+    public CancellationToken CancellationToken { get; set; } = CancellationToken.None;
 }

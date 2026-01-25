@@ -4,9 +4,9 @@
   </form>
 </template>
 
-<script setup lang="ts">
+<script lang="ts" setup>
 import {provide, ref, toRef} from 'vue'
-import type {FormField, FormModel, FormRules} from './types'
+import type {FormModel, FormRules} from './types'
 
 interface Field {
   prop: string

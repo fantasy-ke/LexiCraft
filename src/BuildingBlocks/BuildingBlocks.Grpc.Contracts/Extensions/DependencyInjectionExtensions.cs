@@ -12,19 +12,19 @@ public static class DependencyInjectionExtensions
     {
         //Grpc Services
         builder.Services.AddCodeFirstGrpcClient<T>(options =>
-        {
-            options.Address = new Uri(configuration["GrpcSettings:FilesUrl"]!);
-        })
-        .ConfigurePrimaryHttpMessageHandler(() =>
-        {
-            var handler = new HttpClientHandler
             {
-                ServerCertificateCustomValidationCallback =
-                    HttpClientHandler.DangerousAcceptAnyServerCertificateValidator
-            };
+                options.Address = new Uri(configuration["GrpcSettings:FilesUrl"]!);
+            })
+            .ConfigurePrimaryHttpMessageHandler(() =>
+            {
+                var handler = new HttpClientHandler
+                {
+                    ServerCertificateCustomValidationCallback =
+                        HttpClientHandler.DangerousAcceptAnyServerCertificateValidator
+                };
 
-            return handler;
-        });
+                return handler;
+            });
         return builder;
     }
 }

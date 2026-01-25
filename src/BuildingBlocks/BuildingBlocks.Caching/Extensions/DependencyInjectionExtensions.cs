@@ -9,12 +9,12 @@ using Microsoft.Extensions.DependencyInjection;
 namespace BuildingBlocks.Caching.Extensions;
 
 /// <summary>
-/// 依赖注入扩展方法
+///     依赖注入扩展方法
 /// </summary>
 public static class DependencyInjectionExtensions
 {
     /// <summary>
-    /// 添加缓存服务
+    ///     添加缓存服务
     /// </summary>
     /// <param name="services">服务集合</param>
     /// <param name="configuration">配置</param>
@@ -33,7 +33,7 @@ public static class DependencyInjectionExtensions
     }
 
     /// <summary>
-    /// 添加缓存服务（使用连接字符串）
+    ///     添加缓存服务（使用连接字符串）
     /// </summary>
     /// <param name="services">服务集合</param>
     /// <param name="connectionString">Redis 连接字符串</param>
@@ -43,10 +43,7 @@ public static class DependencyInjectionExtensions
         string connectionString)
     {
         // 配置 Redis 连接选项
-        services.Configure<RedisConnectionOptions>(options =>
-        {
-            options.DefaultConnectionString = connectionString;
-        });
+        services.Configure<RedisConnectionOptions>(options => { options.DefaultConnectionString = connectionString; });
 
         // 注册核心服务
         RegisterCoreServices(services);
@@ -55,7 +52,7 @@ public static class DependencyInjectionExtensions
     }
 
     /// <summary>
-    /// 添加缓存服务（使用多个 Redis 实例）
+    ///     添加缓存服务（使用多个 Redis 实例）
     /// </summary>
     /// <param name="services">服务集合</param>
     /// <param name="redisInstances">Redis 实例配置字典</param>
@@ -70,10 +67,7 @@ public static class DependencyInjectionExtensions
         services.Configure<RedisConnectionOptions>(options =>
         {
             options.DefaultConnectionString = defaultConnectionString;
-            foreach (var instance in redisInstances)
-            {
-                options.Instances[instance.Key] = instance.Value;
-            }
+            foreach (var instance in redisInstances) options.Instances[instance.Key] = instance.Value;
         });
 
         // 注册核心服务
@@ -83,7 +77,7 @@ public static class DependencyInjectionExtensions
     }
 
     /// <summary>
-    /// 注册核心服务
+    ///     注册核心服务
     /// </summary>
     /// <param name="services">服务集合</param>
     private static void RegisterCoreServices(IServiceCollection services)

@@ -1,4 +1,4 @@
-﻿using Newtonsoft.Json;
+using Newtonsoft.Json;
 
 namespace BuildingBlocks.Extensions.System;
 
@@ -67,11 +67,11 @@ public static class ObjectExtensions
         }
         else if (conversionType.IsEnum)
         {
-            return Enum.Parse(conversionType, value.ToString());
+            return Enum.Parse(conversionType, value.ToString() ?? "", true);
         }
         else if (conversionType == typeof(Guid))
         {
-            return Guid.Parse(value.ToString());
+            return Guid.Parse(value.ToString() ?? "");
         }
 
         return Convert.ChangeType(value.NotNullString().Trim(), conversionType);
@@ -84,7 +84,7 @@ public static class ObjectExtensions
     /// <param name="value"> 要转化的源对象 </param>
     /// <param name="defaultValue"> 转化失败返回的指定默认值 </param>
     /// <returns> 转化后的指定类型对象，转化失败时返回指定的默认值 </returns>
-    public static T? CastTo<T>(this object? value, T defaultValue)
+    public static T? CastTo<T>(this object? value, T? defaultValue)
     {
         try
         {
@@ -93,7 +93,7 @@ public static class ObjectExtensions
                 case null:
                     return defaultValue ?? default;
                 case string:
-                    return (T)value.CastTo(typeof(T));
+                    return (T?)value.CastTo(typeof(T)) ?? default;
                 default:
                 {
                     if (value.GetType() == typeof(T)) return (T)value;
@@ -103,7 +103,7 @@ public static class ObjectExtensions
             }
 
             var result = value.CastTo(typeof(T));
-            return (T)result;
+            return (T?)result ?? default;
         }
         catch (Exception)
         {
@@ -119,6 +119,6 @@ public static class ObjectExtensions
     /// <returns> 转化后的指定类型的对象，转化失败引发异常。 </returns>
     public static T CastTo<T>(this object value)
     {
-        return value.CastTo<T>(default);
+        return value.CastTo<T>(default!)!;
     }
 }

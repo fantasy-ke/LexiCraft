@@ -1,14 +1,10 @@
-using System;
-using System.Collections.Generic;
-using System.Threading.Tasks;
 using BuildingBlocks.Caching.Abstractions;
-using BuildingBlocks.Caching.Configuration;
 using Microsoft.Extensions.Logging;
 
 namespace BuildingBlocks.Caching.Examples;
 
 /// <summary>
-/// 缓存服务使用示例
+///     缓存服务使用示例
 /// </summary>
 public class CacheServiceExample
 {
@@ -22,7 +18,7 @@ public class CacheServiceExample
     }
 
     /// <summary>
-    /// 基础缓存操作示例
+    ///     基础缓存操作示例
     /// </summary>
     public async Task BasicCacheOperationsExample()
     {
@@ -46,7 +42,7 @@ public class CacheServiceExample
     }
 
     /// <summary>
-    /// GetOrSet 操作示例
+    ///     GetOrSet 操作示例
     /// </summary>
     public async Task GetOrSetExample()
     {
@@ -84,7 +80,7 @@ public class CacheServiceExample
     }
 
     /// <summary>
-    /// Hash 缓存操作示例
+    ///     Hash 缓存操作示例
     /// </summary>
     public async Task HashCacheExample()
     {
@@ -101,16 +97,16 @@ public class CacheServiceExample
                 // 从 Hash 数据解析用户档案
                 if (hashData.TryGetValue("user_id", out var userIdStr) &&
                     int.TryParse(userIdStr, out var userId))
-                {
                     return new UserProfile
                     {
                         UserId = userId,
                         Username = hashData.GetValueOrDefault("username", ""),
                         Email = hashData.GetValueOrDefault("email", ""),
                         LastLogin = hashData.TryGetValue("last_login", out var lastLoginStr) &&
-                                   DateTime.TryParse(lastLoginStr, out var lastLogin) ? lastLogin : null
+                                    DateTime.TryParse(lastLoginStr, out var lastLogin)
+                            ? lastLogin
+                            : null
                     };
-                }
                 return null;
             },
             async () =>
@@ -140,11 +136,9 @@ public class CacheServiceExample
                         DateTime.TryParse(lastLoginStr, out var lastLogin))
                     {
                         var timeSinceLogin = DateTime.UtcNow - lastLogin;
-                        if (timeSinceLogin < TimeSpan.FromHours(1))
-                        {
-                            return TimeSpan.FromHours(4); // 延长到 4 小时
-                        }
+                        if (timeSinceLogin < TimeSpan.FromHours(1)) return TimeSpan.FromHours(4); // 延长到 4 小时
                     }
+
                     return originalExpiry;
                 };
             });
@@ -153,7 +147,7 @@ public class CacheServiceExample
     }
 
     /// <summary>
-    /// 混合缓存模式示例
+    ///     混合缓存模式示例
     /// </summary>
     public async Task HybridCacheExample()
     {
@@ -180,7 +174,7 @@ public class CacheServiceExample
         _logger.LogInformation("获取产品（混合缓存）: {Product}", product);
 
         // 多次调用验证本地缓存优先级
-        for (int i = 0; i < 3; i++)
+        for (var i = 0; i < 3; i++)
         {
             var cachedProduct = await _cacheService.GetAsync<object>($"product:{productId}");
             _logger.LogInformation("第 {Index} 次获取产品（应该来自本地缓存）: {Product}", i + 1, cachedProduct);
@@ -188,7 +182,7 @@ public class CacheServiceExample
     }
 
     /// <summary>
-    /// 异常处理和降级策略示例
+    ///     异常处理和降级策略示例
     /// </summary>
     public async Task ErrorHandlingExample()
     {
@@ -221,7 +215,7 @@ public class CacheServiceExample
     }
 
     /// <summary>
-    /// 详细的降级策略示例
+    ///     详细的降级策略示例
     /// </summary>
     public async Task FallbackStrategiesExample()
     {
@@ -326,7 +320,7 @@ public class CacheServiceExample
     }
 
     /// <summary>
-    /// Hash 缓存降级策略示例
+    ///     Hash 缓存降级策略示例
     /// </summary>
     public async Task HashFallbackExample()
     {
@@ -379,7 +373,7 @@ public class CacheServiceExample
     }
 
     /// <summary>
-    /// 用户档案数据模型
+    ///     用户档案数据模型
     /// </summary>
     public class UserProfile
     {

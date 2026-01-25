@@ -6,7 +6,7 @@ using MongoDB.Driver;
 namespace BuildingBlocks.MongoDB.Resilience;
 
 /// <summary>
-/// MongoDB 特定的弹性服务实现
+///     MongoDB 特定的弹性服务实现
 /// </summary>
 public class MongoResilienceService(
     IMongoClient mongoClient,
@@ -21,13 +21,13 @@ public class MongoResilienceService(
             // 不应重试的异常
             MongoIncompatibleDriverException => false,
             MongoAuthenticationException => false,
-            
+
             // 应该重试的 MongoDB 异常
             MongoException => true,
-            
+
             // 其他应该重试的异常
             TimeoutException => true,
-            
+
             _ => false
         };
     }

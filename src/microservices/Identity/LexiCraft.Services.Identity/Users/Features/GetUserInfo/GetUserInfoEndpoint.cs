@@ -1,6 +1,5 @@
 using BuildingBlocks.Authentication.Contract;
 using Humanizer;
-using LexiCraft.Shared.Permissions;
 using MediatR;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Http;
@@ -39,19 +38,19 @@ public static class GetUserInfoEndpoint
 }
 
 /// <summary>
-///   获取当前登录用户信息
+///     获取当前登录用户信息
 /// </summary>
 /// <param name="Mediator"></param>
 /// <param name="UserContext"></param>
 /// <param name="CancellationToken"></param>
 internal record GetUserInfoRequestParameters(
-    IMediator Mediator, 
+    IMediator Mediator,
     IUserContext UserContext,
     CancellationToken CancellationToken
 );
 
 /// <summary>
-/// 获取用户信息响应
+///     获取用户信息响应
 /// </summary>
 /// <param name="UserId">用户ID</param>
 /// <param name="UserName">用户名</param>

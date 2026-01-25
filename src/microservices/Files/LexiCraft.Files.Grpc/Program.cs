@@ -15,22 +15,19 @@ var builder = WebApplication.CreateBuilder(args);
 
 builder.AddSerilogLogging();
 
-builder.AddServiceDefaults( );
+builder.AddServiceDefaults();
 builder.AddOssService();
 // Add services to the container.
 // Learn more about configuring OpenAPI at https://aka.ms/aspnet/openapi
 
 // Add services to the container.
-builder.Services.AddCodeFirstGrpc(options =>
-{
-    options.EnableDetailedErrors = true;
-});
+builder.Services.AddCodeFirstGrpc(options => { options.EnableDetailedErrors = true; });
 //
 builder.Services.AddGrpcSwagger();
 builder.Services.AddSwaggerGen(c =>
 {
     // new OpenApiInfo { Title = "file gRPC transcoding", Version = "v1" }
-    c.SwaggerDoc("v1", 
+    c.SwaggerDoc("v1",
         new OpenApiInfo { Title = "词汇技艺 Files Api", Version = "v1", Description = "词汇技艺相关接口" });
 });
 builder.Services.WithLexiCraftDbAccess(builder.Configuration);
@@ -53,10 +50,10 @@ if (!Directory.Exists(uploads)) Directory.CreateDirectory(uploads);
 app.UseStaticFiles(new StaticFileOptions
 {
     FileProvider = new PhysicalFileProvider(uploads),
-    RequestPath = new PathString("/uploads"),
+    RequestPath = new PathString("/uploads")
 });
 
-app.MapGet("/content", async ([FromQuery] string relativePath, [FromServices]IFilesService filesService) =>
+app.MapGet("/content", async ([FromQuery] string relativePath, [FromServices] IFilesService filesService) =>
 {
     var fileResponse = await filesService.GetFileByPathAsync(relativePath);
     return Results.File(fileResponse.FileStream, fileResponse.ContentType, fileResponse.FileName);

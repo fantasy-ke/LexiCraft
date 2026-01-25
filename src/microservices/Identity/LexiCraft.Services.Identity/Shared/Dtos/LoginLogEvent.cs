@@ -1,7 +1,7 @@
 ﻿namespace LexiCraft.Services.Identity.Shared.Dtos;
 
 /// <summary>
-/// 登录日志DTO
+///     登录日志DTO
 /// </summary>
 /// <param name="UserId">登录用户</param>
 /// <param name="Username">登录账号</param>

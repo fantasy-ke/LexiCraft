@@ -7,14 +7,14 @@
     </PropertyGroup>
 
     <ItemGroup>
-      <ProjectReference Include="..\BuildingBlocks.Authorization\BuildingBlocks.Authorization.csproj" />
-      <ProjectReference Include="..\BuildingBlocks\BuildingBlocks.csproj" />
+        <ProjectReference Include="..\BuildingBlocks.Authorization\BuildingBlocks.Authorization.csproj"/>
+        <ProjectReference Include="..\BuildingBlocks\BuildingBlocks.csproj"/>
     </ItemGroup>
-    
+
     <ItemGroup>
-        <PackageReference Include="EFCore.NamingConventions" />
-        <PackageReference Include="Microsoft.EntityFrameworkCore" />
-        <PackageReference Include="Microsoft.EntityFrameworkCore.Relational" />
+        <PackageReference Include="EFCore.NamingConventions"/>
+        <PackageReference Include="Microsoft.EntityFrameworkCore"/>
+        <PackageReference Include="Microsoft.EntityFrameworkCore.Relational"/>
     </ItemGroup>
 
 </Project>

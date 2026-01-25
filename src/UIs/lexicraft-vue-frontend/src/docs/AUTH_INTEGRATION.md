@@ -157,6 +157,7 @@ const refreshed = await tokenManager.refreshTokenIfNeeded()
 ### 2. OAuth 集成
 
 支持的提供商：
+
 - GitHub
 - Gitee
 
@@ -278,19 +279,19 @@ describe('认证验证', () => {
 ### 常见问题
 
 1. **Token 刷新失败**
-   - 检查 Identity 服务是否运行
-   - 验证 API 端点配置
-   - 检查网络连接
+    - 检查 Identity 服务是否运行
+    - 验证 API 端点配置
+    - 检查网络连接
 
 2. **OAuth 回调失败**
-   - 确认回调 URL 配置正确
-   - 检查 OAuth 提供商设置
-   - 验证 state 参数
+    - 确认回调 URL 配置正确
+    - 检查 OAuth 提供商设置
+    - 验证 state 参数
 
 3. **登录状态丢失**
-   - 检查 localStorage 是否可用
-   - 验证 Token 存储配置
-   - 确认浏览器设置
+    - 检查 localStorage 是否可用
+    - 验证 Token 存储配置
+    - 确认浏览器设置
 
 ### 调试技巧
 
@@ -312,22 +313,22 @@ describe('认证验证', () => {
 
 ### useAuth Hook
 
-| 方法 | 描述 | 参数 | 返回值 |
-|------|------|------|--------|
-| `signInWithEmail` | 邮箱登录 | `email: string, password: string` | `Promise<void>` |
-| `signInWithOAuth` | OAuth 登录 | `provider: OAuthProvider` | `Promise<void>` |
-| `signUp` | 用户注册 | `userData: RegisterRequest` | `Promise<void>` |
-| `signOut` | 用户登出 | - | `Promise<void>` |
-| `getUserInfo` | 获取用户信息 | - | `Promise<UserProfile>` |
+| 方法                | 描述       | 参数                                | 返回值                    |
+|-------------------|----------|-----------------------------------|------------------------|
+| `signInWithEmail` | 邮箱登录     | `email: string, password: string` | `Promise<void>`        |
+| `signInWithOAuth` | OAuth 登录 | `provider: OAuthProvider`         | `Promise<void>`        |
+| `signUp`          | 用户注册     | `userData: RegisterRequest`       | `Promise<void>`        |
+| `signOut`         | 用户登出     | -                                 | `Promise<void>`        |
+| `getUserInfo`     | 获取用户信息   | -                                 | `Promise<UserProfile>` |
 
 ### AuthStore
 
-| 状态 | 类型 | 描述 |
-|------|------|------|
-| `user` | `UserProfile \| null` | 当前用户信息 |
-| `isAuthenticated` | `boolean` | 是否已认证 |
-| `isLoading` | `boolean` | 是否加载中 |
-| `tokens` | `TokenPair \| null` | Token 信息 |
+| 状态                | 类型                    | 描述       |
+|-------------------|-----------------------|----------|
+| `user`            | `UserProfile \| null` | 当前用户信息   |
+| `isAuthenticated` | `boolean`             | 是否已认证    |
+| `isLoading`       | `boolean`             | 是否加载中    |
+| `tokens`          | `TokenPair \| null`   | Token 信息 |
 
 ## 🤝 贡献
 

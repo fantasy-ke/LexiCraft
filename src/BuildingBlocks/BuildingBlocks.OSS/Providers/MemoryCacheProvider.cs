@@ -1,28 +1,27 @@
-﻿using Microsoft.Extensions.Caching.Memory;
-using BuildingBlocks.OSS.Interface;
+﻿using BuildingBlocks.OSS.Interface;
+using Microsoft.Extensions.Caching.Memory;
 
-namespace BuildingBlocks.OSS.Providers
+namespace BuildingBlocks.OSS.Providers;
+
+/// <summary>
+///     默认实现的缓存提供
+/// </summary>
+internal class MemoryCacheProvider(IMemoryCache cache) : ICacheProvider
 {
-    /// <summary>
-    /// 默认实现的缓存提供
-    /// </summary>
-    class MemoryCacheProvider(IMemoryCache cache) : ICacheProvider
+    private readonly IMemoryCache _cache = cache ?? throw new ArgumentNullException(nameof(IMemoryCache));
+
+    public T? Get<T>(string key) where T : class
     {
-        private readonly IMemoryCache _cache = cache ?? throw new ArgumentNullException(nameof(IMemoryCache));
+        return _cache.Get<T>(key);
+    }
 
-        public T? Get<T>(string key) where T : class
-        {
-            return _cache.Get<T>(key);
-        }
+    public void Remove(string key)
+    {
+        _cache.Remove(key);
+    }
 
-        public void Remove(string key)
-        {
-            _cache.Remove(key);
-        }
-
-        public void Set<T>(string key, T value, TimeSpan ts) where T : class
-        {
-            _cache.Set(key, value, ts);
-        }
+    public void Set<T>(string key, T value, TimeSpan ts) where T : class
+    {
+        _cache.Set(key, value, ts);
     }
 }

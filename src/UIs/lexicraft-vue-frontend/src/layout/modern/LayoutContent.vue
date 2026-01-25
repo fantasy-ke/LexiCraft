@@ -2,8 +2,9 @@
   <main class="main-content">
     <div class="content-card">
       <div class="content-header">
-        <button class="sidebar-toggle-btn" @click="$emit('toggleSidebar')" :title="sidebarExpanded ? '收起菜单' : '展开菜单'">
-          <IconFluentAlignSpaceFitVertical20Regular class="toggle-icon" :class="{ rotated: !sidebarExpanded }" />
+        <button :title="sidebarExpanded ? '收起菜单' : '展开菜单'" class="sidebar-toggle-btn"
+                @click="$emit('toggleSidebar')">
+          <IconFluentAlignSpaceFitVertical20Regular :class="{ rotated: !sidebarExpanded }" class="toggle-icon"/>
         </button>
         <div class="page-title">
           <span class="title-text">{{ currentRouteName }}</span>
@@ -17,7 +18,7 @@
   </main>
 </template>
 
-<script setup lang="ts">
+<script lang="ts" setup>
 defineProps<{
   sidebarExpanded: boolean;
   currentRouteName: string;
@@ -28,7 +29,7 @@ defineEmits<{
 }>()
 </script>
 
-<style scoped lang="scss">
+<style lang="scss" scoped>
 /* Main Content Styles */
 .main-content {
   flex: 1;
@@ -83,7 +84,7 @@ defineEmits<{
   .toggle-icon {
     font-size: 1.25rem;
     transition: transform 0.3s;
-    
+
     &.rotated {
       transform: rotate(180deg);
     }
@@ -112,12 +113,12 @@ defineEmits<{
   .main-content {
     padding: 0;
   }
-  
+
   .content-card {
     border-radius: 0;
     box-shadow: none;
   }
-  
+
   .sidebar-toggle-btn {
     display: none;
   }

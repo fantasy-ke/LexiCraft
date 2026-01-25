@@ -1,5 +1,5 @@
-<script setup lang="ts">
-import { computed } from 'vue'
+<script lang="ts" setup>
+import {computed} from 'vue'
 
 interface Props {
   provider: 'github' | 'gitee'
@@ -29,18 +29,18 @@ const handleClick = () => {
 </script>
 
 <template>
-  <button 
-    :class="buttonClass"
-    @click="handleClick"
-    :disabled="loading"
-    class="w-full flex items-center justify-center gap-3 px-6 py-3 rounded-xl font-medium transition-all duration-200 border-2"
+  <button
+      :class="buttonClass"
+      :disabled="loading"
+      class="w-full flex items-center justify-center gap-3 px-6 py-3 rounded-xl font-medium transition-all duration-200 border-2"
+      @click="handleClick"
   >
-    <IconMdiGithub v-if="provider === 'github'" class="text-2xl" />
-    <IconSimpleIconsGitee v-if="provider === 'gitee'" class="text-2xl" />
-    
+    <IconMdiGithub v-if="provider === 'github'" class="text-2xl"/>
+    <IconSimpleIconsGitee v-if="provider === 'gitee'" class="text-2xl"/>
+
     <span>使用 {{ name }} 登录</span>
-    
-    <IconEosIconsLoading v-if="loading" class="text-xl animate-spin" />
+
+    <IconEosIconsLoading v-if="loading" class="text-xl animate-spin"/>
   </button>
 </template>
 

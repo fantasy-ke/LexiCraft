@@ -2,7 +2,7 @@ using BuildingBlocks.EventBus.Abstractions;
 using BuildingBlocks.EventBus.Local;
 using BuildingBlocks.EventBus.Options;
 using BuildingBlocks.EventBus.Shared;
-using Microsoft.Extensions.DependencyInjection;
+using FreeRedis;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using StackExchange.Redis;
@@ -10,7 +10,7 @@ using StackExchange.Redis;
 namespace BuildingBlocks.EventBus;
 
 /// <summary>
-/// 混合事件总线实现 (支持本地与分布式智能分发)
+///     混合事件总线实现 (支持本地与分布式智能分发)
 /// </summary>
 public class HybridEventBus<TEvent>(
     EventLocalClient localClient,
@@ -84,7 +84,8 @@ public class HybridEventBus<TEvent>(
 
     private string GetRedisChannelName(Type eventType)
     {
-        var attribute = eventType.GetCustomAttributes(typeof(EventSchemeAttribute), true).FirstOrDefault() as EventSchemeAttribute;
+        var attribute =
+            eventType.GetCustomAttributes(typeof(EventSchemeAttribute), true).FirstOrDefault() as EventSchemeAttribute;
         var name = attribute?.EventName ?? eventType.FullName ?? string.Empty;
         return string.IsNullOrEmpty(Options.Redis.Prefix) ? name : $"{Options.Redis.Prefix}:{name}";
     }

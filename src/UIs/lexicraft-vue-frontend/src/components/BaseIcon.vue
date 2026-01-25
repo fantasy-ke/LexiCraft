@@ -1,4 +1,4 @@
-<script setup lang="ts">
+<script lang="ts" setup>
 
 import Tooltip from "@/components/base/Tooltip.vue";
 
@@ -15,17 +15,17 @@ const emit = defineEmits(['click'])
 <template>
   <Tooltip :title="title">
     <div
+        :class="{disabled,noBg}"
+        class="icon-wrapper"
         v-bind="$attrs"
         @click="e => (!disabled) && emit('click',e)"
-        class="icon-wrapper"
-        :class="{disabled,noBg}"
     >
       <slot/>
     </div>
   </Tooltip>
 </template>
 
-<style scoped lang="scss">
+<style lang="scss" scoped>
 
 $w: 1.4rem;
 .icon-wrapper {

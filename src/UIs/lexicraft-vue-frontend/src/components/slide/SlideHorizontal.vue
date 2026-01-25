@@ -1,14 +1,7 @@
 <script setup>
 import {onMounted, reactive, ref, watch} from "vue";
 import GM from '@/utils/gm.js'
-import {
-  getSlideDistance,
-  slideInit,
-  slideReset,
-  slideTouchEnd,
-  slideTouchMove,
-  slideTouchStart
-} from "./common";
+import {getSlideDistance, slideInit, slideReset, slideTouchEnd, slideTouchMove, slideTouchStart} from "./common";
 
 import {SlideType} from "@/config/env";
 
@@ -95,11 +88,11 @@ function canNext(isNext) {
 
 <template>
   <div class="slide hhhh">
-    <div class="slide-list"
-         ref="wrapperEl"
-         @touchstart="touchStart"
-         @touchmove="touchMove"
+    <div ref="wrapperEl"
+         class="slide-list"
          @touchend="touchEnd"
+         @touchmove="touchMove"
+         @touchstart="touchStart"
     >
       <slot></slot>
     </div>

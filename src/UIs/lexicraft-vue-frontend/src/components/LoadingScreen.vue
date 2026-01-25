@@ -1,5 +1,5 @@
 <template>
-  <div class="loading-screen" :class="settingStore.theme">
+  <div :class="settingStore.theme" class="loading-screen">
     <!-- Logo 居中显示 -->
     <div class="center-logo">
       <div class="logo-box">
@@ -9,20 +9,20 @@
         <span class="logo-text">LexionCraft</span>
       </div>
     </div>
-    
+
     <div class="loading-bottom-section">
       <!-- 提示句子 -->
-      <div class="loading-tip" v-if="loadingText">
+      <div v-if="loadingText" class="loading-tip">
         <span class="quote">“</span>
         {{ loadingText }}
         <span class="quote">”</span>
       </div>
-      
+
       <!-- 进度条区域 -->
       <div class="progress-area">
         <span class="loading-label">LOADING</span>
         <div class="progress-bar-container">
-          <div class="progress-bar-fill" :style="{ width: progress + '%' }"></div>
+          <div :style="{ width: progress + '%' }" class="progress-bar-fill"></div>
         </div>
         <span class="percentage-label">{{ Math.round(progress) }}%</span>
       </div>
@@ -30,8 +30,8 @@
   </div>
 </template>
 
-<script setup lang="ts">
-import { useSettingStore } from '@/stores/setting.ts'
+<script lang="ts" setup>
+import {useSettingStore} from '@/stores/setting.ts'
 
 interface Props {
   progress: number
@@ -45,7 +45,7 @@ withDefaults(defineProps<Props>(), {
 })
 </script>
 
-<style scoped lang="scss">
+<style lang="scss" scoped>
 .loading-screen {
   position: fixed;
   inset: 0;
@@ -65,7 +65,7 @@ withDefaults(defineProps<Props>(), {
 
 .center-logo {
   margin-bottom: 8vh; // 向上移动一些
-  
+
   .logo-box {
     display: flex;
     align-items: center;
@@ -113,7 +113,7 @@ withDefaults(defineProps<Props>(), {
   opacity: 0.9;
   text-align: center;
   max-width: 90%;
-  
+
   .quote {
     color: #3b82f6; // 蓝色引号
     font-weight: bold;
@@ -161,10 +161,10 @@ withDefaults(defineProps<Props>(), {
         position: absolute;
         inset: 0;
         background: linear-gradient(
-          90deg,
-          rgba(255, 255, 255, 0) 0%,
-          rgba(255, 255, 255, 0.2) 50%,
-          rgba(255, 255, 255, 0) 100%
+                90deg,
+                rgba(255, 255, 255, 0) 0%,
+                rgba(255, 255, 255, 0.2) 50%,
+                rgba(255, 255, 255, 0) 100%
         );
         animation: shimmer 2s infinite;
       }
@@ -184,21 +184,25 @@ withDefaults(defineProps<Props>(), {
 }
 
 @keyframes shimmer {
-  0% { transform: translateX(-100%); }
-  100% { transform: translateX(100%); }
+  0% {
+    transform: translateX(-100%);
+  }
+  100% {
+    transform: translateX(100%);
+  }
 }
 
 /* 响应式设计 */
 @media (max-width: 768px) {
   .center-logo {
     margin-bottom: 4vh; // 移动端减少向上移动的幅度
-    
+
     .logo-box {
       .logo-icon {
         width: 40px;
         height: 40px;
       }
-      
+
       .logo-text {
         font-size: 1.8rem;
       }
@@ -212,7 +216,7 @@ withDefaults(defineProps<Props>(), {
 
   .progress-area {
     gap: 0.5rem;
-    
+
     .loading-label, .percentage-label {
       font-size: 0.65rem;
       min-width: 2.5rem;

@@ -1,4 +1,4 @@
-<script setup lang="ts">
+<script lang="ts" setup>
 const props = defineProps<{
   width?: string,
   height?: string,
@@ -17,14 +17,14 @@ const style = $computed(() => {
 
 <template>
   <div class="slide">
-    <div class="slide-list"
-         :style="style">
+    <div :style="style"
+         class="slide-list">
       <slot></slot>
     </div>
   </div>
 </template>
 
-<style scoped lang="scss">
+<style lang="scss" scoped>
 .slide {
   width: 100%;
   height: 100%;

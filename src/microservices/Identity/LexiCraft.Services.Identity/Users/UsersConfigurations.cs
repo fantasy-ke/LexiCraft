@@ -1,9 +1,9 @@
 using BuildingBlocks.Filters;
+using LexiCraft.Services.Identity.Users.Features.Captcha;
 using LexiCraft.Services.Identity.Users.Features.GetUserInfo;
 using LexiCraft.Services.Identity.Users.Features.RegisterUser;
-using LexiCraft.Services.Identity.Users.Features.UploadAvatar;
-using LexiCraft.Services.Identity.Users.Features.Captcha;
 using LexiCraft.Services.Identity.Users.Features.UpdateUserInfo;
+using LexiCraft.Services.Identity.Users.Features.UploadAvatar;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Routing;
@@ -29,7 +29,8 @@ internal static class UsersConfigurations
         var usersGroupV1 = usersVersionGroup
             .MapGroup(IdentityPrefixUri)
             .HasApiVersion(1.0)
-            .AddEndpointFilter<ResultEndPointFilter>();;
+            .AddEndpointFilter<ResultEndPointFilter>();
+        ;
 
 
         usersGroupV1.MapRegisterEndpoint();

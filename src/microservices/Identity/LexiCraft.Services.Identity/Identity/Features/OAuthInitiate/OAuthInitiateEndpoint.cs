@@ -23,17 +23,17 @@ public static class OAuthInitiateEndpoint
             [AsParameters] OAuthInitiateRequestParameters requestParameters)
         {
             var (provider, mediator, cancellationToken) = requestParameters;
-            
+
             var query = new OAuthInitiateQuery(provider);
             var authorizationUrl = await mediator.Send(query, cancellationToken);
-            
+
             return new OAuthInitiateResponse(authorizationUrl);
         }
     }
 }
 
 /// <summary>
-/// OAuth初始化请求参数
+///     OAuth初始化请求参数
 /// </summary>
 internal record OAuthInitiateRequestParameters(
     [FromRoute] string Provider,
@@ -42,7 +42,7 @@ internal record OAuthInitiateRequestParameters(
 );
 
 /// <summary>
-/// OAuth初始化响应
+///     OAuth初始化响应
 /// </summary>
 /// <param name="AuthorizationUrl">OAuth授权URL</param>
 internal record OAuthInitiateResponse(string AuthorizationUrl);

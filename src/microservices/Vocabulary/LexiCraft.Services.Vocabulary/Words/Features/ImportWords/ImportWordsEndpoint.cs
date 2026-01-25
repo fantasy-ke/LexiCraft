@@ -1,11 +1,10 @@
 using Humanizer;
+using LexiCraft.Shared.Permissions;
 using MediatR;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Routing;
-
-using LexiCraft.Shared.Permissions;
 
 namespace LexiCraft.Services.Vocabulary.Words.Features.ImportWords;
 
@@ -26,9 +25,9 @@ public static class ImportWordsEndpoint
             [AsParameters] ImportWordsRequestParameters requestParameters)
         {
             var (mediator, request, cancellationToken) = requestParameters;
-            
+
             var result = await mediator.Send(new ImportWordsCommand(request), cancellationToken);
-            
+
             return result;
         }
     }

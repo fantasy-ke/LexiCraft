@@ -1,13 +1,8 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
+namespace BuildingBlocks.OSS.Models;
 
-namespace BuildingBlocks.OSS.Models
+public class Owner
 {
-    public class Owner
-    {
-        public string Id { get; set; }
+    public string Id { get; set; } = string.Empty;
 
-        public string Name { get; set; }
-    }
+    public string Name { get; set; } = string.Empty;
 }

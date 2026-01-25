@@ -1,5 +1,5 @@
-<script setup lang="ts">
-import {nextTick, onMounted, watch} from "vue";
+<script lang="ts" setup>
+import {nextTick, watch} from "vue";
 
 interface IProps {
   modelValue?: boolean,
@@ -28,7 +28,7 @@ watch(() => props.modelValue, (n) => {
 
 <template>
   <Transition name="fade">
-    <div v-if="modelValue" ref="modalRef" class="mini-modal" :style="{width, ...style}">
+    <div v-if="modelValue" ref="modalRef" :style="{width, ...style}" class="mini-modal">
       <slot></slot>
     </div>
   </Transition>

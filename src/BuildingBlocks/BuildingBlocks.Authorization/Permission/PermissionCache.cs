@@ -6,7 +6,7 @@ using Microsoft.Extensions.Logging;
 namespace BuildingBlocks.Authentication.Permission;
 
 /// <summary>
-/// Redis 权限缓存服务实现（使用通用缓存服务）
+///     Redis 权限缓存服务实现（使用通用缓存服务）
 /// </summary>
 public class RedisPermissionCache(
     ICacheService cacheService,
@@ -23,15 +23,11 @@ public class RedisPermissionCache(
         try
         {
             var permissions = await cacheService.GetAsync<HashSet<string>>(cacheKey, ConfigureOptions);
-            
+
             if (permissions != null)
-            {
                 logger.LogDebug("User permissions found in cache: {UserId}", userId);
-            }
             else
-            {
                 logger.LogDebug("User permissions not found in cache: {UserId}", userId);
-            }
 
             return permissions;
         }
@@ -92,7 +88,8 @@ public class RedisPermissionCache(
             }
             else
             {
-                logger.LogDebug("Permission already exists: {UserId}, Permission: {Permission}", userId, permissionName);
+                logger.LogDebug("Permission already exists: {UserId}, Permission: {Permission}", userId,
+                    permissionName);
             }
         }
         catch (Exception ex)
@@ -108,20 +105,16 @@ public class RedisPermissionCache(
         {
             var permissions = await GetUserPermissionsAsync(userId) ?? new HashSet<string>();
             var permissionsArray = permissionNames as string[] ?? permissionNames.ToArray();
-            
+
             var addedCount = 0;
             foreach (var permissionName in permissionsArray)
-            {
                 if (permissions.Add(permissionName))
-                {
                     addedCount++;
-                }
-            }
 
             if (addedCount > 0)
             {
                 await SetUserPermissionsAsync(userId, permissions);
-                logger.LogDebug("Permissions added to user: {UserId}, Added: {AddedCount}, Total: {TotalCount}", 
+                logger.LogDebug("Permissions added to user: {UserId}, Added: {AddedCount}, Total: {TotalCount}",
                     userId, addedCount, permissionsArray.Length);
             }
             else
@@ -144,11 +137,13 @@ public class RedisPermissionCache(
             if (permissions != null && permissions.Remove(permissionName))
             {
                 await SetUserPermissionsAsync(userId, permissions);
-                logger.LogDebug("Permission removed from user: {UserId}, Permission: {Permission}", userId, permissionName);
+                logger.LogDebug("Permission removed from user: {UserId}, Permission: {Permission}", userId,
+                    permissionName);
             }
             else
             {
-                logger.LogDebug("Permission not found or already removed: {UserId}, Permission: {Permission}", userId, permissionName);
+                logger.LogDebug("Permission not found or already removed: {UserId}, Permission: {Permission}", userId,
+                    permissionName);
             }
         }
         catch (Exception ex)
@@ -170,7 +165,8 @@ public class RedisPermissionCache(
                 if (removedCount > 0)
                 {
                     await SetUserPermissionsAsync(userId, permissions);
-                    logger.LogDebug("Permissions removed from user: {UserId}, Removed: {RemovedCount}, Total: {TotalCount}", 
+                    logger.LogDebug(
+                        "Permissions removed from user: {UserId}, Removed: {RemovedCount}, Total: {TotalCount}",
                         userId, removedCount, permissionNames.Count);
                 }
                 else

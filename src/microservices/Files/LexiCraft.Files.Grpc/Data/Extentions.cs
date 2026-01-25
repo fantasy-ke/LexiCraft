@@ -4,11 +4,13 @@ using Microsoft.EntityFrameworkCore;
 
 namespace LexiCraft.Files.Grpc.Data;
 
+/// <summary>
+///     扩展方法
+/// </summary>
 public static class Extentions
 {
-    
     /// <summary>
-    /// 添加数据库访问
+    ///     添加数据库访问
     /// </summary>
     /// <param name="services"></param>
     /// <param name="configuration"></param>
@@ -30,7 +32,12 @@ public static class Extentions
         services.WithRepository<FilesDbContext>();
         return services;
     }
-    
+
+    /// <summary>
+    ///     应用数据库迁移
+    /// </summary>
+    /// <param name="app"></param>
+    /// <returns></returns>
     public static IApplicationBuilder UseMigration(this IApplicationBuilder app)
     {
         using var scope = app.ApplicationServices.CreateScope();

@@ -12,11 +12,12 @@ public class PracticeTask : MongoAggregateRoot
     public PracticeStatus Status { get; private set; }
     public DateTime? StartedAt { get; private set; }
     public DateTime? FinishedAt { get; private set; }
-    
+
     public List<PracticeTaskItem> Items { get; private set; } = new();
-    public List<AnswerRecord> Answers { get; private set; } = new();
-    
-    public static PracticeTask Create(string userId, PracticeTaskType type, PracticeTaskSource source, string category, List<PracticeTaskItem> items)
+    public List<AnswerRecord> Answers { get; } = new();
+
+    public static PracticeTask Create(string userId, PracticeTaskType type, PracticeTaskSource source, string category,
+        List<PracticeTaskItem> items)
     {
         var task = new PracticeTask
         {
@@ -65,16 +66,17 @@ public class PracticeTask : MongoAggregateRoot
             score = 100;
         }
         // Simplified fuzzy logic
-        else if (assessmentType == AssessmentType.Fuzzy && normalizedInput.Length > 0 && Math.Abs(normalizedInput.Length - normalizedCorrect.Length) <= 2)
+        else if (assessmentType == AssessmentType.Fuzzy && normalizedInput.Length > 0 &&
+                 Math.Abs(normalizedInput.Length - normalizedCorrect.Length) <= 2)
         {
             status = AnswerStatus.Partial;
-            score = 50; 
+            score = 50;
         }
 
         var record = new AnswerRecord(itemId, input, status, score, 0, assessmentType);
         Answers.Add(record);
-        
-        return new AssessmentResult(record.Id.ToString(), status, score, correctSpelling);
+
+        return new AssessmentResult(record.Id, status, score, correctSpelling);
     }
 
     public void Complete()

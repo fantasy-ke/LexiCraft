@@ -1,6 +1,5 @@
 using System.Collections.Concurrent;
 using System.Linq.Expressions;
-using System.Reflection;
 using BuildingBlocks.EventBus.Abstractions;
 using BuildingBlocks.EventBus.Options;
 using BuildingBlocks.EventBus.Shared;
@@ -13,7 +12,7 @@ using Microsoft.Extensions.Options;
 namespace BuildingBlocks.EventBus.Redis;
 
 /// <summary>
-/// Redis 事件消费者托管服务 (分布式实现)
+///     Redis 事件消费者托管服务 (分布式实现)
 /// </summary>
 public class RedisEventConsumerService(
     IConnectionMultiplexer connectionMultiplexer,
@@ -41,7 +40,7 @@ public class RedisEventConsumerService(
         {
             var channelName = GetChannelName(eventType);
             _typeCache.TryAdd(eventType.FullName!, eventType);
-            
+
             logger.LogInformation("正在订阅 Redis 频道: {Channel} 用于事件 {Event}", channelName, eventType.Name);
             
             await subscriber.SubscribeAsync(RedisChannel.Literal(channelName), (channel, msg) => 
@@ -50,10 +49,7 @@ public class RedisEventConsumerService(
             });
         }
 
-        while (!stoppingToken.IsCancellationRequested)
-        {
-            await Task.Delay(1000, stoppingToken);
-        }
+        while (!stoppingToken.IsCancellationRequested) await Task.Delay(1000, stoppingToken);
     }
 
     private IEnumerable<Type> DiscoverEventTypesWithHandlers()
@@ -70,7 +66,8 @@ public class RedisEventConsumerService(
 
     private string GetChannelName(Type eventType)
     {
-        var attribute = eventType.GetCustomAttributes(typeof(EventSchemeAttribute), true).FirstOrDefault() as EventSchemeAttribute;
+        var attribute =
+            eventType.GetCustomAttributes(typeof(EventSchemeAttribute), true).FirstOrDefault() as EventSchemeAttribute;
         var name = attribute?.EventName ?? eventType.FullName!;
         return string.IsNullOrEmpty(Options.Redis.Prefix) ? name : $"{Options.Redis.Prefix}:{name}";
     }
@@ -111,7 +108,8 @@ public class RedisEventConsumerService(
 
                 if (!isNew) 
                 {
-                    logger.LogInformation("检测到重复消息，已跳过处理: {EventId}, Type: {EventType}", integrationEvent.Id, eventEto.FullName);
+                    logger.LogInformation("检测到重复消息，已跳过处理: {EventId}, Type: {EventType}", integrationEvent.Id,
+                        eventEto.FullName);
                     return;
                 }
             }

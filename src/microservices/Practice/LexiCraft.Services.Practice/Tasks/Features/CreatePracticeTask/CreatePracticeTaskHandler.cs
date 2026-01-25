@@ -5,9 +5,8 @@ using MediatR;
 
 namespace LexiCraft.Services.Practice.Tasks.Features.CreatePracticeTask;
 
-
 /// <summary>
-/// 创建练习任务命令
+///     创建练习任务命令
 /// </summary>
 /// <param name="UserId">用户ID</param>
 /// <param name="Type">练习任务类型</param>
@@ -23,7 +22,7 @@ public record CreatePracticeTaskCommand(
 ) : IRequest<CreatePracticeTaskResult>;
 
 /// <summary>
-/// 练习任务项数据传输对象
+///     练习任务项数据传输对象
 /// </summary>
 /// <param name="WordId">单词ID</param>
 /// <param name="Spelling">拼写</param>
@@ -41,19 +40,18 @@ public record PracticeTaskItemDto(
 );
 
 /// <summary>
-/// 创建练习任务结果
+///     创建练习任务结果
 /// </summary>
 /// <param name="TaskId">任务ID</param>
 public record CreatePracticeTaskResult(string TaskId);
 
-
 /// <summary>
-/// 创建练习任务命令验证器
+///     创建练习任务命令验证器
 /// </summary>
 public class CreatePracticeTaskValidator : AbstractValidator<CreatePracticeTaskCommand>
 {
     /// <summary>
-    /// 初始化创建练习任务验证器
+    ///     初始化创建练习任务验证器
     /// </summary>
     public CreatePracticeTaskValidator()
     {
@@ -112,23 +110,24 @@ public class CreatePracticeTaskValidator : AbstractValidator<CreatePracticeTaskC
 }
 
 /// <summary>
-/// 创建练习任务命令处理器
+///     创建练习任务命令处理器
 /// </summary>
 /// <param name="repository">练习任务仓库</param>
-public class CreatePracticeTaskHandler(IPracticeTaskRepository repository) 
+public class CreatePracticeTaskHandler(IPracticeTaskRepository repository)
     : IRequestHandler<CreatePracticeTaskCommand, CreatePracticeTaskResult>
 {
     /// <summary>
-    /// 处理创建练习任务命令
+    ///     处理创建练习任务命令
     /// </summary>
     /// <param name="request">创建练习任务命令</param>
     /// <param name="cancellationToken">取消令牌</param>
     /// <returns>创建练习任务结果</returns>
-    public async Task<CreatePracticeTaskResult> Handle(CreatePracticeTaskCommand request, CancellationToken cancellationToken)
+    public async Task<CreatePracticeTaskResult> Handle(CreatePracticeTaskCommand request,
+        CancellationToken cancellationToken)
     {
         // 将请求中的项目映射为练习任务项列表
-        var items = request.Items.Select(x => 
-            new PracticeTaskItem(x.WordId, x.Spelling, x.Phonetic, x.AudioUrl, x.Definition, x.Index))
+        var items = request.Items.Select(x =>
+                new PracticeTaskItem(x.WordId, x.Spelling, x.Phonetic, x.AudioUrl, x.Definition, x.Index))
             .ToList();
 
         // 创建新的练习任务

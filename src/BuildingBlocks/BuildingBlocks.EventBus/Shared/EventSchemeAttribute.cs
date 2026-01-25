@@ -1,7 +1,7 @@
 namespace BuildingBlocks.EventBus.Shared;
 
 /// <summary>
-/// 事件方案特性
+///     事件方案特性
 /// </summary>
 [AttributeUsage(AttributeTargets.Class)]
 public class EventSchemeAttribute(string? eventName = null) : Attribute

@@ -1,4 +1,4 @@
-<script setup lang="ts">
+<script lang="ts" setup>
 
 import BaseButton from "@/components/BaseButton.vue";
 
@@ -44,13 +44,13 @@ function toggle() {
       v-if="edit"
       class="edit-text">
     <Textarea
-        v-model="editVal"
         ref="inputRef"
-        textarea
-        autosize
-        autofocus
-        type="textarea"
+        v-model="editVal"
         :input-style="`color: var(--color-font-1);font-size: 1rem;`"
+        autofocus
+        autosize
+        textarea
+        type="textarea"
     />
     <div class="flex justify-end mt-2">
       <BaseButton @click="toggle">取消</BaseButton>
@@ -65,7 +65,7 @@ function toggle() {
   </div>
 </template>
 
-<style scoped lang="scss">
+<style lang="scss" scoped>
 .edit-text {
   margin-top: .6rem;
   color: var(--color-font-1);

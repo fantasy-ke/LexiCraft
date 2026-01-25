@@ -5,16 +5,12 @@ using StackExchange.Redis;
 namespace BuildingBlocks.Caching.DistributedLock;
 
 /// <summary>
-/// 基于 Redis 的分布式锁提供者实现
+///     基于 Redis 的分布式锁提供者实现
 /// </summary>
 public class RedisDistributedLockProvider : IDistributedLockProvider
 {
-    private readonly IRedisConnectionFactory _connectionFactory;
-    private readonly ILogger<RedisDistributedLockProvider> _logger;
-    private readonly ILogger<RedisDistributedLock> _lockLogger;
-
     /// <summary>
-    /// Lua 脚本：设置锁（仅当键不存在时）
+    ///     Lua 脚本：设置锁（仅当键不存在时）
     /// </summary>
     private const string AcquireLockScript = @"
         if redis.call('EXISTS', KEYS[1]) == 0 then
@@ -24,12 +20,16 @@ public class RedisDistributedLockProvider : IDistributedLockProvider
         end";
 
     /// <summary>
-    /// 锁键前缀
+    ///     锁键前缀
     /// </summary>
     private const string LockKeyPrefix = "lock:";
 
+    private readonly IRedisConnectionFactory _connectionFactory;
+    private readonly ILogger<RedisDistributedLock> _lockLogger;
+    private readonly ILogger<RedisDistributedLockProvider> _logger;
+
     /// <summary>
-    /// 初始化 Redis 分布式锁提供者
+    ///     初始化 Redis 分布式锁提供者
     /// </summary>
     /// <param name="connectionFactory">Redis 连接工厂</param>
     /// <param name="logger">日志记录器</param>
@@ -45,7 +45,7 @@ public class RedisDistributedLockProvider : IDistributedLockProvider
     }
 
     /// <summary>
-    /// 尝试获取分布式锁
+    ///     尝试获取分布式锁
     /// </summary>
     /// <param name="lockKey">锁键</param>
     /// <param name="lockTimeout">锁超时时间</param>
@@ -124,7 +124,7 @@ public class RedisDistributedLockProvider : IDistributedLockProvider
     }
 
     /// <summary>
-    /// 获取分布式锁（如果获取失败会抛出异常）
+    ///     获取分布式锁（如果获取失败会抛出异常）
     /// </summary>
     /// <param name="lockKey">锁键</param>
     /// <param name="lockTimeout">锁超时时间</param>
@@ -141,13 +141,14 @@ public class RedisDistributedLockProvider : IDistributedLockProvider
         string? redisInstanceName = null,
         CancellationToken cancellationToken = default)
     {
-        var distributedLock = await TryAcquireLockAsync(lockKey, lockTimeout, acquireTimeout, redisInstanceName, cancellationToken);
+        var distributedLock =
+            await TryAcquireLockAsync(lockKey, lockTimeout, acquireTimeout, redisInstanceName, cancellationToken);
 
         return distributedLock ?? throw new LockAcquisitionTimeoutException(lockKey, acquireTimeout);
     }
 
     /// <summary>
-    /// 检查锁是否存在
+    ///     检查锁是否存在
     /// </summary>
     /// <param name="lockKey">锁键</param>
     /// <param name="redisInstanceName">Redis 实例名称</param>
@@ -178,7 +179,7 @@ public class RedisDistributedLockProvider : IDistributedLockProvider
     }
 
     /// <summary>
-    /// 强制释放锁（危险操作，仅在确认锁已失效时使用）
+    ///     强制释放锁（危险操作，仅在确认锁已失效时使用）
     /// </summary>
     /// <param name="lockKey">锁键</param>
     /// <param name="redisInstanceName">Redis 实例名称</param>
@@ -209,22 +210,19 @@ public class RedisDistributedLockProvider : IDistributedLockProvider
     }
 
     /// <summary>
-    /// 获取 Redis 数据库实例
+    ///     获取 Redis 数据库实例
     /// </summary>
     /// <param name="redisInstanceName">Redis 实例名称</param>
     /// <returns>Redis 数据库实例</returns>
     private IDatabase GetDatabase(string? redisInstanceName = null)
     {
-        if (string.IsNullOrWhiteSpace(redisInstanceName))
-        {
-            return _connectionFactory.GetDatabase();
-        }
-        
+        if (string.IsNullOrWhiteSpace(redisInstanceName)) return _connectionFactory.GetDatabase();
+
         return _connectionFactory.GetDatabase(redisInstanceName);
     }
 
     /// <summary>
-    /// 生成唯一的锁值
+    ///     生成唯一的锁值
     /// </summary>
     /// <returns>锁值</returns>
     private static string GenerateLockValue()

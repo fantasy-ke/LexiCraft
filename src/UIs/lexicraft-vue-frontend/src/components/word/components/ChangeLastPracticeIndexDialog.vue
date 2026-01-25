@@ -1,10 +1,10 @@
-<script setup lang="ts">
+<script lang="ts" setup>
 
 import BaseTable from "@/components/BaseTable.vue";
 import WordItem from "@/components/WordItem.vue";
-import { defineAsyncComponent } from "vue";
-import { useRuntimeStore } from "@/stores/runtime.ts";
-import { AppEnv } from "@/config/env.ts";
+import {defineAsyncComponent} from "vue";
+import {useRuntimeStore} from "@/stores/runtime.ts";
+import {AppEnv} from "@/config/env.ts";
 
 const Dialog = defineAsyncComponent(() => import('@/components/dialog/Dialog.vue'))
 
@@ -35,17 +35,17 @@ defineEmits<{
           title="修改学习进度">
     <div class="py-4 h-80vh ">
       <BaseTable
-          class="h-full"
           :request="requestList"
           :show-toolbar="false"
+          class="h-full"
       >
         <template v-slot="item">
           <WordItem
-              @click="$emit('ok',item.index-1)"
-              :item="item.item"
-              :show-translate="false"
               :index="item.index"
+              :item="item.item"
               :show-option="false"
+              :show-translate="false"
+              @click="$emit('ok',item.index-1)"
           />
         </template>
       </BaseTable>
@@ -53,6 +53,6 @@ defineEmits<{
   </Dialog>
 </template>
 
-<style scoped lang="scss">
+<style lang="scss" scoped>
 
 </style>

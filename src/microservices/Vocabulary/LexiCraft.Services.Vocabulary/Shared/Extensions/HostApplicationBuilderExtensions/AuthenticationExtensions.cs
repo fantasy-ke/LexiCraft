@@ -1,8 +1,6 @@
-using BuildingBlocks.Authentication;
+using System.Text;
 using BuildingBlocks.Authentication.Shared;
 using BuildingBlocks.Extensions;
-using BuildingBlocks.Shared;
-using LexiCraft.Services.Vocabulary.Shared.Authorization;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
@@ -16,7 +14,7 @@ public static partial class HostApplicationBuilderExtensions
     {
         var oauthOptions = builder.Configuration.BindOptions<OAuthOptions>();
         var requireHttpsMetadata = oauthOptions.RequireHttpsMetadata ?? !builder.Environment.IsDevelopment();
-        
+
         builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
             .AddJwtBearer(options =>
             {
@@ -33,14 +31,14 @@ public static partial class HostApplicationBuilderExtensions
                     ValidateLifetime = oauthOptions.ValidateLifetime,
                     ClockSkew = oauthOptions.ClockSkew,
                     ValidateIssuerSigningKey = true,
-                    IssuerSigningKey = !string.IsNullOrEmpty(oauthOptions.Secret) 
-                        ? new SymmetricSecurityKey(System.Text.Encoding.UTF8.GetBytes(oauthOptions.Secret)) 
+                    IssuerSigningKey = !string.IsNullOrEmpty(oauthOptions.Secret)
+                        ? new SymmetricSecurityKey(Encoding.UTF8.GetBytes(oauthOptions.Secret))
                         : null
                 };
 
                 options.MapInboundClaims = false;
             });
-        
+
         return builder;
     }
 }

@@ -1,10 +1,10 @@
 using Humanizer;
+using LexiCraft.Services.Identity.Shared.Dtos;
 using MediatR;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Routing;
-using LexiCraft.Services.Identity.Shared.Dtos;
 
 namespace LexiCraft.Services.Identity.Identity.Features.OAuthToken;
 
@@ -24,17 +24,17 @@ public static class OAuthEndpoint
             [AsParameters] OAuthCallbackRequestParameters requestParameters)
         {
             var (provider, request, mediator, cancellationToken) = requestParameters;
-            
+
             var command = new OAuthCommand(provider, request.Code, request.RedirectUri);
             var result = await mediator.Send(command, cancellationToken);
-            
+
             return result;
         }
     }
 }
 
 /// <summary>
-/// OAuth回调请求参数
+///     OAuth回调请求参数
 /// </summary>
 internal record OAuthCallbackRequestParameters(
     [FromRoute] string Provider,
@@ -44,7 +44,7 @@ internal record OAuthCallbackRequestParameters(
 );
 
 /// <summary>
-/// OAuth回调请求体
+///     OAuth回调请求体
 /// </summary>
 /// <param name="Code">授权码</param>
 /// <param name="State">状态参数，用于防止CSRF攻击</param>

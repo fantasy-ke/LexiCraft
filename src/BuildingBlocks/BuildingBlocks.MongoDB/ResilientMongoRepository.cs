@@ -9,7 +9,7 @@ using MongoDB.Driver;
 namespace BuildingBlocks.MongoDB;
 
 /// <summary>
-/// 具有弹性和性能监控的 MongoDB 仓储基类
+///     具有弹性和性能监控的 MongoDB 仓储基类
 /// </summary>
 public class ResilientMongoRepository<TEntity> : ResilientMongoQueryRepository<TEntity>, IRepository<TEntity>
     where TEntity : MongoEntity, IAggregateRoot
@@ -49,10 +49,7 @@ public class ResilientMongoRepository<TEntity> : ResilientMongoQueryRepository<T
                 var entitiesList = entities.ToList();
                 var now = DateTime.UtcNow;
 
-                foreach (var entity in entitiesList)
-                {
-                    entity.CreationTime = now;
-                }
+                foreach (var entity in entitiesList) entity.CreationTime = now;
 
                 await Collection.InsertManyAsync(entitiesList);
             },

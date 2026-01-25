@@ -1,4 +1,4 @@
-<script setup lang="ts">
+<script lang="ts" setup>
 import BaseButton from "@/components/BaseButton.vue";
 
 defineProps<{
@@ -13,13 +13,13 @@ defineEmits<{
 
 <template>
   <div class="empty">
-    <img src="@/assets/img/缺省页_空白页-通用.svg" alt="">
+    <img alt="" src="@/assets/img/缺省页_空白页-通用.svg">
     <span>{{ text ?? '空荡荡的~' }}</span>
     <BaseButton v-if="showAdd" @click="$emit('add')">添加</BaseButton>
   </div>
 </template>
 
-<style scoped lang="scss">
+<style lang="scss" scoped>
 .empty {
   width: 100%;
   height: 100%;

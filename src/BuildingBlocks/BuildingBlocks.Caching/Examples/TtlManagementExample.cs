@@ -1,15 +1,11 @@
-using System;
-using System.Collections.Generic;
-using System.Threading.Tasks;
 using BuildingBlocks.Caching.Abstractions;
-using BuildingBlocks.Caching.Configuration;
 using Microsoft.Extensions.Logging;
 
 namespace BuildingBlocks.Caching.Examples;
 
 /// <summary>
-/// TTL 管理功能示例
-/// 演示需求 2.1-2.5 的 TTL 继承和覆盖逻辑
+///     TTL 管理功能示例
+///     演示需求 2.1-2.5 的 TTL 继承和覆盖逻辑
 /// </summary>
 public class TtlManagementExample
 {
@@ -23,7 +19,7 @@ public class TtlManagementExample
     }
 
     /// <summary>
-    /// 演示需求 2.1: 统一过期时间 - 为所有缓存项应用默认 TTL
+    ///     演示需求 2.1: 统一过期时间 - 为所有缓存项应用默认 TTL
     /// </summary>
     public async Task DemonstrateUnifiedExpiryAsync()
     {
@@ -31,7 +27,7 @@ public class TtlManagementExample
 
         // 使用默认的全局过期时间
         await _cacheService.SetAsync("user:123", new { Name = "张三", Age = 25 });
-        
+
         // 自定义全局过期时间
         await _cacheService.SetAsync("user:456", new { Name = "李四", Age = 30 }, options =>
         {
@@ -42,7 +38,7 @@ public class TtlManagementExample
     }
 
     /// <summary>
-    /// 演示需求 2.2 & 2.3: 本地缓存独立过期时间和 TTL 继承
+    ///     演示需求 2.2 & 2.3: 本地缓存独立过期时间和 TTL 继承
     /// </summary>
     public async Task DemonstrateLocalExpiryInheritanceAsync()
     {
@@ -70,7 +66,7 @@ public class TtlManagementExample
     }
 
     /// <summary>
-    /// 演示需求 2.4: 动态调整普通缓存 TTL
+    ///     演示需求 2.4: 动态调整普通缓存 TTL
     /// </summary>
     public async Task DemonstrateDynamicTtlAdjustmentAsync()
     {
@@ -80,15 +76,13 @@ public class TtlManagementExample
         await _cacheService.SetAsync("dynamic:user:789", new { Name = "王五", VipLevel = "Gold" }, options =>
         {
             options.Expiry = TimeSpan.FromMinutes(30); // 基础 30 分钟
-            
+
             // 需求 2.4: 动态调整过期时间委托
             options.AdjustExpiryForValue = (originalExpiry, value) =>
             {
                 // 根据用户 VIP 等级调整缓存时间
                 if (value is { } obj && obj.ToString()!.Contains("Gold"))
-                {
                     return originalExpiry.Add(TimeSpan.FromMinutes(30)); // VIP 用户延长 30 分钟
-                }
                 return originalExpiry;
             };
         });
@@ -98,14 +92,11 @@ public class TtlManagementExample
         await _cacheService.SetAsync("dynamic:large:data", largeData, options =>
         {
             options.Expiry = TimeSpan.FromMinutes(60);
-            
+
             options.AdjustExpiryForValue = (originalExpiry, value) =>
             {
                 // 大数据缩短缓存时间以节省内存
-                if (value is string str && str.Length > 5000)
-                {
-                    return TimeSpan.FromMinutes(15); // 大数据只缓存 15 分钟
-                }
+                if (value is string str && str.Length > 5000) return TimeSpan.FromMinutes(15); // 大数据只缓存 15 分钟
                 return originalExpiry;
             };
         });
@@ -114,7 +105,7 @@ public class TtlManagementExample
     }
 
     /// <summary>
-    /// 演示需求 2.5: Hash 缓存 TTL 调整
+    ///     演示需求 2.5: Hash 缓存 TTL 调整
     /// </summary>
     public async Task DemonstrateHashTtlAdjustmentAsync()
     {
@@ -141,7 +132,7 @@ public class TtlManagementExample
             options =>
             {
                 options.Expiry = TimeSpan.FromHours(1); // 基础 1 小时
-                
+
                 // 需求 2.5: 基于 Hash 内容调整过期时间
                 options.AdjustExpiryForHash = (originalExpiry, hashData) =>
                 {
@@ -149,15 +140,11 @@ public class TtlManagementExample
                     if (hashData.TryGetValue("profile_completeness", out var completeness) &&
                         int.TryParse(completeness, out var percentage))
                     {
-                        if (percentage >= 90)
-                        {
-                            return originalExpiry.Add(TimeSpan.FromHours(2)); // 完整资料延长缓存
-                        }
-                        else if (percentage < 50)
-                        {
-                            return TimeSpan.FromMinutes(15); // 不完整资料缩短缓存
-                        }
+                        if (percentage >= 90) return originalExpiry.Add(TimeSpan.FromHours(2)); // 完整资料延长缓存
+
+                        if (percentage < 50) return TimeSpan.FromMinutes(15); // 不完整资料缩短缓存
                     }
+
                     return originalExpiry;
                 };
             });
@@ -166,7 +153,7 @@ public class TtlManagementExample
     }
 
     /// <summary>
-    /// 演示 TTL 验证和错误处理
+    ///     演示 TTL 验证和错误处理
     /// </summary>
     public async Task DemonstrateTtlValidationAsync()
     {
@@ -184,7 +171,7 @@ public class TtlManagementExample
         await _cacheService.SetAsync("test:exception:ttl", "测试数据", options =>
         {
             options.Expiry = TimeSpan.FromMinutes(30);
-            
+
             options.AdjustExpiryForValue = (originalExpiry, value) =>
             {
                 // 故意抛出异常来测试异常处理
@@ -196,7 +183,7 @@ public class TtlManagementExample
     }
 
     /// <summary>
-    /// 运行所有 TTL 管理示例
+    ///     运行所有 TTL 管理示例
     /// </summary>
     public async Task RunAllExamplesAsync()
     {

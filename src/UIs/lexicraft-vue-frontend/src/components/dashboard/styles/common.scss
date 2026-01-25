@@ -14,7 +14,7 @@
   justify-content: space-between;
   align-items: center;
   margin-bottom: 1.25rem;
-  
+
   .title {
     font-size: 1.1rem;
     font-weight: 700;
@@ -29,7 +29,7 @@
   color: #94a3b8;
   cursor: pointer;
   padding: 4px;
-  
+
   &:hover {
     color: #64748b;
   }
@@ -42,7 +42,7 @@
   font-size: 0.875rem;
   color: var(--text-tertiary);
   cursor: pointer;
-  
+
   &:hover {
     color: var(--text-primary);
   }
@@ -56,7 +56,7 @@
 
   .card-header {
     margin-bottom: 1rem;
-    
+
     .title {
       font-size: 1rem;
     }

@@ -40,6 +40,7 @@ builder.AddZEventBus();
 ## 进阶使用案例
 
 ### 1. 配置自定义事件名称与 Channel
+
 使用 `EventSchemeAttribute` 装饰事件类：
 
 ```csharp
@@ -51,6 +52,7 @@ public record UserLoginSuccessEvent(Guid UserId, string UserName);
 ```
 
 ### 2. Saga 分布式事件追踪
+
 通过 `SagaExtensions` 在多个集成事件间自动透传关键的 `CorrelationId`：
 
 ```csharp
@@ -81,13 +83,13 @@ public class OrderHandler : IEventHandler<OrderCreatedIntegrationEvent>
 
 ## 配置项详情 (EventBusOptions)
 
-| 属性 | 类型 | 默认值 | 说明 |
-| :--- | :--- | :--- | :--- |
-| `EnableLocal` | `bool` | `true` | 是否开启本地内存消息分发 |
-| `EnableRedis` | `bool` | `false` | 是否开启 Redis 发布订阅模式 |
-| `Redis.ConnectionString`| `string` | `null` | Redis 连接串，启用 Redis 时必填 |
-| `Redis.Prefix` | `string` | `"lexi"` | 频道名前缀（例如：lexi:TypeName） |
-| `Redis.IdempotencyExpireSeconds` | `int` | `86400` | 原子幂等凭证的过期时长 |
+| 属性                               | 类型       | 默认值      | 说明                      |
+|:---------------------------------|:---------|:---------|:------------------------|
+| `EnableLocal`                    | `bool`   | `true`   | 是否开启本地内存消息分发            |
+| `EnableRedis`                    | `bool`   | `false`  | 是否开启 Redis 发布订阅模式       |
+| `Redis.ConnectionString`         | `string` | `null`   | Redis 连接串，启用 Redis 时必填  |
+| `Redis.Prefix`                   | `string` | `"lexi"` | 频道名前缀（例如：lexi:TypeName） |
+| `Redis.IdempotencyExpireSeconds` | `int`    | `86400`  | 原子幂等凭证的过期时长             |
 
 ## 目录结构说明
 

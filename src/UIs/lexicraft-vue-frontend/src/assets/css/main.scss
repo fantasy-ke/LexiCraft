@@ -225,9 +225,9 @@ html.dark {
 
 .anim {
   transition: background var(--anim-time),
-    color var(--anim-time),
-    border var(--anim-time),
-    opacity var(--anim-time);
+  color var(--anim-time),
+  border var(--anim-time),
+  opacity var(--anim-time);
 }
 
 .en-article-family {
@@ -256,7 +256,7 @@ body {
 .mobile-page {
   @apply fixed left-0 right-0 bottom-0 top-0 overflow-auto font-size-18 w-full h-full flex flex-col;
 
-  &>.page-content {
+  & > .page-content {
     @apply p-10 box-border overflow-auto;
   }
 }
@@ -502,7 +502,7 @@ a {
 }
 
 .btn-no-margin {
-  .base-button+.base-button {
+  .base-button + .base-button {
     margin-left: 0 !important;
   }
 }

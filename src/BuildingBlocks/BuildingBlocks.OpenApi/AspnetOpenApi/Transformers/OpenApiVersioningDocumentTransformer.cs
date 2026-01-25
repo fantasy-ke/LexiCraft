@@ -17,28 +17,25 @@ public class OpenApiVersioningDocumentTransformer(
         CancellationToken cancellationToken
     )
     {
-		var openApiOptions = options.CurrentValue;
-		
+        var openApiOptions = options.CurrentValue;
+
         var apiDescription = apiVersionDescriptionProvider.ApiVersionDescriptions.SingleOrDefault(description =>
             description.GroupName == context.DocumentName
         );
 
-        if (apiDescription is null)
-        {
-            return Task.CompletedTask;
-        }
+        if (apiDescription is null) return Task.CompletedTask;
 
         document.Info.License = new OpenApiLicense
         {
-			Name = openApiOptions?.LicenseName,
-			Url = openApiOptions?.LicenseUrl,
+            Name = openApiOptions?.LicenseName,
+            Url = openApiOptions?.LicenseUrl
         };
-        
+
         document.Info.Contact = new OpenApiContact
         {
-			Name = openApiOptions?.AuthorName,
-			Url = openApiOptions?.AuthorUrl,
-			Email = openApiOptions?.AuthorEmail,
+            Name = openApiOptions?.AuthorName,
+            Url = openApiOptions?.AuthorUrl,
+            Email = openApiOptions?.AuthorEmail
         };
 
         document.Info.Version = apiDescription.ApiVersion.ToString();

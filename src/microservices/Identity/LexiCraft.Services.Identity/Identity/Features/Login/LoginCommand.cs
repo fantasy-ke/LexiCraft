@@ -7,6 +7,8 @@ using LexiCraft.Services.Identity.Identity.Internal.Commands;
 using LexiCraft.Services.Identity.Shared.Contracts;
 using MediatR;
 using LexiCraft.Services.Identity.Shared.Dtos;
+using MediatR;
+using Microsoft.EntityFrameworkCore;
 
 namespace LexiCraft.Services.Identity.Identity.Features.Login;
 
@@ -19,7 +21,7 @@ public class LoginCommandValidator : AbstractValidator<LoginCommand>
         RuleFor(x => x.UserAccount)
             .NotEmpty().WithMessage("请输入账号")
             .MaximumLength(50).WithMessage("账号长度不能超过50个字符");
-            
+
         RuleFor(x => x.Password)
             .NotEmpty().WithMessage("请输入密码")
             .MinimumLength(6).WithMessage("密码长度至少6位")
@@ -94,7 +96,7 @@ public partial class LoginCommandHandler(
 
         return await mediator.Send(new GenerateTokenResponseCommand(user, "Password"), cancellationToken);
     }
-    
+
     [GeneratedRegex("^(?=.*[0-9])(?=.*[a-zA-Z]).*$")]
     private static partial Regex PasswordRegex();
 }

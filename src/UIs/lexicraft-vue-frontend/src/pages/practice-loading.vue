@@ -1,13 +1,13 @@
 <template>
-  <LoadingScreen 
-    :progress="loadingProgress" 
-    :loading-text="loadingText"
+  <LoadingScreen
+      :loading-text="loadingText"
+      :progress="loadingProgress"
   />
 </template>
 
-<script setup lang="ts">
-import { ref, onMounted } from 'vue'
-import { useRouter, useRoute } from 'vue-router'
+<script lang="ts" setup>
+import {onMounted, ref} from 'vue'
+import {useRoute, useRouter} from 'vue-router'
 import LoadingScreen from '@/components/LoadingScreen.vue'
 
 const router = useRouter()
@@ -41,17 +41,17 @@ const simulateLoading = async () => {
     loadingProgress.value = progress
     // 进度过半时，可以考虑换一个提示语，增加互动感
     if (progress === 60) {
-       loadingText.value = tips[Math.floor(Math.random() * tips.length)]
+      loadingText.value = tips[Math.floor(Math.random() * tips.length)]
     }
   }
 
   // 加载完成后跳转到实际的练习页面
   await new Promise(resolve => setTimeout(resolve, 500))
-  
+
   // 获取目标路由参数
   const targetPath = route.query.target as string
   const practiceId = route.params.id as string
-  
+
   if (targetPath && practiceId) {
     const finalPath = `${targetPath}/${practiceId}`
     console.log('Redirecting to:', finalPath)

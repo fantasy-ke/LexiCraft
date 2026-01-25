@@ -1,5 +1,5 @@
-<script setup lang="ts">
-import { useSettingStore } from '@/stores/setting'
+<script lang="ts" setup>
+import {useSettingStore} from '@/stores/setting'
 
 interface Props {
   visible: boolean
@@ -28,7 +28,7 @@ const exitList = () => {
 
 <template>
   <div v-if="visible" class="exit-dialog-overlay" @click.self="handleClose">
-    <div class="exit-dialog" :class="settingStore.theme">
+    <div :class="settingStore.theme" class="exit-dialog">
       <div class="dialog-header">
         <h3 class="title">退出练习</h3>
         <button class="close-icon-btn" @click="handleClose">✕</button>
@@ -44,32 +44,33 @@ const exitList = () => {
         <div class="options-list">
           <div class="option-item" @click="exitHome">
             <div class="option-left">
-              <IconFluentHome20Regular class="icon" />
+              <IconFluentHome20Regular class="icon"/>
               <span class="label">返回首页</span>
             </div>
-            <IconFluentArrowRight16Regular class="arrow" />
+            <IconFluentArrowRight16Regular class="arrow"/>
           </div>
 
           <div class="option-item" @click="exitList">
             <div class="option-left">
-              <IconFluentList20Regular v-if="listLabel.includes('列表')" class="icon" />
-              <IconFluentBook20Regular v-else class="icon" />
+              <IconFluentList20Regular v-if="listLabel.includes('列表')" class="icon"/>
+              <IconFluentBook20Regular v-else class="icon"/>
               <span class="label">{{ listLabel }}</span>
             </div>
-            <IconFluentArrowRight16Regular class="arrow" />
+            <IconFluentArrowRight16Regular class="arrow"/>
           </div>
         </div>
 
         <!-- 底部按钮 -->
         <button class="continue-btn" @click="$emit('continue')">
-          <IconFluentPlay20Regular class="play-icon" /> 继续学习
+          <IconFluentPlay20Regular class="play-icon"/>
+          继续学习
         </button>
       </div>
     </div>
   </div>
 </template>
 
-<style scoped lang="scss">
+<style lang="scss" scoped>
 .exit-dialog-overlay {
   position: fixed;
   inset: 0;

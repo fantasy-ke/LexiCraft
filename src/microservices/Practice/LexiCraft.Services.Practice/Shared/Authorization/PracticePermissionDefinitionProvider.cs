@@ -4,7 +4,7 @@ using LexiCraft.Shared.Permissions;
 namespace LexiCraft.Services.Practice.Shared.Authorization;
 
 /// <summary>
-/// 练习服务权限定义提供程序
+///     练习服务权限定义提供程序
 /// </summary>
 public class PracticePermissionDefinitionProvider : PermissionDefinitionProvider
 {
@@ -16,7 +16,7 @@ public class PracticePermissionDefinitionProvider : PermissionDefinitionProvider
 
         // 创建练习服务模块权限
         var practicePage = pages.GetChildOrNull(PracticePermissions.Page) ??
-                                 pages.CreateChildPermission(PracticePermissions.Page, "练习服务", "练习服务相关权限");
+                           pages.CreateChildPermission(PracticePermissions.Page, "练习服务", "练习服务相关权限");
 
         // --- 练习任务管理 ---
         var tasksGroup = practicePage.CreateChildPermission(PracticePermissions.Tasks.Default, "练习任务", "练习任务创建与管理");
@@ -25,7 +25,8 @@ public class PracticePermissionDefinitionProvider : PermissionDefinitionProvider
         tasksGroup.CreateChildPermission(PracticePermissions.Tasks.Complete, "完成任务", "允许完成练习任务");
 
         // --- 评估管理 ---
-        var assessmentsGroup = practicePage.CreateChildPermission(PracticePermissions.Assessments.Default, "评估管理", "练习评估与记录管理");
+        var assessmentsGroup =
+            practicePage.CreateChildPermission(PracticePermissions.Assessments.Default, "评估管理", "练习评估与记录管理");
         assessmentsGroup.CreateChildPermission(PracticePermissions.Assessments.Create, "创建评估", "允许创建练习评估记录");
         assessmentsGroup.CreateChildPermission(PracticePermissions.Assessments.Query, "查询评估", "允许查询评估记录");
         assessmentsGroup.CreateChildPermission(PracticePermissions.Assessments.Update, "更新评估", "允许更新评估记录");

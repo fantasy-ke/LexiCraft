@@ -20,13 +20,13 @@
           v-for="(q, i) in questions"
           :key="i"
           ref="questionRefs1"
-          :question-index="i + 1"
-          :stem="q.stem"
-          :options="q.options"
           :correct-answer="q.correctAnswer"
           :explanation="q.explanation"
           :immediate-feedback="props.immediateFeedback"
+          :options="q.options"
+          :question-index="i + 1"
           :randomize="props.randomize"
+          :stem="q.stem"
           @answered="onAnswered"
       />
     </form>
@@ -42,7 +42,7 @@
   </div>
 </template>
 
-<script setup lang="ts">
+<script lang="ts" setup>
 import {ref, useTemplateRef} from 'vue'
 import QuestionItem from './QuestionItem.vue'
 import Toast from '@/components/base/toast/Toast.ts'

@@ -1,4 +1,5 @@
 using BuildingBlocks.Authentication.Contract;
+using System.Security.Claims;
 using BuildingBlocks.Authentication.Shared;
 using BuildingBlocks.Caching.Abstractions;
 using Microsoft.AspNetCore.Authorization;
@@ -14,13 +15,19 @@ public sealed class AuthorizeHandler(
 {
     private readonly AsyncServiceScope _scope = serviceProvider.CreateAsyncScope();
 
-    protected override async Task HandleRequirementAsync(AuthorizationHandlerContext context, AuthorizeRequirement requirement)
+    public void Dispose()
+    {
+        Dispose(true);
+    }
+
+    protected override async Task HandleRequirementAsync(AuthorizationHandlerContext context,
+        AuthorizeRequirement requirement)
     {
         AuthorizationFailureReason failureReason;
 
         var currentEndpoint = contextAccessor.HttpContext?.GetEndpoint();
 
-        if(currentEndpoint is null)
+        if (currentEndpoint is null)
         {
             failureReason = new AuthorizationFailureReason(this, "非法路由，What are you doing, man ?");
             context.Fail(failureReason);
@@ -56,7 +63,7 @@ public sealed class AuthorizeHandler(
         // 检查是否启用Redis权限验证
         var oauthOptions = _scope.ServiceProvider.GetRequiredService<IOptionsMonitor<OAuthOptions>>();
         var redisEnabled = oauthOptions.CurrentValue.OAuthRedis.Enable;
-        
+
         // 如果未启用Redis权限验证，直接通过（降级策略）
         if (!redisEnabled)
            goto next;
@@ -72,12 +79,13 @@ public sealed class AuthorizeHandler(
             context.Fail(failureReason);
             return;
         }
+
         next:
         context.Succeed(requirement);
     }
 
     /// <summary>
-    /// 检查Token有效性（Redis白名单/黑名单校验）
+    ///     检查Token有效性（Redis白名单/黑名单校验）
     /// </summary>
     private async Task<bool> CheckTokenValidityAsync(AuthorizationHandlerContext context)
     {
@@ -101,20 +109,12 @@ public sealed class AuthorizeHandler(
             context.Fail(failureReason);
             return false;
         }
-
     }
 
     private void Dispose(bool disposing)
     {
         if (disposing)
-        {
             // TODO 在此释放托管资源
             _scope.Dispose();
-        }
-    }
-
-    public void Dispose()
-    {
-        Dispose(true);
     }
 }

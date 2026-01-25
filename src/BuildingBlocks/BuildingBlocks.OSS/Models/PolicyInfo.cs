@@ -1,18 +1,14 @@
-﻿using System.Collections.Generic;
 using BuildingBlocks.OSS.Models.Policy;
 
-namespace BuildingBlocks.OSS.Models
-{
-    public class PolicyInfo
-    {
-        /// <summary>
-        /// 
-        /// </summary>
-        public string Version { get; set; }
+namespace BuildingBlocks.OSS.Models;
 
-        /// <summary>
-        /// 
-        /// </summary>
-        public List<StatementItem> Statement { get; set; }
-    }
+public class PolicyInfo
+{
+    /// <summary>
+    /// </summary>
+    public required string Version { get; set; }
+
+    /// <summary>
+    /// </summary>
+    public required List<StatementItem> Statement { get; set; }
 }

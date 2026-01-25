@@ -1,4 +1,4 @@
-<script setup lang="ts">
+<script lang="ts" setup>
 import BaseButton from "./BaseButton.vue";
 
 interface Resource {
@@ -58,9 +58,9 @@ const getDifficultyClass = (difficulty: string) => {
           {{ resource.description }}
         </div>
         <span
-          v-if="resource.difficulty"
-          class="inline-block px-3 py-1 rounded-full text-xs font-medium text-white"
-          :class="getDifficultyClass(resource.difficulty)"
+            v-if="resource.difficulty"
+            :class="getDifficultyClass(resource.difficulty)"
+            class="inline-block px-3 py-1 rounded-full text-xs font-medium text-white"
         >
           {{ resource.difficulty }}
         </span>

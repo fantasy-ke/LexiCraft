@@ -1,8 +1,8 @@
-<script setup lang="ts">
-import type { Article } from '@/types/types.ts'
+<script lang="ts" setup>
+import type {Article} from '@/types/types.ts'
 import BaseList from '@/components/list/BaseList.vue'
 import BaseInput from '@/components/base/BaseInput.vue'
-import { useArticleOptions } from '@/hooks/dict.ts'
+import {useArticleOptions} from '@/hooks/dict.ts'
 import BaseIcon from '@/components/BaseIcon.vue'
 
 interface IProps {
@@ -30,8 +30,8 @@ let localList = $computed(() => {
     let res = props.list.filter((item: Article) => {
       return strings.some(value => {
         return (
-          item.title.toLowerCase().includes(value) ||
-          item.titleTranslate.toLowerCase().includes(value)
+            item.title.toLowerCase().includes(value) ||
+            item.titleTranslate.toLowerCase().includes(value)
         )
       })
     })
@@ -43,7 +43,8 @@ let localList = $computed(() => {
           res.push(props.list[d - 1])
         }
       }
-    } catch (err) {}
+    } catch (err) {
+    }
     return res.sort((a: Article, b: Article) => {
       //使完整包含的条目更靠前
       const aMatch = a.title.toLowerCase().includes(t)
@@ -67,50 +68,51 @@ function scrollToBottom() {
 function scrollToItem(index: number) {
   listRef?.scrollToItem(index)
 }
-const { isArticleCollect, toggleArticleCollect } = useArticleOptions()
 
-defineExpose({ scrollToBottom, scrollToItem })
+const {isArticleCollect, toggleArticleCollect} = useArticleOptions()
+
+defineExpose({scrollToBottom, scrollToItem})
 </script>
 
 <template>
   <div class="list">
     <div class="search">
-      <BaseInput clearable v-model="searchKey">
+      <BaseInput v-model="searchKey" clearable>
         <template #subfix>
-          <IconFluentSearch24Regular class="text-lg text-gray" />
+          <IconFluentSearch24Regular class="text-lg text-gray"/>
         </template>
       </BaseInput>
     </div>
-    <BaseList ref="listRef" @click="(e: any) => emit('click', e)" :list="localList" v-bind="$attrs">
+    <BaseList ref="listRef" :list="localList" v-bind="$attrs" @click="(e: any) => emit('click', e)">
       <template v-slot="{ item, index, active }">
-        <div class="common-list-item" :class="{ active }">
+        <div :class="{ active }" class="common-list-item">
           <div class="left">
             <div class="title-wrapper">
               <div class="item-title">
                 <div class="name">
-                  <span class="text-sm text-gray-500" v-if="index != undefined && !searchKey">
+                  <span v-if="index != undefined && !searchKey" class="text-sm text-gray-500">
                     {{ item.id == -1 ? '' : (index - (props.showDesc ? 1 : 0)) + '.' }}
                   </span>
                   {{ item.title }}
                 </div>
               </div>
-              <div class="item-sub-title" v-if="item.titleTranslate && showTranslate">
+              <div v-if="item.titleTranslate && showTranslate" class="item-sub-title">
                 <div class="item-translate">{{ ` ${item.titleTranslate}` }}</div>
               </div>
             </div>
           </div>
           <div class="right">
             <BaseIcon
-              :class="!isArticleCollect(item) ? 'collect' : 'fill'"
-              @click.stop="toggleArticleCollect(item)"
-              :title="!isArticleCollect(item) ? '收藏' : '取消收藏'"
+                :class="!isArticleCollect(item) ? 'collect' : 'fill'"
+                :title="!isArticleCollect(item) ? '收藏' : '取消收藏'"
+                @click.stop="toggleArticleCollect(item)"
             >
-              <IconFluentStar16Regular v-if="!isArticleCollect(item)" />
-              <IconFluentStar16Filled v-else />
+              <IconFluentStar16Regular v-if="!isArticleCollect(item)"/>
+              <IconFluentStar16Filled v-else/>
             </BaseIcon>
-<!--            <BaseIcon title="可播放音频" v-if="item.audioSrc || item.audioFileId" noBg>-->
-<!--              <IconBxVolumeFull class="opacity-100! color-gray" />-->
-<!--            </BaseIcon>-->
+            <!--            <BaseIcon title="可播放音频" v-if="item.audioSrc || item.audioFileId" noBg>-->
+            <!--              <IconBxVolumeFull class="opacity-100! color-gray" />-->
+            <!--            </BaseIcon>-->
           </div>
         </div>
       </template>
@@ -118,7 +120,7 @@ defineExpose({ scrollToBottom, scrollToItem })
   </div>
 </template>
 
-<style scoped lang="scss">
+<style lang="scss" scoped>
 .list {
   display: flex;
   flex-direction: column;

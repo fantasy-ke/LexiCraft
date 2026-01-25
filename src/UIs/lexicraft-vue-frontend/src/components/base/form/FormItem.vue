@@ -1,4 +1,4 @@
-<script setup lang="tsx">
+<script lang="tsx" setup>
 import {inject, onMounted, ref, useSlots} from 'vue'
 
 const props = defineProps({
@@ -110,9 +110,9 @@ defineRender(() => {
 
   return <div class="form-item   flex gap-space">
     {props.label &&
-      <label class="w-20 flex items-start mt-1 justify-end">
-        {myRules.length ? <span class="form-error">*</span> : null} {props.label}
-      </label>}
+        <label class="w-20 flex items-start mt-1 justify-end">
+          {myRules.length ? <span class="form-error">*</span> : null} {props.label}
+        </label>}
     <div class="flex-1 relative">
       <DefaultNode/>
       <div class="form-error my-0.5 anim" style={{opacity: error ? 1 : 0}}>{error} &nbsp;</div>
@@ -121,7 +121,7 @@ defineRender(() => {
 })
 </script>
 
-<style scoped lang="scss">
+<style lang="scss" scoped>
 .form-error {
   color: #f56c6c;
   font-size: 0.8rem;

@@ -1,3 +1,5 @@
 namespace LexiCraft.Services.Vocabulary;
 
-public class VocabularyMetadata { }
+public class VocabularyMetadata
+{
+}

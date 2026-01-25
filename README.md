@@ -7,26 +7,26 @@ LexiCraft 是一个基于 .NET 的项目，围绕微服务架构构建，并使�
 项目分为几个关键领域：
 
 - **`src/`**: 主要源代码目录。
-  - **`LexiCraft.Aspire.Host/`**: .NET Aspire 主机项目，用于编排应用程序的各种服务和组件。
-  - **`LexiCraft.Aspire.ServiceDefaults/`**: 包含 Aspire 生态系统的默认服务配置和扩展。
-  - **`ApiGateway/`**: 基于 **YARP (Yet Another Reverse Proxy)** 实现的 API 网关，负责请求路由、负载均衡和跨切面逻辑。
-  - **`microservices/`**: 存放应用程序的不同微服务。
-    - **`LexiCraft.Services.Identity/`**: 用户身份认证和管理服务，包含用户、权限、登录等核心功能。
-    - **`LexiCraft.Services.Identity.Api/`**: 用户身份认证服务的API入口点。
-    - **`LexiCraft.Files.Grpc/`**: 文件管理服务，通过 gRPC 提供文件上传、下载等功能。
-  - **`BuildingBlocks/`**: 包含跨不同服务使用的共享库和组件。这包括常见的功能，例如：
-    - **`BuildingBlocks`**: 核心领域逻辑、仓库和异常处理。
-    - **`BuildingBlocks.Authorization`**: 授权相关组件，包括 JWT 处理和权限检查。
-    - **`BuildingBlocks.Caching`**: 统一缓存管理组件，支持 Redis 等缓存实现。
-    - **`BuildingBlocks.EntityFrameworkCore`**: 基于 EF Core 的数据访问组件。
-    - **`BuildingBlocks.EntityFrameworkCore.Postgres`**: PostgreSQL 数据库相关组件。
-    - **`BuildingBlocks.Grpc.Contracts`**: 用于服务间通信的 gRPC 契约。
-    - **`BuildingBlocks.OpenApi`**: OpenAPI (Swagger/Scalar) 相关配置和组件。
-    - **`BuildingBlocks.EventBus`**: 统一事件总线实现，支持本地内存 (Channel) 与 Redis 分布式混合模式。
-    - **`BuildingBlocks.SerilogLogging`**: 基于 Serilog 的统一日志记录组件。
-    - **`BuildingBlocks.Validation`**: 请求验证相关组件，基于 FluentValidation。
-    - **`BuildingBlocks.OSS`**: 对象存储服务 (OSS) 统一封装组件，支持阿里云、腾讯云、Minio 等。
-    - **`BuildingBlocks.MongoDB`**: MongoDB 数据访问组件。
+    - **`LexiCraft.Aspire.Host/`**: .NET Aspire 主机项目，用于编排应用程序的各种服务和组件。
+    - **`LexiCraft.Aspire.ServiceDefaults/`**: 包含 Aspire 生态系统的默认服务配置和扩展。
+    - **`ApiGateway/`**: 基于 **YARP (Yet Another Reverse Proxy)** 实现的 API 网关，负责请求路由、负载均衡和跨切面逻辑。
+    - **`microservices/`**: 存放应用程序的不同微服务。
+        - **`LexiCraft.Services.Identity/`**: 用户身份认证和管理服务，包含用户、权限、登录等核心功能。
+        - **`LexiCraft.Services.Identity.Api/`**: 用户身份认证服务的API入口点。
+        - **`LexiCraft.Files.Grpc/`**: 文件管理服务，通过 gRPC 提供文件上传、下载等功能。
+    - **`BuildingBlocks/`**: 包含跨不同服务使用的共享库和组件。这包括常见的功能，例如：
+        - **`BuildingBlocks`**: 核心领域逻辑、仓库和异常处理。
+        - **`BuildingBlocks.Authorization`**: 授权相关组件，包括 JWT 处理和权限检查。
+        - **`BuildingBlocks.Caching`**: 统一缓存管理组件，支持 Redis 等缓存实现。
+        - **`BuildingBlocks.EntityFrameworkCore`**: 基于 EF Core 的数据访问组件。
+        - **`BuildingBlocks.EntityFrameworkCore.Postgres`**: PostgreSQL 数据库相关组件。
+        - **`BuildingBlocks.Grpc.Contracts`**: 用于服务间通信的 gRPC 契约。
+        - **`BuildingBlocks.OpenApi`**: OpenAPI (Swagger/Scalar) 相关配置和组件。
+        - **`BuildingBlocks.EventBus`**: 统一事件总线实现，支持本地内存 (Channel) 与 Redis 分布式混合模式。
+        - **`BuildingBlocks.SerilogLogging`**: 基于 Serilog 的统一日志记录组件。
+        - **`BuildingBlocks.Validation`**: 请求验证相关组件，基于 FluentValidation。
+        - **`BuildingBlocks.OSS`**: 对象存储服务 (OSS) 统一封装组件，支持阿里云、腾讯云、Minio 等。
+        - **`BuildingBlocks.MongoDB`**: MongoDB 数据访问组件。
 
 ## 功能特性
 
@@ -37,22 +37,23 @@ LexiCraft 是一个基于 .NET 的项目，围绕微服务架构构建，并使�
 - **API 版本控制**: 支持 API 版本管理，便于系统演进。
 - **CQRS 模式**: 使用 MediatR 实现命令查询职责分离。
 - **请求验证**: 使用 FluentValidation 实现请求参数验证。
-- **事件驱动与数据一致性**: 
+- **事件驱动与数据一致性**:
     - 通过事件总线实现服务间的异步通信。
-    - 采用 **Saga 模式 (Choreography/协作式)** 处理跨微服务的分布式事务。当某个业务环节失败时，通过 `BuildingBlocks.EventBus` 发布补偿事件，确保数据的最终一致性。
+    - 采用 **Saga 模式 (Choreography/协作式)** 处理跨微服务的分布式事务。当某个业务环节失败时，通过
+      `BuildingBlocks.EventBus` 发布补偿事件，确保数据的最终一致性。
 
 ## 快速开始
 
 1. **先决条件**：
 
-   - .NET SDK 10.0+ (Preview)
-   - Docker（用于运行 Redis、PostgreSQL 等依赖项）
-   - Visual Studio 2022 Preview 或 JetBrains Rider (支持 .slnx 格式)
+    - .NET SDK 10.0+ (Preview)
+    - Docker（用于运行 Redis、PostgreSQL 等依赖项）
+    - Visual Studio 2022 Preview 或 JetBrains Rider (支持 .slnx 格式)
 2. **运行应用程序**：
 
-   - 在您首选的 IDE 中打开 `src/LexiCraft.slnx` 解决方案文件。
-   - 将 `LexiCraft.Aspire.Host` 设置为启动项目。
-   - 运行项目。这将启动 Aspire 仪表板和所有注册的服务。
+    - 在您首选的 IDE 中打开 `src/LexiCraft.slnx` 解决方案文件。
+    - 将 `LexiCraft.Aspire.Host` 设置为启动项目。
+    - 运行项目。这将启动 Aspire 仪表板和所有注册的服务。
 
 ## 技术栈
 
@@ -72,7 +73,8 @@ LexiCraft 是一个基于 .NET 的项目，围绕微服务架构构建，并使�
 
 ## 项目架构
 
-项目采用微服务架构，使用 CQRS 模式分离命令和查询职责。Building Blocks 层提供通用功能，如认证、授权、数据访问等，确保代码复用和一致性。通过 .NET Aspire 进行服务编排，简化了微服务部署和管理。
+项目采用微服务架构，使用 CQRS 模式分离命令和查询职责。Building Blocks 层提供通用功能，如认证、授权、数据访问等，确保代码复用和一致性。通过
+.NET Aspire 进行服务编排，简化了微服务部署和管理。
 
 ---
 

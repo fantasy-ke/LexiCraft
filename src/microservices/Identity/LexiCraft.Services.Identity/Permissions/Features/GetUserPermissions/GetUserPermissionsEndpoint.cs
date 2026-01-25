@@ -1,5 +1,4 @@
 using Humanizer;
-using LexiCraft.Shared.Permissions;
 using MediatR;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Http;
@@ -32,7 +31,7 @@ public static class GetUserPermissionsEndpoint
 }
 
 /// <summary>
-///   查询用户权限列表请求参数
+///     查询用户权限列表请求参数
 /// </summary>
 /// <param name="Mediator"></param>
 /// <param name="UserId"></param>
@@ -44,7 +43,7 @@ internal record GetUserPermissionsRequestParameters(
 );
 
 /// <summary>
-/// 查询用户权限列表响应
+///     查询用户权限列表响应
 /// </summary>
 /// <param name="UserId">用户ID</param>
 /// <param name="Permissions">权限列表</param>

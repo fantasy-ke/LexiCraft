@@ -4,7 +4,7 @@ using BuildingBlocks.EventBus.Options;
 using BuildingBlocks.EventBus.Redis;
 using BuildingBlocks.EventBus.Shared;
 using BuildingBlocks.Extensions;
-using Microsoft.Extensions.Configuration;
+using FreeRedis;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using StackExchange.Redis;
@@ -14,9 +14,10 @@ namespace BuildingBlocks.EventBus.Extensions;
 public static class EventBusExtensions
 {
     /// <summary>
-    /// 添加统一的 EventBus 支持 (支持混合模式与配置文件绑定)
+    ///     添加统一的 EventBus 支持 (支持混合模式与配置文件绑定)
     /// </summary>
-    public static IHostApplicationBuilder AddZEventBus(this IHostApplicationBuilder builder, Action<EventBusOptions>? configure = null)
+    public static IHostApplicationBuilder AddZEventBus(this IHostApplicationBuilder builder,
+        Action<EventBusOptions>? configure = null)
     {
         // 直接从 builder.Configuration 获取配置实例以便进行条件注册
         var options = builder.Configuration.BindOptions(nameof(EventBusOptions), configure);
@@ -37,9 +38,7 @@ public static class EventBusExtensions
         // 如果启用 Redis 总线
         if (!options.EnableRedis) return builder;
         if (string.IsNullOrEmpty(options.Redis.ConnectionString))
-        {
             throw new Exception("启用 Redis EventBus 时必须提供 ConnectionString");
-        }
 
         builder.Services.AddSingleton<IConnectionMultiplexer>(sp => 
             ConnectionMultiplexer.Connect(options.Redis.ConnectionString));
@@ -50,9 +49,12 @@ public static class EventBusExtensions
 }
 
 /// <summary>
-/// 内部使用的本地后台消费服务
+///     内部使用的本地后台消费服务
 /// </summary>
 internal class EventLocalBackgroundService(EventLocalClient client) : BackgroundService
 {
-    protected override Task ExecuteAsync(CancellationToken stoppingToken) => client.ConsumeStartAsync(stoppingToken);
+    protected override Task ExecuteAsync(CancellationToken stoppingToken)
+    {
+        return client.ConsumeStartAsync(stoppingToken);
+    }
 }

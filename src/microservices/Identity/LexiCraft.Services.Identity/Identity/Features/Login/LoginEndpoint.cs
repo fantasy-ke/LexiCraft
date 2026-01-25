@@ -1,10 +1,10 @@
 using Humanizer;
+using LexiCraft.Services.Identity.Shared.Dtos;
 using MediatR;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Routing;
-using LexiCraft.Services.Identity.Shared.Dtos;
 
 namespace LexiCraft.Services.Identity.Identity.Features.Login;
 
@@ -37,7 +37,7 @@ public static class LoginEndpoint
 }
 
 /// <summary>
-/// 用户登录请求参数
+///     用户登录请求参数
 /// </summary>
 /// <param name="Mediator"></param>
 /// <param name="Request"></param>

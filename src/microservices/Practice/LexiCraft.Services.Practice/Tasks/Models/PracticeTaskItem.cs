@@ -2,14 +2,6 @@ namespace LexiCraft.Services.Practice.Tasks.Models;
 
 public class PracticeTaskItem
 {
-    public Guid Id { get; private set; }
-    public string WordId { get; private set; }
-    public string SpellingSnapshot { get; private set; }
-    public string PhoneticSnapshot { get; private set; }
-    public string? PronunciationUrl { get; private set; }
-    public string DefinitionSnapshot { get; private set; }
-    public int OrderIndex { get; private set; }
-
     private PracticeTaskItem(string wordId, string spellingSnapshot, string phoneticSnapshot, string definitionSnapshot)
     {
         WordId = wordId;
@@ -18,7 +10,8 @@ public class PracticeTaskItem
         DefinitionSnapshot = definitionSnapshot;
     }
 
-    public PracticeTaskItem(string wordId, string spelling, string phonetic, string? audio, string definition, int index)
+    public PracticeTaskItem(string wordId, string spelling, string phonetic, string? audio, string definition,
+        int index)
     {
         Id = Guid.NewGuid();
         WordId = wordId;
@@ -28,4 +21,12 @@ public class PracticeTaskItem
         DefinitionSnapshot = definition;
         OrderIndex = index;
     }
+
+    public Guid Id { get; private set; }
+    public string WordId { get; private set; }
+    public string SpellingSnapshot { get; private set; }
+    public string PhoneticSnapshot { get; private set; }
+    public string? PronunciationUrl { get; private set; }
+    public string DefinitionSnapshot { get; private set; }
+    public int OrderIndex { get; private set; }
 }

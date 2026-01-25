@@ -1,4 +1,4 @@
-<script setup lang="ts">
+<script lang="ts" setup>
 
 import type {Article} from "@/types/types.ts";
 import {useDisableEventListener} from "@/hooks/event.ts";
@@ -28,10 +28,10 @@ useDisableEventListener(() => props.modelValue)
 
 <template>
   <Dialog
+      :full-screen="true"
       :header="false"
       :model-value="props.modelValue"
       @close="emit('update:modelValue',false)"
-      :full-screen="true"
   >
     <div class="wrapper">
       <EditArticle
@@ -42,7 +42,7 @@ useDisableEventListener(() => props.modelValue)
   </Dialog>
 </template>
 
-<style scoped lang="scss">
+<style lang="scss" scoped>
 
 .wrapper {
   width: 100%;

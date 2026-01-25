@@ -1,4 +1,4 @@
-<script setup lang="ts">
+<script lang="ts" setup>
 import {nextTick, onMounted, ref, watch} from 'vue';
 
 const props = defineProps<{
@@ -138,31 +138,31 @@ onMounted(() => {
   <div class="w-full flex">
     <div class="flex-1">
       <div
-        ref="sliderRef"
-        class="custom-slider"
-        :class="{ 'is-disabled': disabled }"
-        @mousedown="onClickTrack"
-        @touchstart.prevent="onClickTrack"
+          ref="sliderRef"
+          :class="{ 'is-disabled': disabled }"
+          class="custom-slider"
+          @mousedown="onClickTrack"
+          @touchstart.prevent="onClickTrack"
       >
         <div class="custom-slider__track"></div>
         <div
-          class="custom-slider__fill"
-          :style="{ width: valueToPercent(currentValue) + '%' }"
+            :style="{ width: valueToPercent(currentValue) + '%' }"
+            class="custom-slider__fill"
         ></div>
         <div
-          class="custom-slider__thumb"
-          :style="{ left: valueToPercent(currentValue) + '%' }"
-          @mousedown.stop.prevent="onMouseDown"
-          @touchstart.stop.prevent="onTouchStart"
-          tabindex="0"
-          role="slider"
-          :aria-valuemin="min"
-          :aria-valuemax="max"
-          :aria-valuenow="currentValue"
-          :aria-disabled="disabled"
+            :aria-disabled="disabled"
+            :aria-valuemax="max"
+            :aria-valuemin="min"
+            :aria-valuenow="currentValue"
+            :style="{ left: valueToPercent(currentValue) + '%' }"
+            class="custom-slider__thumb"
+            role="slider"
+            tabindex="0"
+            @mousedown.stop.prevent="onMouseDown"
+            @touchstart.stop.prevent="onTouchStart"
         ></div>
       </div>
-      <div class="text flex justify-between text-sm color-gray" v-if="showText">
+      <div v-if="showText" class="text flex justify-between text-sm color-gray">
         <span>{{ min }}</span>
         <span>{{ max }}</span>
       </div>
@@ -171,7 +171,7 @@ onMounted(() => {
   </div>
 </template>
 
-<style scoped lang="scss">
+<style lang="scss" scoped>
 .custom-slider {
   position: relative;
   width: 100%;

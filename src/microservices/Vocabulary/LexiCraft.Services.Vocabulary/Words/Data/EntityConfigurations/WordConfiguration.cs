@@ -11,7 +11,7 @@ public class WordConfiguration : IEntityTypeConfiguration<Word>
         builder.ToTable("words");
 
         builder.HasKey(x => x.Id);
-        
+
         builder.Property(x => x.Id)
             .ValueGeneratedOnAdd();
 

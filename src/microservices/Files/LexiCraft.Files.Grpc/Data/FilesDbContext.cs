@@ -4,13 +4,19 @@ using Microsoft.EntityFrameworkCore;
 namespace LexiCraft.Files.Grpc.Data;
 
 /// <summary>
-/// 
 /// </summary>
 /// <param name="options"></param>
 public class FilesDbContext(DbContextOptions<FilesDbContext> options) : DbContext(options)
 {
+    /// <summary>
+    ///     文件信息
+    /// </summary>
     public DbSet<FileInfos> FileInfos { get; set; } = null!;
 
+    /// <summary>
+    ///     模型创建
+    /// </summary>
+    /// <param name="modelBuilder"></param>
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         // modelBuilder.Entity<Coupon>().HasData(

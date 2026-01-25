@@ -25,11 +25,11 @@ public static class InfrastructureExtensions
 
         app.UseAuthentication();
         app.UseAuthorization();
-        
+
         // 初始化数据库并在需要时运行种子数据
         using var scope = app.Services.CreateScope();
         var dataSeeder = scope.ServiceProvider.GetRequiredService<PracticeDbDataSeeder>();
-        
+
         // 异步运行种子数据（为启动性能考虑，启动后即忽略）
         _ = Task.Run(async () =>
         {

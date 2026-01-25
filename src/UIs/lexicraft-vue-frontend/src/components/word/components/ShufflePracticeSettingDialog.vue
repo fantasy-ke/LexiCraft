@@ -1,4 +1,4 @@
-<script setup lang="ts">
+<script lang="ts" setup>
 
 import Slider from "@/components/base/Slider.vue";
 import {defineAsyncComponent, watch} from "vue";
@@ -27,9 +27,9 @@ watch(() => model.value, (n) => {
 </script>
 
 <template>
-  <Dialog v-model="model" title="随机复习设置"
-          :footer="true"
+  <Dialog v-model="model" :footer="true"
           :padding="true"
+          title="随机复习设置"
           @ok="emit('ok',num)">
     <div class="w-120 color-main">
       <div class="flex gap-4 items-end mb-2">
@@ -38,12 +38,12 @@ watch(() => model.value, (n) => {
       </div>
       <div class="flex gap-space">
         <span class="shrink-0">随机数量：</span>
-        <Slider :min="min"
-                :step="10"
-                show-text
-                class="mt-1"
+        <Slider v-model="num"
                 :max="store.sdict.lastLearnIndex"
-                v-model="num"/>
+                :min="min"
+                :step="10"
+                class="mt-1"
+                show-text/>
       </div>
       <div class="text-right">
         <span class="text-sm text-gray-500">只能复习已学习过的单词</span>
@@ -52,6 +52,6 @@ watch(() => model.value, (n) => {
   </Dialog>
 </template>
 
-<style scoped lang="scss">
+<style lang="scss" scoped>
 
 </style>

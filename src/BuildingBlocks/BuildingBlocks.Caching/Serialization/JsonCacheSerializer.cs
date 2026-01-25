@@ -1,11 +1,11 @@
-using System;
 using System.Text;
 using System.Text.Json;
+using System.Text.Json.Serialization;
 
 namespace BuildingBlocks.Caching.Serialization;
 
 /// <summary>
-/// JSON 缓存序列化静态帮助类
+///     JSON 缓存序列化静态帮助类
 /// </summary>
 public static class JsonCacheSerializer
 {
@@ -13,11 +13,11 @@ public static class JsonCacheSerializer
     {
         PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
         WriteIndented = false,
-        DefaultIgnoreCondition = System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingNull
+        DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull
     };
 
     /// <summary>
-    /// 序列化对象为字节数组
+    ///     序列化对象为字节数组
     /// </summary>
     /// <typeparam name="T">对象类型</typeparam>
     /// <param name="value">要序列化的对象</param>
@@ -39,7 +39,7 @@ public static class JsonCacheSerializer
     }
 
     /// <summary>
-    /// 从字节数组反序列化对象
+    ///     从字节数组反序列化对象
     /// </summary>
     /// <typeparam name="T">对象类型</typeparam>
     /// <param name="data">字节数组</param>

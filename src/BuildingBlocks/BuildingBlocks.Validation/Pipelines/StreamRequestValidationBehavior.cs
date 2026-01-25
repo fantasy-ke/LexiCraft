@@ -17,21 +17,19 @@ public class StreamRequestValidationBehavior<TRequest, TResponse>(
 {
     private readonly ILogger<StreamRequestValidationBehavior<TRequest, TResponse>> _logger =
         logger ?? throw new ArgumentNullException(nameof(logger));
+
     private readonly IServiceProvider _serviceProvider =
         serviceProvider ?? throw new ArgumentNullException(nameof(serviceProvider));
 
-    public async IAsyncEnumerable<TResponse> Handle(TRequest message, 
-        StreamHandlerDelegate<TResponse> next, 
+    public async IAsyncEnumerable<TResponse> Handle(TRequest message,
+        StreamHandlerDelegate<TResponse> next,
         [EnumeratorCancellation] CancellationToken cancellationToken)
     {
         var validator = _serviceProvider.GetService<IValidator<TRequest>>()!;
 
         if (validator is null)
         {
-            await foreach (var response in next().WithCancellation(cancellationToken))
-            {
-                yield return response;
-            }
+            await foreach (var response in next().WithCancellation(cancellationToken)) yield return response;
 
             yield break;
         }
@@ -49,7 +47,7 @@ public class StreamRequestValidationBehavior<TRequest, TResponse>(
             JsonSerializer.Serialize(message)
         );
 
-        await validator.HandleValidationAsync(message, cancellationToken: cancellationToken);
+        await validator.HandleValidationAsync(message, cancellationToken);
 
         await foreach (var response in next().WithCancellation(cancellationToken))
         {

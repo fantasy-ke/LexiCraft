@@ -6,12 +6,13 @@ using Microsoft.EntityFrameworkCore;
 namespace BuildingBlocks.EntityFrameworkCore;
 
 /// <summary>
-/// 仓储基类
+///     仓储基类
 /// </summary>
 /// <param name="dbContext"></param>
 /// <typeparam name="TDbContext"></typeparam>
 /// <typeparam name="TEntity"></typeparam>
-public class Repository<TDbContext, TEntity>(TDbContext dbContext) : QueryRepository<TDbContext, TEntity>(dbContext), IRepository<TDbContext, TEntity>
+public class Repository<TDbContext, TEntity>(TDbContext dbContext)
+    : QueryRepository<TDbContext, TEntity>(dbContext), IRepository<TDbContext, TEntity>
     where TEntity : class, IAggregateRoot where TDbContext : DbContext
 {
     public new TDbContext DbContext { get; set; } = dbContext;

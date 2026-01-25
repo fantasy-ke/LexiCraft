@@ -1,5 +1,5 @@
-<script setup lang="ts">
-import {onMounted, ref} from 'vue'
+<script lang="ts" setup>
+import {onMounted} from 'vue'
 import BasePage from '@/components/BasePage.vue'
 import BaseButton from '@/components/BaseButton.vue'
 import VolumeIcon from '@/components/icon/VolumeIcon.vue'
@@ -92,16 +92,22 @@ function buildQuestion(w: Word, list: Word[]): Question {
   }
   if (!c1) {
     let rand = list.filter(v => v.word.toLowerCase() !== w.word.toLowerCase())
-    if (rand.length) c1 = {word: rand[Math.floor(Math.random() * rand.length)].word, wordObj: getWordByText(rand[Math.floor(Math.random() * rand.length)].word, list)}
+    if (rand.length) c1 = {
+      word: rand[Math.floor(Math.random() * rand.length)].word,
+      wordObj: getWordByText(rand[Math.floor(Math.random() * rand.length)].word, list)
+    }
   }
   if (!c2) {
     let rand = list.filter(v => v.word.toLowerCase() !== w.word.toLowerCase() && v.word.toLowerCase() !== c1?.word.toLowerCase())
-    if (rand.length) c2 = {word: rand[Math.floor(Math.random() * rand.length)].word, wordObj: getWordByText(rand[Math.floor(Math.random() * rand.length)].word, list)}
+    if (rand.length) c2 = {
+      word: rand[Math.floor(Math.random() * rand.length)].word,
+      wordObj: getWordByText(rand[Math.floor(Math.random() * rand.length)].word, list)
+    }
   }
   if (c1) candidates.push(c1)
   if (c2) candidates.push(c2)
   const labels = candidates.map(v => formatCandidateText(v))
-  const order = shuffle([0,1,2])
+  const order = shuffle([0, 1, 2])
   const optionTexts = order.map(i => labels[i])
   const correctIndex = order.indexOf(0)
   return {
@@ -135,14 +141,14 @@ function formatCandidateText(c: Candidate): string {
   }
 
   const parts = w.trans
-    .map(v => {
-      const pos = (v.pos || '').trim()
-      const cn = cleanCn(v.cn || '', w.word)
-      if (/^\s*【名】/.test(v.cn || '')) return ''
-      if (!cn) return ''
-      return `${pos ? '- ' + pos + ' ' : '- '}${cn}`
-    })
-    .filter(Boolean)
+      .map(v => {
+        const pos = (v.pos || '').trim()
+        const cn = cleanCn(v.cn || '', w.word)
+        if (/^\s*【名】/.test(v.cn || '')) return ''
+        if (!cn) return ''
+        return `${pos ? '- ' + pos + ' ' : '- '}${cn}`
+      })
+      .filter(Boolean)
 
   return parts.length ? parts.join('；') : '当前词典未收录释义'
 }
@@ -207,18 +213,18 @@ onMounted(init)
       <div v-if="questions.length" class="flex flex-col gap-4">
         <div class="text-2xl en-article-family flex items-center gap-2">
           <span>题目：{{ questions[index].stem.word }}</span>
-          <VolumeIcon :simple="true" :title="'发音'" :cb="() => playWordAudio(questions[index].stem.word)"/>
+          <VolumeIcon :cb="() => playWordAudio(questions[index].stem.word)" :simple="true" :title="'发音'"/>
         </div>
         <div class="grid gap-2">
           <div
-            v-for="(opt,i) in questions[index].optionTexts"
-            :key="i"
-            class="option border rounded p-2 cursor-pointer"
-            :class="{
+              v-for="(opt,i) in questions[index].optionTexts"
+              :key="i"
+              :class="{
               'text-green-600': questions[index].submitted && i === questions[index].correctIndex,
               'text-red-600': questions[index].submitted && i === questions[index].selectedIndex && i !== questions[index].correctIndex
             }"
-            @click="select(i)"
+              class="option border rounded p-2 cursor-pointer"
+              @click="select(i)"
           >
             <span>(<span class="italic">{{ ['A','B','C'][i] }}</span>) {{ opt }}</span>
           </div>
@@ -244,5 +250,7 @@ onMounted(init)
 </template>
 
 <style scoped>
-.option:hover { background: var(--color-second); }
+.option:hover {
+  background: var(--color-second);
+}
 </style>

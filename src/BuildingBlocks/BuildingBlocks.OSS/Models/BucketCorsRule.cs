@@ -1,20 +1,12 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Net.Http;
-using System.Text;
-using System.Threading.Tasks;
+﻿namespace BuildingBlocks.OSS.Models;
 
-namespace BuildingBlocks.OSS.Models
+public class BucketCorsRule
 {
-    public class BucketCorsRule
-    {
-        public string? Origin { get; set; }
+    public string? Origin { get; set; }
 
-        public HttpMethod Method { get; set; } = HttpMethod.Post;
+    public HttpMethod Method { get; set; } = HttpMethod.Post;
 
-        public string? AllowedHeader { get; set; }
+    public string? AllowedHeader { get; set; }
 
-        public string? ExposeHeader { get; set; }
-    }
+    public string? ExposeHeader { get; set; }
 }

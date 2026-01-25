@@ -19,10 +19,10 @@ export default {
         // Validate that array items have the correct structure
         if (Array.isArray(value)) {
           return value.every(item =>
-            typeof item === 'object' &&
-            item !== null &&
-            typeof item.text === 'string' &&
-            ['normal', 'bold', 'red', 'redBold'].includes(item.type)
+              typeof item === 'object' &&
+              item !== null &&
+              typeof item.text === 'string' &&
+              ['normal', 'bold', 'red', 'redBold'].includes(item.type)
           )
         }
         return typeof value === 'string'
@@ -38,7 +38,7 @@ export default {
   computed: {
     titleItems() {
       if (typeof this.title === 'string') {
-        return [{ text: this.title, type: 'normal' }]
+        return [{text: this.title, type: 'normal'}]
       }
       if (Array.isArray(this.title)) {
         return this.title
@@ -114,13 +114,13 @@ export default {
                       <div ref="tip" class="pop-confirm-content shadow-2xl">
                         <div class="w-52 title-content">
                           {this.titleItems.map((item, index) => (
-                            <div
-                              key={index}
-                              style={this.getTextStyle(item.type)}
-                              class="title-item"
-                            >
-                              {item.text}
-                            </div>
+                              <div
+                                  key={index}
+                                  style={this.getTextStyle(item.type)}
+                                  class="title-item"
+                              >
+                                {item.text}
+                              </div>
                           ))}
                         </div>
                         <div class="options">

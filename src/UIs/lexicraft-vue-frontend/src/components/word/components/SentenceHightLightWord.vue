@@ -1,4 +1,4 @@
-<script setup lang="ts">
+<script lang="ts" setup>
 import {computed} from 'vue'
 
 interface IProps {
@@ -40,7 +40,7 @@ function escapeRegExp(string: string): string {
   <div v-html="highlightedText"></div>
 </template>
 
-<style scoped lang="scss">
+<style lang="scss" scoped>
 :deep(.highlight-word) {
   color: var(--color-icon-hightlight);
 }

@@ -15,24 +15,24 @@ public static partial class HostApplicationBuilderExtensions
     public static IHostApplicationBuilder AddInfrastructure(this IHostApplicationBuilder builder)
     {
         builder.AddDefaultCors();
-        
+
         builder.Services.AddHttpContextAccessor();
-        
+
         builder.Services.AddEndpointsApiExplorer();
-        
+
         builder.RegisterAuthorization();
         builder.AddCustomAuthentication();
         builder.Services.AddPermissionDefinitionProvider<PracticePermissionDefinitionProvider>();
-        
+
         builder.AddCustomVersioning();
         builder.AddAspnetOpenApi(["v1"]);
-        
+
         builder.Services.AddTransient(typeof(IPipelineBehavior<,>), typeof(LoggingBehavior<,>));
         builder.Services.AddTransient(typeof(IPipelineBehavior<,>), typeof(RequestValidationBehavior<,>));
         builder.Services.AddTransient(typeof(IPipelineBehavior<,>), typeof(StreamRequestValidationBehavior<,>));
 
         builder.Services.AddCustomValidators(typeof(PracticeMetadata).Assembly);
-        
+
         return builder;
     }
 }

@@ -1,12 +1,10 @@
 using System.Reflection;
 using System.Runtime.CompilerServices;
 using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.DependencyInjection.Extensions;
-using Microsoft.Extensions.Options;
 
 namespace BuildingBlocks.Extensions;
 
-public static partial class ServiceCollectionExtensions
+public static class ServiceCollectionExtensions
 {
     public static IServiceCollection AddConfigurationOptions<T>(
         this IServiceCollection services,
@@ -17,10 +15,7 @@ public static partial class ServiceCollectionExtensions
     {
         var optionBuilder = services.AddOptions<T>().BindConfiguration(key ?? typeof(T).Name);
 
-        if (configurator is not null)
-        {
-            optionBuilder = optionBuilder.Configure(configurator);
-        }
+        if (configurator is not null) optionBuilder = optionBuilder.Configure(configurator);
         return services;
     }
 
@@ -36,10 +31,7 @@ public static partial class ServiceCollectionExtensions
 
         var optionBuilder = services.AddOptions<T>().BindConfiguration(key ?? typeof(T).Name);
 
-        if (configurator is not null)
-        {
-           optionBuilder = optionBuilder.Configure(configurator);
-        }
+        if (configurator is not null) optionBuilder = optionBuilder.Configure(configurator);
 
         optionBuilder.Validate(validator);
         return services;
@@ -58,10 +50,7 @@ public static class RequiredConfigurationValidator
         foreach (var requiredProperty in requiredProperties)
         {
             var propertyValue = requiredProperty.GetValue(arg);
-            if (propertyValue is null)
-            {
-                throw new global::System.Exception($"Required property '{requiredProperty.Name}' was null");
-            }
+            if (propertyValue is null) throw new Exception($"Required property '{requiredProperty.Name}' was null");
         }
 
         return true;

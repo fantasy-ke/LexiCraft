@@ -1,21 +1,20 @@
-<script setup lang="ts">
-import { ref, watch } from 'vue'
-import { useRouter } from 'vue-router'
+<script lang="ts" setup>
+import {ref} from 'vue'
+import {useRouter} from 'vue-router'
 import BaseInput from '@/components/base/BaseInput.vue'
 import BaseButton from '@/components/BaseButton.vue'
-import Toast from '@/components/base/toast/Toast.ts'
 import FormItem from '@/components/base/form/FormItem.vue'
 import Form from '@/components/base/form/Form.vue'
 import Notice from '@/components/user/Notice.vue'
 import ImagePlaceholder from '@/components/common/ImagePlaceholder.vue'
 import CaptchaInput from '@/components/auth/CaptchaInput.vue'
-import { FormInstance } from '@/components/base/form/types.ts'
-import { useAuth } from '@/hooks/useAuth'
-import { LOGIN_PATH, VALIDATION_RULES } from '@/config/auth.config'
-import { RegisterRequest } from '@/types/auth'
+import {FormInstance} from '@/components/base/form/types.ts'
+import {useAuth} from '@/hooks/useAuth'
+import {LOGIN_PATH, VALIDATION_RULES} from '@/config/auth.config'
+import {RegisterRequest} from '@/types/auth'
 
 const router = useRouter()
-const { signUp, isLoading } = useAuth()
+const {signUp, isLoading} = useAuth()
 
 // 页面状态
 const loading = ref(false)
@@ -56,10 +55,10 @@ const registerFormRules = {
 // 注册处理
 async function handleRegister() {
   if (!registerFormRef.value) return
-  
+
   registerFormRef.value.validate(async (valid) => {
     if (!valid) return
-    
+
     try {
       loading.value = true
       await signUp(registerForm.value)
@@ -90,13 +89,13 @@ const goToLogin = () => {
         <div class="promo-content">
           <!-- 使用通用的图片占位符组件 -->
           <div class="promo-placeholder">
-            <ImagePlaceholder 
-              icon="🚀"
-              title="开始学习"
-              width="w-48"
-              height="h-48"
-              bg-color="bg-white/20"
-              :animated="true"
+            <ImagePlaceholder
+                :animated="true"
+                bg-color="bg-white/20"
+                height="h-48"
+                icon="🚀"
+                title="开始学习"
+                width="w-48"
             />
           </div>
           <h2 class="promo-title">开启学习之旅</h2>
@@ -115,47 +114,47 @@ const goToLogin = () => {
             <p class="text-gray-500 text-base">创建您的学习账号，开始词汇学习之旅</p>
           </div>
 
-          <Form ref="registerFormRef" :rules="registerFormRules" :model="registerForm" class="space-y-2">
-            <FormItem prop="email" label="电子邮箱">
+          <Form ref="registerFormRef" :model="registerForm" :rules="registerFormRules" class="space-y-2">
+            <FormItem label="电子邮箱" prop="email">
               <BaseInput
-                v-model="registerForm.email"
-                type="email"
-                size="large"
-                placeholder="请输入邮箱地址"
-              />
-            </FormItem>
-            
-            <FormItem prop="username" label="用户名">
-              <BaseInput
-                v-model="registerForm.username"
-                type="text"
-                size="large"
-                placeholder="请输入用户名"
+                  v-model="registerForm.email"
+                  placeholder="请输入邮箱地址"
+                  size="large"
+                  type="email"
               />
             </FormItem>
 
-            <FormItem prop="password" label="密码">
+            <FormItem label="用户名" prop="username">
               <BaseInput
-                v-model="registerForm.password"
-                type="password"
-                size="large"
-                placeholder="请输入密码（8-20位）"
+                  v-model="registerForm.username"
+                  placeholder="请输入用户名"
+                  size="large"
+                  type="text"
               />
             </FormItem>
-            
-            <FormItem prop="confirmPassword" label="确认密码">
+
+            <FormItem label="密码" prop="password">
               <BaseInput
-                v-model="registerForm.confirmPassword"
-                type="password"
-                size="large"
-                placeholder="请再次输入密码（8-20位）"
+                  v-model="registerForm.password"
+                  placeholder="请输入密码（8-20位）"
+                  size="large"
+                  type="password"
               />
             </FormItem>
-            
-            <FormItem prop="captchaCode" label="验证码">
+
+            <FormItem label="确认密码" prop="confirmPassword">
+              <BaseInput
+                  v-model="registerForm.confirmPassword"
+                  placeholder="请再次输入密码（8-20位）"
+                  size="large"
+                  type="password"
+              />
+            </FormItem>
+
+            <FormItem label="验证码" prop="captchaCode">
               <CaptchaInput
-                v-model="registerForm.captchaCode"
-                @update:captchaKey="handleCaptchaKeyUpdate"
+                  v-model="registerForm.captchaCode"
+                  @update:captchaKey="handleCaptchaKeyUpdate"
               />
             </FormItem>
           </Form>
@@ -164,18 +163,18 @@ const goToLogin = () => {
             <span class="text-xs">注册即表示同意我们的服务条款和隐私政策</span>
           </Notice>
 
-          <BaseButton 
-            class="w-full py-3.5 text-base font-bold shadow-lg shadow-green-100" 
-            size="large" 
-            :loading="loading || isLoading" 
-            @click="handleRegister"
-            style="background: linear-gradient(135deg, #10b981, #06b6d4);"
+          <BaseButton
+              :loading="loading || isLoading"
+              class="w-full py-3.5 text-base font-bold shadow-lg shadow-green-100"
+              size="large"
+              style="background: linear-gradient(135deg, #10b981, #06b6d4);"
+              @click="handleRegister"
           >
             创建账号
           </BaseButton>
 
           <div class="mt-6 text-center text-sm text-gray-600">
-            已有账号? 
+            已有账号?
             <span class="text-green-600 font-bold hover:underline cursor-pointer" @click="goToLogin">立即登录</span>
           </div>
         </div>
@@ -184,7 +183,7 @@ const goToLogin = () => {
   </div>
 </template>
 
-<style scoped lang="scss">
+<style lang="scss" scoped>
 .register-page-wrapper {
   min-height: 100vh;
   min-height: 100dvh; /* 移动端使用动态视口高度 */
@@ -212,7 +211,7 @@ const goToLogin = () => {
 
 .promo-section {
   display: none;
-  
+
   @media (min-width: 1024px) {
     display: flex;
     flex-basis: 42.86%;
@@ -256,7 +255,7 @@ const goToLogin = () => {
   position: absolute;
   border-radius: 50%;
   filter: blur(3rem);
-  
+
   &.decoration-1 {
     top: -10%;
     left: -10%;
@@ -264,7 +263,7 @@ const goToLogin = () => {
     height: 16rem;
     background: rgba(255, 255, 255, 0.1);
   }
-  
+
   &.decoration-2 {
     bottom: -10%;
     right: -10%;
@@ -283,11 +282,11 @@ const goToLogin = () => {
   padding: 1.5rem;
   overflow-y: auto; /* 允许滚动 */
   -webkit-overflow-scrolling: touch; /* iOS 平滑滚动 */
-  
+
   @media (min-width: 768px) {
     padding: 3rem;
   }
-  
+
   @media (min-width: 1024px) {
     flex-basis: 57.14%;
   }
@@ -306,7 +305,7 @@ const goToLogin = () => {
   margin-bottom: 0.5rem;
   position: relative;
   z-index: 10; /* 确保表单项在最上层 */
-  
+
   .w-20 {
     width: 100%;
     justify-content: flex-start;
@@ -315,10 +314,11 @@ const goToLogin = () => {
     color: #374151;
     margin-bottom: 0.125rem;
   }
+
   .flex-1 {
     width: 100%;
   }
-  
+
   /* 减少错误信息的高度 */
   .form-error {
     margin-top: 0.125rem;
@@ -335,7 +335,7 @@ const goToLogin = () => {
   transition: all 0.3s;
   position: relative;
   z-index: 10; /* 确保输入框在最上层 */
-  
+
   &:focus-within {
     border-color: #10b981;
     box-shadow: 0 0 0 4px rgba(16, 185, 129, 0.1);
@@ -346,7 +346,7 @@ const goToLogin = () => {
   border-radius: 8px;
   position: relative;
   z-index: 10; /* 确保按钮在最上层 */
-  
+
   &:hover {
     transform: translateY(-1px);
     box-shadow: 0 4px 12px rgba(16, 185, 129, 0.3);
@@ -372,7 +372,7 @@ const goToLogin = () => {
   .form-section {
     padding: 1rem;
   }
-  
+
   .form-wrapper {
     max-width: 100%;
   }

@@ -1,22 +1,22 @@
-<script setup lang="ts">
-import type { Article } from '@/types/types.ts'
+<script lang="ts" setup>
+import type {Article} from '@/types/types.ts'
 import BaseButton from '@/components/BaseButton.vue'
-import { _nextTick, cloneDeep, loadJsLib } from '@/utils'
-import { useBaseStore } from '@/stores/base.ts'
+import {cloneDeep, loadJsLib} from '@/utils'
+import {useBaseStore} from '@/stores/base.ts'
 
 import List from '@/components/list/List.vue'
-import { useWindowClick } from '@/hooks/event.ts'
-import { MessageBox } from '@/utils/MessageBox.tsx'
-import { useRuntimeStore } from '@/stores/runtime.ts'
-import { nanoid } from 'nanoid'
+import {useWindowClick} from '@/hooks/event.ts'
+import {MessageBox} from '@/utils/MessageBox.tsx'
+import {useRuntimeStore} from '@/stores/runtime.ts'
+import {nanoid} from 'nanoid'
 import EditArticle from '@/components/article/components/EditArticle.vue'
 import Toast from '@/components/base/toast/Toast.ts'
-import { getDefaultArticle } from '@/types/func.ts'
+import {getDefaultArticle} from '@/types/func.ts'
 import BackIcon from '@/components/BackIcon.vue'
 import MiniDialog from '@/components/dialog/MiniDialog.vue'
-import { onMounted } from 'vue'
-import { DictId, LIB_JS_URL, Origin } from '@/config/env.ts'
-import { syncBookInMyStudyList } from '@/hooks/article.ts'
+import {onMounted} from 'vue'
+import {LIB_JS_URL} from '@/config/env.ts'
+import {syncBookInMyStudyList} from '@/hooks/article.ts'
 
 const base = useBaseStore()
 const runtimeStore = useRuntimeStore()
@@ -43,31 +43,31 @@ function checkDataChange() {
       editArticle.textTranslate = editArticle.textTranslate.trim()
 
       if (
-        editArticle.title !== article.title ||
-        editArticle.titleTranslate !== article.titleTranslate ||
-        editArticle.text !== article.text ||
-        editArticle.textTranslate !== article.textTranslate
+          editArticle.title !== article.title ||
+          editArticle.titleTranslate !== article.titleTranslate ||
+          editArticle.text !== article.text ||
+          editArticle.textTranslate !== article.textTranslate
       ) {
         return MessageBox.confirm(
-          '检测到数据有变动，是否保存？',
-          '提示',
-          async () => {
-            let r = await editArticleRef.save('save')
-            if (r) resolve(true)
-          },
-          () => resolve(true)
+            '检测到数据有变动，是否保存？',
+            '提示',
+            async () => {
+              let r = await editArticleRef.save('save')
+              if (r) resolve(true)
+            },
+            () => resolve(true)
         )
       }
     } else {
       if (editArticle.title.trim() && editArticle.text.trim()) {
         return MessageBox.confirm(
-          '检测到数据有变动，是否保存？',
-          '提示',
-          async () => {
-            let r = await editArticleRef.save('save')
-            if (r) resolve(true)
-          },
-          () => resolve(true)
+            '检测到数据有变动，是否保存？',
+            '提示',
+            async () => {
+              let r = await editArticleRef.save('save')
+              if (r) resolve(true)
+            },
+            () => resolve(true)
         )
       }
     }
@@ -134,23 +134,23 @@ function importData(e: any) {
     importLoading = true
     const XLSX = await loadJsLib('XLSX', LIB_JS_URL.XLSX)
     let data = s.target.result
-    let workbook = XLSX.read(data, { type: 'binary' })
+    let workbook = XLSX.read(data, {type: 'binary'})
     let res: any[] = XLSX.utils.sheet_to_json(workbook.Sheets['Sheet1'])
     if (res.length) {
       let articles = res
-        .map(v => {
-          if (v['原文标题'] && v['原文正文']) {
-            return getDefaultArticle({
-              id: nanoid(6),
-              title: String(v['原文标题']),
-              titleTranslate: String(v['译文标题']),
-              text: String(v['原文正文']),
-              textTranslate: String(v['译文正文']),
-              audioSrc: String(v['音频地址']),
-            })
-          }
-        })
-        .filter(v => v)
+          .map(v => {
+            if (v['原文标题'] && v['原文正文']) {
+              return getDefaultArticle({
+                id: nanoid(6),
+                title: String(v['原文标题']),
+                titleTranslate: String(v['译文标题']),
+                text: String(v['原文正文']),
+                textTranslate: String(v['译文正文']),
+                audioSrc: String(v['音频地址']),
+              })
+            }
+          })
+          .filter(v => v)
 
       let repeat = []
       let noRepeat = []
@@ -168,22 +168,22 @@ function importData(e: any) {
 
       if (repeat.length) {
         MessageBox.confirm(
-          '文章"' + repeat.map(v => v.title).join(', ') + '" 已存在，是否覆盖原有文章？',
-          '检测到重复文章',
-          () => {
-            repeat.map(v => {
-              runtimeStore.editDict.articles[v.index] = v
-              delete runtimeStore.editDict.articles[v.index]['index']
-            })
-            setTimeout(listEl?.scrollToBottom, 100)
-          },
-          null,
-          () => {
-            e.target.value = ''
-            importLoading = false
-            syncBookInMyStudyList()
-            Toast.success('导入成功！')
-          }
+            '文章"' + repeat.map(v => v.title).join(', ') + '" 已存在，是否覆盖原有文章？',
+            '检测到重复文章',
+            () => {
+              repeat.map(v => {
+                runtimeStore.editDict.articles[v.index] = v
+                delete runtimeStore.editDict.articles[v.index]['index']
+              })
+              setTimeout(listEl?.scrollToBottom, 100)
+            },
+            null,
+            () => {
+              e.target.value = ''
+              importLoading = false
+              syncBookInMyStudyList()
+              Toast.success('导入成功！')
+            }
         )
       } else {
         syncBookInMyStudyList()
@@ -201,7 +201,7 @@ function importData(e: any) {
 async function exportData(val: { type: string; data?: Article }) {
   exportLoading = true
   const XLSX = await loadJsLib('XLSX', LIB_JS_URL.XLSX)
-  const { type, data } = val
+  const {type, data} = val
   let list = []
   let filename = ''
   if (type === 'item') {
@@ -242,35 +242,35 @@ function updateList(e) {
   <div class="add-article">
     <div class="aslide">
       <header class="flex gap-2 items-center">
-        <BackIcon />
+        <BackIcon/>
         <div class="text-xl">{{ runtimeStore.editDict.name }}</div>
       </header>
       <List
-        ref="listEl"
-        :list="runtimeStore.editDict.articles"
-        @update:list="updateList"
-        :select-item="article"
-        @del-select-item="article = getDefaultArticle()"
-        @select-item="selectArticle"
+          ref="listEl"
+          :list="runtimeStore.editDict.articles"
+          :select-item="article"
+          @update:list="updateList"
+          @del-select-item="article = getDefaultArticle()"
+          @select-item="selectArticle"
       >
         <template v-slot="{ item, index }">
           <div>
             <div class="name">
-              <span class="text-sm text-gray-500" v-if="index != undefined"> {{ index + 1 }}. </span>
+              <span v-if="index != undefined" class="text-sm text-gray-500"> {{ index + 1 }}. </span>
               {{ item.title }}
             </div>
-            <div class="translate-name">{{ `   ${item.titleTranslate}` }}</div>
+            <div class="translate-name">{{ ` ${item.titleTranslate}` }}</div>
           </div>
         </template>
       </List>
-      <div class="add" v-if="!article.title">正在添加新文章...</div>
+      <div v-if="!article.title" class="add">正在添加新文章...</div>
       <div class="footer">
         <div class="import">
           <BaseButton :loading="importLoading">导入</BaseButton>
           <input
-            type="file"
-            accept=".csv, application/vnd.openxmlformats-officedocument.spreadsheetml.sheet, application/vnd.ms-excel"
-            @change="importData"
+              accept=".csv, application/vnd.openxmlformats-officedocument.spreadsheetml.sheet, application/vnd.ms-excel"
+              type="file"
+              @change="importData"
           />
         </div>
         <div class="export" style="position: relative" @click.stop="null">
@@ -280,9 +280,9 @@ function updateList(e) {
             <div class="flex">
               <BaseButton :loading="exportLoading" @click="exportData({ type: 'all' })">全部</BaseButton>
               <BaseButton
-                :loading="exportLoading"
-                :disabled="!article.id"
-                @click="exportData({ type: 'item', data: article })"
+                  :disabled="!article.id"
+                  :loading="exportLoading"
+                  @click="exportData({ type: 'item', data: article })"
               >当前
               </BaseButton>
             </div>
@@ -291,11 +291,11 @@ function updateList(e) {
         <BaseButton @click="add">新增</BaseButton>
       </div>
     </div>
-    <EditArticle ref="editArticleRef" type="batch" @save="saveArticle" @saveAndNext="saveAndNext" :article="article" />
+    <EditArticle ref="editArticleRef" :article="article" type="batch" @save="saveArticle" @saveAndNext="saveAndNext"/>
   </div>
 </template>
 
-<style scoped lang="scss">
+<style lang="scss" scoped>
 .add-article {
   width: 100%;
   height: 100vh;

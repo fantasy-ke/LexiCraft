@@ -6,7 +6,7 @@ using Serilog;
 namespace LexiCraft.Services.Identity.Shared.Authorize;
 
 /// <summary>
-/// MrHuo.OAuth 桥接提供者 (泛型实现)
+///     MrHuo.OAuth 桥接提供者 (泛型实现)
 /// </summary>
 public class OAuthProvider<TAccessToken, TUserInfo>(
     OAuthLoginBase<TAccessToken, TUserInfo> oauth,
@@ -17,7 +17,10 @@ public class OAuthProvider<TAccessToken, TUserInfo>(
 {
     public string ProviderName => providerName;
 
-    public string GetAuthorizationUrl(string state) => oauth.GetAuthorizeUrl(state);
+    public string GetAuthorizationUrl(string state)
+    {
+        return oauth.GetAuthorizeUrl(state);
+    }
 
     public async Task<OAuthUserDto> GetUserInfoAsync(string code, string? redirectUri, HttpClient httpClient)
     {
@@ -29,7 +32,7 @@ public class OAuthProvider<TAccessToken, TUserInfo>(
         var userInfo = await oauth.GetUserInfoAsync(accessTokenModel);
 
         Log.Logger.Information("获取用户信息成功：{UserInfo}", userInfo.ToJson());
-        
+
         // 3. 映射到统一的 DTO
         return mapper(userInfo);
     }

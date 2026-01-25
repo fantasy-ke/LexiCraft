@@ -1,4 +1,4 @@
-<script setup lang="ts">
+<script lang="ts" setup>
 import BaseIcon from "@/components/BaseIcon.vue";
 
 const props = withDefaults(defineProps<{
@@ -52,8 +52,8 @@ defineExpose({play})
   <template v-if="props.simple">
     <BaseIcon
         :title="title"
+        no-bg
         @click.stop="click"
-              no-bg
     >
       <IconBxVolume v-if="step === 0"/>
       <IconBxVolumeLow v-if="step === 1"/>
@@ -72,5 +72,5 @@ defineExpose({play})
   </template>
 </template>
 
-<style scoped lang="scss">
+<style lang="scss" scoped>
 </style>

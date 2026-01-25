@@ -30,7 +30,6 @@ public static class ApplicationConfiguration
 
     public static IEndpointRouteBuilder UseApplication(this WebApplication app)
     {
-
         app.UseInfrastructure();
 
         app.MapIdentityModuleEndpoints();

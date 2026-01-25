@@ -1,22 +1,22 @@
 // 完成练习端点
+
 using Humanizer;
+using LexiCraft.Shared.Permissions;
 using MediatR;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Routing;
 
-using LexiCraft.Shared.Permissions;
-
 namespace LexiCraft.Services.Practice.Tasks.Features.CompletePractice;
 
 /// <summary>
-/// 完成练习端点扩展
+///     完成练习端点扩展
 /// </summary>
 public static class CompletePracticeEndpoint
 {
     /// <summary>
-    /// 映射完成练习端点
+    ///     映射完成练习端点
     /// </summary>
     /// <param name="endpoints">端点路由构建器</param>
     /// <returns>端点约束构建器</returns>
@@ -34,9 +34,9 @@ public static class CompletePracticeEndpoint
             [AsParameters] CompletePracticeRequestParameters requestParameters)
         {
             var (mediator, taskId, command, cancellationToken) = requestParameters;
-            
+
             var result = await mediator.Send(command with { TaskId = taskId }, cancellationToken);
-            
+
             return result;
         }
     }

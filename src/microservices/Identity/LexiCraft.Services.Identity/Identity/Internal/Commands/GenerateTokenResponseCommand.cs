@@ -20,7 +20,7 @@ public class GenerateTokenResponseCommandHandler(
     {
         var user = request.User;
         var userDict = new Dictionary<string, string>();
-        
+
         // 我们不直接修改传入的对象，而是克隆一个用于序列化的版本
         var userForClaims = JsonSerializer.Deserialize<User>(JsonSerializer.Serialize(user, JsonSerializerOptions.Web));
         if (userForClaims != null)
@@ -38,10 +38,14 @@ public class GenerateTokenResponseCommandHandler(
 
         // 发布登录日志
         var logMessage = request.Message ?? (user.Source == SourceEnum.Register ? "注册成功" : "登录成功");
-        await mediator.Send(new PublishLoginLogCommand(user.UserAccount, logMessage, user.Id, true, user.Source.ToString()), cancellationToken);
+        await mediator.Send(
+            new PublishLoginLogCommand(user.UserAccount, logMessage, user.Id, true, user.Source.ToString()),
+            cancellationToken);
 
-        await cacheService.SetAsync(string.Format(UserInfoConst.RedisTokenKey, user.Id.ToString("N")), response, options => options.Expiry = TimeSpan.FromDays(7), cancellationToken);
-        await cacheService.SetAsync(string.Format(UserInfoConst.RedisRefreshTokenKey, refreshToken), user.Id.ToString("N"), options => options.Expiry = TimeSpan.FromDays(7), cancellationToken);
+        await cacheService.SetAsync(string.Format(UserInfoConst.RedisTokenKey, user.Id.ToString("N")), response,
+            options => options.Expiry = TimeSpan.FromDays(7), cancellationToken);
+        await cacheService.SetAsync(string.Format(UserInfoConst.RedisRefreshTokenKey, refreshToken),
+            user.Id.ToString("N"), options => options.Expiry = TimeSpan.FromDays(7), cancellationToken);
 
         return response;
     }

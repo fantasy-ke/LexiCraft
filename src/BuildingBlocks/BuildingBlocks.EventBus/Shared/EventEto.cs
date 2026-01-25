@@ -1,7 +1,7 @@
 namespace BuildingBlocks.EventBus.Shared;
 
 /// <summary>
-/// 事件传输对象
+///     事件传输对象
 /// </summary>
 public sealed class EventEto(string fullName, string data)
 {

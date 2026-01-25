@@ -1,5 +1,5 @@
-<script setup lang="ts">
-import { useSettingStore } from '@/stores/setting'
+<script lang="ts" setup>
+import {useSettingStore} from '@/stores/setting'
 
 // 组件属性定义
 interface Props {
@@ -14,7 +14,7 @@ const settingStore = useSettingStore()
 
 <template>
   <!-- 练习内容区域 - 使用栅格化布局 -->
-  <div class="practice-content-wrapper" :class="!settingStore.showToolbar && 'footer-hide'">
+  <div :class="!settingStore.showToolbar && 'footer-hide'" class="practice-content-wrapper">
     <!-- 快捷键提示区域 -->
     <div class="hints-wrap">
       <slot name="hints"></slot>
@@ -28,28 +28,28 @@ const settingStore = useSettingStore()
         <div class="navigation-area">
           <slot name="navigation"></slot>
         </div>
-        
+
         <!-- 内容区域 - 自适应高度 -->
         <div class="content-area">
           <slot name="practice"></slot>
         </div>
-        
+
         <!-- 底部操作区域 - 固定高度 -->
         <div class="action-area">
           <!-- 预留给底部操作按钮 -->
         </div>
       </div>
-      
+
       <!-- 侧边面板 - 使用 fixed 或绝对定位相对于 inner 容器 -->
       <div
-        class="panel-wrap"
-        :class="{ 'has-panel': settingStore.showPanel }"
-        @click.self="settingStore.showPanel = false"
+          :class="{ 'has-panel': settingStore.showPanel }"
+          class="panel-wrap"
+          @click.self="settingStore.showPanel = false"
       >
         <slot name="panel"></slot>
       </div>
     </div>
-    
+
     <!-- 底部工具栏 -->
     <div class="footer-wrap">
       <slot name="footer"></slot>
@@ -57,7 +57,7 @@ const settingStore = useSettingStore()
   </div>
 </template>
 
-<style scoped lang="scss">
+<style lang="scss" scoped>
 .practice-content-wrapper {
   flex: 1;
   display: flex;
@@ -115,21 +115,21 @@ const settingStore = useSettingStore()
   overflow-x: hidden;
   position: relative;
   padding: 1rem 0; // 添加垂直内边距
-  
+
   // 自定义滚动条样式
   &::-webkit-scrollbar {
     width: 6px;
   }
-  
+
   &::-webkit-scrollbar-track {
     background: rgba(0, 0, 0, 0.1);
     border-radius: 3px;
   }
-  
+
   &::-webkit-scrollbar-thumb {
     background: rgba(0, 0, 0, 0.3);
     border-radius: 3px;
-    
+
     &:hover {
       background: rgba(0, 0, 0, 0.5);
     }
@@ -161,7 +161,7 @@ const settingStore = useSettingStore()
   z-index: 100;
   height: 100%;
   transition: all var(--anim-time);
-  
+
   &.has-panel {
     box-shadow: -5px 0 15px rgba(0, 0, 0, 0.05);
   }

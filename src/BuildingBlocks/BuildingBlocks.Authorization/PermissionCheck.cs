@@ -5,7 +5,7 @@ using BuildingBlocks.Extensions.System;
 namespace BuildingBlocks.Authentication;
 
 /// <summary>
-/// Redis权限检查实现（基于Redis缓存的权限）
+///     Redis权限检查实现（基于Redis缓存的权限）
 /// </summary>
 public class PermissionCheck(
     IUserContext userContext,
@@ -31,28 +31,22 @@ public class PermissionCheck(
     }
 
     /// <summary>
-    /// 获取用户所有权限（包含继承的权限）
+    ///     获取用户所有权限（包含继承的权限）
     /// </summary>
     private async Task<HashSet<string>> GetUserAllPermissionsAsync(Guid userId)
     {
         var userPermissions = await permissionCache.GetUserPermissionsAsync(userId);
-        if (userPermissions == null)
-        {
-            return new HashSet<string>();
-        }
+        if (userPermissions == null) return new HashSet<string>();
 
         // 添加继承的权限
         var allPermissions = new HashSet<string>(userPermissions);
-        foreach (var permission in userPermissions)
-        {
-            AddInheritedPermissions(allPermissions, permission);
-        }
+        foreach (var permission in userPermissions) AddInheritedPermissions(allPermissions, permission);
 
         return allPermissions;
     }
 
     /// <summary>
-    /// 添加继承的权限
+    ///     添加继承的权限
     /// </summary>
     private void AddInheritedPermissions(HashSet<string> permissions, string permissionName)
     {
@@ -64,7 +58,7 @@ public class PermissionCheck(
     }
 
     /// <summary>
-    /// 检查用户是否拥有指定权限
+    ///     检查用户是否拥有指定权限
     /// </summary>
     private bool CheckPermission(HashSet<string> userPermissions, string permissionName)
     {
@@ -81,7 +75,7 @@ public class PermissionCheck(
     }
 
     /// <summary>
-    /// 递归检查父权限
+    ///     递归检查父权限
     /// </summary>
     private bool CheckParentPermission(HashSet<string> userPermissions, PermissionDefinition permission)
     {

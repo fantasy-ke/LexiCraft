@@ -1,5 +1,5 @@
-<script setup lang="ts">
-import {ref, useAttrs, watch, computed} from 'vue';
+<script lang="ts" setup>
+import {computed, ref, useAttrs, watch} from 'vue';
 import Close from "@/components/icon/Close.vue";
 import {useDisableEventListener} from "@/hooks/event.ts";
 
@@ -102,51 +102,51 @@ const vFocus = {
 </script>
 
 <template>
-  <div class="base-input"
-       ref="inputEl"
-       :class="{ 'is-disabled': disabled, 'error': props.error, focus, [`base-input--${size}`]: true }">
+  <div ref="inputEl"
+       :class="{ 'is-disabled': disabled, 'error': props.error, focus, [`base-input--${size}`]: true }"
+       class="base-input">
     <slot name="subfix"></slot>
     <!-- PreIcon slot -->
     <div v-if="$slots.preIcon" class="pre-icon">
       <slot name="preIcon"></slot>
     </div>
-    <IconFluentLockClosed20Regular class="pre-icon" v-if="type === 'password'"/>
-    <IconFluentMail20Regular class="pre-icon" v-if="type === 'email'"/>
-    <IconFluentPhone20Regular class="pre-icon" v-if="type === 'tel'"/>
-    <IconFluentNumberSymbol20Regular class="pre-icon" v-if="type === 'code'"/>
+    <IconFluentLockClosed20Regular v-if="type === 'password'" class="pre-icon"/>
+    <IconFluentMail20Regular v-if="type === 'email'" class="pre-icon"/>
+    <IconFluentPhone20Regular v-if="type === 'tel'" class="pre-icon"/>
+    <IconFluentNumberSymbol20Regular v-if="type === 'code'" class="pre-icon"/>
 
     <input
-      v-bind="attrs"
-      :type="inputType"
-      :placeholder="placeholder"
-      :disabled="disabled"
-      :value="inputValue"
-      @input="onInput"
-      @change="onChange"
-      @focus="onFocus"
-      @blur="onBlur"
-      @keydown.enter="onEnter"
-      class="inner"
-      v-focus="autofocus"
-      :maxlength="maxLength"
+        v-focus="autofocus"
+        :disabled="disabled"
+        :maxlength="maxLength"
+        :placeholder="placeholder"
+        :type="inputType"
+        :value="inputValue"
+        class="inner"
+        v-bind="attrs"
+        @blur="onBlur"
+        @change="onChange"
+        @focus="onFocus"
+        @input="onInput"
+        @keydown.enter="onEnter"
     />
     <slot name="prefix"></slot>
     <Close
-      v-if="clearable && inputValue && !disabled"
-      @click="clearInput"/>
+        v-if="clearable && inputValue && !disabled"
+        @click="clearInput"/>
     <!-- Password visibility toggle -->
     <div
-      v-if="type === 'password' && !disabled"
-      class="password-toggle"
-      @click="togglePasswordVisibility"
-      :title="passwordVisible ? '隐藏密码' : '显示密码'">
+        v-if="type === 'password' && !disabled"
+        :title="passwordVisible ? '隐藏密码' : '显示密码'"
+        class="password-toggle"
+        @click="togglePasswordVisibility">
       <IconFluentEye16Regular v-if="!passwordVisible"/>
       <IconFluentEyeOff16Regular v-else/>
     </div>
   </div>
 </template>
 
-<style scoped lang="scss">
+<style lang="scss" scoped>
 .base-input {
   position: relative;
   display: inline-flex;

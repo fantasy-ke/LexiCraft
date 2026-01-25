@@ -23,14 +23,14 @@ public static class CaptchaEndpoint
             var captcha = requestParameters.Captcha;
             var captchaKey = Guid.NewGuid().ToString("N");
             var code = captcha.Generate(captchaKey);
-            
+
             return Task.FromResult(new CaptchaResponse(captchaKey, $"data:image/png;base64,{code.Base64}"));
         }
     }
 }
 
 /// <summary>
-/// 验证码请求参数
+///     验证码请求参数
 /// </summary>
 /// <param name="Captcha"></param>
 internal record CaptchaRequestParameters(
@@ -38,11 +38,11 @@ internal record CaptchaRequestParameters(
 );
 
 /// <summary>
-/// 验证码响应
+///     验证码响应
 /// </summary>
 /// <param name="CaptchaKey">验证码Key</param>
 /// <param name="CaptchaData">验证码图片数据(Base64)</param>
 internal record CaptchaResponse(
-    string CaptchaKey, 
+    string CaptchaKey,
     string CaptchaData
 );

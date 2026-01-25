@@ -5,8 +5,8 @@ namespace BuildingBlocks.EventBus.Shared;
 public static class SagaExtensions
 {
     public static TNextEvent CreateNextEvent<TNextEvent>(
-        this ISagaIntegrationEvent currentEvent, 
-        Func<Guid, TNextEvent> factory) 
+        this ISagaIntegrationEvent currentEvent,
+        Func<Guid, TNextEvent> factory)
         where TNextEvent : ISagaIntegrationEvent
     {
         ArgumentNullException.ThrowIfNull(currentEvent);

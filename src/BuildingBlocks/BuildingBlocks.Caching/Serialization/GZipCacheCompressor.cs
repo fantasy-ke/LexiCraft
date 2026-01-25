@@ -1,16 +1,14 @@
-using System;
-using System.IO;
 using System.IO.Compression;
 
 namespace BuildingBlocks.Caching.Serialization;
 
 /// <summary>
-/// GZip 缓存压缩静态帮助类
+///     GZip 缓存压缩静态帮助类
 /// </summary>
 public static class GZipCacheCompressor
 {
     /// <summary>
-    /// 压缩数据
+    ///     压缩数据
     /// </summary>
     /// <param name="data">原始数据</param>
     /// <returns>压缩后的数据</returns>
@@ -26,6 +24,7 @@ public static class GZipCacheCompressor
             {
                 gzip.Write(data, 0, data.Length);
             }
+
             return output.ToArray();
         }
         catch (Exception ex)
@@ -35,7 +34,7 @@ public static class GZipCacheCompressor
     }
 
     /// <summary>
-    /// 解压缩数据
+    ///     解压缩数据
     /// </summary>
     /// <param name="compressedData">压缩的数据</param>
     /// <returns>解压缩后的数据</returns>
@@ -49,7 +48,7 @@ public static class GZipCacheCompressor
             using var input = new MemoryStream(compressedData);
             using var gzip = new GZipStream(input, CompressionMode.Decompress);
             using var output = new MemoryStream();
-            
+
             gzip.CopyTo(output);
             return output.ToArray();
         }

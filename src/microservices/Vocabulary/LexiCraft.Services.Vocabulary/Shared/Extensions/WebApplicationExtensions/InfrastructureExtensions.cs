@@ -1,7 +1,6 @@
 using BuildingBlocks.Cors;
 using BuildingBlocks.SerilogLogging.Utils;
 using Microsoft.AspNetCore.Builder;
-using Microsoft.AspNetCore.Routing;
 using Serilog;
 
 namespace LexiCraft.Services.Vocabulary.Shared.Extensions.WebApplicationExtensions;

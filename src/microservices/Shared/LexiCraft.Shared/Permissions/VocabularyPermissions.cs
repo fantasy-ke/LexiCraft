@@ -1,7 +1,7 @@
 namespace LexiCraft.Shared.Permissions;
 
 /// <summary>
-/// 词汇服务相关权限定义
+///     词汇服务相关权限定义
 /// </summary>
 public static class VocabularyPermissions
 {

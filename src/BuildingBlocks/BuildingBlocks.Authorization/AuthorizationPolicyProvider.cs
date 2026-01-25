@@ -7,7 +7,7 @@ public class AuthorizationPolicyProvider(IAuthenticationSchemeProvider authentic
     : IAuthorizationPolicyProvider
 {
     /// <summary>
-    /// 返回给定名称的授权策略
+    ///     返回给定名称的授权策略
     /// </summary>
     /// <param name="policyName"></param>
     /// <returns></returns>
@@ -23,7 +23,7 @@ public class AuthorizationPolicyProvider(IAuthenticationSchemeProvider authentic
     }
 
     /// <summary>
-    /// 会返回默认授权策略（在未指定策略的情况下用于 [Authorize] 属性的策略）
+    ///     会返回默认授权策略（在未指定策略的情况下用于 [Authorize] 属性的策略）
     /// </summary>
     /// <returns></returns>
     public async Task<AuthorizationPolicy> GetDefaultPolicyAsync()
@@ -38,7 +38,7 @@ public class AuthorizationPolicyProvider(IAuthenticationSchemeProvider authentic
     }
 
     /// <summary>
-    /// 返回回退授权策略（在未指定策略时由授权中间件使用的策略
+    ///     返回回退授权策略（在未指定策略时由授权中间件使用的策略
     /// </summary>
     /// <returns></returns>
     public async Task<AuthorizationPolicy?> GetFallbackPolicyAsync()
@@ -57,10 +57,7 @@ public class AuthorizationPolicyProvider(IAuthenticationSchemeProvider authentic
         if (!string.IsNullOrEmpty(policyName))
         {
             var authorizations = policyName.Split(',');
-            if (authorizations.Any())
-            {
-                policyBuilder.AddRequirements(new AuthorizeRequirement(authorizations));
-            }
+            if (authorizations.Any()) policyBuilder.AddRequirements(new AuthorizeRequirement(authorizations));
         }
         else
         {
@@ -72,9 +69,6 @@ public class AuthorizationPolicyProvider(IAuthenticationSchemeProvider authentic
     {
         var schemes = await authenticationSchemeProvider.GetAllSchemesAsync();
 
-        foreach (var scheme in schemes)
-        {
-            policyBuilder.AuthenticationSchemes.Add(scheme.Name);
-        }
+        foreach (var scheme in schemes) policyBuilder.AuthenticationSchemes.Add(scheme.Name);
     }
 }

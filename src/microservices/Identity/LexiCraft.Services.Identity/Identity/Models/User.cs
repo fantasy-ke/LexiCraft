@@ -1,13 +1,13 @@
-using System.Security.Cryptography;
-using BCrypt.Net;
 using BuildingBlocks.Domain.Internal;
 using LexiCraft.Services.Identity.Identity.Models.Enum;
 
 namespace LexiCraft.Services.Identity.Identity.Models;
 
-public class User: AuditAggregateRoot<Guid,Guid?>
+public class User : AuditAggregateRoot<Guid, Guid?>
 {
-    public string Avatar { get; private set; } = string.Empty;
+    private User()
+    {
+    } // For EF Core
 
     /// <summary>
     /// 用户账号
@@ -102,6 +102,68 @@ public class User: AuditAggregateRoot<Guid,Guid?>
         Roles = [];
     }
 
+    public string Avatar { get; private set; } = string.Empty;
+
+    /// <summary>
+    ///     用户账号
+    /// </summary>
+    public string UserAccount { get; private set; } = null!;
+
+    /// <summary>
+    ///     用户的用户名，必须唯一。
+    /// </summary>
+    public string Username { get; private set; } = null!;
+
+    /// <summary>
+    ///     用户的电子邮件地址，必须唯一。
+    /// </summary>
+    public string Email { get; private set; } = null!;
+
+    /// <summary>
+    ///     个人签名
+    /// </summary>
+    public string? Signature { get; private set; }
+
+    /// <summary>
+    ///     用户的密码哈希值。
+    /// </summary>
+    public string? PasswordHash { get; private set; }
+
+    /// <summary>
+    ///     用户来源
+    /// </summary>
+    public SourceEnum Source { get; private set; }
+
+    /// <summary>
+    ///     用户的最后登录日期。
+    /// </summary>
+    public DateTime? LastLoginAt { get; private set; }
+
+    /// <summary>
+    ///     用户的角色列表。
+    /// </summary>
+    public List<string> Roles { get; } = [];
+
+    /// <summary>
+    ///     手机号
+    /// </summary>
+    public string? Phone { get; private set; }
+
+    /// <summary>
+    ///     用户设置
+    /// </summary>
+    public UserSetting? Settings { get; private set; }
+
+    /// <summary>
+    ///     用户权限
+    /// </summary>
+    public List<UserPermission> Permissions { get; } = [];
+
+    /// <summary>
+    ///     OAuth 绑定
+    /// </summary>
+    public List<UserOAuth> OAuths { get; } = [];
+
     public void UpdateAvatar(string avatar)
     {
         Avatar = avatar;
@@ -129,22 +191,16 @@ public class User: AuditAggregateRoot<Guid,Guid?>
 
     public void AddRole(string role)
     {
-        if (!Roles.Contains(role))
-        {
-            Roles.Add(role);
-        }
+        if (!Roles.Contains(role)) Roles.Add(role);
     }
 
     public void RemoveRole(string role)
     {
-        if (Roles.Contains(role))
-        {
-            Roles.Remove(role);
-        }
+        if (Roles.Contains(role)) Roles.Remove(role);
     }
 
     /// <summary>
-    /// 设置用户的密码，使用BCrypt进行哈希。
+    ///     设置用户的密码，使用BCrypt进行哈希。
     /// </summary>
     /// <param name="password">用户的明文密码</param>
     public void SetPassword(string password)
@@ -153,7 +209,7 @@ public class User: AuditAggregateRoot<Guid,Guid?>
     }
 
     /// <summary>
-    /// 验证用户输入的密码是否正确。
+    ///     验证用户输入的密码是否正确。
     /// </summary>
     /// <param name="password">用户输入的明文密码</param>
     /// <returns>如果密码正确则返回true，否则返回false</returns>
@@ -166,7 +222,7 @@ public class User: AuditAggregateRoot<Guid,Guid?>
     }
 
     /// <summary>
-    /// 验证并重新哈希密码（用于升级旧密码哈希或调整工作因子）
+    ///     验证并重新哈希密码（用于升级旧密码哈希或调整工作因子）
     /// </summary>
     /// <param name="password">用户输入的明文密码</param>
     /// <returns>如果需要更新哈希则返回新的哈希值，否则返回null</returns>
@@ -177,19 +233,15 @@ public class User: AuditAggregateRoot<Guid,Guid?>
 
         // 验证密码并检查是否需要重新哈希（例如，如果工作因子已更改）
         if (BCrypt.Net.BCrypt.Verify(password, PasswordHash))
-        {
             // 检查是否需要重新哈希（例如，如果使用了较弱的工作因子）
             if (BCrypt.Net.BCrypt.PasswordNeedsRehash(PasswordHash, 12))
-            {
                 return HashPassword(password);
-            }
-        }
 
         return null;
     }
 
     /// <summary>
-    /// 哈希密码的方法，使用BCrypt算法。
+    ///     哈希密码的方法，使用BCrypt算法。
     /// </summary>
     /// <param name="password">明文密码</param>
     /// <returns>哈希后的密码</returns>
@@ -200,7 +252,7 @@ public class User: AuditAggregateRoot<Guid,Guid?>
     }
 
     /// <summary>
-    /// 更新用户的最后登录时间。
+    ///     更新用户的最后登录时间。
     /// </summary>
     public void UpdateLastLogin()
     {
@@ -250,65 +302,45 @@ public class User: AuditAggregateRoot<Guid,Guid?>
 
     public void AddPermissions(IEnumerable<string> permissionNames)
     {
-        foreach (var name in permissionNames)
-        {
-            AddPermission(name);
-        }
+        foreach (var name in permissionNames) AddPermission(name);
     }
 
     public void SetPermissions(IEnumerable<string> permissionNames)
     {
         Permissions.Clear();
-        foreach (var name in permissionNames)
-        {
-            Permissions.Add(new UserPermission(Id, name));
-        }
+        foreach (var name in permissionNames) Permissions.Add(new UserPermission(Id, name));
     }
 
     public void AddPermission(string permissionName)
     {
         if (Permissions.All(x => x.PermissionName != permissionName))
-        {
             Permissions.Add(new UserPermission(Id, permissionName));
-        }
     }
 
     public void RemovePermissions(IEnumerable<string> permissionNames)
     {
-        foreach (var name in permissionNames)
-        {
-            RemovePermission(name);
-        }
+        foreach (var name in permissionNames) RemovePermission(name);
     }
 
     public void RemovePermission(string permissionName)
     {
         var permission = Permissions.FirstOrDefault(x => x.PermissionName == permissionName);
-        if (permission != null)
-        {
-            Permissions.Remove(permission);
-        }
+        if (permission != null) Permissions.Remove(permission);
     }
 
-    public void BindOAuth(string provider, string providerUserId, string accessToken, DateTimeOffset expiresAt, string refreshToken)
+    public void BindOAuth(string provider, string providerUserId, string accessToken, DateTimeOffset expiresAt,
+        string refreshToken)
     {
         var existing = OAuths.FirstOrDefault(x => x.Provider == provider);
         if (existing == null)
-        {
             OAuths.Add(new UserOAuth(Id, provider, providerUserId, accessToken, expiresAt, refreshToken));
-        }
         else
-        {
             existing.UpdateTokens(accessToken, expiresAt, refreshToken);
-        }
     }
 
     public void UnbindOAuth(string provider)
     {
         var existing = OAuths.FirstOrDefault(x => x.Provider == provider);
-        if (existing != null)
-        {
-            OAuths.Remove(existing);
-        }
+        if (existing != null) OAuths.Remove(existing);
     }
 }

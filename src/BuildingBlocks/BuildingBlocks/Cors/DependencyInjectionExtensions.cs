@@ -16,10 +16,7 @@ public static class Extensions
         {
             builder.Services.AddCors(options =>
             {
-                options.AddDefaultPolicy(policy =>
-                {
-                    policy.AllowAnyHeader().AllowAnyMethod().AllowAnyOrigin();
-                });
+                options.AddDefaultPolicy(policy => { policy.AllowAnyHeader().AllowAnyMethod().AllowAnyOrigin(); });
             });
         }
         else
@@ -46,14 +43,10 @@ public static class Extensions
     public static void UseDefaultCors(this WebApplication app)
     {
         if (app.Environment.IsDevelopment())
-        {
             // Use default cors policy for development environment
             // https://learn.microsoft.com/en-us/aspnet/core/security/cors?view=aspnetcore-9.0#cors-with-default-policy-and-middleware
             app.UseCors();
-        }
         else
-        {
             app.UseCors(AllowCustomCorsPolicy);
-        }
     }
 }

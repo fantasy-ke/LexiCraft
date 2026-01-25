@@ -1,6 +1,6 @@
-import { ref, computed } from 'vue'
-import { useRouter } from 'vue-router'
-import { logtoConfig, LOGIN_CONFIG } from '@/config/logto.config'
+import {computed, ref} from 'vue'
+import {useRouter} from 'vue-router'
+import {LOGIN_CONFIG, logtoConfig} from '@/config/logto.config'
 
 // Logto 客户端实例
 let logtoClient: any = null
@@ -19,7 +19,7 @@ export function useLogto() {
         if (logtoClient) return logtoClient
 
         try {
-            const { default: LogtoClient } = await import('@logto/browser')
+            const {default: LogtoClient} = await import('@logto/browser')
             logtoClient = new LogtoClient(logtoConfig)
 
             // 检查认证状态

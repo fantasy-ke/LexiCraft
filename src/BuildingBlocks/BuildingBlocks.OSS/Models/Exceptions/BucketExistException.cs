@@ -1,26 +1,16 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿namespace BuildingBlocks.OSS.Models.Exceptions;
 
-namespace BuildingBlocks.OSS.Models.Exceptions
+public class BucketExistException : Exception
 {
-    public class BucketExistException : Exception
+    public BucketExistException()
     {
-        public BucketExistException()
-        {
+    }
 
-        }
+    public BucketExistException(string message) : base(message)
+    {
+    }
 
-        public BucketExistException(string message) : base(message)
-        {
-
-        }
-
-        public BucketExistException(string message, Exception innerException) : base(message, innerException)
-        {
-
-        }
+    public BucketExistException(string message, Exception innerException) : base(message, innerException)
+    {
     }
 }

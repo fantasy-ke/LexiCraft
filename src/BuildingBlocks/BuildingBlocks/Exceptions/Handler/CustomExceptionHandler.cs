@@ -9,9 +9,10 @@ using Microsoft.Extensions.Logging;
 
 namespace BuildingBlocks.Exceptions.Handler;
 
-public class CustomExceptionHandler(ILogger<CustomExceptionHandler> logger,
-IWebHostEnvironment webHostEnvironment,
-IEnumerable<IProblemCodeMapper> problemCodeMappers)
+public class CustomExceptionHandler(
+    ILogger<CustomExceptionHandler> logger,
+    IWebHostEnvironment webHostEnvironment,
+    IEnumerable<IProblemCodeMapper> problemCodeMappers)
     : IExceptionHandler
 {
     public async ValueTask<bool> TryHandleAsync(HttpContext context, Exception exception,
@@ -30,11 +31,8 @@ IEnumerable<IProblemCodeMapper> problemCodeMappers)
             { "title", exception.GetType().Name },
             { "instance", context.Request.Path }
         };
-        
-        if (webHostEnvironment.IsDevelopment())
-        {
-            extensions["stackTrace"] = exception.StackTrace;
-        }
+
+        if (webHostEnvironment.IsDevelopment()) extensions["stackTrace"] = exception.StackTrace;
         var response = ResultDto.FailExt(exception.Message, extensions, statusCode);
         await context.Response.WriteAsJsonAsync(response, cancellationToken);
         return true;

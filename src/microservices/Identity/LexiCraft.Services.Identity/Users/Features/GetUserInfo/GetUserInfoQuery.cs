@@ -1,5 +1,4 @@
 using BuildingBlocks.Mediator;
-using LexiCraft.Services.Identity.Identity.Models;
 using LexiCraft.Services.Identity.Shared.Contracts;
 using Microsoft.EntityFrameworkCore;
 
@@ -15,8 +14,7 @@ public record GetUserInfoResult(
     string Avatar
 );
 
-
-public class GetUserInfoQueryHandler(IUserRepository userRepository) 
+public class GetUserInfoQueryHandler(IUserRepository userRepository)
     : IQueryHandler<GetUserInfoQuery, GetUserInfoResult>
 {
     public async Task<GetUserInfoResult> Handle(GetUserInfoQuery query, CancellationToken cancellationToken)
@@ -30,14 +28,14 @@ public class GetUserInfoQueryHandler(IUserRepository userRepository)
                 Phone: p.Phone,
                 Avatar: p.Avatar
             ))
-            .FirstOrDefaultAsync(cancellationToken: cancellationToken);
+            .FirstOrDefaultAsync(cancellationToken);
 
         return user ?? new GetUserInfoResult(
-            UserId: Guid.Empty,
-            UserName: string.Empty,
-            Email: string.Empty,
-            Phone: null,
-            Avatar: string.Empty
+            Guid.Empty,
+            string.Empty,
+            string.Empty,
+            null,
+            string.Empty
         );
     }
 }

@@ -1,25 +1,25 @@
-<script setup lang="ts">
-import { onMounted } from 'vue'
-import { useUserStore } from '@/stores/user.ts'
-import { useRouter } from 'vue-router'
+<script lang="ts" setup>
+import {onMounted} from 'vue'
+import {useUserStore} from '@/stores/user.ts'
+import {useRouter} from 'vue-router'
 import BaseInput from '@/components/base/BaseInput.vue'
 import BasePage from '@/components/BasePage.vue'
-import { APP_NAME, EMAIL } from '@/config/env.ts'
+import {APP_NAME, EMAIL} from '@/config/env.ts'
 import BaseButton from '@/components/BaseButton.vue'
-import { PASSWORD_CONFIG, PHONE_CONFIG } from '@/config/auth.ts'
-import { changeEmailApi, changePhoneApi, setPassword, updateUserInfoApi, User } from '@/apis/user.ts'
+import {PASSWORD_CONFIG, PHONE_CONFIG} from '@/config/auth.ts'
+import {changeEmailApi, changePhoneApi, setPassword, updateUserInfoApi, User} from '@/apis/user.ts'
 import BaseIcon from '@/components/BaseIcon.vue'
 import FormItem from '@/components/base/form/FormItem.vue'
 import Form from '@/components/base/form/Form.vue'
-import { FormInstance } from '@/components/base/form/types.ts'
-import { codeRules, emailRules, passwordRules, phoneRules } from '@/utils/validation.ts'
-import { cloneDeep, jump2Feedback } from '@/utils'
+import {FormInstance} from '@/components/base/form/types.ts'
+import {codeRules, emailRules, passwordRules, phoneRules} from '@/utils/validation.ts'
+import {cloneDeep, jump2Feedback} from '@/utils'
 import Toast from '@/components/base/toast/Toast.ts'
 import Code from '@/components/user/Code.vue'
-import { MessageBox } from '@/utils/MessageBox.tsx'
-import { CodeType } from '@/types/enum.ts'
-import { authAPI } from '@/apis/auth'
-import { getUserAvatarUrl, getDefaultAvatarUrl } from '@/utils/authHelpers'
+import {MessageBox} from '@/utils/MessageBox.tsx'
+import {CodeType} from '@/types/enum.ts'
+import {authAPI} from '@/apis/auth'
+import {getDefaultAvatarUrl, getUserAvatarUrl} from '@/utils/authHelpers'
 
 const userStore = useUserStore()
 const router = useRouter()
@@ -32,15 +32,15 @@ let loading = $ref(false)
 let uploadingAvatar = $ref(false)
 
 const avatarUrl = $computed(() => {
-	const user = userStore.user
-	if (!user) {
-		return getDefaultAvatarUrl({ username: 'User' })
-	}
-	return getUserAvatarUrl({
-		avatar: user.avatar,
-		email: user.email,
-		username: user.username
-	})
+  const user = userStore.user
+  if (!user) {
+    return getDefaultAvatarUrl({username: 'User'})
+  }
+  return getUserAvatarUrl({
+    avatar: user.avatar,
+    email: user.email,
+    username: user.username
+  })
 })
 
 const handleLogout = () => {
@@ -60,7 +60,7 @@ onMounted(() => {
 // 修改手机号
 // 修改手机号
 let changePhoneFormRef = $ref<FormInstance>()
-let defaultFrom = { oldCode: '', phone: '', code: '', pwd: '' }
+let defaultFrom = {oldCode: '', phone: '', code: '', pwd: ''}
 let changePhoneForm = $ref(cloneDeep(defaultFrom))
 let changePhoneFormRules = {
   oldCode: codeRules,
@@ -111,15 +111,15 @@ function changePhone() {
 // 修改用户名
 // 修改用户名
 let changeUsernameFormRef = $ref<FormInstance>()
-let changeUsernameForm = $ref({ username: '' })
+let changeUsernameForm = $ref({username: ''})
 let changeUsernameFormRules = {
-  username: [{ required: true, message: '请输入用户名', trigger: 'blur' }],
+  username: [{required: true, message: '请输入用户名', trigger: 'blur'}],
 }
 
 function showChangeUsernameForm() {
   showChangePhone = showChangeUsername = showChangeEmail = showChangePwd = false
   showChangeUsername = true
-  changeUsernameForm = cloneDeep({ username: userStore.user?.username ?? '' })
+  changeUsernameForm = cloneDeep({username: userStore.user?.username ?? ''})
 }
 
 function changeUsername() {
@@ -173,7 +173,7 @@ let changeEmailFormRules = {
 function showChangeEmailForm() {
   showChangePhone = showChangeUsername = showChangeEmail = showChangePwd = false
   showChangeEmail = true
-  changeEmailForm = cloneDeep({ email: userStore.user?.email ?? '', pwd: '', code: '' })
+  changeEmailForm = cloneDeep({email: userStore.user?.email ?? '', pwd: '', code: ''})
 }
 
 function changeEmail() {
@@ -212,7 +212,7 @@ let changePwdFormRules = {
   oldPwd: passwordRules,
   newPwd: passwordRules,
   confirmPwd: [
-    { required: true, message: '请再次输入新密码', trigger: 'blur' },
+    {required: true, message: '请再次输入新密码', trigger: 'blur'},
     {
       validator: (rule: any, value: any) => {
         if (value !== changePwdForm.newPwd) {
@@ -268,46 +268,46 @@ function onFileChange(e) {
 }
 
 async function onAvatarFileChange(e: Event) {
-	const target = e.target as HTMLInputElement
-	const file = target && target.files && target.files[0]
-	if (!file) {
-		return
-	}
+  const target = e.target as HTMLInputElement
+  const file = target && target.files && target.files[0]
+  if (!file) {
+    return
+  }
 
-	const maxSize = 5 * 1024 * 1024
-	if (file.size > maxSize) {
-		Toast.error('头像大小不能超过 5MB')
-		target.value = ''
-		return
-	}
+  const maxSize = 5 * 1024 * 1024
+  if (file.size > maxSize) {
+    Toast.error('头像大小不能超过 5MB')
+    target.value = ''
+    return
+  }
 
-	try {
-		uploadingAvatar = true
-		const res = await authAPI.uploadAvatar(file)
-		if (res.status) {
-			Toast.success('头像上传成功')
-			await userStore.fetchUserInfo()
-		} else {
-			Toast.error(res.message || '头像上传失败')
-		}
-	} catch (error: any) {
-		Toast.error(error?.message || '头像上传失败，请重试')
-	} finally {
-		uploadingAvatar = false
-		if (target) {
-			target.value = ''
-		}
-	}
+  try {
+    uploadingAvatar = true
+    const res = await authAPI.uploadAvatar(file)
+    if (res.status) {
+      Toast.success('头像上传成功')
+      await userStore.fetchUserInfo()
+    } else {
+      Toast.error(res.message || '头像上传失败')
+    }
+  } catch (error: any) {
+    Toast.error(error?.message || '头像上传失败，请重试')
+  } finally {
+    uploadingAvatar = false
+    if (target) {
+      target.value = ''
+    }
+  }
 }
 
 function onAvatarError(e: Event) {
-	const img = e.target as HTMLImageElement | null
-	if (!img) return
-	const user = userStore.user
-	img.src = getDefaultAvatarUrl({
-		email: user?.email,
-		username: user?.username
-	})
+  const img = e.target as HTMLImageElement | null
+  if (!img) return
+  const user = userStore.user
+  img.src = getDefaultAvatarUrl({
+    email: user?.email,
+    username: user?.username
+  })
 }
 </script>
 
@@ -317,18 +317,18 @@ function onAvatarError(e: Event) {
     <div v-if="!userStore.isLogin" class="center h-screen">
       <div class="card-white text-center flex-col gap-6 w-110">
         <div class="w-20 h-20 bg-blue-100 rounded-full center mx-auto">
-          <IconFluentPerson20Regular class="text-3xl text-blue-600" />
+          <IconFluentPerson20Regular class="text-3xl text-blue-600"/>
         </div>
         <h1 class="text-2xl font-bold">
-          <IconFluentHandWave20Regular class="text-xl translate-y-1 mr-2 shrink-0" />
+          <IconFluentHandWave20Regular class="text-xl translate-y-1 mr-2 shrink-0"/>
           <span>欢迎使用</span>
         </h1>
         <p class="">登录，开启您的学习之旅</p>
         <div>保存进度、同步数据、解锁个性化内容</div>
-        <BaseButton @click="router.push('/login')" size="large" class="w-full mt-4"> 登录 </BaseButton>
+        <BaseButton class="w-full mt-4" size="large" @click="router.push('/login')"> 登录</BaseButton>
         <p class="text-sm text-gray-500">
           还没有账户？
-          <router-link to="/login?register=1" class="line">立即注册</router-link>
+          <router-link class="line" to="/login?register=1">立即注册</router-link>
         </p>
       </div>
     </div>
@@ -339,59 +339,59 @@ function onAvatarError(e: Event) {
       <div class="card-white flex-1 flex flex-col gap-2 px-6">
         <h1 class="text-2xl font-bold mt-0">帐户</h1>
 
-			<div class="item">
-				<div class="flex items-center gap-4 flex-1">
-					<div>
-						<div class="mb-2">头像</div>
-						<div class="text-xs text-gray-500">点击头像更换</div>
-					</div>
-					<div class="relative w-16 h-16">
-						<img
-							:src="avatarUrl"
-							alt="avatar"
-							class="w-16 h-16 rounded-full object-cover"
-							@error="onAvatarError"
-						/>
-						<input
-							type="file"
-							accept="image/*"
-							class="absolute left-0 top-0 w-full h-full opacity-0 cursor-pointer"
-							@change="onAvatarFileChange"
-						/>
-					</div>
-				</div>
-				<div class="ml-4" v-if="uploadingAvatar">
-					<span class="text-xs text-gray-500">上传中...</span>
-				</div>
-			</div>
-			<div class="line"></div>
+        <div class="item">
+          <div class="flex items-center gap-4 flex-1">
+            <div>
+              <div class="mb-2">头像</div>
+              <div class="text-xs text-gray-500">点击头像更换</div>
+            </div>
+            <div class="relative w-16 h-16">
+              <img
+                  :src="avatarUrl"
+                  alt="avatar"
+                  class="w-16 h-16 rounded-full object-cover"
+                  @error="onAvatarError"
+              />
+              <input
+                  accept="image/*"
+                  class="absolute left-0 top-0 w-full h-full opacity-0 cursor-pointer"
+                  type="file"
+                  @change="onAvatarFileChange"
+              />
+            </div>
+          </div>
+          <div v-if="uploadingAvatar" class="ml-4">
+            <span class="text-xs text-gray-500">上传中...</span>
+          </div>
+        </div>
+        <div class="line"></div>
 
         <!--        用户名-->
         <div class="item">
           <div class="flex-1">
             <div class="mb-2">用户名</div>
-            <div class="flex items-center gap-2" v-if="userStore.user?.username">
-              <IconFluentPerson20Regular class="text-base" />
+            <div v-if="userStore.user?.username" class="flex items-center gap-2">
+              <IconFluentPerson20Regular class="text-base"/>
               <span>{{ userStore.user?.username }}</span>
             </div>
             <div v-else class="text-xs">在此设置用户名</div>
           </div>
           <BaseIcon @click="showChangeUsernameForm">
-            <IconFluentTextEditStyle20Regular />
+            <IconFluentTextEditStyle20Regular/>
           </BaseIcon>
         </div>
         <div v-if="showChangeUsername">
-          <Form ref="changeUsernameFormRef" :rules="changeUsernameFormRules" :model="changeUsernameForm">
+          <Form ref="changeUsernameFormRef" :model="changeUsernameForm" :rules="changeUsernameFormRules">
             <FormItem prop="username">
               <BaseInput
-                v-model="changeUsernameForm.username"
-                type="text"
-                size="large"
-                placeholder="请输入用户名"
-                autofocus
+                  v-model="changeUsernameForm.username"
+                  autofocus
+                  placeholder="请输入用户名"
+                  size="large"
+                  type="text"
               >
                 <template #preIcon>
-                  <IconFluentPerson20Regular class="text-base" />
+                  <IconFluentPerson20Regular class="text-base"/>
                 </template>
               </BaseInput>
             </FormItem>
@@ -407,58 +407,58 @@ function onAvatarError(e: Event) {
         <div class="item">
           <div class="flex-1">
             <div class="mb-2">手机号</div>
-            <div class="flex items-center gap-2" v-if="userStore.user?.phone">
-              <IconFluentMail20Regular class="text-base" />
+            <div v-if="userStore.user?.phone" class="flex items-center gap-2">
+              <IconFluentMail20Regular class="text-base"/>
               <span>{{ userStore.user?.phone }}</span>
             </div>
             <div v-else class="text-xs">在此设置手机号</div>
           </div>
           <BaseIcon @click="showChangePhoneForm">
-            <IconFluentTextEditStyle20Regular />
+            <IconFluentTextEditStyle20Regular/>
           </BaseIcon>
         </div>
         <div v-if="showChangePhone">
-          <Form ref="changePhoneFormRef" :rules="changePhoneFormRules" :model="changePhoneForm">
-            <FormItem prop="oldCode" v-if="userStore.user?.phone">
+          <Form ref="changePhoneFormRef" :model="changePhoneForm" :rules="changePhoneFormRules">
+            <FormItem v-if="userStore.user?.phone" prop="oldCode">
               <div class="flex gap-2">
                 <BaseInput
-                  v-model="changePhoneForm.oldCode"
-                  type="code"
-                  autofocus
-                  placeholder="请输入原手机号验证码"
-                  :max-length="PHONE_CONFIG.codeLength"
+                    v-model="changePhoneForm.oldCode"
+                    :max-length="PHONE_CONFIG.codeLength"
+                    autofocus
+                    placeholder="请输入原手机号验证码"
+                    type="code"
                 />
-                <Code :validate-field="() => true" :type="CodeType.ChangePhoneOld" :val="userStore.user.phone" />
+                <Code :type="CodeType.ChangePhoneOld" :val="userStore.user.phone" :validate-field="() => true"/>
               </div>
             </FormItem>
             <FormItem prop="phone">
-              <BaseInput v-model="changePhoneForm.phone" type="tel" size="large" placeholder="请输入新手机号" />
+              <BaseInput v-model="changePhoneForm.phone" placeholder="请输入新手机号" size="large" type="tel"/>
             </FormItem>
             <FormItem prop="code">
               <div class="flex gap-2">
                 <BaseInput
-                  v-model="changePhoneForm.code"
-                  type="code"
-                  placeholder="请输入新手机号验证码"
-                  :max-length="PHONE_CONFIG.codeLength"
+                    v-model="changePhoneForm.code"
+                    :max-length="PHONE_CONFIG.codeLength"
+                    placeholder="请输入新手机号验证码"
+                    type="code"
                 />
                 <Code
-                  :validate-field="() => changePhoneFormRef.validateField('phone')"
-                  :type="CodeType.ChangePhoneNew"
-                  :val="changePhoneForm.phone"
+                    :type="CodeType.ChangePhoneNew"
+                    :val="changePhoneForm.phone"
+                    :validate-field="() => changePhoneFormRef.validateField('phone')"
                 />
               </div>
             </FormItem>
-            <FormItem prop="pwd" v-if="!userStore.user?.phone">
-              <BaseInput v-model="changePhoneForm.pwd" type="password" size="large" placeholder="请输入原密码" />
+            <FormItem v-if="!userStore.user?.phone" prop="pwd">
+              <BaseInput v-model="changePhoneForm.pwd" placeholder="请输入原密码" size="large" type="password"/>
             </FormItem>
           </Form>
           <div class="flex justify-between items-end mb-2">
             <span
-              class="link text-sm cp"
-              @click="MessageBox.notice(`请提供证明信息发送邮件到 ${EMAIL} 进行申诉`, '人工申诉')"
-              v-if="userStore.user?.phone"
-              >原手机号不可用，点此申诉</span
+                v-if="userStore.user?.phone"
+                class="link text-sm cp"
+                @click="MessageBox.notice(`请提供证明信息发送邮件到 ${EMAIL} 进行申诉`, '人工申诉')"
+            >原手机号不可用，点此申诉</span
             >
             <span v-else></span>
             <div>
@@ -473,44 +473,44 @@ function onAvatarError(e: Event) {
         <div class="item">
           <div class="flex-1">
             <div class="mb-2">电子邮箱</div>
-            <div class="flex items-center gap-2" v-if="userStore.user?.email">
-              <IconFluentMail20Regular class="text-base" />
+            <div v-if="userStore.user?.email" class="flex items-center gap-2">
+              <IconFluentMail20Regular class="text-base"/>
               <span>{{ userStore.user?.email }}</span>
             </div>
             <div v-else class="text-xs">在此设置邮箱</div>
           </div>
           <BaseIcon @click="showChangeEmailForm">
-            <IconFluentTextEditStyle20Regular />
+            <IconFluentTextEditStyle20Regular/>
           </BaseIcon>
         </div>
         <div v-if="showChangeEmail">
-          <Form ref="changeEmailFormRef" :rules="changeEmailFormRules" :model="changeEmailForm">
+          <Form ref="changeEmailFormRef" :model="changeEmailForm" :rules="changeEmailFormRules">
             <FormItem prop="email">
               <BaseInput
-                v-model="changeEmailForm.email"
-                type="email"
-                size="large"
-                placeholder="请输入邮箱地址"
-                autofocus
+                  v-model="changeEmailForm.email"
+                  autofocus
+                  placeholder="请输入邮箱地址"
+                  size="large"
+                  type="email"
               />
             </FormItem>
             <FormItem prop="code">
               <div class="flex gap-2">
                 <BaseInput
-                  v-model="changeEmailForm.code"
-                  type="code"
-                  placeholder="请输入验证码"
-                  :max-length="PHONE_CONFIG.codeLength"
+                    v-model="changeEmailForm.code"
+                    :max-length="PHONE_CONFIG.codeLength"
+                    placeholder="请输入验证码"
+                    type="code"
                 />
                 <Code
-                  :validate-field="() => changeEmailFormRef.validateField('email')"
-                  :type="CodeType.ChangeEmail"
-                  :val="changeEmailForm.email"
+                    :type="CodeType.ChangeEmail"
+                    :val="changeEmailForm.email"
+                    :validate-field="() => changeEmailFormRef.validateField('email')"
                 />
               </div>
             </FormItem>
-            <FormItem prop="pwd" v-if="userStore.user?.hasPwd">
-              <BaseInput v-model="changePwdForm.pwd" type="password" size="large" placeholder="请输入密码" />
+            <FormItem v-if="userStore.user?.hasPwd" prop="pwd">
+              <BaseInput v-model="changePwdForm.pwd" placeholder="请输入密码" size="large" type="password"/>
             </FormItem>
           </Form>
           <div class="text-align-end mb-2">
@@ -527,34 +527,34 @@ function onAvatarError(e: Event) {
             <div class="text-xs">在此输入密码</div>
           </div>
           <BaseIcon @click="showChangePwdForm">
-            <IconFluentTextEditStyle20Regular />
+            <IconFluentTextEditStyle20Regular/>
           </BaseIcon>
         </div>
         <div v-if="showChangePwd">
-          <Form ref="changePwdFormRef" :rules="changePwdFormRules" :model="changePwdForm">
-            <FormItem prop="oldPwd" v-if="userStore.user.hasPwd">
-              <BaseInput v-model="changePwdForm.oldPwd" placeholder="旧密码" type="password" size="large" autofocus />
+          <Form ref="changePwdFormRef" :model="changePwdForm" :rules="changePwdFormRules">
+            <FormItem v-if="userStore.user.hasPwd" prop="oldPwd">
+              <BaseInput v-model="changePwdForm.oldPwd" autofocus placeholder="旧密码" size="large" type="password"/>
             </FormItem>
 
             <FormItem prop="newPwd">
               <BaseInput
-                v-model="changePwdForm.newPwd"
-                type="password"
-                size="large"
-                :placeholder="`请输入新密码（${PASSWORD_CONFIG.minLength}-${PASSWORD_CONFIG.maxLength}位）`"
-                :min="PASSWORD_CONFIG.minLength"
-                :max="PASSWORD_CONFIG.maxLength"
-                autofocus
+                  v-model="changePwdForm.newPwd"
+                  :max="PASSWORD_CONFIG.maxLength"
+                  :min="PASSWORD_CONFIG.minLength"
+                  :placeholder="`请输入新密码（${PASSWORD_CONFIG.minLength}-${PASSWORD_CONFIG.maxLength}位）`"
+                  autofocus
+                  size="large"
+                  type="password"
               />
             </FormItem>
             <FormItem prop="confirmPwd">
               <BaseInput
-                v-model="changePwdForm.confirmPwd"
-                type="password"
-                size="large"
-                placeholder="请再次输入新密码"
-                :min="PASSWORD_CONFIG.minLength"
-                :max="PASSWORD_CONFIG.maxLength"
+                  v-model="changePwdForm.confirmPwd"
+                  :max="PASSWORD_CONFIG.maxLength"
+                  :min="PASSWORD_CONFIG.minLength"
+                  placeholder="请再次输入新密码"
+                  size="large"
+                  type="password"
               />
             </FormItem>
           </Form>
@@ -566,9 +566,9 @@ function onAvatarError(e: Event) {
         <div class="line"></div>
 
         <!-- Contact Support -->
-        <div class="item cp" v-if="false" @click="contactSupport">
+        <div v-if="false" class="item cp" @click="contactSupport">
           <div class="flex-1">联系 {{ APP_NAME }} 客服</div>
-          <IconFluentChevronLeft28Filled class="rotate-180" />
+          <IconFluentChevronLeft28Filled class="rotate-180"/>
         </div>
         <!--        <div class="line"></div>-->
 
@@ -578,12 +578,12 @@ function onAvatarError(e: Event) {
             <div class="">同步进度</div>
             <!--            <div class="text-xs mt-2">在此输入密码</div>-->
           </div>
-          <IconFluentChevronLeft28Filled class="rotate-180" />
+          <IconFluentChevronLeft28Filled class="rotate-180"/>
           <input
-            type="file"
-            accept=".json,.zip,application/json,application/zip"
-            @change="onFileChange"
-            class="absolute left-0 top-0 w-full h-full bg-red cp opacity-0"
+              accept=".json,.zip,application/json,application/zip"
+              class="absolute left-0 top-0 w-full h-full bg-red cp opacity-0"
+              type="file"
+              @change="onFileChange"
           />
         </div>
         <div class="line"></div>
@@ -591,26 +591,26 @@ function onAvatarError(e: Event) {
         <!--        去github issue-->
         <div class="item cp" @click="jump2Feedback()">
           <div class="flex-1">给 {{ APP_NAME }} 提交意见</div>
-          <IconFluentChevronLeft28Filled class="rotate-180" />
+          <IconFluentChevronLeft28Filled class="rotate-180"/>
         </div>
         <div class="line"></div>
 
         <!-- Logout Button -->
         <div class="center w-full mt-4">
-          <BaseButton @click="handleLogout" size="large" class="w-[40%]"> 登出 </BaseButton>
+          <BaseButton class="w-[40%]" size="large" @click="handleLogout"> 登出</BaseButton>
         </div>
 
         <div class="text-xs text-center mt-2">
-          <a href="/user-agreement.html" target="_blank" class="text-gray-500 hover:text-gray-700">用户协议</a>
+          <a class="text-gray-500 hover:text-gray-700" href="/user-agreement.html" target="_blank">用户协议</a>
           、
-          <a href="/privacy-policy.html" target="_blank" class="text-gray-500 hover:text-gray-700">隐私政策</a>
+          <a class="text-gray-500 hover:text-gray-700" href="/privacy-policy.html" target="_blank">隐私政策</a>
         </div>
       </div>
 
       <!-- Subscription Information -->
       <div class="card-white w-80">
         <div class="flex items-center gap-3 mb-4">
-          <IconFluentCrown20Regular class="text-2xl text-yellow-500" />
+          <IconFluentCrown20Regular class="text-2xl text-yellow-500"/>
           <div class="text-lg font-bold">订阅信息</div>
         </div>
 
@@ -624,8 +624,8 @@ function onAvatarError(e: Event) {
             <div>
               <div class="mb-1">状态</div>
               <div class="flex items-center gap-2">
-                <div class="w-2 h-2 rounded-full" :class="member?.active ? 'bg-green-500' : 'bg-red-500'"></div>
-                <span class="text-base font-medium" :class="member?.active ? 'text-green-700' : 'text-red-700'">
+                <div :class="member?.active ? 'bg-green-500' : 'bg-red-500'" class="w-2 h-2 rounded-full"></div>
+                <span :class="member?.active ? 'text-green-700' : 'text-red-700'" class="text-base font-medium">
                   {{ member?.status }}
                 </span>
               </div>
@@ -634,7 +634,7 @@ function onAvatarError(e: Event) {
             <div>
               <div class="mb-1">到期时间</div>
               <div class="flex items-center gap-2">
-                <IconFluentCalendarDate20Regular class="text-lg" />
+                <IconFluentCalendarDate20Regular class="text-lg"/>
                 <span class="text-base font-medium">{{ memberEndDate }}</span>
               </div>
             </div>
@@ -642,18 +642,18 @@ function onAvatarError(e: Event) {
             <div>
               <div class="mb-1">自动续费</div>
               <div class="flex items-center gap-2">
-                <div class="w-2 h-2 rounded-full" :class="member?.autoRenew ? 'bg-blue-500' : 'bg-gray-400'"></div>
-                <span class="text-base font-medium" :class="member?.autoRenew ? 'text-blue-700' : 'text-gray-600'">
+                <div :class="member?.autoRenew ? 'bg-blue-500' : 'bg-gray-400'" class="w-2 h-2 rounded-full"></div>
+                <span :class="member?.autoRenew ? 'text-blue-700' : 'text-gray-600'" class="text-base font-medium">
                   {{ member?.autoRenew ? '已开启' : '已关闭' }}
                 </span>
               </div>
             </div>
           </template>
 
-          <div class="text-base" v-else>当前无订阅</div>
+          <div v-else class="text-base">当前无订阅</div>
 
           <BaseButton class="w-full" size="large" @click="subscribe"
-            >{{ userStore.user?.member ? '管理订阅' : '会员介绍' }}
+          >{{ userStore.user?.member ? '管理订阅' : '会员介绍' }}
           </BaseButton>
         </div>
       </div>
@@ -661,7 +661,7 @@ function onAvatarError(e: Event) {
   </BasePage>
 </template>
 
-<style scoped lang="scss">
+<style lang="scss" scoped>
 .item {
   @apply flex items-center justify-between min-h-14;
 }

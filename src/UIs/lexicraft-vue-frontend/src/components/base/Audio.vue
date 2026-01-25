@@ -1,5 +1,5 @@
-<script setup lang="ts">
-import { computed, ref, useAttrs, watch } from 'vue';
+<script lang="ts" setup>
+import {computed, ref, useAttrs, watch} from 'vue';
 
 interface IProps {
   src?: string;
@@ -390,39 +390,39 @@ watch(() => props.playbackRate, (newRate) => {
   }
 });
 
-defineExpose({ audioRef })
+defineExpose({audioRef})
 </script>
 
 <template>
-  <div class="custom-audio" :class="{ 'disabled': disabled || error, 'has-error': error }" v-bind="attrs">
+  <div :class="{ 'disabled': disabled || error, 'has-error': error }" class="custom-audio" v-bind="attrs">
     <!-- 隐藏的原生audio元素 -->
-    <audio ref="audioRef" :src="src" preload="auto" :autoplay="autoplay" :loop="loop" :controls="false"
-      @loadstart="handleLoadStart" @loadeddata="handleLoadedData" @loadedmetadata="handleLoadedMetadata"
-      @canplaythrough="handleCanPlayThrough" @play="handlePlay" @pause="handlePause" @ended="handleEnded"
-      @error="handleError" @timeupdate="handleTimeUpdate" @volumechange="handleVolumeChange"
-      @ratechange="handleRateChange" />
+    <audio ref="audioRef" :autoplay="autoplay" :controls="false" :loop="loop" :src="src" preload="auto"
+           @canplaythrough="handleCanPlayThrough" @ended="handleEnded" @error="handleError"
+           @loadeddata="handleLoadedData" @loadedmetadata="handleLoadedMetadata" @loadstart="handleLoadStart" @pause="handlePause"
+           @play="handlePlay" @ratechange="handleRateChange" @timeupdate="handleTimeUpdate"
+           @volumechange="handleVolumeChange"/>
 
     <!-- 自定义控制界面 -->
     <div class="audio-container">
       <!-- 播放/暂停按钮 -->
-      <button class="play-button" :class="{ 'loading': isLoading }" @click="togglePlay" :disabled="disabled"
-        :aria-label="isPlaying ? '暂停' : '播放'">
+      <button :aria-label="isPlaying ? '暂停' : '播放'" :class="{ 'loading': isLoading }" :disabled="disabled" class="play-button"
+              @click="togglePlay">
         <div v-if="isLoading" class="loading-spinner"></div>
-        <svg v-else-if="isPlaying" class="icon" viewBox="0 0 24 24" fill="currentColor">
-          <path d="M6 4h4v16H6V4zm8 0h4v16h-4V4z" />
+        <svg v-else-if="isPlaying" class="icon" fill="currentColor" viewBox="0 0 24 24">
+          <path d="M6 4h4v16H6V4zm8 0h4v16h-4V4z"/>
         </svg>
-        <svg v-else class="icon" viewBox="0 0 24 24" fill="currentColor">
-          <path d="M8 5v14l11-7z" />
+        <svg v-else class="icon" fill="currentColor" viewBox="0 0 24 24">
+          <path d="M8 5v14l11-7z"/>
         </svg>
       </button>
 
       <!-- 进度条区域 -->
       <div class="progress-section">
         <!-- 进度条 -->
-        <div class="progress-container" @mousedown="handleProgressMouseDown" ref="progressBarRef">
+        <div ref="progressBarRef" class="progress-container" @mousedown="handleProgressMouseDown">
           <div class="progress-track">
-            <div class="progress-fill" :style="{ width: progress + '%' }"></div>
-            <div class="progress-thumb" :style="{ left: progress + '%' }"></div>
+            <div :style="{ width: progress + '%' }" class="progress-fill"></div>
+            <div :style="{ left: progress + '%' }" class="progress-thumb"></div>
           </div>
         </div>
         <!-- 时间显示 -->
@@ -431,18 +431,18 @@ defineExpose({ audioRef })
 
       <!-- 音量控制 -->
       <div class="volume-section" @mouseenter="onVolumeSectionEnter" @mouseleave="isVolumeHovering = false">
-        <button class="volume-button" tabindex="-1" @click="toggleMute" :disabled="disabled"
-          :aria-label="volume > 0 ? '静音' : '取消静音'">
+        <button :aria-label="volume > 0 ? '静音' : '取消静音'" :disabled="disabled" class="volume-button" tabindex="-1"
+                @click="toggleMute">
           <IconBxVolumeMute v-if="volume === 0" class="icon"></IconBxVolumeMute>
           <IconBxVolumeLow v-else-if="volume < 0.5" class="icon"></IconBxVolumeLow>
           <IconBxVolumeFull v-else class="icon"></IconBxVolumeFull>
         </button>
 
         <!-- 音量下拉控制条 -->
-        <div class="volume-dropdown" :class="[{ 'active': isVolumeHovering || isVolumeDragging }, volumePosition]">
-          <div class="volume-container" @mousedown="handleVolumeMouseDown" ref="volumeBarRef">
+        <div :class="[{ 'active': isVolumeHovering || isVolumeDragging }, volumePosition]" class="volume-dropdown">
+          <div ref="volumeBarRef" class="volume-container" @mousedown="handleVolumeMouseDown">
             <div class="volume-track">
-              <div class="volume-fill" ref="volumeFillRef" :style="{ height: volumeProgress + '%', bottom: 0 }"></div>
+              <div ref="volumeFillRef" :style="{ height: volumeProgress + '%', bottom: 0 }" class="volume-fill"></div>
             </div>
             <div class="volume-num">
               <span>{{ Math.floor(volumeProgress) }}%</span>
@@ -452,8 +452,8 @@ defineExpose({ audioRef })
       </div>
 
       <!-- 播放速度控制 -->
-      <button class="speed-button" @click="changePlaybackRate" :disabled="disabled"
-        :aria-label="`播放速度: ${playbackRate}x`">
+      <button :aria-label="`播放速度: ${playbackRate}x`" :disabled="disabled" class="speed-button"
+              @click="changePlaybackRate">
         {{ playbackRate }}x
       </button>
     </div>
@@ -463,7 +463,7 @@ defineExpose({ audioRef })
   </div>
 </template>
 
-<style scoped lang="scss">
+<style lang="scss" scoped>
 .custom-audio {
   --audio-border-radius: 8px;
   --audio-box-shadow: 0 2px 2px rgba(0, 0, 0, 0.1);

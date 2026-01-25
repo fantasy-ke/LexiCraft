@@ -1,29 +1,29 @@
 <template>
   <div class="modern-layout">
-    <LayoutHeader 
-      v-model:showUserMenu="showUserMenu"
-      :today-stats="todayStats"
-      @toggleUserMenu="toggleUserMenu"
+    <LayoutHeader
+        v-model:showUserMenu="showUserMenu"
+        :today-stats="todayStats"
+        @toggleUserMenu="toggleUserMenu"
     />
 
     <div class="layout-body">
-      <LayoutSidebar 
-        :sidebar-expanded="sidebarExpanded"
+      <LayoutSidebar
+          :sidebar-expanded="sidebarExpanded"
       />
 
-      <LayoutContent 
-        :sidebar-expanded="sidebarExpanded"
-        :current-route-name="currentRouteName"
-        @toggleSidebar="toggleSidebar"
+      <LayoutContent
+          :current-route-name="currentRouteName"
+          :sidebar-expanded="sidebarExpanded"
+          @toggleSidebar="toggleSidebar"
       />
     </div>
   </div>
 </template>
 
-<script setup lang="ts">
-import { ref, computed } from 'vue'
-import { useRoute } from 'vue-router'
-import { useRuntimeStore } from '@/stores/runtime'
+<script lang="ts" setup>
+import {computed, ref} from 'vue'
+import {useRoute} from 'vue-router'
+import {useRuntimeStore} from '@/stores/runtime'
 import LayoutHeader from './modern/LayoutHeader.vue'
 import LayoutSidebar from './modern/LayoutSidebar.vue'
 import LayoutContent from './modern/LayoutContent.vue'
@@ -67,7 +67,7 @@ const toggleUserMenu = () => {
 }
 </script>
 
-<style scoped lang="scss">
+<style lang="scss" scoped>
 .modern-layout {
   display: flex;
   flex-direction: column;

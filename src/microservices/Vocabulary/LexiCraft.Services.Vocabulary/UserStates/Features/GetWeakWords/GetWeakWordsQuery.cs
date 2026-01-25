@@ -12,7 +12,7 @@ public record GetWeakWordsQuery(Guid UserId) : IQuery<List<WordDto>>;
 
 public class GetWeakWordsQueryHandler(
     IUserWordStateRepository userWordStateRepository,
-    IWordRepository wordRepository) 
+    IWordRepository wordRepository)
     : IQueryHandler<GetWeakWordsQuery, List<WordDto>>
 {
     public async Task<List<WordDto>> Handle(GetWeakWordsQuery query, CancellationToken cancellationToken)

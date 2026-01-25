@@ -67,7 +67,7 @@ public static class QueryableExtensions
         count = queryable.Count();
         return queryable;
     }
-    
+
     public static IQueryable<T> QueryNoTracking<T>(this IQueryable<T> queryable) where T : class
     {
         return queryable.AsNoTracking();
@@ -78,7 +78,7 @@ public static class QueryableExtensions
         queryable = queryable.Skip(Math.Max(0, pageNumber - 1) * pageSize).Take(pageSize);
         return queryable;
     }
-    
+
     public static async Task<(int total, IEnumerable<T> result)> GetPageListAsync<T>(
         this IQueryable<T> queryable,
         Expression<Func<T, bool>> predicate, int pageIndex,
@@ -88,10 +88,7 @@ public static class QueryableExtensions
 
         var total = await query.CountAsync();
 
-        if (orderBy != null)
-        {
-            query = isAsc ? query.OrderBy(orderBy) : query.OrderByDescending(orderBy);
-        }
+        if (orderBy != null) query = isAsc ? query.OrderBy(orderBy) : query.OrderByDescending(orderBy);
 
         var list = await query.Skip((pageIndex - 1) * pageSize).Take(pageSize).ToArrayAsync();
 

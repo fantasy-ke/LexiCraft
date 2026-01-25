@@ -1,10 +1,10 @@
 using Humanizer;
+using LexiCraft.Services.Identity.Shared.Dtos;
 using MediatR;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Routing;
-using LexiCraft.Services.Identity.Shared.Dtos;
 
 namespace LexiCraft.Services.Identity.Identity.Features.RefreshToken;
 
@@ -37,4 +37,3 @@ internal record RefreshTokenRequestParameters(
     [FromBody] RefreshTokenCommand Command,
     CancellationToken CancellationToken
 );
-

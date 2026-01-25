@@ -27,9 +27,9 @@ public static class WebApplicationExtensions
             scalarOptions.Theme = ScalarTheme.BluePlanet;
             scalarOptions.DefaultFonts = false;
             scalarOptions.ShowDeveloperTools = DeveloperToolsVisibility.Always;
-            scalarOptions.Authentication = new ScalarAuthenticationOptions()
+            scalarOptions.Authentication = new ScalarAuthenticationOptions
             {
-                PreferredSecuritySchemes = new List<string>() { "Bearer" },
+                PreferredSecuritySchemes = new List<string> { "Bearer" }
             };
         });
 

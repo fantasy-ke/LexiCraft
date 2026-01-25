@@ -4,23 +4,23 @@
       <div class="dialog-header">
         <h3 class="dialog-title">{{ props.title }}</h3>
       </div>
-      
+
       <div class="dialog-content">
         <p class="dialog-message">{{ props.message }}</p>
       </div>
-      
+
       <div class="dialog-actions">
-        <button 
-          class="btn btn-cancel" 
-          @click="handleCancel"
-          :disabled="props.loading"
+        <button
+            :disabled="props.loading"
+            class="btn btn-cancel"
+            @click="handleCancel"
         >
           {{ props.cancelText }}
         </button>
-        <button 
-          class="btn btn-confirm" 
-          @click="handleConfirm"
-          :disabled="props.loading"
+        <button
+            :disabled="props.loading"
+            class="btn btn-confirm"
+            @click="handleConfirm"
         >
           <span v-if="props.loading" class="loading-spinner"></span>
           {{ props.confirmText }}
@@ -30,7 +30,7 @@
   </div>
 </template>
 
-<script setup lang="ts">
+<script lang="ts" setup>
 interface Props {
   visible: boolean
   title?: string
@@ -42,7 +42,9 @@ interface Props {
 
 interface Emits {
   (e: 'update:visible', value: boolean): void
+
   (e: 'confirm'): void
+
   (e: 'cancel'): void
 }
 
@@ -67,7 +69,7 @@ const handleCancel = () => {
 }
 </script>
 
-<style scoped lang="scss">
+<style lang="scss" scoped>
 .confirm-dialog-overlay {
   position: fixed;
   top: 0;
@@ -95,7 +97,7 @@ const handleCancel = () => {
 
 .dialog-header {
   padding: 1.5rem 1.5rem 0 1.5rem;
-  
+
   .dialog-title {
     font-size: 1.25rem;
     font-weight: 600;
@@ -106,7 +108,7 @@ const handleCancel = () => {
 
 .dialog-content {
   padding: 1rem 1.5rem;
-  
+
   .dialog-message {
     color: #6b7280;
     line-height: 1.6;
@@ -132,7 +134,7 @@ const handleCancel = () => {
   display: flex;
   align-items: center;
   gap: 0.5rem;
-  
+
   &:disabled {
     opacity: 0.6;
     cursor: not-allowed;
@@ -142,7 +144,7 @@ const handleCancel = () => {
 .btn-cancel {
   background: #f3f4f6;
   color: #6b7280;
-  
+
   &:hover:not(:disabled) {
     background: #e5e7eb;
   }
@@ -151,7 +153,7 @@ const handleCancel = () => {
 .btn-confirm {
   background: #3b82f6;
   color: white;
-  
+
   &:hover:not(:disabled) {
     background: #2563eb;
   }
@@ -189,23 +191,23 @@ const handleCancel = () => {
     margin: 0 1rem;
     max-width: none;
   }
-  
+
   .dialog-header {
     padding: 1rem 1rem 0 1rem;
-    
+
     .dialog-title {
       font-size: 1.125rem;
     }
   }
-  
+
   .dialog-content {
     padding: 0.75rem 1rem;
   }
-  
+
   .dialog-actions {
     padding: 0 1rem 1rem 1rem;
     flex-direction: column-reverse;
-    
+
     .btn {
       width: 100%;
       justify-content: center;
@@ -217,20 +219,20 @@ const handleCancel = () => {
 @media (prefers-color-scheme: dark) {
   .confirm-dialog {
     background: #1f2937;
-    
+
     .dialog-title {
       color: #f9fafb;
     }
-    
+
     .dialog-message {
       color: #d1d5db;
     }
   }
-  
+
   .btn-cancel {
     background: #374151;
     color: #d1d5db;
-    
+
     &:hover:not(:disabled) {
       background: #4b5563;
     }

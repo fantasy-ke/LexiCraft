@@ -3,43 +3,43 @@ import type {Dict} from "@/types/types";
 import {getDefaultDict} from "@/types/func";
 
 export interface RuntimeState {
-  disableEventListener: boolean,
-  modalList: Array<{ id: string | number, close: Function }>
-  editDict: Dict
-  showDictModal: boolean
-  excludeRoutes: any[]
-  routeData: any,
-  isNew: boolean,
-  pageTitle: string,
+    disableEventListener: boolean,
+    modalList: Array<{ id: string | number, close: Function }>
+    editDict: Dict
+    showDictModal: boolean
+    excludeRoutes: any[]
+    routeData: any,
+    isNew: boolean,
+    pageTitle: string,
 }
 
 export const useRuntimeStore = defineStore('runtime', {
-  state: (): RuntimeState => {
-    return {
-      routeData: null,
-      disableEventListener: false,
-      modalList: [],
-      editDict: getDefaultDict(),
-      showDictModal: false,
-      excludeRoutes: [],
-      isNew: false,
-      pageTitle: '',
-    }
-  },
-  actions: {
-    updateExcludeRoutes(val: any) {
-      // console.log('val', val)
-      if (val.type === 'add') {
-        if (!this.excludeRoutes.find(v => v === val.value)) {
-          this.excludeRoutes.push(val.value)
+    state: (): RuntimeState => {
+        return {
+            routeData: null,
+            disableEventListener: false,
+            modalList: [],
+            editDict: getDefaultDict(),
+            showDictModal: false,
+            excludeRoutes: [],
+            isNew: false,
+            pageTitle: '',
         }
-      } else {
-        let resIndex = this.excludeRoutes.findIndex(v => v === val.value)
-        if (resIndex !== -1) {
-          this.excludeRoutes.splice(resIndex, 1)
-        }
-      }
-      // console.log('store.excludeRoutes', this.excludeRoutes)
     },
-  }
+    actions: {
+        updateExcludeRoutes(val: any) {
+            // console.log('val', val)
+            if (val.type === 'add') {
+                if (!this.excludeRoutes.find(v => v === val.value)) {
+                    this.excludeRoutes.push(val.value)
+                }
+            } else {
+                let resIndex = this.excludeRoutes.findIndex(v => v === val.value)
+                if (resIndex !== -1) {
+                    this.excludeRoutes.splice(resIndex, 1)
+                }
+            }
+            // console.log('store.excludeRoutes', this.excludeRoutes)
+        },
+    }
 })

@@ -1,4 +1,4 @@
-<script setup lang="ts">
+<script lang="ts" setup>
 import {useSettingStore} from "@/stores/setting.ts";
 
 const props = withDefaults(defineProps<{
@@ -16,19 +16,19 @@ const isMoveBottom = $computed(() => {
 </script>
 
 <template>
-  <span class="word-space wrong" v-if="isWrong"></span>
-  <span v-bind="$attrs" v-else>
-    <span class="word-space wait"
-          :class="[
+  <span v-if="isWrong" class="word-space wrong"></span>
+  <span v-else v-bind="$attrs">
+    <span :class="[
            isWait ? 'opacity-100':' opacity-0',
            isShake ? isMoveBottom ? 'shakeBottom' : 'shake' : '',
            isMoveBottom && 'to-bottom'
        ]"
+          class="word-space wait"
     ></span>
   </span>
 </template>
 
-<style scoped lang="scss">
+<style lang="scss" scoped>
 .word-space {
   position: relative;
   display: inline-block;

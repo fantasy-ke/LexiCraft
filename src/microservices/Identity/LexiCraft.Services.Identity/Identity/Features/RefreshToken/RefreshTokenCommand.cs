@@ -32,23 +32,14 @@ public class RefreshTokenCommandHandler(
     {
         var key = string.Format(UserInfoConst.RedisRefreshTokenKey, command.RefreshToken);
         var userIdValue = await cacheService.GetAsync<string>(key, cancellationToken: cancellationToken);
-        if (string.IsNullOrWhiteSpace(userIdValue))
-        {
-            ThrowUserFriendlyException.ThrowException("刷新令牌无效或已过期");
-        }
+        if (string.IsNullOrWhiteSpace(userIdValue)) ThrowUserFriendlyException.ThrowException("刷新令牌无效或已过期");
 
-        if (!Guid.TryParse(userIdValue, out var userId))
-        {
-            ThrowUserFriendlyException.ThrowException("刷新令牌无效");
-        }
+        if (!Guid.TryParse(userIdValue, out var userId)) ThrowUserFriendlyException.ThrowException("刷新令牌无效");
 
         var user = await userRepository.QueryNoTracking()
             .FirstOrDefaultAsync(x => x.Id == userId, cancellationToken);
 
-        if (user == null)
-        {
-            ThrowUserFriendlyException.ThrowException("用户不存在");
-        }
+        if (user == null) ThrowUserFriendlyException.ThrowException("用户不存在");
 
         await cacheService.RemoveAsync(key, cancellationToken: cancellationToken);
 
@@ -67,10 +58,11 @@ public class RefreshTokenCommandHandler(
         var newRefreshToken = jwtTokenProvider.GenerateRefreshToken();
         var response = new TokenResponse(token, newRefreshToken);
 
-        await cacheService.SetAsync(string.Format(UserInfoConst.RedisTokenKey, user.Id.ToString("N")), response, options => options.Expiry = TimeSpan.FromDays(7), cancellationToken);
-        await cacheService.SetAsync(string.Format(UserInfoConst.RedisRefreshTokenKey, newRefreshToken), user.Id.ToString("N"), options => options.Expiry = TimeSpan.FromDays(7), cancellationToken);
+        await cacheService.SetAsync(string.Format(UserInfoConst.RedisTokenKey, user.Id.ToString("N")), response,
+            options => options.Expiry = TimeSpan.FromDays(7), cancellationToken);
+        await cacheService.SetAsync(string.Format(UserInfoConst.RedisRefreshTokenKey, newRefreshToken),
+            user.Id.ToString("N"), options => options.Expiry = TimeSpan.FromDays(7), cancellationToken);
 
         return response;
     }
 }
-

@@ -2,6 +2,7 @@ using BuildingBlocks.Domain;
 using BuildingBlocks.Mediator;
 using FluentValidation;
 using LexiCraft.Services.Vocabulary.Shared.Contracts;
+using LexiCraft.Services.Vocabulary.Shared.Data;
 using LexiCraft.Services.Vocabulary.Words.Models;
 using Microsoft.EntityFrameworkCore;
 
@@ -46,7 +47,7 @@ public class ImportWordsCommandHandler(
     IWordRepository wordRepository,
     IWordListRepository wordListRepository,
     IWordListItemRepository wordListItemRepository,
-    Shared.Data.VocabularyDbContext dbContext) 
+    VocabularyDbContext dbContext)
     : ICommandHandler<ImportWordsCommand, WordImportResult>
 {
     public async Task<WordImportResult> Handle(ImportWordsCommand command, CancellationToken cancellationToken)
@@ -88,7 +89,8 @@ public class ImportWordsCommandHandler(
         });
     }
 
-    private async Task<WordList> GetOrCreateWordListAsync(ImportWordsRequest request, CancellationToken cancellationToken)
+    private async Task<WordList> GetOrCreateWordListAsync(ImportWordsRequest request,
+        CancellationToken cancellationToken)
     {
         var wordList = await wordListRepository.FirstOrDefaultAsync(x => x.Name == request.Name);
         if (wordList == null)
@@ -98,6 +100,7 @@ public class ImportWordsCommandHandler(
             await wordListRepository.InsertAsync(wordList);
             await unitOfWork.SaveChangesAsync();
         }
+
         return wordList;
     }
 
@@ -114,7 +117,6 @@ public class ImportWordsCommandHandler(
         var newWordsToInsert = new List<Word>();
 
         foreach (var data in wordsData)
-        {
             if (wordMap.TryGetValue(data.Spelling, out var existingWord))
             {
                 deployedWordsResult.Add(new WordDuplicateInfo(existingWord.Spelling, existingWord.Id));
@@ -130,25 +132,25 @@ public class ImportWordsCommandHandler(
                     data.Tags
                 );
                 newWordsToInsert.Add(newWord);
-                wordMap[newWord.Spelling] = newWord; 
+                wordMap[newWord.Spelling] = newWord;
             }
-        }
 
         if (newWordsToInsert.Count > 0)
         {
             await dbContext.Words.AddRangeAsync(newWordsToInsert, cancellationToken);
             await dbContext.SaveChangesAsync(cancellationToken);
-            
+
             deployedWordsResult.AddRange(newWordsToInsert.Select(x => new WordDuplicateInfo(x.Spelling, x.Id)));
         }
 
         return (deployedWordsResult, newWordsToInsert.Count);
     }
 
-    private async Task LinkWordsToListAsync(long wordListId, List<WordDuplicateInfo> deployedWords, CancellationToken cancellationToken)
+    private async Task LinkWordsToListAsync(long wordListId, List<WordDuplicateInfo> deployedWords,
+        CancellationToken cancellationToken)
     {
         var wordList = await wordListRepository.FirstOrDefaultAsync(x => x.Id == wordListId)
-            ?? throw new InvalidOperationException("WordList not found");
+                       ?? throw new InvalidOperationException("WordList not found");
 
         var currentWordIds = await wordListItemRepository.QueryNoTracking()
             .Where(x => x.WordListId == wordListId)
@@ -156,15 +158,11 @@ public class ImportWordsCommandHandler(
             .ToListAsync(cancellationToken);
 
         var existingWordIds = currentWordIds.ToHashSet();
-        int sortOrder = currentWordIds.Count + 1;
+        var sortOrder = currentWordIds.Count + 1;
 
         foreach (var mapping in deployedWords)
-        {
             if (!existingWordIds.Contains(mapping.Id))
-            {
                 wordList.AddWord(mapping.Id, sortOrder++);
-            }
-        }
 
         await wordListRepository.UpdateAsync(wordList);
         await wordListRepository.SaveChangesAsync();

@@ -1,15 +1,10 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
+namespace BuildingBlocks.OSS.Models;
 
-namespace BuildingBlocks.OSS.Models
+public class ItemUploadInfo
 {
-    public class ItemUploadInfo
-    {
-        public string Key { get; set; }
+    public required string Key { get; set; }
 
-        public string UploadId { get; set; }
+    public required string UploadId { get; set; }
 
-        public string Initiated { get; set; }
-    }
+    public required string Initiated { get; set; }
 }

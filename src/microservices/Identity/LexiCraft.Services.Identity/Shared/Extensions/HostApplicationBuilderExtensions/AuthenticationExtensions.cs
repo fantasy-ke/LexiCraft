@@ -1,3 +1,4 @@
+using System.Text;
 using BuildingBlocks.Extensions;
 using BuildingBlocks.Shared;
 using LexiCraft.Services.Identity.Shared.Authorize;
@@ -6,7 +7,6 @@ using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.IdentityModel.Tokens;
-using System.Text;
 using MrHuo.OAuth;
 using MrHuo.OAuth.Gitee;
 using MrHuo.OAuth.Github;
@@ -29,7 +29,7 @@ public static partial class HostApplicationBuilderExtensions
                 options.Authority = oauthOptions.Authority;
                 options.Audience = oauthOptions.Audience;
                 options.RequireHttpsMetadata = requireHttpsMetadata;
-        
+
                 options.TokenValidationParameters = new TokenValidationParameters
                 {
                     ValidateIssuer = oauthOptions.ValidateIssuer,
@@ -41,10 +41,10 @@ public static partial class HostApplicationBuilderExtensions
                     ValidateIssuerSigningKey = true,
                     IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(oauthOptions.Secret!))
                 };
-        
+
                 options.MapInboundClaims = false;
             });
-        
+
         builder.AddOAuthProviders();
 
         return builder;
@@ -53,7 +53,7 @@ public static partial class HostApplicationBuilderExtensions
     public static IHostApplicationBuilder AddOAuthProviders(this IHostApplicationBuilder builder)
     {
         var oauthCallbackOption = builder.Configuration.BindOptions<OAuthCallbackOption>();
-        
+
         // 注册OAuth Provider
         builder.Services.AddScoped<IOAuthProvider>(_ =>
         {
@@ -80,7 +80,7 @@ public static partial class HostApplicationBuilderExtensions
                 AppKey = oauthCallbackOption.Gitee.ClientSecret,
                 Scope = oauthCallbackOption.Gitee.Scope
             });
-            return new OAuthProvider<DefaultAccessTokenModel,GiteeUserModel>(oauth, "gitee", user => new OAuthUserDto
+            return new OAuthProvider<DefaultAccessTokenModel, GiteeUserModel>(oauth, "gitee", user => new OAuthUserDto
             {
                 Id = user.Name,
                 Name = user.Name,

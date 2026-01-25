@@ -1,7 +1,7 @@
-<script setup lang="ts">
-import { useSettingStore } from '@/stores/setting.ts'
-import { useRouter } from 'vue-router'
-import { IS_DEV } from '@/config/env'
+<script lang="ts" setup>
+import {useSettingStore} from '@/stores/setting.ts'
+import {useRouter} from 'vue-router'
+import {IS_DEV} from '@/config/env'
 
 const settingStore = useSettingStore()
 const router = useRouter()
@@ -25,7 +25,7 @@ function goHome() {
   </div>
 </template>
 
-<style scoped lang="scss">
+<style lang="scss" scoped>
 .center-logo-box {
   display: flex;
   align-items: center;

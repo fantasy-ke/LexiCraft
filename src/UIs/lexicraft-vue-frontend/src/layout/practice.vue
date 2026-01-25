@@ -1,6 +1,6 @@
-<script setup lang="ts">
-import { ref, computed } from 'vue'
-import { useRouter, useRoute } from 'vue-router'
+<script lang="ts" setup>
+import {computed, ref} from 'vue'
+import {useRoute, useRouter} from 'vue-router'
 import PracticeExitDialog from '@/components/PracticeExitDialog.vue'
 
 const router = useRouter()
@@ -66,22 +66,22 @@ defineExpose({
     <!-- 练习页面头部 -->
     <header class="practice-header">
       <div class="header-left">
-        <button class="exit-btn icon-only" @click="showExitConfirm = true" :title="'退出练习'">
-          <IconFluentArrowLeft24Filled class="exit-icon" />
+        <button :title="'退出练习'" class="exit-btn icon-only" @click="showExitConfirm = true">
+          <IconFluentArrowLeft24Filled class="exit-icon"/>
         </button>
       </div>
-      
+
       <div class="header-center">
         <h1 class="practice-title">{{ practiceTitle }}</h1>
       </div>
-      
+
       <div class="header-right">
-        <div class="practice-stats" v-if="showStats">
+        <div v-if="showStats" class="practice-stats">
           <div class="stat-item">
             <span class="stat-label">进度</span>
             <span class="stat-value">{{ currentIndex }}/{{ totalCount }}</span>
           </div>
-          <div class="stat-item" v-if="accuracy !== null">
+          <div v-if="accuracy !== null" class="stat-item">
             <span class="stat-label">正确率</span>
             <span class="stat-value">{{ accuracy }}%</span>
           </div>
@@ -93,19 +93,19 @@ defineExpose({
     <main class="practice-content">
       <router-view></router-view>
     </main>
-    
+
     <!-- 退出确认弹出层 -->
     <PracticeExitDialog
-      v-model:visible="showExitConfirm"
-      :list-label="listLabel"
-      @exit-home="exitToHome"
-      @exit-list="exitToList"
-      @continue="showExitConfirm = false"
+        v-model:visible="showExitConfirm"
+        :list-label="listLabel"
+        @continue="showExitConfirm = false"
+        @exit-home="exitToHome"
+        @exit-list="exitToList"
     />
   </div>
 </template>
 
-<style scoped lang="scss">
+<style lang="scss" scoped>
 .practice-layout {
   display: flex;
   flex-direction: column;
@@ -129,7 +129,7 @@ defineExpose({
     display: flex;
     align-items: center;
     min-width: 120px;
-    
+
     .exit-btn {
       display: flex;
       align-items: center;
@@ -163,7 +163,7 @@ defineExpose({
     flex: 1;
     display: flex;
     justify-content: center;
-    
+
     .practice-title {
       font-size: 1.25rem;
       font-weight: 600;
@@ -220,10 +220,10 @@ defineExpose({
 
     .header-left {
       min-width: 80px;
-      
+
       .exit-btn {
         padding: 0.375rem 0.75rem;
-        
+
         .exit-text {
           display: none;
         }

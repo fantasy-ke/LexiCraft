@@ -1,4 +1,4 @@
-<script setup lang="tsx">
+<script lang="tsx" setup>
 import {useSettingStore} from "@/stores/setting.ts";
 import Space from "@/components/article/components/Space.vue";
 
@@ -35,8 +35,7 @@ const list = $computed(() => {
       if (k === ' ') {
         right = wrong = ''
         t.push({type: 'space'})
-      }
-      else {
+      } else {
         if (compare(k, props.word.word[i])) {
           right += k
           wrong = ''
@@ -98,7 +97,7 @@ defineRender(() => {
 </script>
 
 
-<style scoped lang="scss">
+<style lang="scss" scoped>
 .input-right {
   color: var(--color-select-bg);
 }

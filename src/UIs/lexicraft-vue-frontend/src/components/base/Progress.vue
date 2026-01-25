@@ -1,5 +1,5 @@
-<script setup lang="ts">
-import { computed } from 'vue';
+<script lang="ts" setup>
+import {computed} from 'vue';
 
 interface IProps {
   percentage: number;
@@ -49,21 +49,21 @@ const content = computed(() => {
 </script>
 
 <template>
-  <div class="progress" role="progressbar" :aria-valuenow="percentage" aria-valuemin="0" aria-valuemax="100">
-    <div class="progress-bar" :style="trackStyle">
-      <div class="progress-bar-inner" :style="barStyle">
-        <div v-if="showText && textInside" class="progress-bar-text" :style="{ fontSize: progressTextSize + 'px' }">
+  <div :aria-valuenow="percentage" aria-valuemax="100" aria-valuemin="0" class="progress" role="progressbar">
+    <div :style="trackStyle" class="progress-bar">
+      <div :style="barStyle" class="progress-bar-inner">
+        <div v-if="showText && textInside" :style="{ fontSize: progressTextSize + 'px' }" class="progress-bar-text">
           {{ content }}
         </div>
       </div>
     </div>
-    <div v-if="showText && !textInside" class="progress-bar-text" :style="{ fontSize: progressTextSize + 'px' }">
+    <div v-if="showText && !textInside" :style="{ fontSize: progressTextSize + 'px' }" class="progress-bar-text">
       {{ content }}
     </div>
   </div>
 </template>
 
-<style scoped lang="scss">
+<style lang="scss" scoped>
 .progress {
   position: relative;
   width: 100%;

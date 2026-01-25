@@ -1,28 +1,28 @@
 <template>
-  <div class="inline-flex w-full relative" :class="[disabled && 'disabled']">
+  <div :class="[disabled && 'disabled']" class="inline-flex w-full relative">
     <textarea
-      ref="textareaRef"
-      v-model="innerValue"
-      :placeholder="placeholder"
-      :maxlength="maxlength"
-      :rows="rows"
-      :disabled="disabled"
-      :style="textareaStyle"
-      class="w-full px-3 py-2 border border-gray-300 rounded-md outline-none resize-none transition-colors duration-200 box-border"
-      @input="handleInput"
+        ref="textareaRef"
+        v-model="innerValue"
+        :disabled="disabled"
+        :maxlength="maxlength"
+        :placeholder="placeholder"
+        :rows="rows"
+        :style="textareaStyle"
+        class="w-full px-3 py-2 border border-gray-300 rounded-md outline-none resize-none transition-colors duration-200 box-border"
+        @input="handleInput"
     />
     <!-- 字数统计 -->
     <span
-      v-if="showWordLimit && maxlength"
-      class="absolute bottom-1 right-2 text-xs text-gray-400 select-none"
+        v-if="showWordLimit && maxlength"
+        class="absolute bottom-1 right-2 text-xs text-gray-400 select-none"
     >
       {{ innerValue.length }} / {{ maxlength }}
     </span>
   </div>
 </template>
 
-<script setup lang="ts">
-import { ref, watch, computed, nextTick } from 'vue'
+<script lang="ts" setup>
+import {computed, nextTick, ref, watch} from 'vue'
 
 const props = defineProps<{
   modelValue: string
@@ -38,15 +38,15 @@ const emit = defineEmits(['update:modelValue'])
 
 const innerValue = ref(props.modelValue ?? '')
 watch(
-  () => props.modelValue,
-  v => (innerValue.value = v ?? '')
+    () => props.modelValue,
+    v => (innerValue.value = v ?? '')
 )
 
 const textareaRef = ref<HTMLTextAreaElement>()
 
 // 样式（用于控制高度）
 const textareaStyle = computed(() => {
-  return props.autosize ? { height: 'auto' } : {}
+  return props.autosize ? {height: 'auto'} : {}
 })
 
 // 输入处理
@@ -66,7 +66,7 @@ const resizeTextarea = () => {
   let overflow = 'hidden'
 
   if (typeof props.autosize === 'object') {
-    const { minRows, maxRows } = props.autosize
+    const {minRows, maxRows} = props.autosize
     const lineHeight = 24 // 行高约等于 24px
     if (minRows) height = Math.max(height, minRows * lineHeight)
     if (maxRows) {
@@ -83,16 +83,17 @@ const resizeTextarea = () => {
 }
 
 watch(
-  innerValue,
-  () => {
-    if (props.autosize) nextTick(resizeTextarea)
-  },
-  { immediate: true }
+    innerValue,
+    () => {
+      if (props.autosize) nextTick(resizeTextarea)
+    },
+    {immediate: true}
 )
 </script>
-<style scoped lang="scss">
+<style lang="scss" scoped>
 .disabled {
   opacity: 0.5;
+
   textarea {
     cursor: not-allowed !important;
   }
