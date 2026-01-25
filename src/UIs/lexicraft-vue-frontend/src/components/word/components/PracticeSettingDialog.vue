@@ -1,14 +1,14 @@
-<script setup lang="ts">
-import { _getAccomplishDays } from '@/utils'
+<script lang="ts" setup>
+import {_getAccomplishDays} from '@/utils'
 import BaseButton from '@/components/BaseButton.vue'
 import Checkbox from '@/components/base/checkbox/Checkbox.vue'
 import Slider from '@/components/base/Slider.vue'
-import { defineAsyncComponent, watch } from 'vue'
-import { useSettingStore } from '@/stores/setting'
+import {defineAsyncComponent, watch} from 'vue'
+import {useSettingStore} from '@/stores/setting'
 import Toast from '@/components/base/toast/Toast'
 import ChangeLastPracticeIndexDialog from '@/components/word/components/ChangeLastPracticeIndexDialog.vue'
 import Tooltip from '@/components/base/Tooltip.vue'
-import { useRuntimeStore } from '@/stores/runtime'
+import {useRuntimeStore} from '@/stores/runtime'
 import BaseInput from '@/components/base/BaseInput.vue'
 import InputNumber from '@/components/base/InputNumber.vue'
 
@@ -42,49 +42,49 @@ function changePerDayStudyNumber() {
 }
 
 watch(
-  () => model.value,
-  n => {
-    if (n) {
-      if (runtimeStore.editDict.id) {
-        tempPerDayStudyNumber = runtimeStore.editDict.perDayStudyNumber
-        tempLastLearnIndex = runtimeStore.editDict.lastLearnIndex
-        tempWordReviewRatio = settings.wordReviewRatio
-        tempDisableShowPracticeSettingDialog = settings.disableShowPracticeSettingDialog
-      } else {
-        Toast.warning('请先选择一本词典')
+    () => model.value,
+    n => {
+      if (n) {
+        if (runtimeStore.editDict.id) {
+          tempPerDayStudyNumber = runtimeStore.editDict.perDayStudyNumber
+          tempLastLearnIndex = runtimeStore.editDict.lastLearnIndex
+          tempWordReviewRatio = settings.wordReviewRatio
+          tempDisableShowPracticeSettingDialog = settings.disableShowPracticeSettingDialog
+        } else {
+          Toast.warning('请先选择一本词典')
+        }
       }
     }
-  }
 )
 </script>
 
 <template>
-  <Dialog v-model="model" title="学习设置" padding :footer="true" @ok="changePerDayStudyNumber">
-    <div class="target-modal color-main" id="mode">
+  <Dialog v-model="model" :footer="true" padding title="学习设置" @ok="changePerDayStudyNumber">
+    <div id="mode" class="target-modal color-main">
       <div class="text-center mt-4">
         <span
-          >共<span class="target-number mx-2">{{ runtimeStore.editDict.length }}</span
-          >个单词，</span
+        >共<span class="target-number mx-2">{{ runtimeStore.editDict.length }}</span
+        >个单词，</span
         >
         <span
-          >预计<span class="target-number mx-2">{{
+        >预计<span class="target-number mx-2">{{
             _getAccomplishDays(
               runtimeStore.editDict.length - tempLastLearnIndex,
               tempPerDayStudyNumber
             )
           }}</span
-          >天完成</span
+        >天完成</span
         >
       </div>
 
       <div class="text-center mt-4 mb-8 flex gap-1 items-end justify-center">
         <span>从第</span>
         <div class="w-20">
-          <BaseInput class="target-number" v-model="tempLastLearnIndex" />
+          <BaseInput v-model="tempLastLearnIndex" class="target-number"/>
         </div>
         <span>个开始，每日</span>
         <div class="w-16">
-          <BaseInput class="target-number" v-model="tempPerDayStudyNumber" />
+          <BaseInput v-model="tempPerDayStudyNumber" class="target-number"/>
         </div>
         <span>个新词</span>
         <span>，复习</span>
@@ -99,12 +99,12 @@ watch(
           <Tooltip title="复习词与新词的比例">
             <div class="flex items-center gap-1 w-20 break-keep">
               <span>复习比</span>
-              <IconFluentQuestionCircle20Regular />
+              <IconFluentQuestionCircle20Regular/>
             </div>
           </Tooltip>
-          <InputNumber :min="0" :max="10" v-model="tempWordReviewRatio" />
+          <InputNumber v-model="tempWordReviewRatio" :max="10" :min="0"/>
         </div>
-        <div class="flex" v-if="!tempWordReviewRatio">
+        <div v-if="!tempWordReviewRatio" class="flex">
           <div class="w-23 flex-shrink-0"></div>
           <div class="text-sm text-gray-500">
             <div>未完成学习时，复习数量按照设置的复习比生成，为0则不复习</div>
@@ -116,32 +116,32 @@ watch(
       <div class="flex mb-4 gap-space">
         <span class="shrink-0 w-20">每日学习</span>
         <Slider
-          :min="10"
-          :step="10"
-          show-text
-          class="mt-1"
-          :max="200"
-          v-model="tempPerDayStudyNumber"
+            v-model="tempPerDayStudyNumber"
+            :max="200"
+            :min="10"
+            :step="10"
+            class="mt-1"
+            show-text
         />
       </div>
       <div class="flex gap-space">
         <span class="shrink-0 w-20">学习进度</span>
         <div class="flex-1">
           <Slider
-            :min="0"
-            :step="10"
-            show-text
-            class="my-1"
-            :max="runtimeStore.editDict.words.length"
-            v-model="tempLastLearnIndex"
+              v-model="tempLastLearnIndex"
+              :max="runtimeStore.editDict.words.length"
+              :min="0"
+              :step="10"
+              class="my-1"
+              show-text
           />
           <BaseButton @click="show = true">从词典选起始位置</BaseButton>
         </div>
       </div>
     </div>
-    <template v-slot:footer-left v-if="showLeftOption">
+    <template v-if="showLeftOption" v-slot:footer-left>
       <div class="flex items-center">
-        <Checkbox v-model="tempDisableShowPracticeSettingDialog" />
+        <Checkbox v-model="tempDisableShowPracticeSettingDialog"/>
         <Tooltip title="可在设置页面更改">
           <span class="text-sm">保持默认，不再显示</span>
         </Tooltip>
@@ -149,8 +149,8 @@ watch(
     </template>
   </Dialog>
   <ChangeLastPracticeIndexDialog
-    v-model="show"
-    @ok="
+      v-model="show"
+      @ok="
       e => {
         tempLastLearnIndex = e
         show = false
@@ -159,7 +159,7 @@ watch(
   />
 </template>
 
-<style scoped lang="scss">
+<style lang="scss" scoped>
 .target-modal {
   width: 35rem;
 

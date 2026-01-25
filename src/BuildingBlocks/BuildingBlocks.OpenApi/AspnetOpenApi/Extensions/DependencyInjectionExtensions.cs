@@ -13,7 +13,6 @@ public static class DependencyInjectionExtensions
         builder.Services.AddConfigurationOptions<OpenApiOptions>();
 
         foreach (var documentName in versions)
-        {
             builder.Services.AddOpenApi(
                 documentName,
                 options =>
@@ -27,11 +26,10 @@ public static class DependencyInjectionExtensions
                     options.AddSchemaTransformer<EnumSchemaTransformer>();
                 }
             );
-        }
 
         return builder;
     }
-    
+
     public static IHostApplicationBuilder AddCustomVersioning(this IHostApplicationBuilder builder)
     {
         // 复制官方示例的https://github.com/dotnet/aspnet-api-versioning/blob/main/examples/AspNetCore/WebApi/MinimalOpenApiExample/Program.cs
@@ -39,7 +37,7 @@ public static class DependencyInjectionExtensions
             .Services.AddApiVersioning(options =>
             {
                 options.ReportApiVersions = true;
-                
+
                 options.ApiVersionReader = ApiVersionReader.Combine(
                     new HeaderApiVersionReader("api-version"),
                     new QueryStringApiVersionReader(),

@@ -8,7 +8,7 @@ using StackExchange.Redis;
 namespace BuildingBlocks.Caching.Services;
 
 /// <summary>
-/// 分布式缓存服务实现
+///     分布式缓存服务实现
 /// </summary>
 public class DistributedCacheService : IDistributedCacheService
 {
@@ -16,7 +16,7 @@ public class DistributedCacheService : IDistributedCacheService
     private readonly ILogger<DistributedCacheService> _logger;
 
     /// <summary>
-    /// 初始化分布式缓存服务
+    ///     初始化分布式缓存服务
     /// </summary>
     /// <param name="connectionFactory">Redis 连接工厂</param>
     /// <param name="logger">日志记录器</param>
@@ -29,7 +29,7 @@ public class DistributedCacheService : IDistributedCacheService
     }
 
     /// <summary>
-    /// 异步获取缓存值
+    ///     异步获取缓存值
     /// </summary>
     /// <typeparam name="T">缓存值类型</typeparam>
     /// <param name="key">缓存键</param>
@@ -64,7 +64,7 @@ public class DistributedCacheService : IDistributedCacheService
     }
 
     /// <summary>
-    /// 异步设置缓存值
+    ///     异步设置缓存值
     /// </summary>
     /// <typeparam name="T">缓存值类型</typeparam>
     /// <param name="key">缓存键</param>
@@ -95,7 +95,7 @@ public class DistributedCacheService : IDistributedCacheService
     }
 
     /// <summary>
-    /// 异步删除缓存
+    ///     异步删除缓存
     /// </summary>
     /// <param name="key">缓存键</param>
     /// <param name="options">缓存配置选项</param>
@@ -111,7 +111,7 @@ public class DistributedCacheService : IDistributedCacheService
         {
             var database = GetDatabase(options.RedisInstanceName);
             var result = await database.KeyDeleteAsync(key);
-            
+
             _logger.LogDebug("缓存删除: {Key}, 结果: {Result}", key, result);
             return result;
         }
@@ -123,7 +123,7 @@ public class DistributedCacheService : IDistributedCacheService
     }
 
     /// <summary>
-    /// 异步检查缓存是否存在
+    ///     异步检查缓存是否存在
     /// </summary>
     /// <param name="key">缓存键</param>
     /// <param name="options">缓存配置选项</param>
@@ -139,7 +139,7 @@ public class DistributedCacheService : IDistributedCacheService
         {
             var database = GetDatabase(options.RedisInstanceName);
             var result = await database.KeyExistsAsync(key);
-            
+
             _logger.LogDebug("缓存存在性检查: {Key}, 结果: {Result}", key, result);
             return result;
         }
@@ -151,7 +151,7 @@ public class DistributedCacheService : IDistributedCacheService
     }
 
     /// <summary>
-    /// 异步设置缓存过期时间
+    ///     异步设置缓存过期时间
     /// </summary>
     /// <param name="key">缓存键</param>
     /// <param name="expiry">过期时间</param>
@@ -168,7 +168,7 @@ public class DistributedCacheService : IDistributedCacheService
         {
             var database = GetDatabase(options.RedisInstanceName);
             var result = await database.KeyExpireAsync(key, expiry);
-            
+
             _logger.LogDebug("设置缓存过期时间: {Key}, 过期时间: {Expiry}, 结果: {Result}", key, expiry, result);
             return result;
         }
@@ -180,13 +180,14 @@ public class DistributedCacheService : IDistributedCacheService
     }
 
     /// <summary>
-    /// Hash 操作 - 异步获取多个字段
+    ///     Hash 操作 - 异步获取多个字段
     /// </summary>
     /// <param name="key">Hash 键</param>
     /// <param name="fields">要获取的字段列表</param>
     /// <param name="options">缓存配置选项</param>
     /// <returns>字段值字典，Hash 不存在时返回 null</returns>
-    public async Task<Dictionary<string, string>?> HashGetAsync(string key, IEnumerable<string> fields, CacheServiceOptions options)
+    public async Task<Dictionary<string, string>?> HashGetAsync(string key, IEnumerable<string> fields,
+        CacheServiceOptions options)
     {
         if (string.IsNullOrWhiteSpace(key))
             throw new ArgumentException("Hash 键不能为空", nameof(key));
@@ -218,17 +219,13 @@ public class DistributedCacheService : IDistributedCacheService
             }
 
             var result = new Dictionary<string, string>();
-            for (int i = 0; i < fieldArray.Length; i++)
-            {
+            for (var i = 0; i < fieldArray.Length; i++)
                 if (values[i].HasValue)
-                {
                     result[fieldArray[i]] = values[i].ToString()!;
-                }
-            }
 
-            _logger.LogDebug("Hash 获取成功: {Key}, 字段数: {FieldCount}, 返回数: {ResultCount}", 
+            _logger.LogDebug("Hash 获取成功: {Key}, 字段数: {FieldCount}, 返回数: {ResultCount}",
                 key, fieldArray.Length, result.Count);
-            
+
             return result;
         }
         catch (Exception ex)
@@ -239,13 +236,14 @@ public class DistributedCacheService : IDistributedCacheService
     }
 
     /// <summary>
-    /// Hash 操作 - 异步设置多个字段
+    ///     Hash 操作 - 异步设置多个字段
     /// </summary>
     /// <param name="key">Hash 键</param>
     /// <param name="values">字段值字典</param>
     /// <param name="options">缓存配置选项</param>
     /// <param name="expiry">过期时间，为空时使用 options.Expiry</param>
-    public async Task HashSetAsync(string key, Dictionary<string, string> values, CacheServiceOptions options, TimeSpan? expiry = null)
+    public async Task HashSetAsync(string key, Dictionary<string, string> values, CacheServiceOptions options,
+        TimeSpan? expiry = null)
     {
         if (string.IsNullOrWhiteSpace(key))
             throw new ArgumentException("Hash 键不能为空", nameof(key));
@@ -259,14 +257,14 @@ public class DistributedCacheService : IDistributedCacheService
         {
             var database = GetDatabase(options.RedisInstanceName);
             var hashFields = values.Select(kvp => new HashEntry(kvp.Key, kvp.Value)).ToArray();
-            
+
             await database.HashSetAsync(key, hashFields);
 
             // 设置过期时间
             var effectiveExpiry = expiry ?? options.Expiry;
             await database.KeyExpireAsync(key, effectiveExpiry);
 
-            _logger.LogDebug("Hash 设置成功: {Key}, 字段数: {FieldCount}, 过期时间: {Expiry}", 
+            _logger.LogDebug("Hash 设置成功: {Key}, 字段数: {FieldCount}, 过期时间: {Expiry}",
                 key, values.Count, effectiveExpiry);
         }
         catch (Exception ex)
@@ -277,7 +275,7 @@ public class DistributedCacheService : IDistributedCacheService
     }
 
     /// <summary>
-    /// Hash 操作 - 异步检查字段是否存在
+    ///     Hash 操作 - 异步检查字段是否存在
     /// </summary>
     /// <param name="key">Hash 键</param>
     /// <param name="field">字段名</param>
@@ -297,20 +295,20 @@ public class DistributedCacheService : IDistributedCacheService
         {
             var database = GetDatabase(options.RedisInstanceName);
             var result = await database.HashExistsAsync(key, field);
-            
+
             _logger.LogDebug("Hash 字段存在性检查: {Key}.{Field}, 结果: {Result}", key, field, result);
             return result;
         }
         catch (Exception ex)
         {
-            _logger.LogError(ex, "Hash 字段存在性检查失败: {Key}.{Field}, 实例: {Instance}", 
+            _logger.LogError(ex, "Hash 字段存在性检查失败: {Key}.{Field}, 实例: {Instance}",
                 key, field, options.RedisInstanceName ?? "default");
             throw;
         }
     }
 
     /// <summary>
-    /// 原子性设置缓存（仅当键不存在时）
+    ///     原子性设置缓存（仅当键不存在时）
     /// </summary>
     /// <typeparam name="T">缓存值类型</typeparam>
     /// <param name="key">缓存键</param>
@@ -318,7 +316,8 @@ public class DistributedCacheService : IDistributedCacheService
     /// <param name="options">缓存配置选项</param>
     /// <param name="expiry">过期时间，为空时使用 options.Expiry</param>
     /// <returns>是否设置成功</returns>
-    public async Task<bool> SetIfNotExistsAsync<T>(string key, T value, CacheServiceOptions options, TimeSpan? expiry = null)
+    public async Task<bool> SetIfNotExistsAsync<T>(string key, T value, CacheServiceOptions options,
+        TimeSpan? expiry = null)
     {
         if (string.IsNullOrWhiteSpace(key)) throw new ArgumentException("缓存键不能为空", nameof(key));
         if (options == null) throw new ArgumentNullException(nameof(options));
@@ -328,43 +327,39 @@ public class DistributedCacheService : IDistributedCacheService
             var database = GetDatabase(options.RedisInstanceName);
             var serializedData = SerializeValue(value, options);
             var effectiveExpiry = expiry ?? options.Expiry;
-            
+
             return await database.StringSetAsync(key, serializedData, effectiveExpiry, When.NotExists);
         }
         catch (Exception ex)
         {
-            _logger.LogError(ex, "SetIfNotExistsAsync 失败: {Key}, 实例: {Instance}", key, options.RedisInstanceName ?? "default");
+            _logger.LogError(ex, "SetIfNotExistsAsync 失败: {Key}, 实例: {Instance}", key,
+                options.RedisInstanceName ?? "default");
             throw;
         }
     }
 
     /// <summary>
-    /// 获取或设置缓存值
+    ///     获取或设置缓存值
     /// </summary>
-    public async Task<T?> GetOrSetAsync<T>(string key, Func<Task<T>> factory, CacheServiceOptions options, TimeSpan? expiry = null)
+    public async Task<T?> GetOrSetAsync<T>(string key, Func<Task<T>> factory, CacheServiceOptions options,
+        TimeSpan? expiry = null)
     {
         if (string.IsNullOrWhiteSpace(key)) throw new ArgumentException("缓存键不能为空", nameof(key));
         if (options == null) throw new ArgumentNullException(nameof(options));
         if (factory == null) throw new ArgumentNullException(nameof(factory));
 
         var value = await GetAsync<T>(key, options);
-        if (value != null && !EqualityComparer<T>.Default.Equals(value, default(T)))
-        {
-            return value;
-        }
+        if (value != null && !EqualityComparer<T>.Default.Equals(value, default)) return value;
 
         value = await factory();
-        
-        if (value != null)
-        {
-            await SetAsync(key, value, options, expiry);
-        }
-        
+
+        if (value != null) await SetAsync(key, value, options, expiry);
+
         return value;
     }
 
     /// <summary>
-    /// 原子性递增
+    ///     原子性递增
     /// </summary>
     public async Task<long> IncrementAsync(string key, long increment, CacheServiceOptions options)
     {
@@ -378,13 +373,14 @@ public class DistributedCacheService : IDistributedCacheService
         }
         catch (Exception ex)
         {
-            _logger.LogError(ex, "IncrementAsync 失败: {Key}, 实例: {Instance}", key, options.RedisInstanceName ?? "default");
+            _logger.LogError(ex, "IncrementAsync 失败: {Key}, 实例: {Instance}", key,
+                options.RedisInstanceName ?? "default");
             throw;
         }
     }
 
     /// <summary>
-    /// 原子性递减
+    ///     原子性递减
     /// </summary>
     public async Task<long> DecrementAsync(string key, long decrement, CacheServiceOptions options)
     {
@@ -398,13 +394,14 @@ public class DistributedCacheService : IDistributedCacheService
         }
         catch (Exception ex)
         {
-            _logger.LogError(ex, "DecrementAsync 失败: {Key}, 实例: {Instance}", key, options.RedisInstanceName ?? "default");
+            _logger.LogError(ex, "DecrementAsync 失败: {Key}, 实例: {Instance}", key,
+                options.RedisInstanceName ?? "default");
             throw;
         }
     }
 
     /// <summary>
-    /// 获取分布式锁
+    ///     获取分布式锁
     /// </summary>
     public async Task<bool> AcquireLockAsync(string key, TimeSpan expirationTime, CacheServiceOptions options)
     {
@@ -418,13 +415,14 @@ public class DistributedCacheService : IDistributedCacheService
         }
         catch (Exception ex)
         {
-            _logger.LogError(ex, "AcquireLockAsync 失败: {Key}, 实例: {Instance}", key, options.RedisInstanceName ?? "default");
+            _logger.LogError(ex, "AcquireLockAsync 失败: {Key}, 实例: {Instance}", key,
+                options.RedisInstanceName ?? "default");
             throw;
         }
     }
 
     /// <summary>
-    /// 释放分布式锁
+    ///     释放分布式锁
     /// </summary>
     public async Task<bool> ReleaseLockAsync(string key, CacheServiceOptions options)
     {
@@ -438,13 +436,14 @@ public class DistributedCacheService : IDistributedCacheService
         }
         catch (Exception ex)
         {
-            _logger.LogError(ex, "ReleaseLockAsync 失败: {Key}, 实例: {Instance}", key, options.RedisInstanceName ?? "default");
+            _logger.LogError(ex, "ReleaseLockAsync 失败: {Key}, 实例: {Instance}", key,
+                options.RedisInstanceName ?? "default");
             throw;
         }
     }
 
     /// <summary>
-    /// 检查是否持有分布式锁
+    ///     检查是否持有分布式锁
     /// </summary>
     public async Task<bool> IsLockAcquiredAsync(string key, CacheServiceOptions options)
     {
@@ -452,7 +451,7 @@ public class DistributedCacheService : IDistributedCacheService
     }
 
     /// <summary>
-    /// 批量删除缓存
+    ///     批量删除缓存
     /// </summary>
     public async Task<long> RemoveManyAsync(IEnumerable<string>? keys, CacheServiceOptions options)
     {
@@ -473,7 +472,7 @@ public class DistributedCacheService : IDistributedCacheService
     }
 
     /// <summary>
-    /// 扫描匹配的键
+    ///     扫描匹配的键
     /// </summary>
     public async Task<IEnumerable<string>> ScanKeysAsync(string pattern, int pageSize, CacheServiceOptions options)
     {
@@ -481,33 +480,32 @@ public class DistributedCacheService : IDistributedCacheService
 
         try
         {
-            var connection = string.IsNullOrWhiteSpace(options.RedisInstanceName) 
-                ? _connectionFactory.GetConnection() 
+            var connection = string.IsNullOrWhiteSpace(options.RedisInstanceName)
+                ? _connectionFactory.GetConnection()
                 : _connectionFactory.GetConnection(options.RedisInstanceName);
 
             var keys = new List<string>();
             foreach (var endpoint in connection.GetEndPoints())
             {
                 var server = connection.GetServer(endpoint);
-                await Task.Run(() => 
+                await Task.Run(() =>
                 {
-                    foreach (var key in server.Keys(pattern: pattern, pageSize: pageSize))
-                    {
-                        keys.Add(key.ToString());
-                    }
+                    foreach (var key in server.Keys(pattern: pattern, pageSize: pageSize)) keys.Add(key.ToString());
                 });
             }
+
             return keys.Distinct();
         }
         catch (Exception ex)
         {
-             _logger.LogError(ex, "ScanKeysAsync 失败: {Pattern}, 实例: {Instance}", pattern, options.RedisInstanceName ?? "default");
-             return Enumerable.Empty<string>();
+            _logger.LogError(ex, "ScanKeysAsync 失败: {Pattern}, 实例: {Instance}", pattern,
+                options.RedisInstanceName ?? "default");
+            return Enumerable.Empty<string>();
         }
     }
 
     /// <summary>
-    /// 获取二进制缓存值
+    ///     获取二进制缓存值
     /// </summary>
     public async Task<byte[]?> GetBytesAsync(string key, CacheServiceOptions options)
     {
@@ -522,13 +520,14 @@ public class DistributedCacheService : IDistributedCacheService
         }
         catch (Exception ex)
         {
-            _logger.LogError(ex, "GetBytesAsync 失败: {Key}, 实例: {Instance}", key, options.RedisInstanceName ?? "default");
+            _logger.LogError(ex, "GetBytesAsync 失败: {Key}, 实例: {Instance}", key,
+                options.RedisInstanceName ?? "default");
             throw;
         }
     }
 
     /// <summary>
-    /// 设置二进制缓存值
+    ///     设置二进制缓存值
     /// </summary>
     public async Task<bool> SetBytesAsync(string key, byte[] value, TimeSpan? expiry, CacheServiceOptions options)
     {
@@ -543,15 +542,17 @@ public class DistributedCacheService : IDistributedCacheService
         }
         catch (Exception ex)
         {
-            _logger.LogError(ex, "SetBytesAsync 失败: {Key}, 实例: {Instance}", key, options.RedisInstanceName ?? "default");
+            _logger.LogError(ex, "SetBytesAsync 失败: {Key}, 实例: {Instance}", key,
+                options.RedisInstanceName ?? "default");
             throw;
         }
     }
 
     /// <summary>
-    /// 设置Hash字段值
+    ///     设置Hash字段值
     /// </summary>
-    public async Task<bool> HashSetAsync(string key, string field, string value, CacheServiceOptions options, TimeSpan? expiry = null)
+    public async Task<bool> HashSetAsync(string key, string field, string value, CacheServiceOptions options,
+        TimeSpan? expiry = null)
     {
         if (string.IsNullOrWhiteSpace(key)) throw new ArgumentException("Hash 键不能为空", nameof(key));
         if (string.IsNullOrWhiteSpace(field)) throw new ArgumentException("字段名不能为空", nameof(field));
@@ -561,23 +562,21 @@ public class DistributedCacheService : IDistributedCacheService
         {
             var database = GetDatabase(options.RedisInstanceName);
             var result = await database.HashSetAsync(key, field, value);
-            
+
             var effectiveExpiry = expiry ?? options.Expiry;
-            if (effectiveExpiry > TimeSpan.Zero)
-            {
-                await database.KeyExpireAsync(key, effectiveExpiry);
-            }
+            if (effectiveExpiry > TimeSpan.Zero) await database.KeyExpireAsync(key, effectiveExpiry);
             return result;
         }
         catch (Exception ex)
         {
-            _logger.LogError(ex, "HashSetAsync 失败: {Key}.{Field}, 实例: {Instance}", key, field, options.RedisInstanceName ?? "default");
+            _logger.LogError(ex, "HashSetAsync 失败: {Key}.{Field}, 实例: {Instance}", key, field,
+                options.RedisInstanceName ?? "default");
             throw;
         }
     }
 
     /// <summary>
-    /// 获取Hash字段值
+    ///     获取Hash字段值
     /// </summary>
     public async Task<string?> HashGetAsync(string key, string field, CacheServiceOptions options)
     {
@@ -593,13 +592,14 @@ public class DistributedCacheService : IDistributedCacheService
         }
         catch (Exception ex)
         {
-            _logger.LogError(ex, "HashGetAsync 失败: {Key}.{Field}, 实例: {Instance}", key, field, options.RedisInstanceName ?? "default");
+            _logger.LogError(ex, "HashGetAsync 失败: {Key}.{Field}, 实例: {Instance}", key, field,
+                options.RedisInstanceName ?? "default");
             throw;
         }
     }
 
     /// <summary>
-    /// 删除Hash字段
+    ///     删除Hash字段
     /// </summary>
     public async Task<bool> HashDeleteAsync(string key, string field, CacheServiceOptions options)
     {
@@ -614,13 +614,14 @@ public class DistributedCacheService : IDistributedCacheService
         }
         catch (Exception ex)
         {
-            _logger.LogError(ex, "HashDeleteAsync 失败: {Key}.{Field}, 实例: {Instance}", key, field, options.RedisInstanceName ?? "default");
+            _logger.LogError(ex, "HashDeleteAsync 失败: {Key}.{Field}, 实例: {Instance}", key, field,
+                options.RedisInstanceName ?? "default");
             throw;
         }
     }
 
     /// <summary>
-    /// 删除Hash多个字段
+    ///     删除Hash多个字段
     /// </summary>
     public async Task<long> HashDeleteManyAsync(string key, IEnumerable<string> fields, CacheServiceOptions options)
     {
@@ -636,13 +637,14 @@ public class DistributedCacheService : IDistributedCacheService
         }
         catch (Exception ex)
         {
-            _logger.LogError(ex, "HashDeleteManyAsync 失败: {Key}, 实例: {Instance}", key, options.RedisInstanceName ?? "default");
+            _logger.LogError(ex, "HashDeleteManyAsync 失败: {Key}, 实例: {Instance}", key,
+                options.RedisInstanceName ?? "default");
             throw;
         }
     }
 
     /// <summary>
-    /// 递增Hash字段值
+    ///     递增Hash字段值
     /// </summary>
     public async Task<long> HashIncrementAsync(string key, string field, long increment, CacheServiceOptions options)
     {
@@ -657,13 +659,14 @@ public class DistributedCacheService : IDistributedCacheService
         }
         catch (Exception ex)
         {
-            _logger.LogError(ex, "HashIncrementAsync 失败: {Key}.{Field}, 实例: {Instance}", key, field, options.RedisInstanceName ?? "default");
+            _logger.LogError(ex, "HashIncrementAsync 失败: {Key}.{Field}, 实例: {Instance}", key, field,
+                options.RedisInstanceName ?? "default");
             throw;
         }
     }
 
     /// <summary>
-    /// 递减Hash字段值
+    ///     递减Hash字段值
     /// </summary>
     public async Task<long> HashDecrementAsync(string key, string field, long decrement, CacheServiceOptions options)
     {
@@ -678,13 +681,14 @@ public class DistributedCacheService : IDistributedCacheService
         }
         catch (Exception ex)
         {
-            _logger.LogError(ex, "HashDecrementAsync 失败: {Key}.{Field}, 实例: {Instance}", key, field, options.RedisInstanceName ?? "default");
+            _logger.LogError(ex, "HashDecrementAsync 失败: {Key}.{Field}, 实例: {Instance}", key, field,
+                options.RedisInstanceName ?? "default");
             throw;
         }
     }
 
     /// <summary>
-    /// 获取Hash字段数量
+    ///     获取Hash字段数量
     /// </summary>
     public async Task<long> HashLengthAsync(string key, CacheServiceOptions options)
     {
@@ -698,13 +702,14 @@ public class DistributedCacheService : IDistributedCacheService
         }
         catch (Exception ex)
         {
-            _logger.LogError(ex, "HashLengthAsync 失败: {Key}, 实例: {Instance}", key, options.RedisInstanceName ?? "default");
+            _logger.LogError(ex, "HashLengthAsync 失败: {Key}, 实例: {Instance}", key,
+                options.RedisInstanceName ?? "default");
             throw;
         }
     }
 
     /// <summary>
-    /// 获取Hash所有字段名
+    ///     获取Hash所有字段名
     /// </summary>
     public async Task<IEnumerable<string>> HashKeysAsync(string key, CacheServiceOptions options)
     {
@@ -719,13 +724,14 @@ public class DistributedCacheService : IDistributedCacheService
         }
         catch (Exception ex)
         {
-            _logger.LogError(ex, "HashKeysAsync 失败: {Key}, 实例: {Instance}", key, options.RedisInstanceName ?? "default");
+            _logger.LogError(ex, "HashKeysAsync 失败: {Key}, 实例: {Instance}", key,
+                options.RedisInstanceName ?? "default");
             throw;
         }
     }
 
     /// <summary>
-    /// 获取Hash所有值
+    ///     获取Hash所有值
     /// </summary>
     public async Task<IEnumerable<string>> HashValuesAsync(string key, CacheServiceOptions options)
     {
@@ -740,15 +746,17 @@ public class DistributedCacheService : IDistributedCacheService
         }
         catch (Exception ex)
         {
-            _logger.LogError(ex, "HashValuesAsync 失败: {Key}, 实例: {Instance}", key, options.RedisInstanceName ?? "default");
+            _logger.LogError(ex, "HashValuesAsync 失败: {Key}, 实例: {Instance}", key,
+                options.RedisInstanceName ?? "default");
             throw;
         }
     }
 
     /// <summary>
-    /// 批量递增Hash字段值
+    ///     批量递增Hash字段值
     /// </summary>
-    public async Task HashIncrementManyAsync(string hashId, IEnumerable<KeyValuePair<string, long>> keyValuePairs, TimeSpan? expiry, CacheServiceOptions options)
+    public async Task HashIncrementManyAsync(string hashId, IEnumerable<KeyValuePair<string, long>> keyValuePairs,
+        TimeSpan? expiry, CacheServiceOptions options)
     {
         if (string.IsNullOrWhiteSpace(hashId)) throw new ArgumentException("Hash 键不能为空", nameof(hashId));
         ArgumentNullException.ThrowIfNull(keyValuePairs);
@@ -758,21 +766,16 @@ public class DistributedCacheService : IDistributedCacheService
         {
             var database = GetDatabase(options.RedisInstanceName);
             var tasks = new List<Task>();
-            foreach (var kvp in keyValuePairs)
-            {
-                tasks.Add(database.HashIncrementAsync(hashId, kvp.Key, kvp.Value));
-            }
+            foreach (var kvp in keyValuePairs) tasks.Add(database.HashIncrementAsync(hashId, kvp.Key, kvp.Value));
             await Task.WhenAll(tasks);
-            
+
             var effectiveExpiry = expiry ?? options.Expiry;
-            if (effectiveExpiry > TimeSpan.Zero)
-            {
-                await database.KeyExpireAsync(hashId, effectiveExpiry);
-            }
+            if (effectiveExpiry > TimeSpan.Zero) await database.KeyExpireAsync(hashId, effectiveExpiry);
         }
         catch (Exception ex)
         {
-            _logger.LogError(ex, "HashIncrementManyAsync 失败: {Key}, 实例: {Instance}", hashId, options.RedisInstanceName ?? "default");
+            _logger.LogError(ex, "HashIncrementManyAsync 失败: {Key}, 实例: {Instance}", hashId,
+                options.RedisInstanceName ?? "default");
             throw;
         }
     }
@@ -785,7 +788,7 @@ public class DistributedCacheService : IDistributedCacheService
     }
 
     /// <summary>
-    /// 序列化值
+    ///     序列化值
     /// </summary>
     /// <typeparam name="T">值类型</typeparam>
     /// <param name="value">要序列化的值</param>
@@ -801,15 +804,14 @@ public class DistributedCacheService : IDistributedCacheService
         var originalSize = data.Length;
         var compressed = GZipCacheCompressor.Compress(data);
 
-        _logger.LogDebug("数据已压缩，原始大小: {OriginalSize}, 压缩后大小: {CompressedSize}", 
+        _logger.LogDebug("数据已压缩，原始大小: {OriginalSize}, 压缩后大小: {CompressedSize}",
             originalSize, compressed.Length);
 
         return compressed;
-
     }
 
     /// <summary>
-    /// 反序列化值
+    ///     反序列化值
     /// </summary>
     /// <typeparam name="T">值类型</typeparam>
     /// <param name="data">序列化的数据</param>
@@ -822,7 +824,6 @@ public class DistributedCacheService : IDistributedCacheService
 
         // 如果启用了压缩，先尝试解压缩
         if (options.EnableCompression)
-        {
             try
             {
                 data = GZipCacheCompressor.Decompress(data);
@@ -832,7 +833,6 @@ public class DistributedCacheService : IDistributedCacheService
                 // 如果解压缩失败，可能是未压缩的数据，继续使用原始数据
                 _logger.LogDebug("数据解压缩失败，使用原始数据进行反序列化");
             }
-        }
 
         return options.EnableBinarySerialization
             ? MemoryPackCacheSerializer.Deserialize<T>(data)

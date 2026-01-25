@@ -1,7 +1,6 @@
-<script setup lang="ts">
-import { GITHUB } from "@/config/env";
+<script lang="ts" setup>
 import BaseIcon from "@/components/BaseIcon.vue";
-import { defineAsyncComponent } from "vue";
+import {defineAsyncComponent} from "vue";
 import ShareIcon from "@/components/ChannelIcons/ShareIcon.vue";
 import WeChat from "@/components/ChannelIcons/WeChat.vue";
 import Github from "@/components/ChannelIcons/Github.vue";
@@ -25,7 +24,7 @@ let showQQDialog = $ref(false)
 </script>
 
 <template>
-  <div class="center" :class="type === 'vertical' ? 'flex-col gap-1' : 'gap-4'">
+  <div :class="type === 'vertical' ? 'flex-col gap-1' : 'gap-4'" class="center">
 
     <Github v-if="github"/>
 
@@ -38,13 +37,13 @@ let showQQDialog = $ref(false)
       <IconSimpleIconsXiaohongshu class="color-red-500"/>
     </BaseIcon>
 
-    <a href="https://x.com/typewords2" target="_blank" rel="noreferrer" aria-label="关注我的 X 账户 typewords2">
+    <a aria-label="关注我的 X 账户 typewords2" href="https://x.com/typewords2" rel="noreferrer" target="_blank">
       <BaseIcon title="推特">
         <IconRiTwitterFill class="color-blue"/>
       </BaseIcon>
     </a>
 
-    <a href="mailto:zyronon@163.com" target="_blank" rel="noreferrer" aria-label="发送邮件到 zyronon@163.com">
+    <a aria-label="发送邮件到 zyronon@163.com" href="mailto:zyronon@163.com" rel="noreferrer" target="_blank">
       <BaseIcon title="邮箱">
         <IconMaterialSymbolsMail class="color-blue"/>
       </BaseIcon>
@@ -59,7 +58,7 @@ let showQQDialog = $ref(false)
         关注小红书后，您可以获得开发团队的最新动态和更新内容，反馈您的使用体验和建议，帮助我们改进产品，同时也能够及时了解我们的最新动态和更新内容。
       </div>
       <div class="text-center">
-        <img src="/xhs.png" alt="小红书二维码" class="w-70 rounded-xl shadow-lg">
+        <img alt="小红书二维码" class="w-70 rounded-xl shadow-lg" src="/xhs.png">
       </div>
     </div>
   </Dialog>
@@ -70,11 +69,11 @@ let showQQDialog = $ref(false)
         <span>加入我们的用户社群后，您可以与我们的开发团队进行沟通，分享您的使用体验和建议，帮助我们改进产品，同时也能够及时了解我们的最新动态和更新内容。</span>
       </div>
       <div class="text-center">
-        <img src="/qq.jpg" alt="QQ群二维码" class="w-70 rounded-xl shadow-lg">
+        <img alt="QQ群二维码" class="w-70 rounded-xl shadow-lg" src="/qq.jpg">
       </div>
     </div>
   </Dialog>
 
 </template>
-<style scoped lang="scss">
+<style lang="scss" scoped>
 </style>

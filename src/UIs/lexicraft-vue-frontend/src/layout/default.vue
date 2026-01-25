@@ -1,28 +1,28 @@
-<script setup lang="ts">
+<script lang="ts" setup>
 import Logo from '@/components/Logo.vue'
-import { useSettingStore } from '@/stores/setting.ts'
-import { useRouter } from 'vue-router'
+import {useSettingStore} from '@/stores/setting.ts'
+import {useRouter} from 'vue-router'
 import useTheme from '@/hooks/theme.ts'
 import BaseIcon from '@/components/BaseIcon.vue'
-import { useRuntimeStore } from '@/stores/runtime.ts'
-import { jump2Feedback } from '@/utils'
-import { watch } from 'vue'
-import { ShortcutKey } from '@/types/enum.ts'
+import {useRuntimeStore} from '@/stores/runtime.ts'
+import {watch} from 'vue'
+import {ShortcutKey} from '@/types/enum.ts'
 
 const settingStore = useSettingStore()
 const runtimeStore = useRuntimeStore()
 const router = useRouter()
-const { toggleTheme, getTheme } = useTheme()
+const {toggleTheme, getTheme} = useTheme()
 
 //首页为了seo被剥离出去了，现在是一个静态页面，用nginx 重定向控制对应的跳转
 function goHome() {
   window.location.href = '/'
 }
+
 watch(
-  () => settingStore.sideExpand,
-  n => {
-    document.documentElement.style.setProperty('--aside-width', n ? '12rem' : '4.5rem')
-  },{immediate: true}
+    () => settingStore.sideExpand,
+    n => {
+      document.documentElement.style.setProperty('--aside-width', n ? '12rem' : '4.5rem')
+    }, {immediate: true}
 )
 </script>
 
@@ -32,35 +32,35 @@ watch(
     <div class="aside space"></div>
     <div class="aside anim fixed">
       <div class="top">
-        <Logo v-if="settingStore.sideExpand" />
+        <Logo v-if="settingStore.sideExpand"/>
         <div class="row" @click="goHome">
-          <IconFluentHome20Regular />
+          <IconFluentHome20Regular/>
           <span v-if="settingStore.sideExpand">主页</span>
         </div>
         <div class="row" @click="router.push('/words')">
-          <IconFluentTextUnderlineDouble20Regular />
+          <IconFluentTextUnderlineDouble20Regular/>
           <span v-if="settingStore.sideExpand">单词</span>
         </div>
         <div id="article" class="row" @click="router.push('/articles')">
           <!--          <IconPhArticleNyTimes/>-->
-          <IconFluentBookLetter20Regular />
+          <IconFluentBookLetter20Regular/>
           <span v-if="settingStore.sideExpand">文章</span>
         </div>
         <div class="row" @click="router.push('/setting')">
-          <IconFluentSettings20Regular />
+          <IconFluentSettings20Regular/>
           <span v-if="settingStore.sideExpand">设置</span>
-          <div class="red-point" :class="!settingStore.sideExpand && 'top-1 right-0'" v-if="runtimeStore.isNew"></div>
+          <div v-if="runtimeStore.isNew" :class="!settingStore.sideExpand && 'top-1 right-0'" class="red-point"></div>
         </div>
         <div class="row" @click="router.push('/feedback')">
-          <IconFluentCommentEdit20Regular />
+          <IconFluentCommentEdit20Regular/>
           <span v-if="settingStore.sideExpand">反馈</span>
         </div>
         <div class="row" @click="router.push('/doc')">
-          <IconFluentDocument20Regular />
+          <IconFluentDocument20Regular/>
           <span v-if="settingStore.sideExpand">资料</span>
         </div>
         <div class="row" @click="router.push('/qa')">
-          <IconFluentQuestionCircle20Regular />
+          <IconFluentQuestionCircle20Regular/>
           <span v-if="settingStore.sideExpand">帮助</span>
         </div>
         <!--        <div class="row" @click="router.push('/user')">-->
@@ -70,44 +70,44 @@ watch(
       </div>
       <div class="bottom flex justify-evenly">
         <BaseIcon @click="settingStore.sideExpand = !settingStore.sideExpand">
-          <IconFluentChevronLeft20Filled v-if="settingStore.sideExpand" />
-          <IconFluentChevronLeft20Filled class="transform-rotate-180" v-else />
+          <IconFluentChevronLeft20Filled v-if="settingStore.sideExpand"/>
+          <IconFluentChevronLeft20Filled v-else class="transform-rotate-180"/>
         </BaseIcon>
         <BaseIcon
-          v-if="settingStore.sideExpand"
-          :title="`切换主题(${settingStore.shortcutKeyMap[ShortcutKey.ToggleTheme]})`"
-          @click="toggleTheme"
+            v-if="settingStore.sideExpand"
+            :title="`切换主题(${settingStore.shortcutKeyMap[ShortcutKey.ToggleTheme]})`"
+            @click="toggleTheme"
         >
-          <IconFluentWeatherMoon16Regular v-if="getTheme() === 'light'" />
-          <IconFluentWeatherSunny16Regular v-else />
+          <IconFluentWeatherMoon16Regular v-if="getTheme() === 'light'"/>
+          <IconFluentWeatherSunny16Regular v-else/>
         </BaseIcon>
       </div>
     </div>
 
     <!-- 移动端顶部菜单栏 -->
-    <div class="mobile-top-nav" :class="{ collapsed: settingStore.mobileNavCollapsed }">
+    <div :class="{ collapsed: settingStore.mobileNavCollapsed }" class="mobile-top-nav">
       <div class="nav-items">
-        <div class="nav-item" @click="router.push('/')" :class="{ active: $route.path === '/' }">
-          <IconFluentHome20Regular />
+        <div :class="{ active: $route.path === '/' }" class="nav-item" @click="router.push('/')">
+          <IconFluentHome20Regular/>
           <span>主页</span>
         </div>
-        <div class="nav-item" @click="router.push('/words')" :class="{ active: $route.path.includes('/words') }">
-          <IconFluentTextUnderlineDouble20Regular />
+        <div :class="{ active: $route.path.includes('/words') }" class="nav-item" @click="router.push('/words')">
+          <IconFluentTextUnderlineDouble20Regular/>
           <span>单词</span>
         </div>
-        <div class="nav-item" @click="router.push('/articles')" :class="{ active: $route.path.includes('/articles') }">
-          <IconFluentBookLetter20Regular />
+        <div :class="{ active: $route.path.includes('/articles') }" class="nav-item" @click="router.push('/articles')">
+          <IconFluentBookLetter20Regular/>
           <span>文章</span>
         </div>
-        <div class="nav-item" @click="router.push('/setting')" :class="{ active: $route.path === '/setting' }">
-          <IconFluentSettings20Regular />
+        <div :class="{ active: $route.path === '/setting' }" class="nav-item" @click="router.push('/setting')">
+          <IconFluentSettings20Regular/>
           <span>设置</span>
-          <div class="red-point" v-if="runtimeStore.isNew"></div>
+          <div v-if="runtimeStore.isNew" class="red-point"></div>
         </div>
       </div>
       <div class="nav-toggle" @click="settingStore.mobileNavCollapsed = !settingStore.mobileNavCollapsed">
-        <IconFluentChevronDown20Filled v-if="!settingStore.mobileNavCollapsed" />
-        <IconFluentChevronUp20Filled v-else />
+        <IconFluentChevronDown20Filled v-if="!settingStore.mobileNavCollapsed"/>
+        <IconFluentChevronUp20Filled v-else/>
       </div>
     </div>
 
@@ -117,7 +117,7 @@ watch(
   </div>
 </template>
 
-<style scoped lang="scss">
+<style lang="scss" scoped>
 .layout {
   width: 100%;
   height: 100%;

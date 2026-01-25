@@ -1,12 +1,11 @@
 using BuildingBlocks.Extensions;
 using BuildingBlocks.Mediator;
-using LexiCraft.Services.Vocabulary.Words;
-using LexiCraft.Services.Vocabulary.UserStates;
 using LexiCraft.Services.Vocabulary.Shared.Extensions.HostApplicationBuilderExtensions;
 using LexiCraft.Services.Vocabulary.Shared.Extensions.WebApplicationExtensions;
+using LexiCraft.Services.Vocabulary.UserStates;
+using LexiCraft.Services.Vocabulary.Words;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Routing;
-using Microsoft.Extensions.DependencyInjection;
 
 namespace LexiCraft.Services.Vocabulary;
 

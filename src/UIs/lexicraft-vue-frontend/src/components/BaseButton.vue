@@ -1,4 +1,4 @@
-<script setup lang="ts">
+<script lang="ts" setup>
 import Tooltip from '@/components/base/Tooltip.vue'
 
 interface IProps {
@@ -21,13 +21,14 @@ defineEmits(['click'])
 <template>
   <Tooltip :disabled="!keyboard" :title="`${keyboard}`">
     <div
-      class="base-button"
-      v-bind="$attrs"
-      @click="e => !disabled && !loading && $emit('click', e)"
-      :class="[active && 'active', size, type, (disabled || loading) && 'disabled']"
+        :class="[active && 'active', size, type, (disabled || loading) && 'disabled']"
+        class="base-button"
+        v-bind="$attrs"
+        @click="e => !disabled && !loading && $emit('click', e)"
     >
       <span :style="{ opacity: loading ? 0 : 1 }"><slot></slot></span>
-      <IconEosIconsLoading v-if="loading" class="loading" width="18" :color="type === 'info' || type === 'text' ? 'var(--color-main-text)' : '#ffffff'" />
+      <IconEosIconsLoading v-if="loading" :color="type === 'info' || type === 'text' ? 'var(--color-main-text)' : '#ffffff'" class="loading"
+                           width="18"/>
     </div>
   </Tooltip>
 </template>
@@ -49,7 +50,7 @@ html.dark {
 }
 </style>
 
-<style scoped lang="scss">
+<style lang="scss" scoped>
 .base-button {
   cursor: pointer;
   box-sizing: border-box;

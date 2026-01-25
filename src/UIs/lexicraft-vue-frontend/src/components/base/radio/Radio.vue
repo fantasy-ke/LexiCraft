@@ -4,10 +4,10 @@
       @click.prevent="onClick"
   >
     <input
-        type="radio"
-        class="hidden"
-        :value="value"
         :disabled="isDisabled"
+        :value="value"
+        class="hidden"
+        type="radio"
     />
     <span class="radio__inner"></span>
     <span class="text-sm">
@@ -16,8 +16,8 @@
   </label>
 </template>
 
-<script setup lang="ts">
-import {inject, computed} from 'vue'
+<script lang="ts" setup>
+import {computed, inject} from 'vue'
 
 const props = defineProps({
   value: [String, Number, Boolean],
@@ -83,7 +83,7 @@ function onClick() {
       transition: transform 0.2s ease-in-out;
     }
   }
- 
+
 
   &.is-checked {
     .radio__inner {

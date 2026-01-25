@@ -1,19 +1,12 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿namespace BuildingBlocks.OSS.Models.Policy;
 
-namespace BuildingBlocks.OSS.Models.Policy
+public enum AccessMode
 {
-    public enum AccessMode
-    {
-        Private = 0,
+    Private = 0,
 
-        PublicRead = 1,
+    PublicRead = 1,
 
-        PublicReadWrite = 2,
+    PublicReadWrite = 2,
 
-        Default = 3
-    }
+    Default = 3
 }

@@ -1,7 +1,6 @@
 using BuildingBlocks.Mediator;
 using FluentValidation;
 using LexiCraft.Services.Vocabulary.Shared.Contracts;
-using LexiCraft.Services.Vocabulary.Words.Models;
 using Microsoft.EntityFrameworkCore;
 
 namespace LexiCraft.Services.Vocabulary.Words.Features.SearchWord;
@@ -25,7 +24,7 @@ public class SearchWordQueryValidator : AbstractValidator<SearchWordQuery>
     }
 }
 
-public class SearchWordQueryHandler(IWordRepository wordRepository) 
+public class SearchWordQueryHandler(IWordRepository wordRepository)
     : IQueryHandler<SearchWordQuery, List<WordDto>>
 {
     public async Task<List<WordDto>> Handle(SearchWordQuery query, CancellationToken cancellationToken)

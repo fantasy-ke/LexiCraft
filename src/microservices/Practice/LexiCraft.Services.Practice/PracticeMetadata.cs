@@ -1,3 +1,5 @@
 namespace LexiCraft.Services.Practice;
 
-public class PracticeMetadata { }
+public class PracticeMetadata
+{
+}

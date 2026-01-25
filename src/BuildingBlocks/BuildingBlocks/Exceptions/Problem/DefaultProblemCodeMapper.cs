@@ -18,7 +18,7 @@ public class DefaultProblemCodeMapper : IProblemCodeMapper
             InvalidOperationException => StatusCodes.Status400BadRequest,
             UnauthorizedAccessException => StatusCodes.Status403Forbidden,
             OperationCanceledException => StatusCodes.Status499ClientClosedRequest,
-            _ => StatusCodes.Status500InternalServerError,
+            _ => StatusCodes.Status500InternalServerError
         };
     }
 }

@@ -1,5 +1,5 @@
-<script setup lang="ts">
-import { useSettingStore } from '@/stores/setting'
+<script lang="ts" setup>
+import {useSettingStore} from '@/stores/setting'
 
 interface Hint {
   key: string
@@ -23,8 +23,8 @@ function getShortcutKey(keyName: string) {
       <div class="key-wrapper">
         <template v-if="getShortcutKey(hint.key).includes('+')">
           <template v-for="(k, index) in getShortcutKey(hint.key).split('+')" :key="index">
-             <kbd>{{ k.trim() }}</kbd>
-             <span v-if="index < getShortcutKey(hint.key).split('+').length - 1" class="plus">+</span>
+            <kbd>{{ k.trim() }}</kbd>
+            <span v-if="index < getShortcutKey(hint.key).split('+').length - 1" class="plus">+</span>
           </template>
         </template>
         <kbd v-else>{{ getShortcutKey(hint.key) }}</kbd>
@@ -34,7 +34,7 @@ function getShortcutKey(keyName: string) {
   </div>
 </template>
 
-<style scoped lang="scss">
+<style lang="scss" scoped>
 .shortcut-hints-container {
   display: flex;
   flex-direction: column;
@@ -57,10 +57,10 @@ function getShortcutKey(keyName: string) {
     width: 100%;
 
     .key-wrapper {
-        display: flex;
-        align-items: center;
-        justify-content: flex-start;
-        min-width: 2.2rem; // 保证按键对齐
+      display: flex;
+      align-items: center;
+      justify-content: flex-start;
+      min-width: 2.2rem; // 保证按键对齐
     }
 
     kbd {
@@ -68,7 +68,7 @@ function getShortcutKey(keyName: string) {
       align-items: center;
       justify-content: center;
       min-width: 1.6rem; // 缩小尺寸
-      height: 1.6rem;   // 缩小尺寸
+      height: 1.6rem; // 缩小尺寸
       padding: 0 0.4rem;
       font-family: inherit;
       font-size: 0.75rem; // 缩小字号
@@ -81,9 +81,9 @@ function getShortcutKey(keyName: string) {
     }
 
     .plus {
-        margin: 0 0.15rem;
-        font-size: 0.7rem;
-        color: var(--text-tertiary);
+      margin: 0 0.15rem;
+      font-size: 0.7rem;
+      color: var(--text-tertiary);
     }
 
     .label {

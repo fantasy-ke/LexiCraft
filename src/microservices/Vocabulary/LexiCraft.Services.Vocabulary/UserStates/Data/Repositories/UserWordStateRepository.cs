@@ -2,11 +2,10 @@ using BuildingBlocks.EntityFrameworkCore;
 using LexiCraft.Services.Vocabulary.Shared.Contracts;
 using LexiCraft.Services.Vocabulary.Shared.Data;
 using LexiCraft.Services.Vocabulary.UserStates.Models;
-using Microsoft.EntityFrameworkCore;
 
 namespace LexiCraft.Services.Vocabulary.UserStates.Data.Repositories;
 
-public class UserWordStateRepository(VocabularyDbContext context) 
+public class UserWordStateRepository(VocabularyDbContext context)
     : QueryRepository<VocabularyDbContext, UserWordState>(context), IUserWordStateRepository
 {
     public async Task<UserWordState?> GetAsync(Guid userId, long wordId)
@@ -18,13 +17,9 @@ public class UserWordStateRepository(VocabularyDbContext context)
     {
         var existing = await GetAsync(state.UserId, state.WordId);
         if (existing == null)
-        {
             await DbContext.UserWordStates.AddAsync(state);
-        }
         else
-        {
             DbContext.Entry(existing).CurrentValues.SetValues(state);
-        }
         await DbContext.SaveChangesAsync();
     }
 }

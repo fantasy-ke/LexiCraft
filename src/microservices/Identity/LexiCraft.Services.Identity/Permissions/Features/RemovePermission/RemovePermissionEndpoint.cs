@@ -33,7 +33,7 @@ public static class RemovePermissionEndpoint
 }
 
 /// <summary>
-/// 删除权限请求参数
+///     删除权限请求参数
 /// </summary>
 /// <param name="Mediator"></param>
 /// <param name="Request"></param>
@@ -44,7 +44,7 @@ internal record RemovePermissionRequestParameters(
 );
 
 /// <summary>
-/// 删除权限响应
+///     删除权限响应
 /// </summary>
 /// <param name="Success">是否成功</param>
 internal record RemovePermissionResponse(bool Success);

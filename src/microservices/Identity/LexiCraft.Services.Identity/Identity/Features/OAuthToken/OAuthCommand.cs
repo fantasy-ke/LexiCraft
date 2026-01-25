@@ -58,13 +58,12 @@ internal class OAuthCommandHandler(
                 var user = await ProcessUserLoginAsync(request.Type, userDto, cancellationToken);
 
                 // 3. 生成Token与处理后续逻辑
-                
+
                 var tokenResponse = await HandlePostLoginAsync(user, cancellationToken);
-                
+
                 await unitOfWork.CommitTransactionAsync();
-                
+
                 return tokenResponse;
-                
             }
             catch (Exception ex)
             {
@@ -78,10 +77,7 @@ internal class OAuthCommandHandler(
     {
         var client = httpClientFactory.CreateClient(nameof(OAuthCommand));
         var provider = oauthProviderFactory.GetProvider(request.Type);
-        if (provider is null)
-        {
-            ThrowUserFriendlyException.ThrowException($"不支持的OAuth提供者: {request.Type}");
-        }
+        if (provider is null) ThrowUserFriendlyException.ThrowException($"不支持的OAuth提供者: {request.Type}");
         try
         {
             return await provider.GetUserInfoAsync(request.Code, request.RedirectUri, client);
@@ -138,10 +134,7 @@ internal class OAuthCommandHandler(
             await mediator.Send(new BindUserOAuthCommand(user.Id, provider, userDto.Id!), cancellationToken);
         }
 
-        if (user == null)
-        {
-            throw new InvalidOperationException("用户不存在");
-        }
+        if (user == null) throw new InvalidOperationException("用户不存在");
 
         return user;
     }

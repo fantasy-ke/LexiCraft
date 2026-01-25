@@ -1,4 +1,5 @@
 using Microsoft.Extensions.Configuration;
+using Projects;
 
 var builder = DistributedApplication.CreateBuilder(args);
 
@@ -12,9 +13,10 @@ IResourceBuilder<IResourceWithEndpoints>? agileConfig = null;
 
 if (useLocalAgileConfig)
 {
-    var postgresAgileConfig = builder.AddConnectionString("postgres-agileconfig", "ConnectionStrings:postgres-agileconfig");
+    var postgresAgileConfig =
+        builder.AddConnectionString("postgres-agileconfig", "ConnectionStrings:postgres-agileconfig");
     agileConfig = builder.AddContainer("agileconfig", "kklldog/agile_config")
-        .WithHttpEndpoint(port: 8000, targetPort: 5000, name: "http")
+        .WithHttpEndpoint(8000, 5000, "http")
         .WithEnvironment("adminConsole", "true")
         .WithEnvironment("db__provider", "npgsql")
         .WithEnvironment("JwtSetting__SecurityKey", "LexiCraft_AgileConfig_Secret_Key")
@@ -25,29 +27,29 @@ if (useLocalAgileConfig)
 }
 
 
-var identityApi = builder.AddProject<Projects.LexiCraft_Services_Identity_Api>("lexicraft-identity-api")
+var identityApi = builder.AddProject<LexiCraft_Services_Identity_Api>("lexicraft-identity-api")
     .WithHttpHealthCheck("/health")
     .WithReference(postgresIdentity)
     .WithReference(redis)
     .WithAgileConfig(agileConfig);
 
-var vocabularyApi = builder.AddProject<Projects.LexiCraft_Services_Vocabulary_Api>("lexicraft-vocabulary-api")
+var vocabularyApi = builder.AddProject<LexiCraft_Services_Vocabulary_Api>("lexicraft-vocabulary-api")
     .WithHttpHealthCheck("/health")
     .WithReference(postgresVocabulary)
     .WithReference(redis)
     .WithAgileConfig(agileConfig);
 
-var practiceApi = builder.AddProject<Projects.LexiCraft_Services_Practice_Api>("lexicraft-practice-api")
+var practiceApi = builder.AddProject<LexiCraft_Services_Practice_Api>("lexicraft-practice-api")
     .WithHttpHealthCheck("/health")
     .WithReference(mongoPractice)
     .WithReference(redis)
     .WithAgileConfig(agileConfig);
 
-var filesGrpc = builder.AddProject<Projects.LexiCraft_Files_Grpc>("lexicraft-files-grpc")
+var filesGrpc = builder.AddProject<LexiCraft_Files_Grpc>("lexicraft-files-grpc")
     .WithHttpHealthCheck("/health")
     .WithAgileConfig(agileConfig);
 
-var apiGateway = builder.AddProject<Projects.LexiCraft_ApiGateway>("lexicraft-api-gateway")
+var apiGateway = builder.AddProject<LexiCraft_ApiGateway>("lexicraft-api-gateway")
     .WithHttpHealthCheck("/health")
     .WithExternalHttpEndpoints()
     .WaitFor(identityApi)
@@ -60,22 +62,21 @@ builder.Build().Run();
 
 public static class AspireExtensions
 {
-    public static IResourceBuilder<T> WithAgileConfig<T>(this IResourceBuilder<T> builder, IResourceBuilder<IResourceWithEndpoints>? agileConfig = null) 
+    public static IResourceBuilder<T> WithAgileConfig<T>(this IResourceBuilder<T> builder,
+        IResourceBuilder<IResourceWithEndpoints>? agileConfig = null)
         where T : IResourceWithEnvironment, IResourceWithWaitSupport
     {
-        var serviceConfig = builder.ApplicationBuilder.Configuration.GetSection("AgileConfig").GetSection(builder.Resource.Name);
+        var serviceConfig = builder.ApplicationBuilder.Configuration.GetSection("AgileConfig")
+            .GetSection(builder.Resource.Name);
 
         var nodes = agileConfig?.GetEndpoint("http").ToString() ?? serviceConfig.GetValue<string>("Nodes");
 
         builder.WithEnvironment("AgileConfig__Nodes", nodes)
-               .WithEnvironment("AgileConfig__AppId", serviceConfig["AppId"])
-               .WithEnvironment("AgileConfig__Secret", serviceConfig["Secret"])
-               .WithEnvironment("AgileConfig__ENV", serviceConfig["Env"]);
+            .WithEnvironment("AgileConfig__AppId", serviceConfig["AppId"])
+            .WithEnvironment("AgileConfig__Secret", serviceConfig["Secret"])
+            .WithEnvironment("AgileConfig__ENV", serviceConfig["Env"]);
 
-        if (agileConfig != null)
-        {
-            builder.WaitFor(agileConfig);
-        }
+        if (agileConfig != null) builder.WaitFor(agileConfig);
 
         return builder;
     }

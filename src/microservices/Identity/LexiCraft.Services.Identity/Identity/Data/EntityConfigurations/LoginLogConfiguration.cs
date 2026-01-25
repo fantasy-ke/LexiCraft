@@ -9,7 +9,7 @@ public class LoginLogConfiguration : IEntityTypeConfiguration<LoginLog>
     public void Configure(EntityTypeBuilder<LoginLog> builder)
     {
         builder.HasKey(x => x.Id);
-            
+
         builder.HasIndex(x => x.UserId);
     }
 }

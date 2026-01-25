@@ -2,7 +2,6 @@ using BuildingBlocks.Exceptions;
 using BuildingBlocks.Grpc.Contracts.FileGrpc;
 using BuildingBlocks.Mediator;
 using FluentValidation;
-using LexiCraft.Services.Identity.Identity.Models;
 using LexiCraft.Services.Identity.Shared.Contracts;
 using Microsoft.AspNetCore.Http;
 
@@ -16,26 +15,26 @@ public class UploadAvatarCommandValidator : AbstractValidator<UploadAvatarComman
     {
         RuleFor(x => x.UserId)
             .NotEqual(Guid.Empty).WithMessage("用户ID不能为空");
-            
+
         RuleFor(x => x.Avatar)
             .NotNull().WithMessage("头像文件不能为空")
             .Must(IsValidImageFile).WithMessage("上传的文件必须是有效的图片格式")
             .Must(BeWithinSizeLimit).WithMessage("上传的文件大小不能超过5MB");
     }
-    
+
     private bool IsValidImageFile(IFormFile file)
     {
         if (file == null) return true;
-        
+
         var allowedExtensions = new[] { ".jpg", ".jpeg", ".png", ".gif", ".bmp" };
-        var extension = System.IO.Path.GetExtension(file.FileName).ToLowerInvariant();
+        var extension = Path.GetExtension(file.FileName).ToLowerInvariant();
         return allowedExtensions.Contains(extension);
     }
-    
+
     private bool BeWithinSizeLimit(IFormFile file)
     {
         if (file == null) return true;
-        
+
         // 限制文件大小为5MB
         return file.Length <= 5 * 1024 * 1024;
     }
@@ -48,16 +47,13 @@ public record UploadAvatarResult(
 
 public class UploadAvatarCommandHandler(
     IUserRepository userRepository,
-    IFilesService filesService) 
+    IFilesService filesService)
     : ICommandHandler<UploadAvatarCommand, UploadAvatarResult>
 {
     public async Task<UploadAvatarResult> Handle(UploadAvatarCommand command, CancellationToken cancellationToken)
     {
         var user = await userRepository.FirstOrDefaultAsync(u => u.Id == command.UserId);
-        if (user == null)
-        {
-            ThrowUserFriendlyException.ThrowException("用户不存在");
-        }
+        if (user == null) ThrowUserFriendlyException.ThrowException("用户不存在");
 
         using var memoryStream = new MemoryStream();
         await command.Avatar.CopyToAsync(memoryStream, cancellationToken);

@@ -3,27 +3,27 @@
 public enum SourceEnum
 {
     /// <summary>
-    /// 自行注册
+    ///     自行注册
     /// </summary>
     Register = 1,
-      
+
     /// <summary>
-    /// 邀请
+    ///     邀请
     /// </summary>
     Invite = 2,
 
     /// <summary>
-    /// Github
+    ///     Github
     /// </summary>
     GitHub = 3,
 
     /// <summary>
-    /// Gitee
+    ///     Gitee
     /// </summary>
     Gitee = 4,
 
     /// <summary>
-    /// 微信
+    ///     微信
     /// </summary>
     WeChat = 5
 }

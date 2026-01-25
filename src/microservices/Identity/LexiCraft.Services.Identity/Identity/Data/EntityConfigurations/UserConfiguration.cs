@@ -13,7 +13,7 @@ public class UserConfiguration : IEntityTypeConfiguration<User>
         builder.ToTable("users");
 
         builder.HasKey(x => x.Id);
-        
+
         builder.Property(x => x.Username)
             .IsRequired()
             .HasMaxLength(32)
@@ -39,7 +39,7 @@ public class UserConfiguration : IEntityTypeConfiguration<User>
             .HasComment("头像");
 
         builder.Property(p => p.Source).HasConversion(new ValueConverter<SourceEnum, int>(
-                v => ((int)v),
+                v => (int)v,
                 v => (SourceEnum)v))
             .HasComment("注册来源");
 

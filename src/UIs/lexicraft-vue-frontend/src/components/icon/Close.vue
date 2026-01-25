@@ -1,4 +1,4 @@
-<script setup lang="ts">
+<script lang="ts" setup>
 import Tooltip from "@/components/base/Tooltip.vue";
 
 defineEmits(['click'])
@@ -17,7 +17,7 @@ defineProps<{
   </div>
 </template>
 
-<style scoped lang="scss">
+<style lang="scss" scoped>
 .close {
   cursor: pointer;
   display: flex;

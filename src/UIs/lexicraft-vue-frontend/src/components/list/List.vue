@@ -1,8 +1,8 @@
-<script setup lang="ts" generic="T extends {id:string}">
+<script generic="T extends {id:string}" lang="ts" setup>
 
 import BaseIcon from "@/components/BaseIcon.vue";
-import { cloneDeep, throttle } from "@/utils";
-import type { Article } from "@/types/types.ts";
+import {cloneDeep, throttle} from "@/utils";
+import type {Article} from "@/types/types.ts";
 import DeleteIcon from "@/components/icon/DeleteIcon.vue";
 import BaseInput from "@/components/base/BaseInput.vue";
 
@@ -98,42 +98,42 @@ defineExpose({scrollBottom})
 </script>
 
 <template>
-  <div class="list-wrapper"
-       ref="el"
+  <div ref="el"
+       class="list-wrapper"
   >
     <div class="search">
       <BaseInput
-          clearable
           v-model="searchKey"
+          clearable
       >
         <template #subfix>
           <IconFluentSearch24Regular class="text-lg text-gray"/>
         </template>
       </BaseInput>
     </div>
-    <transition-group name="drag" class="space-y-3" tag="div">
-      <div class="common-list-item"
+    <transition-group class="space-y-3" name="drag" tag="div">
+      <div v-for="(item,index) in localList"
+           :key="item.id"
            :class="[
                 (selectItem.id ===  item.id) && 'active',
                 draggable  && 'draggable',
                 (dragItem.id === item.id) && 'active'
              ]"
-           @click="emit('selectItem',item)"
-           v-for="(item,index) in localList"
-           :key="item.id"
            :draggable="draggable"
-           @dragstart="dragstart(item)"
+           class="common-list-item"
+           @click="emit('selectItem',item)"
+           @dragend="dragend()"
            @dragenter="dragenter($event, item)"
            @dragover="dragover($event)"
-           @dragend="dragend()"
+           @dragstart="dragstart(item)"
       >
         <div class="left">
-          <slot :item="item" :index="index"></slot>
+          <slot :index="index" :item="item"></slot>
         </div>
         <div class="right">
           <BaseIcon
-              @click.stop="delItem(item)"
-              title="删除">
+              title="删除"
+              @click.stop="delItem(item)">
             <DeleteIcon/>
           </BaseIcon>
           <div
@@ -150,7 +150,7 @@ defineExpose({scrollBottom})
   </div>
 </template>
 
-<style scoped lang="scss">
+<style lang="scss" scoped>
 .drag-move, /* 对移动中的元素应用的过渡 */
 .drag-enter-active,
 .drag-leave-active {

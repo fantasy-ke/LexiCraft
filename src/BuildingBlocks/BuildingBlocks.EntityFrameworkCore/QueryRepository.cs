@@ -5,7 +5,7 @@ using Microsoft.EntityFrameworkCore;
 namespace BuildingBlocks.EntityFrameworkCore;
 
 /// <summary>
-/// 只读仓储实现类
+///     只读仓储实现类
 /// </summary>
 /// <typeparam name="TDbContext"></typeparam>
 /// <typeparam name="TEntity"></typeparam>
@@ -66,7 +66,10 @@ public class QueryRepository<TDbContext, TEntity>(TDbContext dbContext) : IQuery
         return Entity.ToListAsync();
     }
 
-    public IQueryable<TEntity> Query() { return DbContext.Set<TEntity>(); }
+    public IQueryable<TEntity> Query()
+    {
+        return DbContext.Set<TEntity>();
+    }
 
     public IQueryable<TEntity> QueryNoTracking()
     {
@@ -86,10 +89,7 @@ public class QueryRepository<TDbContext, TEntity>(TDbContext dbContext) : IQuery
 
         var total = await query.CountAsync();
 
-        if (orderBy != null)
-        {
-            query = isAsc ? query.OrderBy(orderBy) : query.OrderByDescending(orderBy);
-        }
+        if (orderBy != null) query = isAsc ? query.OrderBy(orderBy) : query.OrderByDescending(orderBy);
 
         var list = await query.Skip((pageIndex - 1) * pageSize).Take(pageSize).ToArrayAsync();
 

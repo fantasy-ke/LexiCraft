@@ -1,6 +1,4 @@
 using BuildingBlocks.Abstractions;
-using BuildingBlocks.MongoDB.Configuration;
-using Microsoft.Extensions.Options;
 using MongoDB.Driver;
 
 namespace BuildingBlocks.MongoDB;
@@ -20,18 +18,12 @@ public class MongoDbContext(IMongoDatabase database, IMongoClient client) : IMon
 
     public async Task CommitTransactionAsync(CancellationToken cancellationToken = default)
     {
-        if (Session is { IsInTransaction: true })
-        {
-            await Session.CommitTransactionAsync(cancellationToken);
-        }
+        if (Session is { IsInTransaction: true }) await Session.CommitTransactionAsync(cancellationToken);
     }
 
     public async Task RollbackTransactionAsync(CancellationToken cancellationToken = default)
     {
-        if (Session is { IsInTransaction: true })
-        {
-            await Session.AbortTransactionAsync(cancellationToken);
-        }
+        if (Session is { IsInTransaction: true }) await Session.AbortTransactionAsync(cancellationToken);
     }
 
     public void Dispose()

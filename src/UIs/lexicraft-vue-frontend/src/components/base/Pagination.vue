@@ -1,5 +1,5 @@
-<script setup lang="ts">
-import { computed, onMounted, onUnmounted, ref } from 'vue'
+<script lang="ts" setup>
+import {computed, onMounted, onUnmounted, ref} from 'vue'
 import BaseInput from '@/components/base/BaseInput.vue'
 
 interface IProps {
@@ -129,27 +129,27 @@ function next() {
 </script>
 
 <template>
-  <div class="pagination" v-if="shouldShow">
+  <div v-if="shouldShow" class="pagination">
     <div class="pagination-container">
       <!-- 总数 -->
       <span v-if="layout.includes('total')" class="total text-base"> 共{{ total }}条 </span>
       <!-- 上一页 -->
-      <button class="btn-prev" :disabled="internalCurrentPage <= 1" @click="prev">
-        <IconFluentChevronLeft20Filled />
+      <button :disabled="internalCurrentPage <= 1" class="btn-prev" @click="prev">
+        <IconFluentChevronLeft20Filled/>
       </button>
 
       <!-- 页码 -->
       <div class="flex items-center">
         <div class="w-12">
-          <BaseInput v-model="internalCurrentPage" @enter="jumpPage(internalCurrentPage)" class="text-center" />
+          <BaseInput v-model="internalCurrentPage" class="text-center" @enter="jumpPage(internalCurrentPage)"/>
         </div>
         <span class="mx-2">/</span>
         <span class="text-base">{{ pageCount }}</span>
       </div>
 
       <!-- 下一页 -->
-      <button class="btn-next" :disabled="internalCurrentPage >= pageCount" @click="next">
-        <IconFluentChevronLeft20Filled class="transform-rotate-180" />
+      <button :disabled="internalCurrentPage >= pageCount" class="btn-next" @click="next">
+        <IconFluentChevronLeft20Filled class="transform-rotate-180"/>
       </button>
 
       <!-- 每页条数选择器 -->
@@ -162,14 +162,14 @@ function next() {
       <div class="flex items-center gap-1 ml-2">
         跳至
         <div class="w-15">
-          <BaseInput placeholder="页/序号" v-model="jumpTarget" @enter="jumpToTarget" class="text-center" />
+          <BaseInput v-model="jumpTarget" class="text-center" placeholder="页/序号" @enter="jumpToTarget"/>
         </div>
       </div>
     </div>
   </div>
 </template>
 
-<style scoped lang="scss">
+<style lang="scss" scoped>
 .pagination {
   white-space: normal;
   color: var(--color-main-text);

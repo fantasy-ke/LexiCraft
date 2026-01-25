@@ -1,4 +1,4 @@
-<script setup lang="ts">
+<script lang="ts" setup>
 
 import BaseButton from "@/components/BaseButton.vue";
 import {sendCode} from "@/apis/user.ts";
@@ -51,16 +51,16 @@ async function sendVerificationCode() {
 
 <template>
   <BaseButton
-    @click="sendVerificationCode"
-    :disabled="isSendingCode || codeCountdown > 0"
-    type="info"
-    :size="props.size"
-    style="border: 1px solid var(--color-input-border)"
+      :disabled="isSendingCode || codeCountdown > 0"
+      :size="props.size"
+      style="border: 1px solid var(--color-input-border)"
+      type="info"
+      @click="sendVerificationCode"
   >
     {{ codeCountdown > 0 ? `${codeCountdown}s` : (isSendingCode ? '发送中' : '发送验证码') }}
   </BaseButton>
 </template>
 
-<style scoped lang="scss">
+<style lang="scss" scoped>
 
 </style>

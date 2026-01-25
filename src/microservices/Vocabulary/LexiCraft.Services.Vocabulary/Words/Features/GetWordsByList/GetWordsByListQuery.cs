@@ -6,9 +6,9 @@ using Microsoft.EntityFrameworkCore;
 namespace LexiCraft.Services.Vocabulary.Words.Features.GetWordsByList;
 
 public record GetWordsByListQuery(
-    long WordListId, 
-    int PageIndex = 1, 
-    int PageSize = 20, 
+    long WordListId,
+    int PageIndex = 1,
+    int PageSize = 20,
     string? Seed = null) : IQuery<PagedWordResult>;
 
 public record PagedWordResult(
@@ -20,7 +20,7 @@ public record PagedWordResult(
 
 public class GetWordsByListQueryHandler(
     IWordRepository wordRepository,
-    IWordListItemRepository wordListItemRepository) 
+    IWordListItemRepository wordListItemRepository)
     : IQueryHandler<GetWordsByListQuery, PagedWordResult>
 {
     public async Task<PagedWordResult> Handle(GetWordsByListQuery query, CancellationToken cancellationToken)
@@ -36,7 +36,7 @@ public class GetWordsByListQueryHandler(
             // 在 C# 端生成稳定的种子哈希，确保跨数据库调用的稳定性
             // 使用简单的扰乱算法： (WordId ^ SeedHash) 并辅以大质数乘法
             long seedHash = 0;
-            foreach (char c in query.Seed) seedHash = (seedHash * 31) + c;
+            foreach (var c in query.Seed) seedHash = seedHash * 31 + c;
 
             // 使用位异或进行打乱。PostgreSQL 支持 bigint 的 ^ 运算符。
             // 这种方式比字符串拼接更有效，且能产生真正的乱序。

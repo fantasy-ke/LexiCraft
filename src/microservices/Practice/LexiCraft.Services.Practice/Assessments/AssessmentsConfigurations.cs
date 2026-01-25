@@ -1,8 +1,9 @@
 // 评估模块配置
+
 using BuildingBlocks.Filters;
-using LexiCraft.Services.Practice.Shared.Contracts;
 using LexiCraft.Services.Practice.Assessments.Data.Repositories;
 using LexiCraft.Services.Practice.Assessments.Features.SubmitAnswer;
+using LexiCraft.Services.Practice.Shared.Contracts;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Routing;
@@ -12,7 +13,7 @@ using Microsoft.Extensions.Hosting;
 namespace LexiCraft.Services.Practice.Assessments;
 
 /// <summary>
-/// 评估模块配置类
+///     评估模块配置类
 /// </summary>
 public static class AssessmentsConfigurations
 {
@@ -20,7 +21,7 @@ public static class AssessmentsConfigurations
     private const string PracticePrefixUri = $"{ApplicationConfiguration.PracticeModulePrefixUri}";
 
     /// <summary>
-    /// 添加评估模块服务
+    ///     添加评估模块服务
     /// </summary>
     /// <param name="builder">主机应用程序构建器</param>
     /// <returns>更新后的主机应用程序构建器</returns>
@@ -34,7 +35,7 @@ public static class AssessmentsConfigurations
     }
 
     /// <summary>
-    /// 映射评估模块端点
+    ///     映射评估模块端点
     /// </summary>
     /// <param name="app">Web应用程序实例</param>
     /// <returns>更新后的端点路由构建器</returns>

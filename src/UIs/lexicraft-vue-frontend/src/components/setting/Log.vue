@@ -1,4 +1,4 @@
-<script setup lang="ts">
+<script lang="ts" setup>
 let logList = [
   {
     date: '2026/01/06',
@@ -95,7 +95,7 @@ let logList = [
   {
     date: '2025/11/14',
     content:
-      '新增文章练习时可跳过空格：如果在单词的最后一位上，不按空格直接输入下一个字母的话，自动跳下一个单词，按空格也自动跳下一个单词',
+        '新增文章练习时可跳过空格：如果在单词的最后一位上，不按空格直接输入下一个字母的话，自动跳下一个单词，按空格也自动跳下一个单词',
   },
   {
     date: '2025/11/13',
@@ -134,7 +134,7 @@ let logList = [
 
 <template>
   <div>
-    <div class="log-item" v-for="item in logList" :key="item.date">
+    <div v-for="item in logList" :key="item.date" class="log-item">
       <div class="mb-2">
         <div>
           <div>日期：{{ item.date }}</div>
@@ -145,7 +145,7 @@ let logList = [
   </div>
 </template>
 
-<style scoped lang="scss">
+<style lang="scss" scoped>
 .log-item {
   border-bottom: 1px solid var(--color-input-border);
   margin-bottom: 1rem;

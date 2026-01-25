@@ -1,4 +1,4 @@
-<script setup lang="ts">
+<script lang="ts" setup>
 import {computed, provide} from "vue"
 import {useSettingStore} from "@/stores/setting";
 import Close from "@/components/icon/Close.vue";
@@ -13,7 +13,7 @@ provide('tabIndex', computed(() => tabIndex))
 </script>
 <template>
   <Transition name="fade">
-    <div class="panel anim" v-bind="$attrs" v-show="settingStore.showPanel">
+    <div v-show="settingStore.showPanel" class="panel anim" v-bind="$attrs">
       <header class="flex justify-between items-center py-3 px-space">
         <div class="color-main">
           <slot name="title"></slot>
@@ -30,7 +30,7 @@ provide('tabIndex', computed(() => tabIndex))
     </div>
   </Transition>
 </template>
-<style scoped lang="scss">
+<style lang="scss" scoped>
 
 .panel {
   width: var(--panel-width);

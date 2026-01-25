@@ -1,10 +1,10 @@
-<script setup lang="ts">
-import { onMounted, onUnmounted, watch } from 'vue'
+<script lang="ts" setup>
+import {onMounted, onUnmounted, watch} from 'vue'
 import Tooltip from '@/components/base/Tooltip.vue'
-import { useEventListener } from '@/hooks/event'
+import {useEventListener} from '@/hooks/event'
 
 import BaseButton from '@/components/BaseButton.vue'
-import { useRuntimeStore } from '@/stores/runtime'
+import {useRuntimeStore} from '@/stores/runtime'
 
 export interface ModalProps {
   modelValue?: boolean
@@ -81,24 +81,24 @@ async function close() {
 }
 
 watch(
-  () => props.modelValue,
-  n => {
-    if (n) {
-      id = Date.now()
-      runtimeStore.modalList.push({ id, close })
-      zIndex = 999 + runtimeStore.modalList.length
-      visible = true
-    } else {
-      close()
+    () => props.modelValue,
+    n => {
+      if (n) {
+        id = Date.now()
+        runtimeStore.modalList.push({id, close})
+        zIndex = 999 + runtimeStore.modalList.length
+        visible = true
+      } else {
+        close()
+      }
     }
-  }
 )
 
 onMounted(() => {
   if (props.modelValue === undefined) {
     visible = true
     id = Date.now()
-    runtimeStore.modalList.push({ id, close })
+    runtimeStore.modalList.push({id, close})
     zIndex = 999 + runtimeStore.modalList.length
   }
 })
@@ -140,37 +140,37 @@ async function cancel() {
 
 <template>
   <Teleport to="body">
-    <div class="modal-root" :style="{ 'z-index': zIndex }" v-if="visible">
+    <div v-if="visible" :style="{ 'z-index': zIndex }" class="modal-root">
       <div
-        class="modal-mask"
-        ref="maskRef"
-        v-if="!fullScreen"
-        @click.stop="closeOnClickBg && close()"
+          v-if="!fullScreen"
+          ref="maskRef"
+          class="modal-mask"
+          @click.stop="closeOnClickBg && close()"
       ></div>
-      <div class="modal" ref="modalRef" :class="[fullScreen ? 'full' : 'window']">
+      <div ref="modalRef" :class="[fullScreen ? 'full' : 'window']" class="modal">
         <Tooltip title="关闭">
           <IconFluentDismiss20Regular
-            @click="close"
-            v-if="showClose"
-            class="close cursor-pointer"
-            width="24"
+              v-if="showClose"
+              class="close cursor-pointer"
+              width="24"
+              @click="close"
           />
         </Tooltip>
-        <div class="modal-header" v-if="header">
+        <div v-if="header" class="modal-header">
           <div class="title">{{ props.title }}</div>
         </div>
-        <div class="modal-body" :class="{ padding }">
+        <div :class="{ padding }" class="modal-body">
           <slot></slot>
           <div v-if="content" class="content max-h-60vh">{{ content }}</div>
         </div>
-        <div class="modal-footer" v-if="footer">
+        <div v-if="footer" class="modal-footer">
           <div class="left flex items-end">
             <slot name="footer-left"></slot>
           </div>
           <div class="right">
             <BaseButton type="info" @click="cancel">{{ cancelButtonText }}</BaseButton>
             <BaseButton id="dialog-ok" :loading="confirmButtonLoading" @click="ok"
-              >{{ confirmButtonText }}
+            >{{ confirmButtonText }}
             </BaseButton>
           </div>
         </div>
@@ -179,7 +179,7 @@ async function cancel() {
   </Teleport>
 </template>
 
-<style scoped lang="scss">
+<style lang="scss" scoped>
 $time: 0.3s;
 
 @keyframes bounce-in {

@@ -1,8 +1,8 @@
 <template>
   <label class="checkbox" @click.stop>
     <input
-        type="checkbox"
         :checked="modelValue"
+        type="checkbox"
         @change="change"
     />
     <span class="checkbox-box">
@@ -12,7 +12,7 @@
   </label>
 </template>
 
-<script setup lang="ts">
+<script lang="ts" setup>
 defineProps({
   modelValue: Boolean
 })

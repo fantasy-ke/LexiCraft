@@ -2,28 +2,28 @@
   <div class="dashboard">
     <!-- 第一行：打卡、统计、热力图 -->
     <div class="top-section-grid">
-      <CheckInCard :stats="checkInStats" />
-      <StatsCard v-model:currentTab="currentStatTab" :stats="currentStats" />
-      <HeatmapCard :heatmapData="heatmapData" />
+      <CheckInCard :stats="checkInStats"/>
+      <StatsCard v-model:currentTab="currentStatTab" :stats="currentStats"/>
+      <HeatmapCard :heatmapData="heatmapData"/>
     </div>
 
     <!-- 第二行：课程和最近学习 -->
     <div class="bottom-section-grid">
-      <CoursesCard 
-        :courses="myCourses" 
-        @selectCourse="navigateToCourse"
-        @goToShop="goToShop"
+      <CoursesCard
+          :courses="myCourses"
+          @goToShop="goToShop"
+          @selectCourse="navigateToCourse"
       />
-      <RecentCard :items="recentItems" />
+      <RecentCard :items="recentItems"/>
     </div>
   </div>
 </template>
 
-<script setup lang="ts">
-import { ref, computed } from 'vue'
-import { useRouter } from 'vue-router'
-import { useBaseStore } from '@/stores/base'
-import { Dict } from '@/types/types'
+<script lang="ts" setup>
+import {computed, ref} from 'vue'
+import {useRouter} from 'vue-router'
+import {useBaseStore} from '@/stores/base'
+import {Dict} from '@/types/types'
 import CheckInCard from '@/components/dashboard/CheckInCard.vue'
 import StatsCard from '@/components/dashboard/StatsCard.vue'
 import HeatmapCard from '@/components/dashboard/HeatmapCard.vue'
@@ -55,17 +55,17 @@ const FAKE_DATA = {
     weekHistory: [false, true, true, true, true, true, false]
   },
   stats: {
-    '总计': { duration: '128h', completed: 42 },
-    '本周': { duration: '5h 20m', completed: 2 },
-    '本月': { duration: '24h', completed: 8 },
-    '今年': { duration: '128h', completed: 42 }
+    '总计': {duration: '128h', completed: 42},
+    '本周': {duration: '5h 20m', completed: 2},
+    '本月': {duration: '24h', completed: 8},
+    '今年': {duration: '128h', completed: 42}
   },
   heatmap: {
     levels: [
-      0,0,1,2, 1,3,2,1, 
-      0,2,3,3, 1,0,0,1, 
-      2,2,1,0, 3,3,2,1, 
-      1,0,1,0
+      0, 0, 1, 2, 1, 3, 2, 1,
+      0, 2, 3, 3, 1, 0, 0, 1,
+      2, 2, 1, 0, 3, 3, 2, 1,
+      1, 0, 1, 0
     ]
   },
   recent: [
@@ -99,7 +99,7 @@ const checkInStats = ref(FAKE_DATA.checkIn)
 // 学习统计
 const currentStatTab = ref('本周')
 const currentStats = computed(() => {
-  return FAKE_DATA.stats[currentStatTab.value] || { duration: '0m', completed: 0 }
+  return FAKE_DATA.stats[currentStatTab.value] || {duration: '0m', completed: 0}
 })
 
 // 热力图
@@ -116,7 +116,7 @@ const heatmapData = computed(() => {
 const recentItems = ref(FAKE_DATA.recent)
 </script>
 
-<style scoped lang="scss">
+<style lang="scss" scoped>
 @use '@/components/dashboard/styles/common.scss';
 
 .dashboard {
@@ -131,19 +131,19 @@ const recentItems = ref(FAKE_DATA.recent)
   display: grid;
   grid-template-columns: 1.2fr 1fr 0.8fr;
   gap: 1.5rem;
-  
+
   @media (max-width: 1024px) {
     grid-template-columns: 1fr 1fr;
-    
+
     :deep(.heatmap-card) {
       grid-column: span 2;
     }
   }
-  
+
   @media (max-width: 768px) {
     grid-template-columns: 1fr;
     gap: 1rem;
-    
+
     :deep(.heatmap-card) {
       grid-column: span 1;
     }
@@ -154,11 +154,11 @@ const recentItems = ref(FAKE_DATA.recent)
   display: grid;
   grid-template-columns: 2.2fr 1fr;
   gap: 1.5rem;
-  
+
   @media (max-width: 1024px) {
     grid-template-columns: 1fr;
   }
-  
+
   @media (max-width: 768px) {
     gap: 1rem;
   }

@@ -3,19 +3,16 @@ using BuildingBlocks.Caching.DistributedLock;
 using BuildingBlocks.Caching.Factories;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
-using StackExchange.Redis;
-using System;
-using System.Threading.Tasks;
 
 namespace BuildingBlocks.Caching.Examples;
 
 /// <summary>
-/// 分布式锁使用示例
+///     分布式锁使用示例
 /// </summary>
 public class DistributedLockExample
 {
     /// <summary>
-    /// 运行分布式锁示例
+    ///     运行分布式锁示例
     /// </summary>
     public static async Task RunAsync()
     {
@@ -64,7 +61,7 @@ public class DistributedLockExample
     }
 
     /// <summary>
-    /// 基本锁获取和释放示例
+    ///     基本锁获取和释放示例
     /// </summary>
     private static async Task BasicLockExample(IDistributedLockProvider lockProvider)
     {
@@ -100,7 +97,7 @@ public class DistributedLockExample
     }
 
     /// <summary>
-    /// 锁超时示例
+    ///     锁超时示例
     /// </summary>
     private static async Task LockTimeoutExample(IDistributedLockProvider lockProvider)
     {
@@ -149,7 +146,7 @@ public class DistributedLockExample
     }
 
     /// <summary>
-    /// 并发锁竞争示例
+    ///     并发锁竞争示例
     /// </summary>
     private static async Task ConcurrentLockExample(IDistributedLockProvider lockProvider)
     {
@@ -161,9 +158,9 @@ public class DistributedLockExample
 
         // 启动多个并发任务尝试获取同一个锁
         var tasks = new Task[3];
-        for (int i = 0; i < tasks.Length; i++)
+        for (var i = 0; i < tasks.Length; i++)
         {
-            int taskId = i + 1;
+            var taskId = i + 1;
             tasks[i] = Task.Run(async () =>
             {
                 Console.WriteLine($"任务 {taskId}: 尝试获取锁...");
@@ -172,10 +169,10 @@ public class DistributedLockExample
                 if (distributedLock != null)
                 {
                     Console.WriteLine($"✓ 任务 {taskId}: 成功获取锁");
-                    
+
                     // 模拟工作
                     await Task.Delay(1000);
-                    
+
                     await distributedLock.ReleaseAsync();
                     Console.WriteLine($"✓ 任务 {taskId}: 锁已释放");
                     await distributedLock.DisposeAsync();

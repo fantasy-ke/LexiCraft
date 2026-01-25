@@ -31,7 +31,7 @@ public static class DependencyInjectionExtensions
     {
         // 1. 配置选项
         builder.Services.AddConfigurationOptions<MongoOptions>(sectionName ?? nameof(MongoOptions));
-        
+
         var mongoOptions = builder.Configuration.BindOptions<MongoOptions>();
 
         var connectionString =
@@ -53,18 +53,18 @@ public static class DependencyInjectionExtensions
         BsonSerializer.RegisterSerializationProvider(new DateTimeSerializationProvider());
         BsonSerializer.RegisterSerializer(new GuidSerializer(GuidRepresentation.CSharpLegacy));
 
-        
+
         RegisterConventions();
         // 5. 注册数据库上下文
         builder.Services.AddScoped<TContext>();
         builder.Services.AddScoped<IMongoDbContext>(sp => sp.GetRequiredService<TContext>());
         builder.Services.AddSingleton<IProblemCodeMapper, MongoDbProblemCodeMapper>();
-        
+
         return builder;
     }
 
     /// <summary>
-    ///  创建MongoDbClient
+    ///     创建MongoDbClient
     /// </summary>
     /// <param name="connectionString">连接字符串</param>
     /// <param name="mongoOptions">MongoDB选项配置</param>
@@ -92,9 +92,7 @@ public static class DependencyInjectionExtensions
         clientSettings.WriteConcern = WriteConcern.WMajority;
 
         if (!mongoOptions.DisableTracing)
-        {
             clientSettings.ClusterConfigurator = cb => cb.Subscribe(new DiagnosticsActivityEventSubscriber());
-        }
 
         clientSettings.LoggingSettings ??= new LoggingSettings(sp.GetService<ILoggerFactory>());
 
@@ -107,7 +105,7 @@ public static class DependencyInjectionExtensions
         builder.Services.AddSingleton<IMongoDatabase>(sp => sp.GetRequiredService<IMongoClient>()
             .GetDatabase(mongoUrl.DatabaseName));
     }
-    
+
     private static void RegisterConventions()
     {
         ConventionRegistry.Register(
@@ -125,7 +123,7 @@ public static class DependencyInjectionExtensions
 
 
     /// <summary>
-    ///  添加仓储
+    ///     添加仓储
     /// </summary>
     /// <param name="builder">主机应用程序构建器</param>
     /// <typeparam name="TDbContext">数据库上下文类型</typeparam>
@@ -153,7 +151,7 @@ public static class DependencyInjectionExtensions
     }
 
     /// <summary>
-    ///  添加仓储
+    ///     添加仓储
     /// </summary>
     /// <param name="services">服务集合</param>
     /// <param name="assemblies">程序集集合</param>
@@ -173,13 +171,14 @@ public static class DependencyInjectionExtensions
             services.TryAddScoped(queryRepositoryInterfaceType, queryRepositoryImplementationType);
 
             // 如果有 Resilient 版本，可以考虑替换或额外注册，这里保持默认实现
-            
+
             // 注册聚合根仓储 (仅适用于聚合根)
             if (typeof(IAggregateRoot).IsAssignableFrom(entityType))
             {
                 var repositoryInterfaceType = typeof(IRepository<>).MakeGenericType(entityType);
                 // 默认使用非弹性版本，或者根据需求选择
-                services.TryAddAddDefaultRepository(repositoryInterfaceType, GetRepositoryImplementationType(entityType));
+                services.TryAddAddDefaultRepository(repositoryInterfaceType,
+                    GetRepositoryImplementationType(entityType));
                 // 如果需要弹性版本，通常会覆盖注入
                 // services.TryAddAddDefaultRepository(repositoryInterfaceType, GetResilientRepositoryImplementationType(entityType));
             }
@@ -189,21 +188,25 @@ public static class DependencyInjectionExtensions
     }
 
     private static bool IsMongoEntity(this Type type)
-        => type is { IsClass: true, IsGenericType: false, IsAbstract: false } &&
-           typeof(MongoEntity).IsAssignableFrom(type);
+    {
+        return type is { IsClass: true, IsGenericType: false, IsAbstract: false } &&
+               typeof(MongoEntity).IsAssignableFrom(type);
+    }
 
     private static void TryAddAddDefaultRepository(this IServiceCollection services, Type repositoryInterfaceType,
         Type repositoryImplementationType)
     {
         if (repositoryInterfaceType.IsAssignableFrom(repositoryImplementationType))
-        {
             services.TryAddScoped(repositoryInterfaceType, repositoryImplementationType);
-        }
     }
 
     private static Type GetRepositoryImplementationType(Type entityType)
-        => typeof(MongoRepository<>).MakeGenericType(entityType);
-    
+    {
+        return typeof(MongoRepository<>).MakeGenericType(entityType);
+    }
+
     private static Type GetResilientRepositoryImplementationType(Type entityType)
-        => typeof(ResilientMongoRepository<>).MakeGenericType(entityType);
+    {
+        return typeof(ResilientMongoRepository<>).MakeGenericType(entityType);
+    }
 }

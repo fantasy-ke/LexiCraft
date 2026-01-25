@@ -1,4 +1,4 @@
-<script setup lang="ts">
+<script lang="ts" setup>
 defineProps<{
   mainTitle?: string,
   title?: string,
@@ -7,7 +7,7 @@ defineProps<{
 </script>
 
 <template>
-  <div class="setting-item" :class="{'has-desc': !!desc}" v-bind="$attrs">
+  <div :class="{'has-desc': !!desc}" class="setting-item" v-bind="$attrs">
     <div class="setting-item__main">
       <div class="setting-item__label">
         <span v-if="mainTitle" class="setting-item__main-title">{{ mainTitle }}</span>
@@ -21,7 +21,7 @@ defineProps<{
   </div>
 </template>
 
-<style scoped lang="scss">
+<style lang="scss" scoped>
 .setting-item {
   display: flex;
   flex-direction: column;

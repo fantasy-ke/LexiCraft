@@ -1,25 +1,25 @@
 <template>
   <div ref="container" class="question-item mb-4">
-    <div class="mb-1 "
-         :class="noChoseClass"
+    <div :class="noChoseClass"
+         class="mb-1 "
     ><span class="font-family">{{ questionIndex }}</span>. {{ stem }}
     </div>
     <div
-        class="grid gap-1"
         :class="layoutClass"
+        class="grid gap-1"
     >
       <label
           v-for="(opt, i) in shuffledOptions"
           :key="i"
-          class="option border rounded  cursor-pointer hover:bg-gray-300"
           :class="feedbackClass(i)"
+          class="option border rounded  cursor-pointer hover:bg-gray-300"
       >
         <input
-            :type="isMultiple ? 'checkbox' : 'radio'"
-            :name="`question-${questionIndex}`"
-            class="mr-2"
-            :value="opt"
             v-model="userSelection"
+            :name="`question-${questionIndex}`"
+            :type="isMultiple ? 'checkbox' : 'radio'"
+            :value="opt"
+            class="mr-2"
             @change="onSelect"
         />
         <span ref="optionRefs">(<span class="italic">{{ ['a', 'b', 'c', 'd'][i] }}</span>) {{ opt }}</span>

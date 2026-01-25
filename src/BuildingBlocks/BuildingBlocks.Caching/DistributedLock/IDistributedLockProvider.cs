@@ -1,12 +1,12 @@
 namespace BuildingBlocks.Caching.DistributedLock;
 
 /// <summary>
-/// 分布式锁提供者接口
+///     分布式锁提供者接口
 /// </summary>
 public interface IDistributedLockProvider
 {
     /// <summary>
-    /// 尝试获取分布式锁
+    ///     尝试获取分布式锁
     /// </summary>
     /// <param name="lockKey">锁键</param>
     /// <param name="lockTimeout">锁超时时间</param>
@@ -22,7 +22,7 @@ public interface IDistributedLockProvider
         CancellationToken cancellationToken = default);
 
     /// <summary>
-    /// 获取分布式锁（如果获取失败会抛出异常）
+    ///     获取分布式锁（如果获取失败会抛出异常）
     /// </summary>
     /// <param name="lockKey">锁键</param>
     /// <param name="lockTimeout">锁超时时间</param>
@@ -40,7 +40,7 @@ public interface IDistributedLockProvider
         CancellationToken cancellationToken = default);
 
     /// <summary>
-    /// 检查锁是否存在
+    ///     检查锁是否存在
     /// </summary>
     /// <param name="lockKey">锁键</param>
     /// <param name="redisInstanceName">Redis 实例名称</param>
@@ -52,7 +52,7 @@ public interface IDistributedLockProvider
         CancellationToken cancellationToken = default);
 
     /// <summary>
-    /// 强制释放锁（危险操作，仅在确认锁已失效时使用）
+    ///     强制释放锁（危险操作，仅在确认锁已失效时使用）
     /// </summary>
     /// <param name="lockKey">锁键</param>
     /// <param name="redisInstanceName">Redis 实例名称</param>

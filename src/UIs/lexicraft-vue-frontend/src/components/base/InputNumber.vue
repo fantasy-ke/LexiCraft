@@ -1,46 +1,46 @@
 <template>
-  <div class="input-number inline-center select-none anim" :class="{ 'is-disabled': disabled }">
+  <div :class="{ 'is-disabled': disabled }" class="input-number inline-center select-none anim">
     <!-- 减号 -->
     <button
+        :disabled="disabled || isMin"
+        aria-label="decrease"
         class="btn minus-btn inline-center cursor-pointer anim border-none outline-none w-8 h-8"
         type="button"
-        :disabled="disabled || isMin"
-        @mousedown.prevent="onHold(-1)"
-        @mouseup="onRelease"
         @mouseleave="onRelease"
-        aria-label="decrease"
+        @mouseup="onRelease"
+        @mousedown.prevent="onHold(-1)"
     >-
     </button>
 
     <!-- 输入框 -->
     <input
         ref="inputRef"
-        class="flex-1 h-8 px-2 text-center border-none outline-none bg-transparent input-inner w-14"
-        :value="displayValue"
         :disabled="disabled"
+        :value="displayValue"
+        class="flex-1 h-8 px-2 text-center border-none outline-none bg-transparent input-inner w-14"
         inputmode="decimal"
+        @blur="onBlur"
         @input="e => displayValue = e.target.value"
         @keydown.up.prevent="change(1)"
         @keydown.down.prevent="change(-1)"
-        @blur="onBlur"
     />
 
     <!-- 加号 -->
     <button
+        :disabled="disabled || isMax"
+        aria-label="increase"
         class="btn plus-btn inline-center cursor-pointer anim border-none outline-none w-8 h-8"
         type="button"
-        :disabled="disabled || isMax"
-        @mousedown.prevent="onHold(1)"
-        @mouseup="onRelease"
         @mouseleave="onRelease"
-        aria-label="increase"
+        @mouseup="onRelease"
+        @mousedown.prevent="onHold(1)"
     >+
     </button>
   </div>
 </template>
 
-<script setup lang="ts">
-import {ref, computed, onBeforeUnmount, watch} from 'vue'
+<script lang="ts" setup>
+import {computed, onBeforeUnmount, ref, watch} from 'vue'
 
 const props = defineProps({
   modelValue: {type: [Number, String], default: null},
@@ -149,7 +149,7 @@ function onBlur() {
 onBeforeUnmount(onRelease)
 </script>
 
-<style scoped lang="scss">
+<style lang="scss" scoped>
 .input-number {
   border: 1px solid var(--color-input-border);
   overflow: hidden;

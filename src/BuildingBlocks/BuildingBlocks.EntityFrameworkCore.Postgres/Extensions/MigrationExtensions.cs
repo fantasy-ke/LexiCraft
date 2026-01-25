@@ -11,14 +11,17 @@ public static class MigrationExtensions
     extension(IHostApplicationBuilder builder)
     {
         public IHostApplicationBuilder AddMigration<TContext>()
-            where TContext : DbContext => builder.AddMigration<TContext>((_, _) => Task.CompletedTask);
+            where TContext : DbContext
+        {
+            return builder.AddMigration<TContext>((_, _) => Task.CompletedTask);
+        }
 
         public IHostApplicationBuilder AddMigration<TContext>(Func<TContext, IServiceProvider, Task> seeder
         )
             where TContext : DbContext
         {
             builder.Services.AddScoped<IDataSeeder<TContext>>(sp => new DefaultDataSeeder<TContext>(sp, seeder));
-          
+
             builder.Services.AddHostedService<MigrationSeedWorker<TContext>>();
 
             return builder;

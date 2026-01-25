@@ -1,18 +1,20 @@
-<script setup lang="ts">
+<script lang="ts" setup>
 
-import { jump2Feedback } from "@/utils";
+import {jump2Feedback} from "@/utils";
 import WeChat from "@/components/ChannelIcons/WeChat.vue";
 </script>
 
 <template>
   <div class="text">
-    如果您安装了 <span class="font-bold text-red">“调速” “Vim” “音视频增强”</span> 等插件/脚本，它们会拦截键盘按下事件，<span
-    class="font-bold text-red">导致在本网站练习时按 'A'、 'S' 、'D' 等键无反应</span>，您可以根据以下步骤解决冲突：
+    如果您安装了 <span class="font-bold text-red">“调速” “Vim” “音视频增强”</span>
+    等插件/脚本，它们会拦截键盘按下事件，<span
+      class="font-bold text-red">导致在本网站练习时按 'A'、 'S' 、'D' 等键无反应</span>，您可以根据以下步骤解决冲突：
   </div>
   <ul class="m-0">
     <li>用浏览器无痕模式打开本网站，确认能否正常输入？</li>
     <li>
-      无痕模式下无法输入，<span class="color-link mx-1 cp" @click="jump2Feedback">点此</span>反馈，或者加微信群反馈：<WeChat/>
+      无痕模式下无法输入，<span class="color-link mx-1 cp" @click="jump2Feedback">点此</span>反馈，或者加微信群反馈：
+      <WeChat/>
     </li>
     <li>无痕模式下可以输入，则是插件/脚本导致的冲突</li>
     <li>临时禁用对应插件/脚本，或在对应插件/脚本的设置里面排除本网站</li>
@@ -26,6 +28,6 @@ import WeChat from "@/components/ChannelIcons/WeChat.vue";
   </ul>
 </template>
 
-<style scoped lang="scss">
+<style lang="scss" scoped>
 
 </style>

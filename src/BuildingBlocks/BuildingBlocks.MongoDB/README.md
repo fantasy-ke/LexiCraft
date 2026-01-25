@@ -72,13 +72,13 @@ public class YourRepository : ResilientMongoRepository<YourEntity>
 
 ## Resilience Configuration
 
-| Option | Default | Description |
-|--------|---------|-------------|
-| `RetryCount` | 3 | Number of retry attempts |
-| `BaseDelaySeconds` | 1.0 | Base delay between retries |
-| `UseExponentialBackoff` | true | Enable exponential backoff |
-| `MaxDelaySeconds` | 30.0 | Maximum delay between retries |
-| `JitterFactor` | 0.1 | Random jitter to prevent thundering herd |
+| Option                  | Default | Description                              |
+|-------------------------|---------|------------------------------------------|
+| `RetryCount`            | 3       | Number of retry attempts                 |
+| `BaseDelaySeconds`      | 1.0     | Base delay between retries               |
+| `UseExponentialBackoff` | true    | Enable exponential backoff               |
+| `MaxDelaySeconds`       | 30.0    | Maximum delay between retries            |
+| `JitterFactor`          | 0.1     | Random jitter to prevent thundering herd |
 
 ## Performance Monitoring
 

@@ -27,7 +27,6 @@
 }
 
 
-
 @keyframes shake {
   10%,
   90% {
@@ -50,6 +49,7 @@
     transform: translate3d(4px, 0, 0);
   }
 }
+
 @keyframes shakeBottom {
   10%,
   90% {

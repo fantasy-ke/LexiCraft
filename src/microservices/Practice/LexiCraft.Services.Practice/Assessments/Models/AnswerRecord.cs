@@ -4,17 +4,12 @@ namespace LexiCraft.Services.Practice.Assessments.Models;
 
 public class AnswerRecord : MongoEntity
 {
-    public Guid PracticeTaskItemId { get; private set; }
-    public string? UserInput { get; private set; }
-    public AnswerStatus Status { get; private set; }
-    public int Score { get; private set; }
-    public long ResponseTimeMs { get; private set; }
-    public DateTime SubmittedAt { get; private set; }
-    public AssessmentType AssessmentType { get; private set; }
+    private AnswerRecord()
+    {
+    }
 
-    private AnswerRecord() { }
-
-    public AnswerRecord(Guid itemId, string? input, AnswerStatus status, int score, long responseTime, AssessmentType assessmentType)
+    public AnswerRecord(Guid itemId, string? input, AnswerStatus status, int score, long responseTime,
+        AssessmentType assessmentType)
     {
         PracticeTaskItemId = itemId;
         UserInput = input;
@@ -24,4 +19,12 @@ public class AnswerRecord : MongoEntity
         SubmittedAt = DateTime.UtcNow;
         AssessmentType = assessmentType;
     }
+
+    public Guid PracticeTaskItemId { get; private set; }
+    public string? UserInput { get; private set; }
+    public AnswerStatus Status { get; private set; }
+    public int Score { get; private set; }
+    public long ResponseTimeMs { get; private set; }
+    public DateTime SubmittedAt { get; private set; }
+    public AssessmentType AssessmentType { get; private set; }
 }

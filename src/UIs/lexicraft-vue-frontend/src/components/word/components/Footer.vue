@@ -1,17 +1,17 @@
-<script setup lang="ts">
-import { inject, Ref } from 'vue'
-import { usePracticeStore } from '@/stores/practice'
-import { useSettingStore } from '@/stores/setting'
-import type { PracticeData, TaskWords } from '@/types/types'
+<script lang="ts" setup>
+import {inject, Ref} from 'vue'
+import {usePracticeStore} from '@/stores/practice'
+import {useSettingStore} from '@/stores/setting'
+import type {PracticeData, TaskWords} from '@/types/types'
 import BaseIcon from '@/components/BaseIcon.vue'
 import Tooltip from '@/components/base/Tooltip.vue'
 import SettingDialog from '@/components/setting/SettingDialog.vue'
 import BaseButton from '@/components/BaseButton.vue'
-import { useBaseStore } from '@/stores/base'
+import {useBaseStore} from '@/stores/base'
 import VolumeSettingMiniDialog from '@/components/word/components/VolumeSettingMiniDialog.vue'
 import StageProgress from '@/components/StageProgress.vue'
-import { ShortcutKey, WordPracticeMode, WordPracticeStage } from '@/types/enum'
-import { WordPracticeModeNameMap, WordPracticeModeStageMap, WordPracticeStageNameMap } from '@/config/env'
+import {ShortcutKey, WordPracticeMode, WordPracticeStage} from '@/types/enum'
+import {WordPracticeModeNameMap, WordPracticeStageNameMap} from '@/config/env'
 
 const statStore = usePracticeStore()
 const store = useBaseStore()
@@ -62,16 +62,16 @@ const stages = $computed(() => {
   } else {
     // 阶段映射：将 WordPracticeStage 映射到 stageIndex 和 childIndex
     const stageMap: Partial<Record<WordPracticeStage, { stageIndex: number; childIndex: number }>> = {
-      [WordPracticeStage.FollowWriteNewWord]: { stageIndex: 0, childIndex: 0 },
-      [WordPracticeStage.IdentifyNewWord]: { stageIndex: 0, childIndex: 0 },
-      [WordPracticeStage.ListenNewWord]: { stageIndex: 0, childIndex: 1 },
-      [WordPracticeStage.DictationNewWord]: { stageIndex: 0, childIndex: 2 },
-      [WordPracticeStage.IdentifyReview]: { stageIndex: 1, childIndex: 0 },
-      [WordPracticeStage.ListenReview]: { stageIndex: 1, childIndex: 1 },
-      [WordPracticeStage.DictationReview]: { stageIndex: 1, childIndex: 2 },
-      [WordPracticeStage.IdentifyReviewAll]: { stageIndex: 2, childIndex: 0 },
-      [WordPracticeStage.ListenReviewAll]: { stageIndex: 2, childIndex: 1 },
-      [WordPracticeStage.DictationReviewAll]: { stageIndex: 2, childIndex: 2 },
+      [WordPracticeStage.FollowWriteNewWord]: {stageIndex: 0, childIndex: 0},
+      [WordPracticeStage.IdentifyNewWord]: {stageIndex: 0, childIndex: 0},
+      [WordPracticeStage.ListenNewWord]: {stageIndex: 0, childIndex: 1},
+      [WordPracticeStage.DictationNewWord]: {stageIndex: 0, childIndex: 2},
+      [WordPracticeStage.IdentifyReview]: {stageIndex: 1, childIndex: 0},
+      [WordPracticeStage.ListenReview]: {stageIndex: 1, childIndex: 1},
+      [WordPracticeStage.DictationReview]: {stageIndex: 1, childIndex: 2},
+      [WordPracticeStage.IdentifyReviewAll]: {stageIndex: 2, childIndex: 0},
+      [WordPracticeStage.ListenReviewAll]: {stageIndex: 2, childIndex: 1},
+      [WordPracticeStage.DictationReviewAll]: {stageIndex: 2, childIndex: 2},
     }
 
     // 获取当前阶段的配置
@@ -80,13 +80,13 @@ const stages = $computed(() => {
       return stages
     }
 
-    const { stageIndex, childIndex } = currentStageConfig
+    const {stageIndex, childIndex} = currentStageConfig
     const currentProgress = (practiceData.index / practiceData.words.length) * 100
 
     if (
-      [WordPracticeMode.IdentifyOnly, WordPracticeMode.DictationOnly, WordPracticeMode.ListenOnly].includes(
-        settingStore.wordPracticeMode
-      )
+        [WordPracticeMode.IdentifyOnly, WordPracticeMode.DictationOnly, WordPracticeMode.ListenOnly].includes(
+            settingStore.wordPracticeMode
+        )
     ) {
       const stages = [
         {
@@ -126,17 +126,17 @@ const stages = $computed(() => {
         {
           name: '新词',
           ratio: 70,
-          children: [{ name: '新词：跟写' }, { name: '新词：听写' }, { name: '新词：默写' }],
+          children: [{name: '新词：跟写'}, {name: '新词：听写'}, {name: '新词：默写'}],
         },
         {
           name: '上次学习：复习',
           ratio: 15,
-          children: [{ name: '上次学习：自测' }, { name: '上次学习：听写' }, { name: '上次学习：默写' }],
+          children: [{name: '上次学习：自测'}, {name: '上次学习：听写'}, {name: '上次学习：默写'}],
         },
         {
           name: '之前学习：复习',
           ratio: 15,
-          children: [{ name: '之前学习：自测' }, { name: '之前学习：听写' }, { name: '之前学习：默写' }],
+          children: [{name: '之前学习：自测'}, {name: '之前学习：听写'}, {name: '之前学习：默写'}],
         },
       ]
 
@@ -211,15 +211,15 @@ const stages = $computed(() => {
   <div class="footer">
     <Tooltip :title="settingStore.showToolbar ? '收起' : '展开'">
       <IconFluentChevronLeft20Filled
-        @click="settingStore.showToolbar = !settingStore.showToolbar"
-        class="arrow"
-        :class="!settingStore.showToolbar && 'down'"
-        color="#999"
+          :class="!settingStore.showToolbar && 'down'"
+          class="arrow"
+          color="#999"
+          @click="settingStore.showToolbar = !settingStore.showToolbar"
       />
     </Tooltip>
 
     <div class="bottom">
-      <StageProgress :stages="stages" />
+      <StageProgress :stages="stages"/>
 
       <div class="flex justify-between items-center">
         <div class="stat">
@@ -245,27 +245,27 @@ const stages = $computed(() => {
             <div class="name">错误数</div>
           </div>
         </div>
-        <div class="flex gap-2 justify-center items-center" id="toolbar-icons">
-          <SettingDialog type="word" />
+        <div id="toolbar-icons" class="flex gap-2 justify-center items-center">
+          <SettingDialog type="word"/>
 
-          <VolumeSettingMiniDialog />
+          <VolumeSettingMiniDialog/>
 
           <BaseIcon
-            v-if="settingStore.wordPracticeMode !== WordPracticeMode.Free"
-            @click="emit('skipStep')"
-            :title="`跳到下一阶段:${WordPracticeStageNameMap[statStore.nextStage]}`"
+              v-if="settingStore.wordPracticeMode !== WordPracticeMode.Free"
+              :title="`跳到下一阶段:${WordPracticeStageNameMap[statStore.nextStage]}`"
+              @click="emit('skipStep')"
           >
-            <IconFluentArrowRight16Regular />
+            <IconFluentArrowRight16Regular/>
           </BaseIcon>
 
           <div class="relative z-999 group">
             <div
-              class="space-y-2 btn-no-margin pb-2 left-1/2 -transform-translate-x-1/2 absolute z-999 bottom-full scale-95 opacity-0 group-hover:opacity-100 group-hover:scale-100 transition-all duration-300 pointer-events-none group-hover:pointer-events-auto"
+                class="space-y-2 btn-no-margin pb-2 left-1/2 -transform-translate-x-1/2 absolute z-999 bottom-full scale-95 opacity-0 group-hover:opacity-100 group-hover:scale-100 transition-all duration-300 pointer-events-none group-hover:pointer-events-auto"
             >
-              <BaseButton size="normal" type="info" class="w-full" @click="$emit('toggleSimple')">
+              <BaseButton class="w-full" size="normal" type="info" @click="$emit('toggleSimple')">
                 <div class="flex items-center gap-2">
-                  <IconFluentCheckmarkCircle16Regular v-if="!isSimple" />
-                  <IconFluentCheckmarkCircle16Filled v-else />
+                  <IconFluentCheckmarkCircle16Regular v-if="!isSimple"/>
+                  <IconFluentCheckmarkCircle16Filled v-else/>
                   <span>
                     {{
                       (!isSimple ? '标记已掌握' : '取消已掌握') +
@@ -274,10 +274,10 @@ const stages = $computed(() => {
                   >
                 </div>
               </BaseButton>
-              <BaseButton size="normal" type="info" class="w-full" @click="$emit('toggleCollect')">
+              <BaseButton class="w-full" size="normal" type="info" @click="$emit('toggleCollect')">
                 <div class="flex items-center gap-2">
-                  <IconFluentStarAdd16Regular v-if="!isCollect" />
-                  <IconFluentStar16Filled v-else />
+                  <IconFluentStarAdd16Regular v-if="!isCollect"/>
+                  <IconFluentStar16Filled v-else/>
                   <span>
                     {{
                       (!isCollect ? '收藏' : '取消收藏') + `(${settingStore.shortcutKeyMap[ShortcutKey.ToggleCollect]})`
@@ -285,53 +285,53 @@ const stages = $computed(() => {
                   >
                 </div>
               </BaseButton>
-              <BaseButton size="normal" type="info" class="w-full" @click="$emit('skip')">
+              <BaseButton class="w-full" size="normal" type="info" @click="$emit('skip')">
                 <div class="flex items-center gap-2">
-                  <IconFluentArrowBounce20Regular class="transform-rotate-180" />
+                  <IconFluentArrowBounce20Regular class="transform-rotate-180"/>
                   <span> 跳过单词({{ settingStore.shortcutKeyMap[ShortcutKey.Next] }})</span>
                 </div>
               </BaseButton>
             </div>
 
             <BaseIcon>
-              <IconPhMicrosoftWordLogoLight />
+              <IconPhMicrosoftWordLogoLight/>
             </BaseIcon>
           </div>
 
           <BaseIcon
-            @click="settingStore.dictation = !settingStore.dictation"
-            :title="`开关默写模式(${settingStore.shortcutKeyMap[ShortcutKey.ToggleDictation]})`"
+              :title="`开关默写模式(${settingStore.shortcutKeyMap[ShortcutKey.ToggleDictation]})`"
+              @click="settingStore.dictation = !settingStore.dictation"
           >
-            <IconFluentEyeOff16Regular v-if="settingStore.dictation" />
-            <IconFluentEye16Regular v-else />
+            <IconFluentEyeOff16Regular v-if="settingStore.dictation"/>
+            <IconFluentEye16Regular v-else/>
           </BaseIcon>
 
           <BaseIcon
-            :title="`开关释义显示(${settingStore.shortcutKeyMap[ShortcutKey.ToggleShowTranslate]})`"
-            @click="settingStore.translate = !settingStore.translate"
+              :title="`开关释义显示(${settingStore.shortcutKeyMap[ShortcutKey.ToggleShowTranslate]})`"
+              @click="settingStore.translate = !settingStore.translate"
           >
-            <IconFluentTranslate16Regular v-if="settingStore.translate" />
-            <IconFluentTranslateOff16Regular v-else />
+            <IconFluentTranslate16Regular v-if="settingStore.translate"/>
+            <IconFluentTranslateOff16Regular v-else/>
           </BaseIcon>
 
           <BaseIcon
-            @click="settingStore.showPanel = !settingStore.showPanel"
-            :title="`单词本(${settingStore.shortcutKeyMap[ShortcutKey.TogglePanel]})`"
+              :title="`单词本(${settingStore.shortcutKeyMap[ShortcutKey.TogglePanel]})`"
+              @click="settingStore.showPanel = !settingStore.showPanel"
           >
-            <IconFluentTextListAbcUppercaseLtr20Regular />
+            <IconFluentTextListAbcUppercaseLtr20Regular/>
           </BaseIcon>
         </div>
       </div>
     </div>
     <div class="progress-wrap flex gap-3 items-center color-gray">
       <span class="shrink-0">{{ status }}</span>
-      <StageProgress :stages="stages" />
+      <StageProgress :stages="stages"/>
       <div class="num">{{ `${practiceData.index + 1}/${practiceData.words.length}` }}</div>
     </div>
   </div>
 </template>
 
-<style scoped lang="scss">
+<style lang="scss" scoped>
 .footer {
   flex-shrink: 0;
   width: var(--toolbar-width);

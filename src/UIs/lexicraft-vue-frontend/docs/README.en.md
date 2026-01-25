@@ -23,14 +23,14 @@ Practice English, one strike, one step forward
 <div align=center>
 <a href="https://trendshift.io/repositories/14139" target="_blank" class="trendshift-badge"><img src="https://trendshift.io/api/badge/repositories/14139" alt="TypeWords | Trendshift" style="width: 250px; height: 55px;" width="250" height="55"/></a>
 </div>
- 
+
 
 <img width="1920" height="1440" alt="295shots_so" src="https://github.com/user-attachments/assets/383ed437-856e-48fe-92b0-9619babb49be" />
 <img width="1920" height="1440" alt="922shots_so" src="https://github.com/user-attachments/assets/5b5fa13f-747c-4368-ae21-3c9d7d30fbc7" />
 
 ## Online visit
 
-<https://typewords.cc>  
+<https://typewords.cc>
 
 ## Feature list
 

@@ -5,7 +5,7 @@ using LexiCraft.Services.Vocabulary.Words.Models;
 
 namespace LexiCraft.Services.Vocabulary.Words.Data.Repositories;
 
-public class WordListItemRepository(VocabularyDbContext context) 
+public class WordListItemRepository(VocabularyDbContext context)
     : QueryRepository<VocabularyDbContext, WordListItem>(context), IWordListItemRepository
 {
 }

@@ -1,4 +1,4 @@
-<script setup lang="ts">
+<script lang="ts" setup>
 import type {Dict} from "@/types/types.ts";
 import Book from "@/components/Book.vue";
 
@@ -21,13 +21,13 @@ const emit = defineEmits<{
   <div class="flex gap-4 flex-wrap">
     <Book v-for="(dict,index) in list"
           :is-add="false"
-          @click="emit('selectDict',{dict,index})"
+          :item="dict"
           :quantifier="quantifier"
-          :item="dict"/>
+          @click="emit('selectDict',{dict,index})"/>
   </div>
 </template>
 
-<style scoped lang="scss">
+<style lang="scss" scoped>
 .dict-list {
   display: flex;
   flex-wrap: wrap;

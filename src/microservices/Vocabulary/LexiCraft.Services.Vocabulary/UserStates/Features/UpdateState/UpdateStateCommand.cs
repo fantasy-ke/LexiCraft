@@ -23,31 +23,28 @@ public class UpdateStateCommandValidator : AbstractValidator<UpdateStateCommand>
     }
 }
 
-public class UpdateStateCommandHandler(IUserWordStateRepository repository) 
+public class UpdateStateCommandHandler(IUserWordStateRepository repository)
     : ICommandHandler<UpdateStateCommand, bool>
 {
     public async Task<bool> Handle(UpdateStateCommand command, CancellationToken cancellationToken)
     {
         var state = await repository.GetAsync(command.UserId, command.WordId);
-        
-        if (state == null)
-        {
-            state = new UserWordState(command.UserId, command.WordId);
-        }
+
+        if (state == null) state = new UserWordState(command.UserId, command.WordId);
 
         state.UpdateState(command.State);
-        
+
         if (command.IsInWordBook.HasValue)
             state.ToggleWordBook(command.IsInWordBook.Value);
-            
+
         if (command.MasteryScore.HasValue)
             state.UpdateScore(command.MasteryScore.Value);
-        
+
         // Ensure reviewed time is updated (UpdateState and UpdateScore do it, but to be safe/consistent with original intent)
         state.MarkReviewed();
 
         await repository.AddOrUpdateAsync(state);
-        
+
         return true;
     }
 }

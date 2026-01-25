@@ -1,6 +1,6 @@
-<script setup lang="ts">
+<script lang="ts" setup>
 
-import { GITHUB } from "@/config/env.ts";
+import {GITHUB} from "@/config/env.ts";
 import ChannelIcons from "@/components/ChannelIcons/ChannelIcons.vue";
 import WeChat from "@/components/ChannelIcons/WeChat.vue";
 </script>
@@ -16,7 +16,8 @@ import WeChat from "@/components/ChannelIcons/WeChat.vue";
     </p>
     <div class="flex flex-col gap-2 mt-20">
       <div class="flex items-center">
-        微信反馈：<WeChat/>
+        微信反馈：
+        <WeChat/>
       </div>
       <div class="">
         工单反馈：<a :href="`https://v.wjx.cn/vm/ev0W7fv.aspx#`"
@@ -24,10 +25,10 @@ import WeChat from "@/components/ChannelIcons/WeChat.vue";
       </div>
       <div class="flex items-center">
         其他渠道：
-        <ChannelIcons type="horizontal"
+        <ChannelIcons :github="false"
                       :share="false"
                       :wechat="false"
-                      :github="false"
+                      type="horizontal"
         />
       </div>
     </div>
@@ -35,6 +36,6 @@ import WeChat from "@/components/ChannelIcons/WeChat.vue";
   </div>
 </template>
 
-<style scoped lang="scss">
+<style lang="scss" scoped>
 
 </style>

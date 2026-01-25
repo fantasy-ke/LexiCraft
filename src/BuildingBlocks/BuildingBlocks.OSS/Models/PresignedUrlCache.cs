@@ -1,19 +1,14 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
+namespace BuildingBlocks.OSS.Models;
 
-namespace BuildingBlocks.OSS.Models
+internal class PresignedUrlCache
 {
-    class PresignedUrlCache
-    {
-        public string Name { get; set; }
+    public string Name { get; set; } = string.Empty;
 
-        public string BucketName { get; set; }
+    public string BucketName { get; set; } = string.Empty;
 
-        public long CreateTime { get; set; }
+    public long CreateTime { get; set; }
 
-        public string Url { get; set; }
+    public string Url { get; set; } = string.Empty;
 
-        public PresignedObjectType Type { get; set; }
-    }
+    public PresignedObjectType Type { get; set; }
 }

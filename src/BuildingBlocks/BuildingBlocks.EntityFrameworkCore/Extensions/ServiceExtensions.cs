@@ -11,14 +11,14 @@ namespace BuildingBlocks.EntityFrameworkCore.Extensions;
 public static class ServiceExtensions
 {
     /// <summary>
-    /// 添加数据库访问
+    ///     添加数据库访问
     /// </summary>
     /// <param name="services"></param>
     /// <param name="optionsAction"></param>
     /// <typeparam name="TDbContext"></typeparam>
     /// <returns></returns>
     public static IServiceCollection WithDbAccess<TDbContext>(this IServiceCollection services,
-        Action<DbContextOptionsBuilder> optionsAction,Action<IHostApplicationBuilder>? action = null)
+        Action<DbContextOptionsBuilder> optionsAction, Action<IHostApplicationBuilder>? action = null)
         where TDbContext : DbContext
     {
         // Npgsql 6.0.0 之后的版本需要设置以下两个开关，否则会导致时间戳字段的值不正确
@@ -31,20 +31,20 @@ public static class ServiceExtensions
         // services.AddScoped(typeof(IRepository<,>), typeof(Repository<,>));
         return services;
     }
-    
+
     public static IServiceCollection WithRepository<TDbContext>(
         this IServiceCollection services)
         where TDbContext : DbContext
     {
         // 获取当前类所在的程序集
         // var currentAssembly = Assembly.GetExecutingAssembly();
-        var currentAssembly =  typeof(TDbContext).Assembly;
+        var currentAssembly = typeof(TDbContext).Assembly;
         // 获取当前程序集引用的所有程序集名称
         var referencedAssemblyNames = currentAssembly.GetReferencedAssemblies().ToList();
-    
+
         // 存储当前程序集和引用的程序集
         var assemblies = new List<Assembly> { currentAssembly };
-    
+
         referencedAssemblyNames.ForEach(assemblyName =>
         {
             // 加载引用的程序集
@@ -54,9 +54,9 @@ public static class ServiceExtensions
         services.TryAddRepository<TDbContext>(assemblies.Distinct());
         return services;
     }
-    
+
     /// <summary>
-    ///   添加仓储
+    ///     添加仓储
     /// </summary>
     /// <param name="services"></param>
     /// <param name="assemblies"></param>
@@ -67,21 +67,22 @@ public static class ServiceExtensions
         IEnumerable<Assembly> assemblies)
         where TDbContext : DbContext
     {
-
         var allTypes = assemblies.SelectMany(assembly => assembly.GetExportedTypes()).ToList();
         var entityTypes = allTypes.Where(type => type.IsEntity());
         foreach (var entityType in entityTypes)
         {
             // 注册只读仓储 (适用于所有实体)
             var queryRepositoryInterfaceType = typeof(IQueryRepository<>).MakeGenericType(entityType);
-            var queryRepositoryImplementationType = typeof(QueryRepository<,>).MakeGenericType(typeof(TDbContext), entityType);
+            var queryRepositoryImplementationType =
+                typeof(QueryRepository<,>).MakeGenericType(typeof(TDbContext), entityType);
             services.TryAddScoped(queryRepositoryInterfaceType, queryRepositoryImplementationType);
 
             // 注册聚合根仓储 (仅适用于聚合根)
             if (typeof(IAggregateRoot).IsAssignableFrom(entityType))
             {
                 var repositoryInterfaceType = typeof(IRepository<>).MakeGenericType(entityType);
-                services.TryAddAddDefaultRepository(repositoryInterfaceType, GetRepositoryImplementationType(typeof(TDbContext), entityType));
+                services.TryAddAddDefaultRepository(repositoryInterfaceType,
+                    GetRepositoryImplementationType(typeof(TDbContext), entityType));
             }
         }
 
@@ -89,18 +90,20 @@ public static class ServiceExtensions
     }
 
     private static bool IsEntity(this Type type)
-        => type is { IsClass: true, IsGenericType: false, IsAbstract: false } && typeof(IEntity).IsAssignableFrom(type);
+    {
+        return type is { IsClass: true, IsGenericType: false, IsAbstract: false } &&
+               typeof(IEntity).IsAssignableFrom(type);
+    }
 
     private static void TryAddAddDefaultRepository(this IServiceCollection services, Type repositoryInterfaceType,
         Type repositoryImplementationType)
     {
         if (repositoryInterfaceType.IsAssignableFrom(repositoryImplementationType))
-        {
             services.TryAddScoped(repositoryInterfaceType, repositoryImplementationType);
-        }
     }
 
     private static Type GetRepositoryImplementationType(Type dbContextType, Type entityType)
-        => typeof(Repository<,>).MakeGenericType(dbContextType, entityType);
-
+    {
+        return typeof(Repository<,>).MakeGenericType(dbContextType, entityType);
+    }
 }

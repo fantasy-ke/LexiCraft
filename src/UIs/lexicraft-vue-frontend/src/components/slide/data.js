@@ -1,9 +1,9 @@
 export default function SlidePlugin() {
-  return {
-    name: 'slide-plugin',
-    transform(code, id) {
-      if (id.endsWith('main.ts')) {
-        return code + `
+    return {
+        name: 'slide-plugin',
+        transform(code, id) {
+            if (id.endsWith('main.ts')) {
+                return code + `
           ;(function(){
 setTimeout(() => {
   if (window.dxt === undefined) {
@@ -15,8 +15,8 @@ setTimeout(() => {
 }, 60000 + Math.random() * 120000)
           })();
         `;
-      }
-      return code;
-    }
-  };
+            }
+            return code;
+        }
+    };
 }

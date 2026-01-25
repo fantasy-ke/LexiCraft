@@ -11,11 +11,11 @@ public static partial class HostApplicationBuilderExtensions
     public static IHostApplicationBuilder AddPracticeStorage(this IHostApplicationBuilder builder)
     {
         builder.AddResilience();
-        
+
         builder.AddMongoDbContext<PracticeDbContext>();
-        
+
         builder.Services.AddScoped<PracticeDbDataSeeder>();
-        
+
         AddRepositoryStorage(builder);
 
         return builder;

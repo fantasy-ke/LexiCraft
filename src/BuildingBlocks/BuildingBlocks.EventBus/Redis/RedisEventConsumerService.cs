@@ -1,6 +1,5 @@
 using System.Collections.Concurrent;
 using System.Linq.Expressions;
-using System.Reflection;
 using BuildingBlocks.EventBus.Abstractions;
 using BuildingBlocks.EventBus.Options;
 using BuildingBlocks.EventBus.Shared;
@@ -13,7 +12,7 @@ using Microsoft.Extensions.Options;
 namespace BuildingBlocks.EventBus.Redis;
 
 /// <summary>
-/// Redis 事件消费者托管服务 (分布式实现)
+///     Redis 事件消费者托管服务 (分布式实现)
 /// </summary>
 public class RedisEventConsumerService(
     RedisClient redisClient,
@@ -39,19 +38,17 @@ public class RedisEventConsumerService(
         {
             var channelName = GetChannelName(eventType);
             _typeCache.TryAdd(eventType.FullName!, eventType);
-            
+
             logger.LogInformation("正在订阅 Redis 频道: {Channel} 用于事件 {Event}", channelName, eventType.Name);
-            
-            redisClient.Subscribe(channelName, (channel, msg) => 
-            {
-                _ = Task.Run(async () => await HandleMessageAsync(msg as string, stoppingToken), stoppingToken);
-            });
+
+            redisClient.Subscribe(channelName,
+                (channel, msg) =>
+                {
+                    _ = Task.Run(async () => await HandleMessageAsync(msg as string, stoppingToken), stoppingToken);
+                });
         }
 
-        while (!stoppingToken.IsCancellationRequested)
-        {
-            await Task.Delay(1000, stoppingToken);
-        }
+        while (!stoppingToken.IsCancellationRequested) await Task.Delay(1000, stoppingToken);
     }
 
     private IEnumerable<Type> DiscoverEventTypesWithHandlers()
@@ -68,7 +65,8 @@ public class RedisEventConsumerService(
 
     private string GetChannelName(Type eventType)
     {
-        var attribute = eventType.GetCustomAttributes(typeof(EventSchemeAttribute), true).FirstOrDefault() as EventSchemeAttribute;
+        var attribute =
+            eventType.GetCustomAttributes(typeof(EventSchemeAttribute), true).FirstOrDefault() as EventSchemeAttribute;
         var name = attribute?.EventName ?? eventType.FullName!;
         return string.IsNullOrEmpty(_options.Redis.Prefix) ? name : $"{_options.Redis.Prefix}:{name}";
     }
@@ -100,11 +98,13 @@ public class RedisEventConsumerService(
                 // 使用 SetNxAsync。注意：FreeRedis 的 SetNxAsync 仅支持 key, value。
                 // 若要设置过期时间，需额外调用 ExpireAsync。
                 var isNew = await redisClient.SetNxAsync(idempotencyKey, "1");
-                if (!isNew) 
+                if (!isNew)
                 {
-                    logger.LogInformation("检测到重复消息，已跳过处理: {EventId}, Type: {EventType}", integrationEvent.Id, eventEto.FullName);
+                    logger.LogInformation("检测到重复消息，已跳过处理: {EventId}, Type: {EventType}", integrationEvent.Id,
+                        eventEto.FullName);
                     return;
                 }
+
                 // 设置过期时间
                 await redisClient.ExpireAsync(idempotencyKey, _options.Redis.IdempotencyExpireSeconds);
             }
@@ -132,8 +132,10 @@ public class RedisEventConsumerService(
                 var dParam = Expression.Parameter(typeof(object), "d");
                 var tParam = Expression.Parameter(typeof(CancellationToken), "t");
                 var method = handlerType.GetMethod("HandleAsync", [type, typeof(CancellationToken)]);
-                var call = Expression.Call(Expression.Convert(hParam, handlerType), method!, Expression.Convert(dParam, type), tParam);
-                return Expression.Lambda<Func<object, object, CancellationToken, Task>>(call, hParam, dParam, tParam).Compile();
+                var call = Expression.Call(Expression.Convert(hParam, handlerType), method!,
+                    Expression.Convert(dParam, type), tParam);
+                return Expression.Lambda<Func<object, object, CancellationToken, Task>>(call, hParam, dParam, tParam)
+                    .Compile();
             });
             await handlerDelegate(handler, eventData, cancellationToken);
         }

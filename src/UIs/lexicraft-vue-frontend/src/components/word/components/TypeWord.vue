@@ -1,19 +1,19 @@
-<script setup lang="ts">
-import type { Word } from '@/types/types'
+<script lang="ts" setup>
+import type {Word} from '@/types/types'
 import VolumeIcon from '@/components/icon/VolumeIcon.vue'
-import { useSettingStore } from '@/stores/setting'
-import { usePlayBeep, usePlayCorrect, usePlayKeyboardAudio, usePlayWordAudio } from '@/hooks/sound'
-import { emitter, EventKey, useEvents } from '@/utils/eventBus'
-import { onMounted, onUnmounted, watch } from 'vue'
+import {useSettingStore} from '@/stores/setting'
+import {usePlayBeep, usePlayCorrect, usePlayKeyboardAudio, usePlayWordAudio} from '@/hooks/sound'
+import {emitter, EventKey, useEvents} from '@/utils/eventBus'
+import {onMounted, onUnmounted, watch} from 'vue'
 import SentenceHightLightWord from '@/components/word/components/SentenceHightLightWord.vue'
-import { usePracticeStore } from '@/stores/practice'
-import { getDefaultWord } from '@/types/func'
-import { _nextTick, last } from '@/utils'
+import {usePracticeStore} from '@/stores/practice'
+import {getDefaultWord} from '@/types/func'
+import {_nextTick, last} from '@/utils'
 import BaseButton from '@/components/BaseButton.vue'
 import Space from '@/components/article/components/Space.vue'
 import Toast from '@/components/base/toast/Toast'
 import Tooltip from '@/components/base/Tooltip.vue'
-import { ShortcutKey, WordPracticeStage, WordPracticeType } from '@/types/enum'
+import {ShortcutKey, WordPracticeStage, WordPracticeType} from '@/types/enum'
 
 interface IProps {
   word: Word
@@ -68,7 +68,7 @@ function updateCurrentWordInfo() {
   }
 }
 
-watch(() => props.word, reset, { deep: true })
+watch(() => props.word, reset, {deep: true})
 
 function reset() {
   wrong = input = ''
@@ -87,10 +87,10 @@ function reset() {
 
 // 监听输入变化，更新当前单词信息
 watch(
-  () => input,
-  () => {
-    updateCurrentWordInfo()
-  }
+    () => input,
+    () => {
+      updateCurrentWordInfo()
+    }
 )
 
 onMounted(() => {
@@ -136,7 +136,7 @@ function know(e) {
       input = props.word.word
       emit('know')
       if (!showNotice) {
-        Toast.info('若误选“我认识”，可按删除键重新选择！', { duration: 5000 })
+        Toast.info('若误选“我认识”，可按删除键重新选择！', {duration: 5000})
         showNotice = true
       }
       return
@@ -178,7 +178,7 @@ async function onTyping(e: KeyboardEvent) {
           // 错误时，提示用户按删除键，仅默写需要提示
           pressNumber++
           if (pressNumber >= 3) {
-            Toast.info('请按删除键重新输入', { duration: 2000 })
+            Toast.info('请按删除键重新输入', {duration: 2000})
             pressNumber = 0
           }
         }
@@ -188,7 +188,7 @@ async function onTyping(e: KeyboardEvent) {
       if (right) {
         pressNumber++
         if (pressNumber >= 3) {
-          Toast.info('请按空格键继续', { duration: 2000 })
+          Toast.info('请按空格键继续', {duration: 2000})
           pressNumber = 0
         }
       } else {
@@ -251,33 +251,33 @@ async function onTyping(e: KeyboardEvent) {
     }
     //针对中文的特殊判断
     if (
-      e.shiftKey &&
-      (('！' === word[input.length] && e.code === 'Digit1') ||
-        ('￥' === word[input.length] && e.code === 'Digit4') ||
-        ('…' === word[input.length] && e.code === 'Digit6') ||
-        ('—' === word[input.length] && e.code === 'Minus') ||
-        ('？' === word[input.length] && e.code === 'Slash') ||
-        ('》' === word[input.length] && e.code === 'Period') ||
-        ('《' === word[input.length] && e.code === 'Comma') ||
-        ('“' === word[input.length] && e.code === 'Quote') ||
-        ('”' === word[input.length] && e.code === 'Quote') ||
-        ('：' === word[input.length] && e.code === 'Semicolon') ||
-        ('）' === word[input.length] && e.code === 'Digit0') ||
-        ('（' === word[input.length] && e.code === 'Digit9'))
+        e.shiftKey &&
+        (('！' === word[input.length] && e.code === 'Digit1') ||
+            ('￥' === word[input.length] && e.code === 'Digit4') ||
+            ('…' === word[input.length] && e.code === 'Digit6') ||
+            ('—' === word[input.length] && e.code === 'Minus') ||
+            ('？' === word[input.length] && e.code === 'Slash') ||
+            ('》' === word[input.length] && e.code === 'Period') ||
+            ('《' === word[input.length] && e.code === 'Comma') ||
+            ('“' === word[input.length] && e.code === 'Quote') ||
+            ('”' === word[input.length] && e.code === 'Quote') ||
+            ('：' === word[input.length] && e.code === 'Semicolon') ||
+            ('）' === word[input.length] && e.code === 'Digit0') ||
+            ('（' === word[input.length] && e.code === 'Digit9'))
     ) {
       right = true
       letter = word[input.length]
     }
     if (
-      !e.shiftKey &&
-      (('、' === word[input.length] && e.code === 'Slash') ||
-        ('。' === word[input.length] && e.code === 'Period') ||
-        ('，' === word[input.length] && e.code === 'Comma') ||
-        ('‘' === word[input.length] && e.code === 'Quote') ||
-        ('’' === word[input.length] && e.code === 'Quote') ||
-        ('；' === word[input.length] && e.code === 'Semicolon') ||
-        ('【' === word[input.length] && e.code === 'BracketLeft') ||
-        ('】' === word[input.length] && e.code === 'BracketRight'))
+        !e.shiftKey &&
+        (('、' === word[input.length] && e.code === 'Slash') ||
+            ('。' === word[input.length] && e.code === 'Period') ||
+            ('，' === word[input.length] && e.code === 'Comma') ||
+            ('‘' === word[input.length] && e.code === 'Quote') ||
+            ('’' === word[input.length] && e.code === 'Quote') ||
+            ('；' === word[input.length] && e.code === 'Semicolon') ||
+            ('【' === word[input.length] && e.code === 'BracketLeft') ||
+            ('】' === word[input.length] && e.code === 'BracketRight'))
     ) {
       right = true
       letter = word[input.length]
@@ -304,8 +304,8 @@ async function onTyping(e: KeyboardEvent) {
       wordCompletedTime = Date.now() // 记录单词完成的时间戳
       playCorrect()
       if (
-        [WordPracticeType.Listen, WordPracticeType.Identify].includes(settingStore.wordPracticeType) &&
-        !showWordResult
+          [WordPracticeType.Listen, WordPracticeType.Identify].includes(settingStore.wordPracticeType) &&
+          !showWordResult
       ) {
         showWordResult = true
       }
@@ -373,7 +373,7 @@ function play() {
   volumeIconRef?.play()
 }
 
-defineExpose({ del, showWord, hideWord, play })
+defineExpose({del, showWord, hideWord, play})
 
 function mouseleave() {
   setTimeout(() => {
@@ -452,19 +452,19 @@ useEvents([
 </script>
 
 <template>
-  <div class="typing-word" ref="typingWordRef" v-if="word.word.length">
+  <div v-if="word.word.length" ref="typingWordRef" class="typing-word">
     <div class="flex flex-col items-center w-full max-w-4xl mx-auto">
       <div class="flex gap-1 mt-10">
         <div
-          class="phonetic"
-          :class="!(!settingStore.dictation || showFullWord || showWordResult) && 'word-shadow'"
-          v-if="settingStore.soundType === 'uk' && word.phonetic0"
+            v-if="settingStore.soundType === 'uk' && word.phonetic0"
+            :class="!(!settingStore.dictation || showFullWord || showWordResult) && 'word-shadow'"
+            class="phonetic"
         >
           [{{ word.phonetic0 }}]
         </div>
         <div
-          class="phonetic"
-          :class="
+            v-if="settingStore.soundType === 'us' && word.phonetic1"
+            :class="
             (settingStore.dictation ||
               [WordPracticeType.Spell, WordPracticeType.Listen, WordPracticeType.Dictation].includes(
                 settingStore.wordPracticeType
@@ -473,53 +473,53 @@ useEvents([
             !showWordResult &&
             'word-shadow'
           "
-          v-if="settingStore.soundType === 'us' && word.phonetic1"
+            class="phonetic"
         >
           [{{ word.phonetic1 }}]
         </div>
         <VolumeIcon
-          :title="`发音(${settingStore.shortcutKeyMap[ShortcutKey.PlayWordPronunciation]})`"
-          ref="volumeIconRef"
-          :simple="true"
-          :cb="() => playWordAudio(word.word)"
+            ref="volumeIconRef"
+            :cb="() => playWordAudio(word.word)"
+            :simple="true"
+            :title="`发音(${settingStore.shortcutKeyMap[ShortcutKey.PlayWordPronunciation]})`"
         />
       </div>
 
       <Tooltip
-        :title="
+          :title="
           settingStore.dictation ? `可以按快捷键 ${settingStore.shortcutKeyMap[ShortcutKey.ShowWord]} 显示正确答案` : ''
         "
       >
         <div
-          id="word"
-          class="word my-1"
-          :class="wrong && 'is-wrong'"
-          :style="{ fontSize: settingStore.fontSize.wordForeignFontSize + 'px' }"
-          @mouseenter="showWord"
-          @mouseleave="mouseleave"
+            id="word"
+            :class="wrong && 'is-wrong'"
+            :style="{ fontSize: settingStore.fontSize.wordForeignFontSize + 'px' }"
+            class="word my-1"
+            @mouseenter="showWord"
+            @mouseleave="mouseleave"
         >
           <div v-if="settingStore.wordPracticeType === WordPracticeType.Dictation">
             <div
-              class="letter text-align-center w-full inline-block"
-              v-opacity="!settingStore.dictation || showWordResult || showFullWord"
+                v-opacity="!settingStore.dictation || showWordResult || showFullWord"
+                class="letter text-align-center w-full inline-block"
             >
               {{ word.word }}
             </div>
             <div
-              class="mt-2 w-120 dictation"
-              :style="{ minHeight: settingStore.fontSize.wordForeignFontSize + 'px' }"
-              :class="showWordResult ? (right ? 'right' : 'wrong') : ''"
+                :class="showWordResult ? (right ? 'right' : 'wrong') : ''"
+                :style="{ minHeight: settingStore.fontSize.wordForeignFontSize + 'px' }"
+                class="mt-2 w-120 dictation"
             >
               <template v-for="i in input">
-                <span class="l" v-if="i !== ' '">{{ i }}</span>
-                <Space class="l" v-else :is-wrong="showWordResult ? !right : false" :is-wait="!showWordResult" />
+                <span v-if="i !== ' '" class="l">{{ i }}</span>
+                <Space v-else :is-wait="!showWordResult" :is-wrong="showWordResult ? !right : false" class="l"/>
               </template>
             </div>
           </div>
           <template v-else>
-            <span class="input" v-if="input">{{ input }}</span>
-            <span class="wrong" v-if="wrong">{{ wrong }}</span>
-            <span class="letter" v-if="settingStore.dictation && !showFullWord">
+            <span v-if="input" class="input">{{ input }}</span>
+            <span v-if="wrong" class="wrong">{{ wrong }}</span>
+            <span v-if="settingStore.dictation && !showFullWord" class="letter">
               {{
                 displayWord
                   .split('')
@@ -527,38 +527,38 @@ useEvents([
                   .join('')
               }}
             </span>
-            <span class="letter" v-else>{{ displayWord }}</span>
+            <span v-else class="letter">{{ displayWord }}</span>
           </template>
         </div>
       </Tooltip>
 
       <div
-        class="mt-4 flex gap-4"
-        v-if="settingStore.wordPracticeType === WordPracticeType.Identify && !showWordResult"
+          v-if="settingStore.wordPracticeType === WordPracticeType.Identify && !showWordResult"
+          class="mt-4 flex gap-4"
       >
         <BaseButton
-          :keyboard="`快捷键(${settingStore.shortcutKeyMap[ShortcutKey.KnowWord]})`"
-          size="large"
-          @click="know"
-          >我认识
+            :keyboard="`快捷键(${settingStore.shortcutKeyMap[ShortcutKey.KnowWord]})`"
+            size="large"
+            @click="know"
+        >我认识
         </BaseButton>
         <BaseButton
-          :keyboard="`快捷键(${settingStore.shortcutKeyMap[ShortcutKey.UnknownWord]})`"
-          size="large"
-          @click="unknown"
-          >不认识
+            :keyboard="`快捷键(${settingStore.shortcutKeyMap[ShortcutKey.UnknownWord]})`"
+            size="large"
+            @click="unknown"
+        >不认识
         </BaseButton>
       </div>
 
       <div
-        class="translate flex flex-col gap-2 my-3"
-        v-opacity="settingStore.translate || showWordResult || showFullWord"
-        :style="{
+          v-opacity="settingStore.translate || showWordResult || showFullWord"
+          :style="{
           fontSize: settingStore.fontSize.wordTranslateFontSize + 'px',
         }"
+          class="translate flex flex-col gap-2 my-3"
       >
-        <div class="flex" v-for="v in word.trans">
-          <div class="shrink-0" :class="v.pos ? 'w-12 en-article-family' : '-ml-3'">
+        <div v-for="v in word.trans" class="flex">
+          <div :class="v.pos ? 'w-12 en-article-family' : '-ml-3'" class="shrink-0">
             {{ v.pos }}
           </div>
           <span v-if="!settingStore.dictation || showWordResult || showFullWord">{{ v.cn }}</span>
@@ -567,26 +567,26 @@ useEvents([
       </div>
     </div>
     <div
-      class="other anim"
-      v-opacity="
+        v-opacity="
         ![WordPracticeType.Listen, WordPracticeType.Dictation, WordPracticeType.Identify].includes(
           settingStore.wordPracticeType
         ) ||
         showFullWord ||
         showWordResult
       "
+        class="other anim"
     >
       <div class="line-white my-3"></div>
       <template v-if="word?.sentences?.length">
         <div class="flex flex-col gap-3">
-          <div class="sentence" v-for="item in word.sentences">
+          <div v-for="item in word.sentences" class="sentence">
             <SentenceHightLightWord
-              class="text-xl"
-              :text="item.c"
-              :word="word.word"
-              :dictation="!(!settingStore.dictation || showFullWord || showWordResult)"
+                :dictation="!(!settingStore.dictation || showFullWord || showWordResult)"
+                :text="item.c"
+                :word="word.word"
+                class="text-xl"
             />
-            <div class="text-base anim" v-opacity="settingStore.translate || showFullWord || showWordResult">
+            <div v-opacity="settingStore.translate || showFullWord || showWordResult" class="text-base anim">
               {{ item.cn }}
             </div>
           </div>
@@ -598,14 +598,14 @@ useEvents([
         <div class="flex">
           <div class="label">短语</div>
           <div class="flex flex-col">
-            <div class="flex items-center gap-4" v-for="item in word.phrases">
+            <div v-for="item in word.phrases" class="flex items-center gap-4">
               <SentenceHightLightWord
-                class="en"
-                :text="item.c"
-                :word="word.word"
-                :dictation="!(!settingStore.dictation || showFullWord || showWordResult)"
+                  :dictation="!(!settingStore.dictation || showFullWord || showWordResult)"
+                  :text="item.c"
+                  :word="word.word"
+                  class="en"
               />
-              <div class="cn anim" v-opacity="settingStore.translate || showFullWord || showWordResult">
+              <div v-opacity="settingStore.translate || showFullWord || showWordResult" class="cn anim">
                 {{ item.cn }}
               </div>
             </div>
@@ -619,14 +619,14 @@ useEvents([
           <div class="flex">
             <div class="label">同近义词</div>
             <div class="flex flex-col gap-3">
-              <div class="flex" v-for="item in word.synos">
+              <div v-for="item in word.synos" class="flex">
                 <div class="pos line-height-1.4rem!">{{ item.pos }}</div>
                 <div>
-                  <div class="cn anim" v-opacity="settingStore.translate || showFullWord || showWordResult">
+                  <div v-opacity="settingStore.translate || showFullWord || showWordResult" class="cn anim">
                     {{ item.cn }}
                   </div>
-                  <div class="anim" v-opacity="!settingStore.dictation || showFullWord || showWordResult">
-                    <span class="en" v-for="(i, j) in item.ws">
+                  <div v-opacity="!settingStore.dictation || showFullWord || showWordResult" class="anim">
+                    <span v-for="(i, j) in item.ws" class="en">
                       {{ i }} {{ j !== item.ws.length - 1 ? ' / ' : '' }}
                     </span>
                   </div>
@@ -638,8 +638,8 @@ useEvents([
       </template>
 
       <div
-        class="anim"
-        v-opacity="(settingStore.translate && !settingStore.dictation) || showFullWord || showWordResult"
+          v-opacity="(settingStore.translate && !settingStore.dictation) || showFullWord || showWordResult"
+          class="anim"
       >
         <template v-if="word?.etymology?.length">
           <div class="line-white my-3"></div>
@@ -647,7 +647,7 @@ useEvents([
           <div class="flex">
             <div class="label">词源</div>
             <div class="text-base">
-              <div class="mb-2" v-for="item in word.etymology">
+              <div v-for="item in word.etymology" class="mb-2">
                 <div class="">{{ item.t }}</div>
                 <div class="">{{ item.d }}</div>
               </div>
@@ -663,10 +663,10 @@ useEvents([
               <div v-if="word.relWords.root" class=" ">
                 词根：<span class="en">{{ word.relWords.root }}</span>
               </div>
-              <div class="flex" v-for="item in word.relWords.rels">
+              <div v-for="item in word.relWords.rels" class="flex">
                 <div class="pos">{{ item.pos }}</div>
                 <div>
-                  <div class="flex items-center gap-4" v-for="itemj in item.words">
+                  <div v-for="itemj in item.words" class="flex items-center gap-4">
                     <div class="en">{{ itemj.c }}</div>
                     <div class="cn">{{ itemj.cn }}</div>
                   </div>
@@ -678,17 +678,17 @@ useEvents([
       </div>
     </div>
     <div
-      class="cursor"
-      :style="{
+        :style="{
         top: cursor.top + 'px',
         left: cursor.left + 'px',
         height: settingStore.fontSize.wordForeignFontSize + 'px',
       }"
+        class="cursor"
     ></div>
   </div>
 </template>
 
-<style scoped lang="scss">
+<style lang="scss" scoped>
 .dictation {
   border-bottom: 2px solid gray;
 }

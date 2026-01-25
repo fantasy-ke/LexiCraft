@@ -1,8 +1,8 @@
-<script setup lang="ts">
+<script lang="ts" setup>
 
 import BaseIcon from "@/components/BaseIcon.vue";
-import { useAttrs } from "vue";
-import { useNav } from "@/utils";
+import {useAttrs} from "vue";
+import {useNav} from "@/utils";
 
 const attrs = useAttrs()
 const router = useNav()
@@ -23,6 +23,6 @@ function onClick() {
   </BaseIcon>
 </template>
 
-<style scoped lang="scss">
+<style lang="scss" scoped>
 
 </style>

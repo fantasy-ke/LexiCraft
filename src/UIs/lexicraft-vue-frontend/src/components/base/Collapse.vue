@@ -1,4 +1,4 @@
-<script setup lang="ts">
+<script lang="ts" setup>
 const props = defineProps<{
   q: string,
   a?: string | string[],
@@ -11,9 +11,9 @@ let isArray = $computed(() => typeof props.a !== 'string')
   <div class="qa-item my-6">
     <header class="flex justify-between items-center cp font-bold text-lg" @click="show = !show">
       <span>{{ q }}</span>
-      <IconFluentChevronLeft20Filled class="anim" :class="show?'transform-rotate-270':'transform-rotate-180'"/>
+      <IconFluentChevronLeft20Filled :class="show?'transform-rotate-270':'transform-rotate-180'" class="anim"/>
     </header>
-    <div class="content mt-4 text-base" v-if="show">
+    <div v-if="show" class="content mt-4 text-base">
       <template v-if="isArray">
         <p v-for="(v,i) in a">{{a.length>1?`${i+1}. `:''}}{{v}}</p>
       </template>
@@ -23,6 +23,6 @@ let isArray = $computed(() => typeof props.a !== 'string')
   </div>
 </template>
 
-<style scoped lang="scss">
+<style lang="scss" scoped>
 
 </style>

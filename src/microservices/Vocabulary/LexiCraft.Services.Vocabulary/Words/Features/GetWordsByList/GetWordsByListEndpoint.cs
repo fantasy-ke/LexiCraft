@@ -1,11 +1,10 @@
 using Humanizer;
+using LexiCraft.Shared.Permissions;
 using MediatR;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Routing;
-
-using LexiCraft.Shared.Permissions;
 
 namespace LexiCraft.Services.Vocabulary.Words.Features.GetWordsByList;
 
@@ -25,9 +24,9 @@ public static class GetWordsByListEndpoint
             [AsParameters] GetWordsByListRequestParameters requestParameters)
         {
             var (mediator, id, pageIndex, pageSize, seed, cancellationToken) = requestParameters;
-            
+
             var result = await mediator.Send(new GetWordsByListQuery(id, pageIndex, pageSize, seed), cancellationToken);
-            
+
             return result;
         }
     }

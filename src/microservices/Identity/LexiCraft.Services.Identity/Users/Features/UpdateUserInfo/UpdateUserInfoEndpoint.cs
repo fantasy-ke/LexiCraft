@@ -55,4 +55,3 @@ internal record UpdateUserInfoRequest(
     string? Username,
     string? Avatar
 );
-

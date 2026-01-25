@@ -26,7 +26,7 @@ public class UserWordStateConfiguration : IEntityTypeConfiguration<UserWordState
             .HasComment("单词 ID");
 
         builder.Property(p => p.State).HasConversion(new ValueConverter<WordState, int>(
-                v => ((int)v),
+                v => (int)v,
                 v => (WordState)v))
             .HasComment("掌握状态 (0:未学, 1:模糊, 2:掌握)");
 
@@ -40,7 +40,7 @@ public class UserWordStateConfiguration : IEntityTypeConfiguration<UserWordState
 
         builder.HasIndex(x => new { x.UserId, x.WordId })
             .IsUnique();
-        
+
         builder.HasIndex(x => x.UserId);
     }
 }

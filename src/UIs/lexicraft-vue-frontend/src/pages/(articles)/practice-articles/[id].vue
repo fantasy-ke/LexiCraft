@@ -1,5 +1,5 @@
-<script setup lang="ts">
-import { addStat, setUserDictProp } from '@/apis'
+<script lang="ts" setup>
+import {addStat, setUserDictProp} from '@/apis'
 import Toast from '@/components/base/toast/Toast.ts'
 import Tooltip from '@/components/base/Tooltip.vue'
 import BaseIcon from '@/components/BaseIcon.vue'
@@ -9,33 +9,33 @@ import Panel from '@/components/Panel.vue'
 import PracticeLayout from '@/components/PracticeLayout.vue'
 import ShortcutHints from '@/components/ShortcutHints.vue'
 import SettingDialog from '@/components/setting/SettingDialog.vue'
-import { AppEnv, DICT_LIST, LIB_JS_URL, TourConfig } from '@/config/env.ts'
-import { genArticleSectionData, usePlaySentenceAudio } from '@/hooks/article.ts'
-import { useArticleOptions } from '@/hooks/dict.ts'
-import { useDisableEventListener, useOnKeyboardEventListener, useStartKeyboardEventListener } from '@/hooks/event.ts'
+import {AppEnv, DICT_LIST, LIB_JS_URL, TourConfig} from '@/config/env.ts'
+import {genArticleSectionData, usePlaySentenceAudio} from '@/hooks/article.ts'
+import {useArticleOptions} from '@/hooks/dict.ts'
+import {useDisableEventListener, useOnKeyboardEventListener, useStartKeyboardEventListener} from '@/hooks/event.ts'
 import useTheme from '@/hooks/theme.ts'
 import ArticleAudio from '@/components/article/components/ArticleAudio.vue'
 import EditSingleArticleModal from '@/components/article/components/EditSingleArticleModal.vue'
 import TypingArticle from '@/components/article/components/TypingArticle.vue'
-import { useBaseStore } from '@/stores/base.ts'
-import { usePracticeStore } from '@/stores/practice.ts'
-import { useRuntimeStore } from '@/stores/runtime.ts'
-import { useSettingStore } from '@/stores/setting.ts'
-import { getDefaultArticle, getDefaultDict, getDefaultWord } from '@/types/func.ts'
-import type { Article, ArticleItem, ArticleWord, Dict, Statistics, Word } from '@/types/types.ts'
-import { _getDictDataByUrl, _nextTick, cloneDeep, isMobile, loadJsLib, msToMinute, resourceWrap, total } from '@/utils'
-import { getPracticeArticleCache, setPracticeArticleCache } from '@/utils/cache.ts'
-import { emitter, EventKey, useEvents } from '@/utils/eventBus.ts'
-import { computed, onMounted, onUnmounted, provide, watch } from 'vue'
-import { useRoute, useRouter } from 'vue-router'
-import { nanoid } from 'nanoid'
-import { DictType, PracticeArticleWordType, ShortcutKey } from '@/types/enum.ts'
+import {useBaseStore} from '@/stores/base.ts'
+import {usePracticeStore} from '@/stores/practice.ts'
+import {useRuntimeStore} from '@/stores/runtime.ts'
+import {useSettingStore} from '@/stores/setting.ts'
+import {getDefaultArticle, getDefaultDict, getDefaultWord} from '@/types/func.ts'
+import type {Article, ArticleItem, ArticleWord, Dict, Statistics, Word} from '@/types/types.ts'
+import {_getDictDataByUrl, _nextTick, cloneDeep, isMobile, loadJsLib, msToMinute, resourceWrap, total} from '@/utils'
+import {getPracticeArticleCache, setPracticeArticleCache} from '@/utils/cache.ts'
+import {emitter, EventKey, useEvents} from '@/utils/eventBus.ts'
+import {computed, onMounted, onUnmounted, provide, watch} from 'vue'
+import {useRoute, useRouter} from 'vue-router'
+import {nanoid} from 'nanoid'
+import {DictType, PracticeArticleWordType, ShortcutKey} from '@/types/enum.ts'
 
 const store = useBaseStore()
 const runtimeStore = useRuntimeStore()
 const settingStore = useSettingStore()
 const statStore = usePracticeStore()
-const { toggleTheme } = useTheme()
+const {toggleTheme} = useTheme()
 
 let articleData = $ref({
   list: [],
@@ -145,58 +145,58 @@ const handleSpeedUpdate = (speed: number) => {
 }
 
 watch(
-  [() => store.load, () => loading],
-  ([a, b]) => {
-    if (a && b) init()
-  },
-  { immediate: true }
+    [() => store.load, () => loading],
+    ([a, b]) => {
+      if (a && b) init()
+    },
+    {immediate: true}
 )
 
 watch(
-  () => articleData?.article?.id,
-  id => {
-    if (id) {
-      _nextTick(async () => {
-        const Shepherd = await loadJsLib('Shepherd', LIB_JS_URL.SHEPHERD)
-        const tour = new Shepherd.Tour(TourConfig)
-        tour.on('cancel', () => {
-          localStorage.setItem('tour-guide', '1')
-        })
-        tour.addStep({
-          id: 'step8',
-          text: '这里可以练习文章，只需要按下键盘上对应的按键即可，没有输入框！',
-          attachTo: {
-            element: '#article-content',
-            on: 'auto',
-          },
-          buttons: [
-            {
-              text: `关闭`,
-              action() {
-                settingStore.first = false
-                tour.next()
-                setTimeout(() => {
-                  showConflictNotice = true
-                }, 1500)
-              },
+    () => articleData?.article?.id,
+    id => {
+      if (id) {
+        _nextTick(async () => {
+          const Shepherd = await loadJsLib('Shepherd', LIB_JS_URL.SHEPHERD)
+          const tour = new Shepherd.Tour(TourConfig)
+          tour.on('cancel', () => {
+            localStorage.setItem('tour-guide', '1')
+          })
+          tour.addStep({
+            id: 'step8',
+            text: '这里可以练习文章，只需要按下键盘上对应的按键即可，没有输入框！',
+            attachTo: {
+              element: '#article-content',
+              on: 'auto',
             },
-          ],
-        })
-        const r = localStorage.getItem('tour-guide')
-        if (settingStore.first && !r && !isMobile()) {
-          tour.start()
-        }
-      }, 500)
+            buttons: [
+              {
+                text: `关闭`,
+                action() {
+                  settingStore.first = false
+                  tour.next()
+                  setTimeout(() => {
+                    showConflictNotice = true
+                  }, 1500)
+                },
+              },
+            ],
+          })
+          const r = localStorage.getItem('tour-guide')
+          if (settingStore.first && !r && !isMobile()) {
+            tour.start()
+          }
+        }, 500)
+      }
     }
-  }
 )
 
 watch(
-  () => settingStore.$state,
-  n => {
-    initAudio()
-  },
-  { immediate: true, deep: true }
+    () => settingStore.$state,
+    n => {
+      initAudio()
+    },
+    {immediate: true, deep: true}
 )
 
 onMounted(() => {
@@ -387,7 +387,7 @@ const handlePlayNext = (nextArticle: Article) => {
   }
 }
 
-const { isArticleCollect, toggleArticleCollect } = useArticleOptions()
+const {isArticleCollect, toggleArticleCollect} = useArticleOptions()
 
 function play() {
   typingArticleRef?.play()
@@ -442,7 +442,7 @@ onUnmounted(() => {
   timer && clearInterval(timer)
 })
 
-const { playSentenceAudio } = usePlaySentenceAudio()
+const {playSentenceAudio} = usePlaySentenceAudio()
 
 function play2(e) {
   _nextTick(() => {
@@ -465,7 +465,7 @@ provide('currentPractice', currentPractice)
   <PracticeLayout v-loading="loading" maxWidth="var(--article-width)">
     <template v-slot:hints>
       <ShortcutHints
-        :hints="[
+          :hints="[
           { key: ShortcutKey.PlayWordPronunciation, label: '播音' },
           { key: ShortcutKey.ToggleDictation, label: '内容' },
           { key: ShortcutKey.ToggleShowTranslate, label: '翻译' },
@@ -476,14 +476,14 @@ provide('currentPractice', currentPractice)
     </template>
     <template v-slot:practice>
       <TypingArticle
-        ref="typingArticleRef"
-        @wrong="wrong"
-        @next="next"
-        @nextWord="nextWord"
-        @play="play2"
-        @replay="setArticle(articleData.article)"
-        @complete="complete"
-        :article="articleData.article"
+          ref="typingArticleRef"
+          :article="articleData.article"
+          @complete="complete"
+          @next="next"
+          @nextWord="nextWord"
+          @play="play2"
+          @replay="setArticle(articleData.article)"
+          @wrong="wrong"
       />
     </template>
     <template v-slot:panel>
@@ -493,12 +493,12 @@ provide('currentPractice', currentPractice)
         </template>
         <div class="panel-page-item pl-4">
           <ArticleList
-            :isActive="settingStore.showPanel"
-            :static="false"
-            :show-translate="settingStore.translate"
-            @click="changeArticle"
-            :active-id="articleData.article.id ?? ''"
-            :list="articleData.list"
+              :active-id="articleData.article.id ?? ''"
+              :isActive="settingStore.showPanel"
+              :list="articleData.list"
+              :show-translate="settingStore.translate"
+              :static="false"
+              @click="changeArticle"
           >
           </ArticleList>
         </div>
@@ -509,10 +509,10 @@ provide('currentPractice', currentPractice)
         <div class="center h-10">
           <Tooltip :title="settingStore.showToolbar ? '收起' : '展开'">
             <IconFluentChevronLeft20Filled
-              @click="settingStore.showToolbar = !settingStore.showToolbar"
-              :class="!settingStore.showToolbar && 'down'"
-              color="#999"
-              class="arrow"
+                :class="!settingStore.showToolbar && 'down'"
+                class="arrow"
+                color="#999"
+                @click="settingStore.showToolbar = !settingStore.showToolbar"
             />
           </Tooltip>
         </div>
@@ -534,7 +534,7 @@ provide('currentPractice', currentPractice)
                 <div class="num center gap-1">
                   {{ statStore.total }}
                   <Tooltip>
-                    <IconFluentQuestionCircle20Regular width="18" />
+                    <IconFluentQuestionCircle20Regular width="18"/>
                     <template #reference>
                       <div>
                         统计词数{{ settingStore.ignoreSimpleWord ? '不包含' : '包含' }}简单词，不包含已掌握
@@ -548,38 +548,38 @@ provide('currentPractice', currentPractice)
               </div>
             </div>
             <ArticleAudio
-              ref="audioRef"
-              :article="articleData.article"
-              @update-speed="handleSpeedUpdate"
-              @update-volume="handleVolumeUpdate"
+                ref="audioRef"
+                :article="articleData.article"
+                @update-speed="handleSpeedUpdate"
+                @update-volume="handleVolumeUpdate"
             ></ArticleAudio>
             <div class="flex flex-col items-center justify-center gap-1">
               <div class="flex gap-2 center">
-                <SettingDialog type="article" />
+                <SettingDialog type="article"/>
 
                 <BaseIcon :title="`下一句(${settingStore.shortcutKeyMap[ShortcutKey.Next]})`" @click="skip">
-                  <IconFluentArrowBounce20Regular class="transform-rotate-180" />
+                  <IconFluentArrowBounce20Regular class="transform-rotate-180"/>
                 </BaseIcon>
                 <BaseIcon
-                  :title="`播放当前句子(${settingStore.shortcutKeyMap[ShortcutKey.PlayWordPronunciation]})`"
-                  @click="play"
+                    :title="`播放当前句子(${settingStore.shortcutKeyMap[ShortcutKey.PlayWordPronunciation]})`"
+                    @click="play"
                 >
-                  <IconFluentReplay20Regular />
+                  <IconFluentReplay20Regular/>
                 </BaseIcon>
                 <BaseIcon
-                  @click="settingStore.dictation = !settingStore.dictation"
-                  :title="`开关默写模式(${settingStore.shortcutKeyMap[ShortcutKey.ToggleDictation]})`"
+                    :title="`开关默写模式(${settingStore.shortcutKeyMap[ShortcutKey.ToggleDictation]})`"
+                    @click="settingStore.dictation = !settingStore.dictation"
                 >
-                  <IconFluentEyeOff16Regular v-if="settingStore.dictation" />
-                  <IconFluentEye16Regular v-else />
+                  <IconFluentEyeOff16Regular v-if="settingStore.dictation"/>
+                  <IconFluentEye16Regular v-else/>
                 </BaseIcon>
 
                 <BaseIcon
-                  :title="`开关释义显示(${settingStore.shortcutKeyMap[ShortcutKey.ToggleShowTranslate]})`"
-                  @click="settingStore.translate = !settingStore.translate"
+                    :title="`开关释义显示(${settingStore.shortcutKeyMap[ShortcutKey.ToggleShowTranslate]})`"
+                    @click="settingStore.translate = !settingStore.translate"
                 >
-                  <IconFluentTranslate16Regular v-if="settingStore.translate" />
-                  <IconFluentTranslateOff16Regular v-else />
+                  <IconFluentTranslate16Regular v-if="settingStore.translate"/>
+                  <IconFluentTranslateOff16Regular v-else/>
                 </BaseIcon>
 
                 <!--              <BaseIcon-->
@@ -588,10 +588,10 @@ provide('currentPractice', currentPractice)
                 <!--                  @click="emitter.emit(ShortcutKey.EditArticle)"-->
                 <!--              />-->
                 <BaseIcon
-                  @click="settingStore.showPanel = !settingStore.showPanel"
-                  :title="`面板(${settingStore.shortcutKeyMap[ShortcutKey.TogglePanel]})`"
+                    :title="`面板(${settingStore.shortcutKeyMap[ShortcutKey.TogglePanel]})`"
+                    @click="settingStore.showPanel = !settingStore.showPanel"
                 >
-                  <IconFluentTextListAbcUppercaseLtr20Regular />
+                  <IconFluentTextListAbcUppercaseLtr20Regular/>
                 </BaseIcon>
               </div>
             </div>
@@ -601,12 +601,12 @@ provide('currentPractice', currentPractice)
     </template>
   </PracticeLayout>
 
-  <EditSingleArticleModal v-model="showEditArticle" :article="editArticle" @save="saveArticle" />
+  <EditSingleArticleModal v-model="showEditArticle" :article="editArticle" @save="saveArticle"/>
 
-  <ConflictNotice v-if="showConflictNotice" />
+  <ConflictNotice v-if="showConflictNotice"/>
 </template>
 
-<style scoped lang="scss">
+<style lang="scss" scoped>
 .footer {
   width: var(--article-toolbar-width);
   max-width: 1000px;

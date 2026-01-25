@@ -1,12 +1,11 @@
 using Humanizer;
+using LexiCraft.Services.Vocabulary.UserStates.Models.Enum;
+using LexiCraft.Shared.Permissions;
 using MediatR;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Routing;
-using LexiCraft.Services.Vocabulary.UserStates.Models.Enum;
-
-using LexiCraft.Shared.Permissions;
 
 namespace LexiCraft.Services.Vocabulary.UserStates.Features.UpdateState;
 
@@ -26,14 +25,14 @@ public static class UpdateStateEndpoint
             [AsParameters] UpdateStateRequestParameters requestParameters)
         {
             var (mediator, request, cancellationToken) = requestParameters;
-            
+
             var result = await mediator.Send(new UpdateStateCommand(
                 request.UserId,
                 request.WordId,
                 request.State,
                 request.IsInWordBook,
                 request.MasteryScore), cancellationToken);
-            
+
             return result;
         }
     }

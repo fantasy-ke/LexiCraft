@@ -18,7 +18,6 @@ public class EnumSchemaTransformer : IOpenApiSchemaTransformer
         var list = new List<JsonNode>();
         //获取枚举项
         foreach (var enumValue in schema.Enum?.OfType<JsonNode>() ?? Enumerable.Empty<JsonNode>())
-        {
             //把枚举项转为枚举类型
             if (Enum.TryParse(context.JsonTypeInfo.Type, enumValue.GetValue<string>(), out var result))
             {
@@ -31,7 +30,6 @@ public class EnumSchemaTransformer : IOpenApiSchemaTransformer
             {
                 list.Add(enumValue);
             }
-        }
 
         schema.Enum = list;
 

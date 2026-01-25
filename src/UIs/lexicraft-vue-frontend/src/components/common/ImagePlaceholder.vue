@@ -1,4 +1,4 @@
-<script setup lang="ts">
+<script lang="ts" setup>
 interface Props {
   icon?: string
   title?: string
@@ -22,8 +22,8 @@ const props = withDefaults(defineProps<Props>(), {
 
 <template>
   <div class="flex items-center justify-center">
-    <div 
-      :class="[
+    <div
+        :class="[
         'relative rounded-xl flex items-center justify-center backdrop-blur-sm border border-white/30 shadow-2xl transition-transform duration-500',
         width,
         height,
@@ -36,13 +36,13 @@ const props = withDefaults(defineProps<Props>(), {
         <div :class="['mb-2', iconSize]">{{ icon }}</div>
         <div class="text-sm font-medium opacity-90">{{ title }}</div>
       </div>
-      
+
       <!-- 装饰性动画元素 -->
       <template v-if="animated">
         <div class="absolute -top-2 -right-2 w-6 h-6 bg-yellow-400 rounded-full animate-pulse"></div>
-        <div 
-          class="absolute -bottom-2 -left-2 w-4 h-4 bg-green-400 rounded-full animate-pulse" 
-          style="animation-delay: 0.5s;"
+        <div
+            class="absolute -bottom-2 -left-2 w-4 h-4 bg-green-400 rounded-full animate-pulse"
+            style="animation-delay: 0.5s;"
         ></div>
       </template>
     </div>

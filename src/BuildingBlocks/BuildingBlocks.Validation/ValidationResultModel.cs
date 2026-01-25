@@ -12,7 +12,7 @@ public class ValidationResultModel<TRequest>
             ?.Errors.Select(error => new ValidationError(error.PropertyName, error.ErrorMessage))
             .ToList();
 
-        Message = JsonConvert.SerializeObject(new { Message = validationError, Errors = Errors });
+        Message = JsonConvert.SerializeObject(new { Message = validationError, Errors });
     }
 
     public string Message { get; set; }

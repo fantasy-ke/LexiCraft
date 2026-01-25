@@ -1,8 +1,8 @@
 using BuildingBlocks.MongoDB;
 using BuildingBlocks.MongoDB.Performance;
 using BuildingBlocks.Resilience;
-using LexiCraft.Services.Practice.Shared.Contracts;
 using LexiCraft.Services.Practice.Assessments.Models;
+using LexiCraft.Services.Practice.Shared.Contracts;
 using Microsoft.Extensions.Logging;
 using MongoDB.Driver;
 
@@ -16,22 +16,26 @@ public class MistakeItemRepository(
     : ResilientMongoQueryRepository<MistakeItem>(database, resilienceService, performanceMonitor, logger,
         "mistake_items"), IMistakeItemRepository
 {
-    public async Task<List<MistakeItem>> GetUserMistakesAsync(string userId, CancellationToken cancellationToken = default)
+    public async Task<List<MistakeItem>> GetUserMistakesAsync(string userId,
+        CancellationToken cancellationToken = default)
     {
         return await FindAsync(x => x.UserId == userId, cancellationToken);
     }
 
-    public async Task<List<MistakeItem>> GetWordMistakesAsync(string wordId, CancellationToken cancellationToken = default)
+    public async Task<List<MistakeItem>> GetWordMistakesAsync(string wordId,
+        CancellationToken cancellationToken = default)
     {
         return await FindAsync(x => x.WordId == wordId, cancellationToken);
     }
 
-    public async Task<List<MistakeItem>> GetMistakesByTypeAsync(MistakeType mistakeType, CancellationToken cancellationToken = default)
+    public async Task<List<MistakeItem>> GetMistakesByTypeAsync(MistakeType mistakeType,
+        CancellationToken cancellationToken = default)
     {
         return await FindAsync(x => x.MistakeType == mistakeType, cancellationToken);
     }
 
-    public async Task<List<MistakeItem>> GetMistakesInDateRangeAsync(DateTime startDate, DateTime endDate, CancellationToken cancellationToken = default)
+    public async Task<List<MistakeItem>> GetMistakesInDateRangeAsync(DateTime startDate, DateTime endDate,
+        CancellationToken cancellationToken = default)
     {
         return await FindAsync(x => x.OccurredAt >= startDate && x.OccurredAt <= endDate, cancellationToken);
     }

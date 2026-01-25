@@ -1,8 +1,8 @@
-﻿namespace BuildingBlocks.Shared;
+namespace BuildingBlocks.Shared;
 
 public class CorsOptions
 {
-    public string CorsName { get; set; }
+    public string CorsName { get; set; } = string.Empty;
 
-    public string?[] CorsArr { get; set; }
+    public string?[] CorsArr { get; set; } = Array.Empty<string?>();
 }

@@ -1,22 +1,22 @@
-<script setup lang="ts">
-import { _nextTick, groupBy, isMobile, loadJsLib, resourceWrap, useNav } from "@/utils";
+<script lang="ts" setup>
+import {_nextTick, groupBy, isMobile, loadJsLib, resourceWrap, useNav} from "@/utils";
 import BasePage from "@/components/BasePage.vue";
-import type { DictResource } from "@/types/types.ts";
-import { useRuntimeStore } from "@/stores/runtime.ts";
+import type {DictResource} from "@/types/types.ts";
+import {useRuntimeStore} from "@/stores/runtime.ts";
 import BaseIcon from "@/components/BaseIcon.vue";
 import Empty from "@/components/Empty.vue";
 import BaseButton from "@/components/BaseButton.vue";
 import DictList from "@/components/list/DictList.vue";
 import BackIcon from "@/components/BackIcon.vue";
 import DictGroup from "@/components/list/DictGroup.vue";
-import { useBaseStore } from "@/stores/base.ts";
-import { useRouter } from "vue-router";
-import { computed, watch } from "vue";
-import { getDefaultDict } from "@/types/func.ts";
-import { useFetch } from "@vueuse/core";
-import { DICT_LIST, LIB_JS_URL, TourConfig } from "@/config/env.ts";
+import {useBaseStore} from "@/stores/base.ts";
+import {useRouter} from "vue-router";
+import {computed, watch} from "vue";
+import {getDefaultDict} from "@/types/func.ts";
+import {useFetch} from "@vueuse/core";
+import {DICT_LIST, LIB_JS_URL, TourConfig} from "@/config/env.ts";
 import BaseInput from "@/components/base/BaseInput.vue";
-import { useSettingStore } from "@/stores/setting.ts";
+import {useSettingStore} from "@/stores/setting.ts";
 
 const {nav} = useNav()
 const runtimeStore = useRuntimeStore()
@@ -70,10 +70,10 @@ const searchList = computed<any[]>(() => {
     let s = searchKey.toLowerCase()
     return dict_list.value.filter((item) => {
       return item.id.toLowerCase().includes(s)
-        || item.name.toLowerCase().includes(s)
-        || item.category.toLowerCase().includes(s)
-        || item.tags.join('').replace('所有', '').toLowerCase().includes(s)
-        || item?.url?.toLowerCase?.().includes?.(s)
+          || item.name.toLowerCase().includes(s)
+          || item.category.toLowerCase().includes(s)
+          || item.tags.join('').replace('所有', '').toLowerCase().includes(s)
+          || item?.url?.toLowerCase?.().includes?.(s)
     })
   }
   return []
@@ -115,48 +115,48 @@ watch(dict_list, (val) => {
 
 <template>
   <BasePage>
-    <div class="card min-h-200 dict-list-page" v-loading="isFetching">
+    <div v-loading="isFetching" class="card min-h-200 dict-list-page">
       <div class="flex items-center relative gap-2 header-section">
         <BackIcon class="z-2" @click='router.back'/>
-        <div class="flex flex-1 gap-4" v-if="showSearchInput">
-          <BaseInput clearable placeholder="请输入词典名称/缩写/类别" v-model="searchKey" class="flex-1" autofocus/>
+        <div v-if="showSearchInput" class="flex flex-1 gap-4">
+          <BaseInput v-model="searchKey" autofocus class="flex-1" clearable placeholder="请输入词典名称/缩写/类别"/>
           <BaseButton @click="showSearchInput = false, searchKey = ''">取消</BaseButton>
         </div>
-        <div class="py-1 flex flex-1 justify-end" v-else>
+        <div v-else class="py-1 flex flex-1 justify-end">
           <span class="page-title absolute w-full center">词典列表</span>
           <BaseIcon
-            title="搜索"
-            @click="showSearchInput = true"
-            class="z-1"
-            icon="fluent:search-24-regular">
+              class="z-1"
+              icon="fluent:search-24-regular"
+              title="搜索"
+              @click="showSearchInput = true">
             <IconFluentSearch24Regular/>
           </BaseIcon>
         </div>
       </div>
-      <div class="mt-4" v-if="searchKey">
+      <div v-if="searchKey" class="mt-4">
         <DictList
-          v-if="searchList.length "
-          @selectDict="selectDict"
-          :list="searchList"
-          quantifier="词"
-          :select-id="'-1'"/>
+            v-if="searchList.length "
+            :list="searchList"
+            :select-id="'-1'"
+            quantifier="词"
+            @selectDict="selectDict"/>
         <Empty v-else text="没有相关词典"/>
       </div>
-      <div class="w-full" v-else>
+      <div v-else class="w-full">
         <DictGroup
-          v-for="item in groupedByCategoryAndTag"
-          :select-id="store.sdict.id"
-          @selectDict="selectDict"
-          quantifier="词"
-          :groupByTag="item[1]"
-          :category="item[0]"
+            v-for="item in groupedByCategoryAndTag"
+            :category="item[0]"
+            :groupByTag="item[1]"
+            :select-id="store.sdict.id"
+            quantifier="词"
+            @selectDict="selectDict"
         />
       </div>
     </div>
   </BasePage>
 </template>
 
-<style scoped lang="scss">
+<style lang="scss" scoped>
 // 移动端适配
 @media (max-width: 768px) {
   .dict-list-page {

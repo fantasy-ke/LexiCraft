@@ -34,12 +34,11 @@ public static class DependencyInjectionExtensions
             && !string.IsNullOrWhiteSpace(builder.Configuration.GetConnectionString(connectionStringName))
                 ? builder.Configuration.GetConnectionString(connectionStringName)
                 : postgresOptions.ConnectionString
-                    ?? throw new InvalidOperationException(
-                        $"Postgres connection string '{connectionStringName}' or `postgresOptions.ConnectionString` not found."
-                    );
+                  ?? throw new InvalidOperationException(
+                      $"Postgres connection string '{connectionStringName}' or `postgresOptions.ConnectionString` not found."
+                  );
 
-        builder.Services.AddDbContext<TDbContext>(
-            (sp, options) =>
+        builder.Services.AddDbContext<TDbContext>((sp, options) =>
             {
                 options.ConfigureWarnings(w => w.Ignore(RelationalEventId.PendingModelChangesWarning));
 

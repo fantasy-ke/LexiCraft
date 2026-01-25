@@ -1,3 +1,4 @@
+using System.Text.Encodings.Web;
 using System.Text.Json;
 
 namespace BuildingBlocks.EventBus.Shared;
@@ -14,10 +15,21 @@ public class JsonHandlerSerializer : IHandlerSerializer
     private static readonly JsonSerializerOptions Options = new()
     {
         PropertyNameCaseInsensitive = true,
-        Encoder = System.Text.Encodings.Web.JavaScriptEncoder.UnsafeRelaxedJsonEscaping
+        Encoder = JavaScriptEncoder.UnsafeRelaxedJsonEscaping
     };
 
-    public string SerializeJson<T>(T data) => JsonSerializer.Serialize(data, Options);
-    public T? Deserialize<T>(string data) => JsonSerializer.Deserialize<T>(data, Options);
-    public object? Deserialize(string data, Type type) => JsonSerializer.Deserialize(data, type, Options);
+    public string SerializeJson<T>(T data)
+    {
+        return JsonSerializer.Serialize(data, Options);
+    }
+
+    public T? Deserialize<T>(string data)
+    {
+        return JsonSerializer.Deserialize<T>(data, Options);
+    }
+
+    public object? Deserialize(string data, Type type)
+    {
+        return JsonSerializer.Deserialize(data, type, Options);
+    }
 }

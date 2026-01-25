@@ -1,32 +1,21 @@
-<script setup lang="ts">
-import { nextTick, ref, watch } from 'vue'
-import { useSettingStore } from '@/stores/setting'
-import { getShortcutKey, useEventListener } from '@/hooks/event'
-import { checkAndUpgradeSaveDict, checkAndUpgradeSaveSetting, cloneDeep, loadJsLib, sleep } from '@/utils'
+<script lang="ts" setup>
+import {nextTick, ref, watch} from 'vue'
+import {useSettingStore} from '@/stores/setting'
+import {getShortcutKey, useEventListener} from '@/hooks/event'
+import {checkAndUpgradeSaveDict, checkAndUpgradeSaveSetting, cloneDeep, loadJsLib, sleep} from '@/utils'
 import BaseButton from '@/components/BaseButton.vue'
-import { useBaseStore } from '@/stores/base'
-import {
-  APP_NAME,
-  APP_VERSION,
-  AppEnv,
-  DefaultShortcutKeyMap,
-  Host,
-  IS_DEV,
-  LIB_JS_URL,
-  LOCAL_FILE_KEY,
-} from '@/config/env'
-import BasePage from '@/components/BasePage.vue'
+import {useBaseStore} from '@/stores/base'
+import {APP_NAME, APP_VERSION, DefaultShortcutKeyMap, IS_DEV, LIB_JS_URL, LOCAL_FILE_KEY,} from '@/config/env'
 import Toast from '@/components/base/toast/Toast'
-import { set } from 'idb-keyval'
-import { useRuntimeStore } from '@/stores/runtime'
-import { useExport } from '@/hooks/export'
-import useTheme from '@/hooks/theme.ts'
+import {set} from 'idb-keyval'
+import {useRuntimeStore} from '@/stores/runtime'
+import {useExport} from '@/hooks/export'
 import Log from '@/components/setting/Log.vue'
 import About from '@/components/About.vue'
 import CommonSetting from '@/components/setting/CommonSetting.vue'
 import ArticleSetting from '@/components/setting/ArticleSetting.vue'
 import WordSetting from '@/components/setting/WordSetting.vue'
-import { PRACTICE_ARTICLE_CACHE, PRACTICE_WORD_CACHE } from '@/utils/cache'
+import {PRACTICE_ARTICLE_CACHE, PRACTICE_WORD_CACHE} from '@/utils/cache'
 
 const emit = defineEmits<{
   toggleDisabledDialogEscKey: [val: boolean]
@@ -47,23 +36,23 @@ const disabledDefaultKeyboardEvent = $computed(() => {
 })
 
 watch(
-  () => disabledDefaultKeyboardEvent,
-  v => {
-    emit('toggleDisabledDialogEscKey', !!v)
-  }
+    () => disabledDefaultKeyboardEvent,
+    v => {
+      emit('toggleDisabledDialogEscKey', !!v)
+    }
 )
 
 // 监听编辑快捷键状态变化，自动聚焦输入框
 watch(
-  () => editShortcutKey,
-  newVal => {
-    if (newVal) {
-      // 使用nextTick确保DOM已更新
-      nextTick(() => {
-        focusShortcutInput()
-      })
+    () => editShortcutKey,
+    newVal => {
+      if (newVal) {
+        // 使用nextTick确保DOM已更新
+        nextTick(() => {
+          focusShortcutInput()
+        })
+      }
     }
-  }
 )
 
 useEventListener('keydown', (e: KeyboardEvent) => {
@@ -88,12 +77,12 @@ useEventListener('keydown', (e: KeyboardEvent) => {
     } else {
       // 忽略单独的修饰键
       if (
-        shortcutKey === 'Ctrl+' ||
-        shortcutKey === 'Alt+' ||
-        shortcutKey === 'Shift+' ||
-        e.key === 'Control' ||
-        e.key === 'Alt' ||
-        e.key === 'Shift'
+          shortcutKey === 'Ctrl+' ||
+          shortcutKey === 'Alt+' ||
+          shortcutKey === 'Shift+' ||
+          e.key === 'Control' ||
+          e.key === 'Alt' ||
+          e.key === 'Shift'
       ) {
         return
       }
@@ -166,7 +155,7 @@ function resetShortcutKeyMap() {
 
 let importLoading = $ref(false)
 
-const { loading: exportLoading, exportData } = useExport()
+const {loading: exportLoading, exportData} = useExport()
 
 function importJson(str: string, notice: boolean = true) {
   importLoading = true
@@ -225,6 +214,7 @@ function importJson(str: string, notice: boolean = true) {
 }
 
 let timer = -1
+
 async function beforeImport() {
   if (!IS_DEV) {
     importLoading = true
@@ -269,7 +259,7 @@ async function importData(e) {
             if (!entry) continue
             const blob = await entry.async('blob')
             const id = filename.replace(/^mp3\//, '').replace(/\.mp3$/, '')
-            records.push({ id, file: blob })
+            records.push({id, file: blob})
           }
         }
         await set(LOCAL_FILE_KEY, records)
@@ -299,32 +289,32 @@ async function importData(e) {
       <div class="flex flex-1 overflow-hidden">
         <div class="setting-left">
           <div class="tabs">
-            <div class="tab" :class="tabIndex === 0 && 'active'" @click="tabIndex = 0">
-              <IconFluentSettings20Regular class="tab-icon" />
+            <div :class="tabIndex === 0 && 'active'" class="tab" @click="tabIndex = 0">
+              <IconFluentSettings20Regular class="tab-icon"/>
               <span>通用设置</span>
             </div>
-            <div class="tab" :class="tabIndex === 1 && 'active'" @click="tabIndex = 1">
-              <IconFluentTextUnderlineDouble20Regular class="tab-icon" />
+            <div :class="tabIndex === 1 && 'active'" class="tab" @click="tabIndex = 1">
+              <IconFluentTextUnderlineDouble20Regular class="tab-icon"/>
               <span>单词设置</span>
             </div>
-            <div class="tab" :class="tabIndex === 2 && 'active'" @click="tabIndex = 2">
-              <IconFluentBookLetter20Regular class="tab-icon" />
+            <div :class="tabIndex === 2 && 'active'" class="tab" @click="tabIndex = 2">
+              <IconFluentBookLetter20Regular class="tab-icon"/>
               <span>文章设置</span>
             </div>
-            <div class="tab" :class="tabIndex === 4 && 'active'" @click="tabIndex = 4">
-              <IconFluentDatabasePerson20Regular class="tab-icon" />
+            <div :class="tabIndex === 4 && 'active'" class="tab" @click="tabIndex = 4">
+              <IconFluentDatabasePerson20Regular class="tab-icon"/>
               <span>数据管理</span>
             </div>
 
-            <div class="tab" :class="tabIndex === 3 && 'active'" @click="tabIndex = 3">
-              <IconFluentKeyboardLayoutFloat20Regular class="tab-icon" />
+            <div :class="tabIndex === 3 && 'active'" class="tab" @click="tabIndex = 3">
+              <IconFluentKeyboardLayoutFloat20Regular class="tab-icon"/>
               <span>快捷键设置</span>
             </div>
 
             <div
-              class="tab"
-              :class="tabIndex === 5 && 'active'"
-              @click="
+                :class="tabIndex === 5 && 'active'"
+                class="tab"
+                @click="
                 () => {
                   tabIndex = 5
                   runtimeStore.isNew = false
@@ -332,40 +322,40 @@ async function importData(e) {
                 }
               "
             >
-              <IconFluentTextBulletListSquare20Regular class="tab-icon" />
+              <IconFluentTextBulletListSquare20Regular class="tab-icon"/>
               <span>更新日志</span>
-              <div class="red-point" v-if="runtimeStore.isNew"></div>
+              <div v-if="runtimeStore.isNew" class="red-point"></div>
             </div>
-            <div class="tab" :class="tabIndex === 6 && 'active'" @click="tabIndex = 6">
-              <IconFluentPerson20Regular class="tab-icon" />
+            <div :class="tabIndex === 6 && 'active'" class="tab" @click="tabIndex = 6">
+              <IconFluentPerson20Regular class="tab-icon"/>
               <span>关于</span>
             </div>
           </div>
         </div>
         <div class="setting-content flex-1 overflow-y-auto overflow-x-hidden p-6">
-          <CommonSetting v-if="tabIndex === 0" />
-          <WordSetting v-if="tabIndex === 1" />
-          <ArticleSetting v-if="tabIndex === 2" />
+          <CommonSetting v-if="tabIndex === 0"/>
+          <WordSetting v-if="tabIndex === 1"/>
+          <ArticleSetting v-if="tabIndex === 2"/>
 
-          <div class="shortcut-body" v-if="tabIndex === 3">
+          <div v-if="tabIndex === 3" class="shortcut-body">
             <div class="shortcut-header">
               <label class="main-title">功能</label>
               <div class="wrapper">快捷键 (点击修改)</div>
             </div>
             <div class="shortcut-list">
-              <div class="shortcut-row" v-for="item of Object.entries(settingStore.shortcutKeyMap)">
+              <div v-for="item of Object.entries(settingStore.shortcutKeyMap)" class="shortcut-row">
                 <label class="item-title">{{ getShortcutKeyName(item[0]) }}</label>
                 <div class="wrapper" @click="editShortcutKey = item[0]">
-                  <div class="set-key" v-if="editShortcutKey === item[0]">
+                  <div v-if="editShortcutKey === item[0]" class="set-key">
                     <input
-                      ref="shortcutInput"
-                      :value="item[1] ? item[1] : '未设置快捷键'"
-                      readonly
-                      type="text"
-                      @blur="handleInputBlur"
+                        ref="shortcutInput"
+                        :value="item[1] ? item[1] : '未设置快捷键'"
+                        readonly
+                        type="text"
+                        @blur="handleInputBlur"
                     />
                     <span class="tip" @click.stop="editShortcutKey = ''"
-                      >按键盘进行设置，<span class="text-red!">完成点击这里</span></span
+                    >按键盘进行设置，<span class="text-red!">完成点击这里</span></span
                     >
                   </div>
                   <div v-else class="key-display">
@@ -383,16 +373,18 @@ async function importData(e) {
           <div v-if="tabIndex === 4" class="data-management">
             <div class="info-card">
               <p>
-                所有用户数据 <b class="text-red">保存在本地浏览器中</b>。如果您需要在不同的设备、浏览器上使用 {{ APP_NAME }}，
+                所有用户数据 <b class="text-red">保存在本地浏览器中</b>。如果您需要在不同的设备、浏览器上使用 {{ APP_NAME
+                }}，
                 您需要手动进行数据导出和导入。
               </p>
             </div>
-            
+
             <div class="action-section mt-6">
               <h3 class="section-title">导出备份</h3>
               <p class="section-desc">导出的ZIP文件包含所有学习数据，可在其他设备上导入恢复。</p>
-              <BaseButton :loading="exportLoading" size="large" class="mt-3" @click="exportData()"
-                >导出数据备份 (ZIP)</BaseButton
+              <BaseButton :loading="exportLoading" class="mt-3" size="large" @click="exportData()"
+              >导出数据备份 (ZIP)
+              </BaseButton
               >
             </div>
 
@@ -405,23 +397,23 @@ async function importData(e) {
                 系统会在执行导入前自动备份当前数据。
               </p>
               <div class="flex gap-4 mt-4">
-                <BaseButton size="large" @click="beforeImport" :loading="importLoading">导入数据恢复</BaseButton>
+                <BaseButton :loading="importLoading" size="large" @click="beforeImport">导入数据恢复</BaseButton>
                 <input
-                  type="file"
-                  id="import"
-                  class="w-0 h-0 opacity-0"
-                  accept="application/json,.zip,application/zip"
-                  @change="importData"
+                    id="import"
+                    accept="application/json,.zip,application/zip"
+                    class="w-0 h-0 opacity-0"
+                    type="file"
+                    @change="importData"
                 />
               </div>
             </div>
           </div>
 
           <!--          日志-->
-          <Log v-if="tabIndex === 5" />
+          <Log v-if="tabIndex === 5"/>
 
           <div v-if="tabIndex === 6" class="about-section center flex-col py-8">
-            <About />
+            <About/>
             <div class="text-md color-gray mt-10">Build {{ gitLastCommitHash }}</div>
           </div>
         </div>
@@ -430,7 +422,7 @@ async function importData(e) {
   </div>
 </template>
 
-<style scoped lang="scss">
+<style lang="scss" scoped>
 .setting-container {
   height: 100%;
 }
@@ -470,7 +462,7 @@ async function importData(e) {
         &:hover {
           background: var(--hover-bg);
           color: var(--text-primary);
-          
+
           .tab-icon {
             color: var(--text-primary);
           }
@@ -479,16 +471,16 @@ async function importData(e) {
         &.active {
           background: var(--active-bg);
           color: var(--text-active);
-          
+
           .tab-icon {
             color: var(--text-active);
           }
-          
+
           span {
             font-weight: 600;
           }
         }
-        
+
         .red-point {
           position: absolute;
           top: 0.75rem;
@@ -505,7 +497,7 @@ async function importData(e) {
 
   .setting-content {
     background: var(--header-bg);
-    
+
     // 快捷键列表样式
     .shortcut-body {
       display: flex;
@@ -518,12 +510,12 @@ async function importData(e) {
         padding-bottom: 1rem;
         border-bottom: 1px solid var(--border-color);
         margin-bottom: 1rem;
-        
+
         .main-title {
           font-weight: 600;
           color: var(--text-primary);
         }
-        
+
         .wrapper {
           font-size: 0.85rem;
           color: var(--text-tertiary);
@@ -541,7 +533,7 @@ async function importData(e) {
         align-items: center;
         padding: 0.75rem 0;
         border-bottom: 1px solid var(--hover-bg);
-        
+
         .item-title {
           color: var(--text-secondary);
           font-size: 0.95rem;
@@ -549,7 +541,7 @@ async function importData(e) {
 
         .wrapper {
           cursor: pointer;
-          
+
           .key-tag {
             background: var(--hover-bg);
             padding: 0.25rem 0.6rem;
@@ -577,7 +569,7 @@ async function importData(e) {
               font-family: monospace;
               outline: none;
             }
-            
+
             .tip {
               font-size: 0.75rem;
               color: var(--text-tertiary);
@@ -648,7 +640,7 @@ async function importData(e) {
         gap: 0.5rem;
         -webkit-overflow-scrolling: touch;
         scrollbar-width: none; /* Firefox */
-        
+
         &::-webkit-scrollbar {
           display: none; /* Chrome, Safari */
         }
@@ -667,7 +659,7 @@ async function importData(e) {
           span {
             font-size: 0.85rem;
           }
-          
+
           .red-point {
             position: absolute;
             top: 0.5rem;
@@ -687,53 +679,53 @@ async function importData(e) {
       overflow-x: hidden;
       padding: 1rem !important;
       -webkit-overflow-scrolling: touch;
-      
+
       .shortcut-body {
         .shortcut-header {
           flex-direction: column;
           gap: 0.5rem;
           align-items: flex-start;
-          
+
           .wrapper {
             font-size: 0.8rem;
           }
         }
-        
+
         .shortcut-row {
           flex-direction: column;
           align-items: flex-start;
           gap: 0.75rem;
           padding: 1rem 0;
-          
+
           .item-title {
             font-size: 0.9rem;
             font-weight: 500;
           }
-          
+
           .wrapper {
             width: 100%;
-            
+
             .key-display {
               display: flex;
               justify-content: flex-start;
             }
-            
+
             .set-key {
               align-items: flex-start;
               width: 100%;
-              
+
               input {
                 width: 100%;
                 max-width: 100%;
               }
-              
+
               .tip {
                 text-align: left;
               }
             }
           }
         }
-        
+
         .shortcut-footer {
           position: sticky;
           bottom: 0;
@@ -743,30 +735,30 @@ async function importData(e) {
           margin-top: 1rem;
         }
       }
-      
+
       .data-management {
         .info-card {
           padding: 0.875rem;
           font-size: 0.875rem;
         }
-        
+
         .section-title {
           font-size: 1rem;
         }
-        
+
         .section-desc {
           font-size: 0.85rem;
         }
-        
+
         .flex {
           flex-direction: column;
-          
+
           button {
             width: 100%;
           }
         }
       }
-      
+
       .about-section {
         padding: 2rem 0 !important;
       }
@@ -781,21 +773,21 @@ async function importData(e) {
       .tabs {
         padding: 0.375rem;
         gap: 0.375rem;
-        
+
         .tab {
           padding: 0.5rem 0.75rem;
-          
+
           .tab-icon {
             font-size: 1rem;
           }
-          
+
           span {
             font-size: 0.8rem;
           }
         }
       }
     }
-    
+
     .setting-content {
       padding: 0.75rem !important;
     }

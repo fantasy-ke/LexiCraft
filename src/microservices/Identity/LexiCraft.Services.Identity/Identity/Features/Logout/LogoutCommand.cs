@@ -1,6 +1,6 @@
 using BuildingBlocks.Authentication;
-using BuildingBlocks.Mediator;
 using BuildingBlocks.Caching.Abstractions;
+using BuildingBlocks.Mediator;
 using FluentValidation;
 
 namespace LexiCraft.Services.Identity.Identity.Features.Logout;
@@ -17,7 +17,7 @@ public class LogoutCommandValidator : AbstractValidator<LogoutCommand>
 }
 
 public class LogoutCommandHandler(
-    ICacheService cacheService) 
+    ICacheService cacheService)
     : ICommandHandler<LogoutCommand, bool>
 {
     public async Task<bool> Handle(LogoutCommand command, CancellationToken cancellationToken)

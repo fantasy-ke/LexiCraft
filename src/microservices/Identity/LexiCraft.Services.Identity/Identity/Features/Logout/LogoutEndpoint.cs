@@ -31,7 +31,7 @@ public static class LogoutEndpoint
 }
 
 /// <summary>
-/// 用户退出登录请求参数
+///     用户退出登录请求参数
 /// </summary>
 /// <param name="Mediator"></param>
 /// <param name="UserContext"></param>
@@ -43,7 +43,7 @@ internal record LogoutRequestParameters(
 );
 
 /// <summary>
-/// 用户退出登录响应
+///     用户退出登录响应
 /// </summary>
 /// <param name="Success">退出是否成功</param>
 internal record LogoutResponse(bool Success);

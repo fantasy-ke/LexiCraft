@@ -1,8 +1,8 @@
+using BuildingBlocks.EventBus.Abstractions;
 using BuildingBlocks.Extensions;
 using BuildingBlocks.Mediator;
 using LexiCraft.Services.Identity.Shared.Dtos;
 using Microsoft.AspNetCore.Http;
-using BuildingBlocks.EventBus.Abstractions;
 
 namespace LexiCraft.Services.Identity.Identity.Internal.Commands;
 

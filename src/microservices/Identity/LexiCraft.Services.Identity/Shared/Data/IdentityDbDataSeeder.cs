@@ -1,19 +1,16 @@
 using BuildingBlocks.EntityFrameworkCore;
 using LexiCraft.Services.Identity.Identity.Models;
-using LexiCraft.Services.Identity.Identity.Models.Enum;
-using LexiCraft.Services.Identity.Shared;
-using System.Collections.Generic;
 using LexiCraft.Shared.Permissions;
 using Microsoft.EntityFrameworkCore;
 
 namespace LexiCraft.Services.Identity.Shared.Data;
 
 /// <summary>
-///   Data seeder for IdentityDbContext
+///     Data seeder for IdentityDbContext
 /// </summary>
 public class IdentityDbDataSeeder
     : IDataSeeder<IdentityDbContext>
-{   
+{
     public async Task SeedAsync(IdentityDbContext context)
     {
         await SeedUsers(context);
@@ -21,9 +18,9 @@ public class IdentityDbDataSeeder
 
     private async Task SeedUsers(IdentityDbContext context)
     {
-        if (context.Users.FirstOrDefault(b=>b.UserAccount == "admin") == null)
+        if (context.Users.FirstOrDefault(b => b.UserAccount == "admin") == null)
         {
-            var adduser = new User("admin", "one@fatnasyke.fun", SourceEnum.Register);
+            var adduser = new User("admin", "one@fatnasyke.fun");
             adduser.SetPassword("bb123456");
             adduser.UpdateAvatar("🦜");
             adduser.AddRole(PermissionConstant.Admin);
@@ -32,19 +29,17 @@ public class IdentityDbDataSeeder
             adduser.CreateByName = "admin";
             await context.Users.AddAsync(adduser);
             await context.SaveChangesAsync(); // 保存用户以获取ID
-            
+
             // 重新加载用户以确保获取到数据库生成的ID
             var addedUser = await context.Users.FirstOrDefaultAsync(u => u.UserAccount == "admin");
             if (addedUser != null)
-            {
                 // 为新创建的用户添加权限
                 await SeedUserPermissions(context, addedUser);
-            }
         }
-        
+
         await context.SaveChangesAsync();
     }
-    
+
     private async Task SeedUserPermissions(IdentityDbContext context, User user)
     {
         // 为管理员用户添加默认权限

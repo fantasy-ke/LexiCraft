@@ -4,7 +4,7 @@ using LexiCraft.Shared.Permissions;
 namespace LexiCraft.Services.Identity.Shared.Authorization;
 
 /// <summary>
-/// 权限管理权限定义提供程序
+///     权限管理权限定义提供程序
 /// </summary>
 public class IdentityDefinitionProvider : PermissionDefinitionProvider
 {
@@ -20,7 +20,8 @@ public class IdentityDefinitionProvider : PermissionDefinitionProvider
 
         // 创建权限管理子节点
         var permissionsNode = usersPage.GetChildOrNull(IdentityPermissions.Permissions.Default) ??
-                              usersPage.CreateChildPermission(IdentityPermissions.Permissions.Default, "权限管理", "权限管理相关权限");
+                              usersPage.CreateChildPermission(IdentityPermissions.Permissions.Default, "权限管理",
+                                  "权限管理相关权限");
 
         // 为用户管理节点添加子权限
         usersNode.CreateChildPermission(IdentityPermissions.Users.Query, "查询用户", "允许查询用户信息");

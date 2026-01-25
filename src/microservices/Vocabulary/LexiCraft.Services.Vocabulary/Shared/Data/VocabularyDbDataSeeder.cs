@@ -1,5 +1,4 @@
 using BuildingBlocks.EntityFrameworkCore;
-using LexiCraft.Services.Vocabulary.Shared.Data;
 
 namespace LexiCraft.Services.Vocabulary.Shared.Data;
 

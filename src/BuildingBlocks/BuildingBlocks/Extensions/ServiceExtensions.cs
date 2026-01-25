@@ -13,12 +13,10 @@ namespace BuildingBlocks.Extensions;
 
 public static class ServiceExtensions
 {
-
     /// <param name="services"></param>
     extension(IServiceCollection services)
     {
         /// <summary>
-        /// 
         /// </summary>
         /// <returns></returns>
         public IServiceCollection ConfigureJson()
@@ -66,7 +64,7 @@ public static class ServiceExtensions
                 )
             );
         }
-        
+
         public IServiceCollection WithCaptcha(IConfiguration configuration)
         {
             services.AddCaptcha(configuration);
@@ -75,7 +73,7 @@ public static class ServiceExtensions
 
 
         /// <summary>
-        /// 添加Mapster映射
+        ///     添加Mapster映射
         /// </summary>
         /// <returns></returns>
         public IServiceCollection WithMapster()

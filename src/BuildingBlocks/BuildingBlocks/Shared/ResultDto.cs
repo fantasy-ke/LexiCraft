@@ -1,4 +1,4 @@
-﻿using System.Text.Json.Serialization;
+using System.Text.Json.Serialization;
 
 namespace BuildingBlocks.Model;
 
@@ -14,7 +14,7 @@ public class ResponseBase
     /// <summary>
     ///     错误信息
     /// </summary>
-    public string Message { get; set; }
+    public string Message { get; set; } = string.Empty;
 
     /// <summary>
     ///     状态码
@@ -50,7 +50,7 @@ public class ResultDto<TResult> : ResponseBase
     {
     }
 
-    public TResult Data { get; set; }
+    public TResult Data { get; set; } = default!;
 
     public void SetExtensions(IDictionary<string, object?> extensions)
     {

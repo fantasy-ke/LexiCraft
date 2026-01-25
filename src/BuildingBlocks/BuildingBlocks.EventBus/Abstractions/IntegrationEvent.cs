@@ -3,7 +3,7 @@ using System.Text.Json.Serialization;
 namespace BuildingBlocks.EventBus.Abstractions;
 
 /// <summary>
-/// 集成事件基类，用于跨服务通信
+///     集成事件基类，用于跨服务通信
 /// </summary>
 [method: JsonConstructor]
 public abstract record IntegrationEvent(Guid Id, Guid CorrelationId, DateTime CreationDate) : ISagaIntegrationEvent
@@ -13,20 +13,20 @@ public abstract record IntegrationEvent(Guid Id, Guid CorrelationId, DateTime Cr
     }
 
     /// <summary>
-    /// 事件唯一 ID
+    ///     事件唯一 ID
     /// </summary>
     [JsonPropertyOrder(-3)]
     public Guid Id { get; init; } = Id;
 
     /// <summary>
-    /// 关联 ID，用于追踪整个分布式事务（Saga）的生命周期
-    /// </summary>
-    [JsonPropertyOrder(-2)]
-    public Guid CorrelationId { get; init; } = CorrelationId;
-
-    /// <summary>
-    /// 事件创建时间
+    ///     事件创建时间
     /// </summary>
     [JsonPropertyOrder(-1)]
     public DateTime CreationDate { get; init; } = CreationDate;
+
+    /// <summary>
+    ///     关联 ID，用于追踪整个分布式事务（Saga）的生命周期
+    /// </summary>
+    [JsonPropertyOrder(-2)]
+    public Guid CorrelationId { get; init; } = CorrelationId;
 }

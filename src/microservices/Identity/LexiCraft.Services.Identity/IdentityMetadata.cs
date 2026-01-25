@@ -1,3 +1,5 @@
 namespace LexiCraft.Services.Identity;
 
-public class IdentityMetadata { }
+public class IdentityMetadata
+{
+}

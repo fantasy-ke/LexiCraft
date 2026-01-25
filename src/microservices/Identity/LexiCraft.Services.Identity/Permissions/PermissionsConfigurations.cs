@@ -1,9 +1,7 @@
-using BuildingBlocks.Authentication;
 using LexiCraft.Services.Identity.Permissions.Features.AddPermission;
 using LexiCraft.Services.Identity.Permissions.Features.GetUserPermissions;
 using LexiCraft.Services.Identity.Permissions.Features.RemovePermission;
 using LexiCraft.Services.Identity.Permissions.Features.UpdatePermissions;
-using LexiCraft.Services.Identity.Shared.Authorization;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Routing;

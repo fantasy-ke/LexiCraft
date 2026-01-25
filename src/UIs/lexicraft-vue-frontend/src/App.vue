@@ -1,18 +1,15 @@
-<script setup lang="ts">
-import { onMounted, watch } from 'vue'
-import { useBaseStore, type BaseState } from '@/stores/base'
-import { useRuntimeStore } from '@/stores/runtime'
-import { useSettingStore } from '@/stores/setting'
+<script lang="ts" setup>
+import {onMounted, ref, watch} from 'vue'
+import {type BaseState, useBaseStore} from '@/stores/base'
+import {useRuntimeStore} from '@/stores/runtime'
+import {useSettingStore} from '@/stores/setting'
 import useTheme from '@/hooks/theme'
-import { loadJsLib, shakeCommonDict } from '@/utils'
-import { get, set } from 'idb-keyval'
-
-import { useRoute } from 'vue-router'
-import { APP_VERSION, AppEnv, DictId, LOCAL_FILE_KEY, Origin, SAVE_DICT_KEY, SAVE_SETTING_KEY } from '@/config/env'
-import { syncSetting } from '@/apis'
-import { useUserStore } from '@/stores/user'
+import {shakeCommonDict} from '@/utils'
+import {get, set} from 'idb-keyval'
+import {APP_VERSION, AppEnv, DictId, LOCAL_FILE_KEY, SAVE_DICT_KEY, SAVE_SETTING_KEY} from '@/config/env'
+import {syncSetting} from '@/apis'
+import {useUserStore} from '@/stores/user'
 import LoadingScreen from '@/components/LoadingScreen.vue'
-import { ref } from 'vue'
 
 const initProgress = ref(0)
 const loadingText = ref('正在为您准备学习世界...')
@@ -21,7 +18,7 @@ const store = useBaseStore()
 const runtimeStore = useRuntimeStore()
 const settingStore = useSettingStore()
 const userStore = useUserStore()
-const { setTheme } = useTheme()
+const {setTheme} = useTheme()
 
 let lastAudioFileIdList = []
 let isInitializing = true // 标记是否正在初始化
@@ -29,7 +26,7 @@ watch(store.$state, (n: BaseState) => {
   // 如果正在初始化，不保存数据，避免覆盖
   if (isInitializing) return
   let data = shakeCommonDict(n)
-  set(SAVE_DICT_KEY.key, JSON.stringify({ val: data, version: SAVE_DICT_KEY.version }))
+  set(SAVE_DICT_KEY.key, JSON.stringify({val: data, version: SAVE_DICT_KEY.version}))
 
   //筛选自定义和收藏
   let bookList = data.article.bookList.filter(v => v.custom || [DictId.articleCollect].includes(v.id))
@@ -37,11 +34,11 @@ watch(store.$state, (n: BaseState) => {
   bookList.forEach(v => {
     //筛选 audioFileId 字体有值的
     v.articles
-      .filter(s => !s.audioSrc && s.audioFileId)
-      .forEach(a => {
-        //所有 id 存起来，下次直接判断字符串是否相等，因为这个watch会频繁调用
-        audioFileIdList.push(a.audioFileId)
-      })
+        .filter(s => !s.audioSrc && s.audioFileId)
+        .forEach(a => {
+          //所有 id 存起来，下次直接判断字符串是否相等，因为这个watch会频繁调用
+          audioFileIdList.push(a.audioFileId)
+        })
   })
   if (audioFileIdList.toString() !== lastAudioFileIdList.toString()) {
     let result = []
@@ -60,15 +57,15 @@ watch(store.$state, (n: BaseState) => {
 })
 
 watch(
-  () => settingStore.$state,
-  n => {
-    if (isInitializing) return
-    set(SAVE_SETTING_KEY.key, JSON.stringify({ val: n, version: SAVE_SETTING_KEY.version }))
-    if (AppEnv.CAN_REQUEST) {
-      syncSetting(null, settingStore.$state)
-    }
-  },
-  { deep: true }
+    () => settingStore.$state,
+    n => {
+      if (isInitializing) return
+      set(SAVE_SETTING_KEY.key, JSON.stringify({val: n, version: SAVE_SETTING_KEY.version}))
+      if (AppEnv.CAN_REQUEST) {
+        syncSetting(null, settingStore.$state)
+      }
+    },
+    {deep: true}
 )
 
 async function init() {
@@ -76,15 +73,15 @@ async function init() {
   initProgress.value = 10
   loadingText.value = '正在加载身份信息...'
   await userStore.init()
-  
+
   initProgress.value = 40
   loadingText.value = '正在同步词典数据...'
   await store.init()
-  
+
   initProgress.value = 70
   loadingText.value = '正在应用个性化设置...'
   await settingStore.init()
-  
+
   initProgress.value = 100
   store.load = true
   isInitializing = false // 初始化完成，允许保存数据
@@ -98,7 +95,7 @@ async function init() {
       runtimeStore.isNew = r ? APP_VERSION.version > Number(r) : true
     })
   }
-  window.umami?.track('host', { host: window.location.host })
+  window.umami?.track('host', {host: window.location.host})
 }
 
 onMounted(init)
@@ -128,10 +125,10 @@ onMounted(init)
 </script>
 
 <template>
-  <LoadingScreen 
-    v-if="!store.load" 
-    :progress="initProgress" 
-    :loading-text="loadingText"
+  <LoadingScreen
+      v-if="!store.load"
+      :loading-text="loadingText"
+      :progress="initProgress"
   />
   <router-view v-show="store.load"></router-view>
 </template>

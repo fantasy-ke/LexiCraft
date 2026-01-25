@@ -4,9 +4,9 @@ using BuildingBlocks.Mediator;
 using FluentValidation;
 using LexiCraft.Services.Identity.Identity.Internal.Commands;
 using LexiCraft.Services.Identity.Shared.Contracts;
-using Microsoft.EntityFrameworkCore;
-using MediatR;
 using LexiCraft.Services.Identity.Shared.Dtos;
+using MediatR;
+using Microsoft.EntityFrameworkCore;
 
 namespace LexiCraft.Services.Identity.Identity.Features.Login;
 
@@ -19,7 +19,7 @@ public class LoginCommandValidator : AbstractValidator<LoginCommand>
         RuleFor(x => x.UserAccount)
             .NotEmpty().WithMessage("请输入账号")
             .MaximumLength(50).WithMessage("账号长度不能超过50个字符");
-            
+
         RuleFor(x => x.Password)
             .NotEmpty().WithMessage("请输入密码")
             .MinimumLength(6).WithMessage("密码长度至少6位")
@@ -29,13 +29,14 @@ public class LoginCommandValidator : AbstractValidator<LoginCommand>
 
 public partial class LoginCommandHandler(
     IUserRepository userRepository,
-    IMediator mediator) 
+    IMediator mediator)
     : ICommandHandler<LoginCommand, TokenResponse>
 {
     public async Task<TokenResponse> Handle(LoginCommand command, CancellationToken cancellationToken)
     {
         var user = await userRepository.QueryNoTracking()
-            .FirstOrDefaultAsync(x => x.UserAccount == command.UserAccount || x.Email == command.UserAccount, cancellationToken);
+            .FirstOrDefaultAsync(x => x.UserAccount == command.UserAccount || x.Email == command.UserAccount,
+                cancellationToken);
 
         if (user is null)
         {
@@ -45,13 +46,13 @@ public partial class LoginCommandHandler(
 
         if (!user.VerifyPassword(command.Password))
         {
-            await mediator.Send(new PublishLoginLogCommand(command.UserAccount, "密码错误", user.Id), cancellationToken); 
+            await mediator.Send(new PublishLoginLogCommand(command.UserAccount, "密码错误", user.Id), cancellationToken);
             ThrowUserFriendlyException.ThrowException("密码错误");
         }
 
         return await mediator.Send(new GenerateTokenResponseCommand(user, "Password"), cancellationToken);
     }
-    
+
     [GeneratedRegex("^(?=.*[0-9])(?=.*[a-zA-Z]).*$")]
     private static partial Regex PasswordRegex();
 }

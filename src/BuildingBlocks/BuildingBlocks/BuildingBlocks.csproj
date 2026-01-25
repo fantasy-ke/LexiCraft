@@ -7,23 +7,23 @@
     </PropertyGroup>
 
     <ItemGroup>
-        <PackageReference Include="Humanizer" />
-        <PackageReference Include="Mapster" />
-        <PackageReference Include="MediatR" />
-        <PackageReference Include="Microsoft.Extensions.Caching.StackExchangeRedis" />
-        <PackageReference Include="Newtonsoft.Json" />
-        <PackageReference Include="Scrutor" />
-        <PackageReference Include="IdGen.DependencyInjection" />
-        <PackageReference Include="Lazy.Captcha.Core" />
-        <PackageReference Include="Microsoft.EntityFrameworkCore" />
-        <PackageReference Include="MongoDB.Driver" />
-        <PackageReference Include="Polly" />
-        <PackageReference Include="Polly.Extensions" />
-        <PackageReference Include="AgileConfig.Client" />
+        <PackageReference Include="Humanizer"/>
+        <PackageReference Include="Mapster"/>
+        <PackageReference Include="MediatR"/>
+        <PackageReference Include="Microsoft.Extensions.Caching.StackExchangeRedis"/>
+        <PackageReference Include="Newtonsoft.Json"/>
+        <PackageReference Include="Scrutor"/>
+        <PackageReference Include="IdGen.DependencyInjection"/>
+        <PackageReference Include="Lazy.Captcha.Core"/>
+        <PackageReference Include="Microsoft.EntityFrameworkCore"/>
+        <PackageReference Include="MongoDB.Driver"/>
+        <PackageReference Include="Polly"/>
+        <PackageReference Include="Polly.Extensions"/>
+        <PackageReference Include="AgileConfig.Client"/>
     </ItemGroup>
 
     <ItemGroup>
-        <FrameworkReference Include="Microsoft.AspNetCore.App" />
+        <FrameworkReference Include="Microsoft.AspNetCore.App"/>
     </ItemGroup>
 
 </Project>

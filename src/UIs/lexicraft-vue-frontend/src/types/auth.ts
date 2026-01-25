@@ -5,57 +5,57 @@
 
 // 标准化响应格式 - 与后端 ResultDto 一致
 export interface ResultDto<T = any> {
-  status: boolean
-  data: T
-  message: string
-  statusCode: number
-  extensions?: Record<string, any>
+    status: boolean
+    data: T
+    message: string
+    statusCode: number
+    extensions?: Record<string, any>
 }
 
 // 登录请求
 export interface LoginRequest {
-  userAccount: string  // 邮箱或用户名
-  password: string
+    userAccount: string  // 邮箱或用户名
+    password: string
 }
 
 // 注册请求
 export interface RegisterRequest {
-  email: string
-  password: string
-  confirmPassword: string
-  username?: string
-  firstName?: string  // 保持可选，但前端不使用
-  lastName?: string   // 保持可选，但前端不使用
-  captchaKey: string  // 验证码Key
-  captchaCode: string // 验证码
+    email: string
+    password: string
+    confirmPassword: string
+    username?: string
+    firstName?: string  // 保持可选，但前端不使用
+    lastName?: string   // 保持可选，但前端不使用
+    captchaKey: string  // 验证码Key
+    captchaCode: string // 验证码
 }
 
 // 登录响应 (对应后端 TokenResponse)
 export interface LoginResponse {
-  token: string
-  refreshToken: string
+    token: string
+    refreshToken: string
 }
 
 // 注册响应 (对应后端 TokenResponse)
 export interface RegisterResponse {
-  token: string
-  refreshToken: string
+    token: string
+    refreshToken: string
 }
 
 // 用户资料
 export interface UserProfile {
-	userId: string
-	userName: string
-	email: string
-	phone?: string | null
-	avatar: string
-	id?: string
-	username?: string
+    userId: string
+    userName: string
+    email: string
+    phone?: string | null
+    avatar: string
+    id?: string
+    username?: string
 }
 
 export interface UploadAvatarResponse {
-	avatarUrl: string
-	fileId: string | null
+    avatarUrl: string
+    fileId: string | null
 }
 
 // OAuth 提供商类型
@@ -63,147 +63,161 @@ export type OAuthProvider = 'github' | 'gitee'
 
 // OAuth 初始化响应
 export interface OAuthInitResponse {
-  authorizationUrl: string
+    authorizationUrl: string
 }
 
 // OAuth 回调参数
 export interface OAuthCallbackParams {
-  code: string
-  state: string
-  provider: OAuthProvider
+    code: string
+    state: string
+    provider: OAuthProvider
 }
 
 // Token 对
 export interface TokenPair {
-  accessToken: string
-  refreshToken: string
-  expiresIn: number
+    accessToken: string
+    refreshToken: string
+    expiresIn: number
 }
 
 // 认证状态
 export interface AuthState {
-  user: UserProfile | null
-  isAuthenticated: boolean
-  isLoading: boolean
-  tokens: TokenPair | null
+    user: UserProfile | null
+    isAuthenticated: boolean
+    isLoading: boolean
+    tokens: TokenPair | null
 }
 
 // 认证配置
 export interface AuthConfig {
-  identityApiUrl: string
-  tokenStorageKey: string
-  refreshTokenStorageKey: string
-  autoRefreshThreshold: number // 提前多少秒刷新 token
+    identityApiUrl: string
+    tokenStorageKey: string
+    refreshTokenStorageKey: string
+    autoRefreshThreshold: number // 提前多少秒刷新 token
 }
 
 // 认证错误
 export interface AuthError {
-  code: string
-  message: string
-  details?: Record<string, any>
+    code: string
+    message: string
+    details?: Record<string, any>
 }
 
 // 认证错误代码枚举
 export enum AuthErrorCode {
-  INVALID_CREDENTIALS = 'INVALID_CREDENTIALS',
-  USER_NOT_FOUND = 'USER_NOT_FOUND',
-  EMAIL_ALREADY_EXISTS = 'EMAIL_ALREADY_EXISTS',
-  TOKEN_EXPIRED = 'TOKEN_EXPIRED',
-  OAUTH_ERROR = 'OAUTH_ERROR',
-  NETWORK_ERROR = 'NETWORK_ERROR',
-  VALIDATION_ERROR = 'VALIDATION_ERROR',
-  UNAUTHORIZED = 'UNAUTHORIZED',
-  FORBIDDEN = 'FORBIDDEN',
-  SERVER_ERROR = 'SERVER_ERROR'
+    INVALID_CREDENTIALS = 'INVALID_CREDENTIALS',
+    USER_NOT_FOUND = 'USER_NOT_FOUND',
+    EMAIL_ALREADY_EXISTS = 'EMAIL_ALREADY_EXISTS',
+    TOKEN_EXPIRED = 'TOKEN_EXPIRED',
+    OAUTH_ERROR = 'OAUTH_ERROR',
+    NETWORK_ERROR = 'NETWORK_ERROR',
+    VALIDATION_ERROR = 'VALIDATION_ERROR',
+    UNAUTHORIZED = 'UNAUTHORIZED',
+    FORBIDDEN = 'FORBIDDEN',
+    SERVER_ERROR = 'SERVER_ERROR'
 }
 
 // 认证 API 接口
 export interface IAuthAPI {
-  // 本地认证
-  login(credentials: LoginRequest): Promise<ResultDto<LoginResponse>>
-  register(userData: RegisterRequest): Promise<ResultDto<RegisterResponse>>
-  logout(): Promise<ResultDto<void>>
+    // 本地认证
+    login(credentials: LoginRequest): Promise<ResultDto<LoginResponse>>
 
-  // 验证码
-  getCaptcha(): Promise<ResultDto<CaptchaResponse>>
+    register(userData: RegisterRequest): Promise<ResultDto<RegisterResponse>>
 
-  // 用户资料
-  getUserProfile(): Promise<ResultDto<UserProfile>>
-  updateUserProfile(profile: UpdateProfileRequest): Promise<ResultDto<UserProfile>>
-	uploadAvatar(file: File): Promise<ResultDto<UploadAvatarResponse>>
+    logout(): Promise<ResultDto<void>>
 
-  // OAuth 流程
-  initiateOAuth(provider: OAuthProvider): Promise<ResultDto<OAuthInitResponse>>
-  handleOAuthCallback(params: OAuthCallbackParams): Promise<ResultDto<LoginResponse>>
+    // 验证码
+    getCaptcha(): Promise<ResultDto<CaptchaResponse>>
 
-  // Token 管理
-  refreshToken(refreshToken: string): Promise<ResultDto<TokenPair>>
+    // 用户资料
+    getUserProfile(): Promise<ResultDto<UserProfile>>
 
-  // 权限管理
-  getUserPermissions(userId: string): Promise<ResultDto<UserPermissionsResponse>>
+    updateUserProfile(profile: UpdateProfileRequest): Promise<ResultDto<UserProfile>>
+
+    uploadAvatar(file: File): Promise<ResultDto<UploadAvatarResponse>>
+
+    // OAuth 流程
+    initiateOAuth(provider: OAuthProvider): Promise<ResultDto<OAuthInitResponse>>
+
+    handleOAuthCallback(params: OAuthCallbackParams): Promise<ResultDto<LoginResponse>>
+
+    // Token 管理
+    refreshToken(refreshToken: string): Promise<ResultDto<TokenPair>>
+
+    // 权限管理
+    getUserPermissions(userId: string): Promise<ResultDto<UserPermissionsResponse>>
 }
 
 // 认证 Store Actions 接口
 export interface IAuthActions {
-  // 认证操作
-  login(credentials: LoginRequest): Promise<void>
-  register(userData: RegisterRequest): Promise<void>
-  logout(): Promise<void>
+    // 认证操作
+    login(credentials: LoginRequest): Promise<void>
 
-  // OAuth 操作
-  loginWithOAuth(provider: OAuthProvider): Promise<void>
-  handleOAuthCallback(params: OAuthCallbackParams): Promise<void>
+    register(userData: RegisterRequest): Promise<void>
 
-  // 用户资料操作
-  fetchUserProfile(): Promise<void>
-  updateProfile(profile: UpdateProfileRequest): Promise<void>
+    logout(): Promise<void>
 
-  // 状态管理
-  initializeAuth(): Promise<void>
-  checkAuthStatus(): boolean
+    // OAuth 操作
+    loginWithOAuth(provider: OAuthProvider): Promise<void>
+
+    handleOAuthCallback(params: OAuthCallbackParams): Promise<void>
+
+    // 用户资料操作
+    fetchUserProfile(): Promise<void>
+
+    updateProfile(profile: UpdateProfileRequest): Promise<void>
+
+    // 状态管理
+    initializeAuth(): Promise<void>
+
+    checkAuthStatus(): boolean
 }
 
 // Token 管理器接口
 export interface ITokenManager {
-  // Token 存储
-  setTokens(tokens: TokenPair): void
-  getAccessToken(): string | null
-  getRefreshToken(): string | null
-  clearTokens(): void
+    // Token 存储
+    setTokens(tokens: TokenPair): void
 
-  // Token 验证
-  isTokenValid(token: string): boolean
-  isTokenExpired(token: string): boolean
+    getAccessToken(): string | null
 
-  // 自动刷新
-  refreshTokenIfNeeded(): Promise<boolean>
+    getRefreshToken(): string | null
+
+    clearTokens(): void
+
+    // Token 验证
+    isTokenValid(token: string): boolean
+
+    isTokenExpired(token: string): boolean
+
+    // 自动刷新
+    refreshTokenIfNeeded(): Promise<boolean>
 }
 
 // 更新用户资料请求
 export interface UpdateProfileRequest {
-  username?: string
-  firstName?: string
-  lastName?: string
-  avatar?: string
+    username?: string
+    firstName?: string
+    lastName?: string
+    avatar?: string
 }
 
 // Token 响应
 export interface TokenResponse {
-  accessToken: string
-  refreshToken: string
-  expiresIn: number
+    accessToken: string
+    refreshToken: string
+    expiresIn: number
 }
 
 // 验证码响应
 export interface CaptchaResponse {
-  captchaKey: string
-  captchaData: string // Base64 图片数据
+    captchaKey: string
+    captchaData: string // Base64 图片数据
 }
 
 /**
  * 用户权限响应
  */
 export interface UserPermissionsResponse {
-  userId: string
-  permissions: string[]
+    userId: string
+    permissions: string[]
 }

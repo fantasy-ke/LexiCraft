@@ -19,7 +19,7 @@ public class MigrationSeedWorker<TContext>(IServiceProvider serviceProvider) : I
         var logger = scopeServiceProvider.GetRequiredService<ILogger<TContext>>();
         var context = scopeServiceProvider.GetRequiredService<TContext>();
 
-        using Activity? activity = ActivitySource.StartActivity($"Migration operation {typeof(TContext).Name}");
+        using var activity = ActivitySource.StartActivity($"Migration operation {typeof(TContext).Name}");
 
         try
         {

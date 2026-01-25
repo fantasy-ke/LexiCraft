@@ -5,7 +5,7 @@ using LexiCraft.Services.Vocabulary.Words.Models;
 
 namespace LexiCraft.Services.Vocabulary.Words.Data.Repositories;
 
-public class WordListRepository(VocabularyDbContext context) 
+public class WordListRepository(VocabularyDbContext context)
     : Repository<VocabularyDbContext, WordList>(context), IWordListRepository
 {
     public async Task<WordList?> GetByIdAsync(long id)

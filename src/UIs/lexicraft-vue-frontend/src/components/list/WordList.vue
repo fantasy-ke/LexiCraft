@@ -1,7 +1,7 @@
-<script setup lang="ts">
+<script lang="ts" setup>
 
 import BaseList from "@/components/list/BaseList.vue";
-import type { Word } from "@/types/types.ts";
+import type {Word} from "@/types/types.ts";
 import WordItem from "../WordItem.vue";
 
 withDefaults(defineProps<{
@@ -35,14 +35,14 @@ defineExpose({scrollToBottom, scrollToItem})
 <template>
   <BaseList
       ref="listRef"
-      @click="(e:any) => emit('click',e)"
       :list="list"
-      v-bind="$attrs">
-      <template v-slot="{ item, index, active }">
-        <WordItem
-          :show-translate="showTranslate"
-          :show-word="showWord"
-          :item="item" :index="index" :active="active" />
-      </template>
+      v-bind="$attrs"
+      @click="(e:any) => emit('click',e)">
+    <template v-slot="{ item, index, active }">
+      <WordItem
+          :active="active"
+          :index="index"
+          :item="item" :show-translate="showTranslate" :show-word="showWord"/>
+    </template>
   </BaseList>
 </template>

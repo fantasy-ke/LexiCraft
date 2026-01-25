@@ -1,4 +1,4 @@
-<script setup lang="ts">
+<script lang="ts" setup>
 import {watch} from "vue";
 import type {DictResource} from "@/types/types.ts";
 import DictList from "@/components/list/DictList.vue";
@@ -29,21 +29,21 @@ watch(() => props.groupByTag, () => {
     <div class="flex">
       <div class="category shrink-0">{{ category }}：</div>
       <div class="tags">
-        <div class="tag" :class="i === currentTag &&'active'"
-             @click="currentTag = i"
-             v-for="i in Object.keys(groupByTag)">{{ i }}
+        <div v-for="i in Object.keys(groupByTag)" :class="i === currentTag &&'active'"
+             class="tag"
+             @click="currentTag = i">{{ i }}
         </div>
       </div>
     </div>
 
     <DictList
-        @selectDict="e => emit('selectDict',e)"
         :list="list"
-        :select-id="selectId"/>
+        :select-id="selectId"
+        @selectDict="e => emit('selectDict',e)"/>
   </div>
 </template>
 
-<style scoped lang="scss">
+<style lang="scss" scoped>
 
 .category {
   margin-top: 1.4rem;

@@ -175,48 +175,57 @@ public class UserService
 库提供了多种预设配置，适用于不同的使用场景：
 
 #### CacheServiceOptions.Distributed
+
 - 纯分布式缓存模式
 - 启用分布式锁
 - 1小时过期时间
 
 #### CacheServiceOptions.Local
+
 - 纯本地缓存模式
 - 不使用分布式锁
 - 30分钟过期时间
 
 #### CacheServiceOptions.Hybrid
+
 - 混合缓存模式（本地 + 分布式）
 - 分布式缓存1小时，本地缓存10分钟
 - 启用分布式锁
 
 #### CacheServiceOptions.WithLock
+
 - 启用分布式锁防击穿
 - 2秒锁超时时间
 - 支持工厂方法降级
 
 #### CacheServiceOptions.HighAvailability
+
 - 高可用性配置
 - 启用多种降级策略
 - 混合缓存模式
 
 #### CacheServiceOptions.BinarySerialization
+
 - 启用 MemoryPack 二进制序列化
 - 启用 GZip 压缩
 - 高性能序列化
 
 #### CacheServiceOptions.HighPerformance
+
 - 高性能配置
 - 二进制序列化 + 压缩
 - 混合缓存 + 分布式锁
 - 500ms 快速锁超时
 
 #### CacheServiceOptions.Development
+
 - 开发环境配置
 - 不隐藏异常（便于调试）
 - 较短的过期时间
 - 不启用分布式锁
 
 #### CacheServiceOptions.Production
+
 - 生产环境配置
 - 高可用性和性能优化
 - 4小时分布式缓存，30分钟本地缓存

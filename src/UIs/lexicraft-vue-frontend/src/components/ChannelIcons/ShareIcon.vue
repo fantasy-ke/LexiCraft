@@ -1,18 +1,17 @@
-<script setup lang="ts">
+<script lang="ts" setup>
 
-import { APP_NAME, LIB_JS_URL, Origin } from "@/config/env.ts";
+import {APP_NAME, LIB_JS_URL, Origin} from "@/config/env.ts";
 import BaseIcon from "@/components/BaseIcon.vue";
-
-const Dialog = defineAsyncComponent(() => import('@/components/dialog/Dialog.vue'))
-
-import { usePracticeStore } from "@/stores/practice.ts";
-import { useBaseStore } from "@/stores/base.ts";
-import { loadJsLib, msToHourMinute } from "@/utils";
+import {usePracticeStore} from "@/stores/practice.ts";
+import {useBaseStore} from "@/stores/base.ts";
+import {loadJsLib, msToHourMinute} from "@/utils";
 import dayjs from "dayjs";
 import Toass from "../base/toast/Toast.ts";
-import { useUserStore } from "@/stores/user.ts";
+import {useUserStore} from "@/stores/user.ts";
 import Progress from "@/components/base/Progress.vue";
-import { defineAsyncComponent } from "vue";
+import {defineAsyncComponent} from "vue";
+
+const Dialog = defineAsyncComponent(() => import('@/components/dialog/Dialog.vue'))
 
 const practiceStore = usePracticeStore()
 const baseStore = useBaseStore()
@@ -43,11 +42,11 @@ async function copyImageToClipboard() {
   try {
     loading1 = true
     const snapdom = await loadJsLib('snapdom', LIB_JS_URL.SNAPDOM);
-    const blob = await snapdom.toBlob(posterEl, { scale: 2, type: 'png' })
+    const blob = await snapdom.toBlob(posterEl, {scale: 2, type: 'png'})
     if (!blob) throw new Error('capture failed')
 
     if (navigator.clipboard && (window as any).ClipboardItem) {
-      await navigator.clipboard.write([new (window as any).ClipboardItem({ [blob.type || 'image/png']: blob })])
+      await navigator.clipboard.write([new (window as any).ClipboardItem({[blob.type || 'image/png']: blob})])
       Toass.success('图片已复制到剪贴板！')
     } else {
       await downloadImage()
@@ -64,7 +63,7 @@ async function copyImageToClipboard() {
 async function downloadImage() {
   loading2 = true
   const snapdom = await loadJsLib('snapdom', LIB_JS_URL.SNAPDOM);
-  snapdom.download(posterEl, { scale: 2 })
+  snapdom.download(posterEl, {scale: 2})
   loading2 = false
 }
 
@@ -82,36 +81,36 @@ const studyProgress = $computed(() => {
 
 const sentence = $computed(() => {
   let list = [
-    { en: 'Actions speak louder than words.', cn: '行动胜于言语' },
-    { en: 'Keep going, never give up!', cn: '坚持就是胜利' },
-    { en: 'Where there\'s a will, there\'s a way.', cn: '有志者事竟成' },
-    { en: 'Every cloud has a silver lining.', cn: '黑暗中总有一线光明' },
-    { en: 'Time heals all wounds.', cn: '时间能治愈一切创伤' },
-    { en: 'Never say die.', cn: '永不言败' },
-    { en: 'The best is yet to come.', cn: '最好的尚未到来' },
-    { en: 'Believe you can and you\'re halfway there.', cn: '相信你自己，你已经成功了一半' },
-    { en: 'No pain, no gain.', cn: '没有付出就没有收获' },
-    { en: 'Dream big and dare to fail.', cn: '大胆梦想，勇于失败' },
-    { en: 'Home is where the heart is.', cn: '心在哪里，家就在哪里' },
-    { en: 'Knowledge is power.', cn: '知识就是力量' },
-    { en: 'Practice makes perfect.', cn: '熟能生巧' },
-    { en: 'When in Rome, do as the Romans do.', cn: '入乡随俗' },
-    { en: 'Just do it.', cn: '只管去做' },
-    { en: 'So far, so good.', cn: '到目前为止，一切还好' },
-    { en: 'The early bird catches the worm.', cn: '早起的鸟儿有虫吃' },
-    { en: 'Every day is a new beginning.', cn: '每一天都是新的开始' },
-    { en: 'Success is a journey, not a destination.', cn: '成功是旅程，不是终点' },
-    { en: 'Your only limit is your mind.', cn: '你唯一的限制是你的思维' },
-    { en: 'A friend in need is a friend indeed.', cn: '患难见真情' },
-    { en: 'Silence is golden.', cn: '沉默是金' },
-    { en: 'Let bygones be bygones.', cn: '让过去的成为过去' },
-    { en: 'Keep calm and carry on.', cn: '保持冷静，继续前进' },
-    { en: 'Live and learn.', cn: '活到老，学到老' },
-    { en: 'Mistakes are proof that you are trying.', cn: '错误证明你在努力尝试' },
-    { en: 'Better late than never.', cn: '迟做总比不做好' },
-    { en: 'Be the change you wish to see in the world.', cn: '成为你希望在世界上看到的改变' },
-    { en: 'The journey of a thousand miles begins with a single step.', cn: '千里之行，始于足下' },
-    { en: 'When one door closes, another opens.', cn: '当一扇门关闭时，另一扇会打开' },
+    {en: 'Actions speak louder than words.', cn: '行动胜于言语'},
+    {en: 'Keep going, never give up!', cn: '坚持就是胜利'},
+    {en: 'Where there\'s a will, there\'s a way.', cn: '有志者事竟成'},
+    {en: 'Every cloud has a silver lining.', cn: '黑暗中总有一线光明'},
+    {en: 'Time heals all wounds.', cn: '时间能治愈一切创伤'},
+    {en: 'Never say die.', cn: '永不言败'},
+    {en: 'The best is yet to come.', cn: '最好的尚未到来'},
+    {en: 'Believe you can and you\'re halfway there.', cn: '相信你自己，你已经成功了一半'},
+    {en: 'No pain, no gain.', cn: '没有付出就没有收获'},
+    {en: 'Dream big and dare to fail.', cn: '大胆梦想，勇于失败'},
+    {en: 'Home is where the heart is.', cn: '心在哪里，家就在哪里'},
+    {en: 'Knowledge is power.', cn: '知识就是力量'},
+    {en: 'Practice makes perfect.', cn: '熟能生巧'},
+    {en: 'When in Rome, do as the Romans do.', cn: '入乡随俗'},
+    {en: 'Just do it.', cn: '只管去做'},
+    {en: 'So far, so good.', cn: '到目前为止，一切还好'},
+    {en: 'The early bird catches the worm.', cn: '早起的鸟儿有虫吃'},
+    {en: 'Every day is a new beginning.', cn: '每一天都是新的开始'},
+    {en: 'Success is a journey, not a destination.', cn: '成功是旅程，不是终点'},
+    {en: 'Your only limit is your mind.', cn: '你唯一的限制是你的思维'},
+    {en: 'A friend in need is a friend indeed.', cn: '患难见真情'},
+    {en: 'Silence is golden.', cn: '沉默是金'},
+    {en: 'Let bygones be bygones.', cn: '让过去的成为过去'},
+    {en: 'Keep calm and carry on.', cn: '保持冷静，继续前进'},
+    {en: 'Live and learn.', cn: '活到老，学到老'},
+    {en: 'Mistakes are proof that you are trying.', cn: '错误证明你在努力尝试'},
+    {en: 'Better late than never.', cn: '迟做总比不做好'},
+    {en: 'Be the change you wish to see in the world.', cn: '成为你希望在世界上看到的改变'},
+    {en: 'The journey of a thousand miles begins with a single step.', cn: '千里之行，始于足下'},
+    {en: 'When one door closes, another opens.', cn: '当一扇门关闭时，另一扇会打开'},
   ]
   return list[Math.floor(Math.random() * list.length)]
 })
@@ -119,8 +118,8 @@ const sentence = $computed(() => {
 
 <template>
   <!-- 分享学习总结按钮 -->
-  <BaseIcon @click="showShareDialog = true"
-            class="bounce">
+  <BaseIcon class="bounce"
+            @click="showShareDialog = true">
     <IconFluentShare20Regular class="text-blue-500 hover:text-blue-600"/>
   </BaseIcon>
 
@@ -188,12 +187,12 @@ const sentence = $computed(() => {
                 <div class="text-base  ">{{ Origin }}</div>
                 <div class="text-xs  ">一次敲击，一点进步，开源单词学习工具</div>
               </div>
-              <img :src="`/imgs/qr.png`" class="w-20 w-20 rounded-md overflow-hidden" alt="">
+              <img :src="`/imgs/qr.png`" alt="" class="w-20 w-20 rounded-md overflow-hidden">
             </div>
           </div>
         </div>
 
-        <img :src="`/imgs/${imgIndex}.jpg`" class="w-full object-cover object-center absolute top-0 " alt="">
+        <img :src="`/imgs/${imgIndex}.jpg`" alt="" class="w-full object-cover object-center absolute top-0 ">
       </div>
 
       <!-- 右侧：分享引导区域 -->
@@ -223,24 +222,24 @@ const sentence = $computed(() => {
 
         <div class="space-y-4 mt-24">
           <!-- 个性化装扮 -->
-          <div @click="changeBackground"
-               class="flex items-center justify-start gap-space color-black px-6 py-3 bg-gray-200 rounded-lg cp  hover:bg-gray-300 transition-all duration-200">
+          <div class="flex items-center justify-start gap-space color-black px-6 py-3 bg-gray-200 rounded-lg cp  hover:bg-gray-300 transition-all duration-200"
+               @click="changeBackground">
             <IconMdiSparkles class="w-4 h-4 text-yellow-500"/>
             换个背景
           </div>
 
           <!-- 分享战绩 -->
-          <div @click="copyImageToClipboard"
-               class="flex items-center justify-start gap-space px-6 py-3 bg-gradient-to-r from-green-500 to-green-600 text-white cp rounded-lg hover:from-green-600 hover:to-green-700 transition-all duration-200">
-            <IconEosIconsLoading class="text-xl" v-if="loading1"/>
-            <IconFluentCopy20Regular class="w-5 h-5" v-else/>
+          <div class="flex items-center justify-start gap-space px-6 py-3 bg-gradient-to-r from-green-500 to-green-600 text-white cp rounded-lg hover:from-green-600 hover:to-green-700 transition-all duration-200"
+               @click="copyImageToClipboard">
+            <IconEosIconsLoading v-if="loading1" class="text-xl"/>
+            <IconFluentCopy20Regular v-else class="w-5 h-5"/>
             <span class="font-medium">复制到剪贴板</span>
           </div>
 
-          <div @click="downloadImage"
-               class="flex items-center justify-start gap-space px-6 py-3 bg-gradient-to-r from-purple-500 to-purple-600 text-white cp rounded-lg hover:from-purple-600 hover:to-purple-700 transition-all duration-200">
-            <IconEosIconsLoading class="text-xl" v-if="loading2"/>
-            <IconFluentArrowDownload20Regular class="w-5 h-5" v-else/>
+          <div class="flex items-center justify-start gap-space px-6 py-3 bg-gradient-to-r from-purple-500 to-purple-600 text-white cp rounded-lg hover:from-purple-600 hover:to-purple-700 transition-all duration-200"
+               @click="downloadImage">
+            <IconEosIconsLoading v-if="loading2" class="text-xl"/>
+            <IconFluentArrowDownload20Regular v-else class="w-5 h-5"/>
             <span class="font-medium">保存高清海报</span>
           </div>
         </div>
@@ -249,7 +248,7 @@ const sentence = $computed(() => {
   </Dialog>
 </template>
 
-<style scoped lang="scss">
+<style lang="scss" scoped>
 .stat-card {
   @apply text-center bg-gray-900/30 py-4 rounded-2xl;
 }

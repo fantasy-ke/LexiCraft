@@ -1,29 +1,29 @@
+using System.Collections.Concurrent;
 using BuildingBlocks.Caching.Configuration;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using StackExchange.Redis;
-using System.Collections.Concurrent;
 
 namespace BuildingBlocks.Caching.Factories;
 
 /// <summary>
-/// Redis 连接工厂实现
+///     Redis 连接工厂实现
 /// </summary>
 public class RedisConnectionFactory : IRedisConnectionFactory, IDisposable
 {
-    private readonly ILogger<RedisConnectionFactory> _logger;
-    private readonly RedisConnectionOptions _options;
-    private readonly ConcurrentDictionary<string, IConnectionMultiplexer> _connections;
-    private readonly Lock _lock = new();
-    private bool _disposed;
-
     /// <summary>
-    /// 默认实例名称
+    ///     默认实例名称
     /// </summary>
     public const string DefaultInstanceName = "default";
 
+    private readonly ConcurrentDictionary<string, IConnectionMultiplexer> _connections;
+    private readonly Lock _lock = new();
+    private readonly ILogger<RedisConnectionFactory> _logger;
+    private readonly RedisConnectionOptions _options;
+    private bool _disposed;
+
     /// <summary>
-    /// 初始化 Redis 连接工厂
+    ///     初始化 Redis 连接工厂
     /// </summary>
     /// <param name="options">Redis 连接选项</param>
     /// <param name="logger">日志记录器</param>
@@ -39,7 +39,30 @@ public class RedisConnectionFactory : IRedisConnectionFactory, IDisposable
     }
 
     /// <summary>
-    /// 获取默认的 Redis 连接
+    ///     释放资源
+    /// </summary>
+    public void Dispose()
+    {
+        if (_disposed)
+            return;
+
+        _disposed = true;
+
+        foreach (var connection in _connections.Values)
+            try
+            {
+                connection?.Dispose();
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "释放 Redis 连接时发生异常");
+            }
+
+        _connections.Clear();
+    }
+
+    /// <summary>
+    ///     获取默认的 Redis 连接
     /// </summary>
     /// <returns>Redis 连接复用器</returns>
     public IConnectionMultiplexer GetConnection()
@@ -48,7 +71,7 @@ public class RedisConnectionFactory : IRedisConnectionFactory, IDisposable
     }
 
     /// <summary>
-    /// 根据实例名称获取 Redis 连接
+    ///     根据实例名称获取 Redis 连接
     /// </summary>
     /// <param name="instanceName">实例名称</param>
     /// <returns>Redis 连接复用器</returns>
@@ -57,12 +80,13 @@ public class RedisConnectionFactory : IRedisConnectionFactory, IDisposable
         if (string.IsNullOrWhiteSpace(instanceName))
             instanceName = DefaultInstanceName;
 
-        return _disposed ? throw new ObjectDisposedException(nameof(RedisConnectionFactory)) 
+        return _disposed
+            ? throw new ObjectDisposedException(nameof(RedisConnectionFactory))
             : _connections.GetOrAdd(instanceName, CreateConnection);
     }
 
     /// <summary>
-    /// 获取默认的 Redis 数据库
+    ///     获取默认的 Redis 数据库
     /// </summary>
     /// <param name="database">数据库编号</param>
     /// <returns>Redis 数据库</returns>
@@ -72,7 +96,7 @@ public class RedisConnectionFactory : IRedisConnectionFactory, IDisposable
     }
 
     /// <summary>
-    /// 根据实例名称获取 Redis 数据库
+    ///     根据实例名称获取 Redis 数据库
     /// </summary>
     /// <param name="instanceName">实例名称</param>
     /// <param name="database">数据库编号</param>
@@ -83,7 +107,7 @@ public class RedisConnectionFactory : IRedisConnectionFactory, IDisposable
     }
 
     /// <summary>
-    /// 检查连接是否可用
+    ///     检查连接是否可用
     /// </summary>
     /// <param name="instanceName">实例名称，null 表示默认实例</param>
     /// <returns>连接是否可用</returns>
@@ -98,7 +122,7 @@ public class RedisConnectionFactory : IRedisConnectionFactory, IDisposable
     }
 
     /// <summary>
-    /// 获取连接信息
+    ///     获取连接信息
     /// </summary>
     /// <param name="instanceName">实例名称，null 表示默认实例</param>
     /// <returns>连接信息</returns>
@@ -120,7 +144,7 @@ public class RedisConnectionFactory : IRedisConnectionFactory, IDisposable
     }
 
     /// <summary>
-    /// 获取所有连接信息
+    ///     获取所有连接信息
     /// </summary>
     /// <returns>所有连接信息</returns>
     public IEnumerable<ConnectionInfo> GetAllConnectionInfo()
@@ -139,7 +163,7 @@ public class RedisConnectionFactory : IRedisConnectionFactory, IDisposable
     }
 
     /// <summary>
-    /// 强制重新连接指定实例
+    ///     强制重新连接指定实例
     /// </summary>
     /// <param name="instanceName">实例名称</param>
     /// <returns>是否重连成功</returns>
@@ -153,10 +177,7 @@ public class RedisConnectionFactory : IRedisConnectionFactory, IDisposable
         try
         {
             // 移除现有连接
-            if (_connections.TryRemove(instanceName, out var oldConnection))
-            {
-                oldConnection.Dispose();
-            }
+            if (_connections.TryRemove(instanceName, out var oldConnection)) oldConnection.Dispose();
 
             // 创建新连接
             var newConnection = CreateConnection(instanceName);
@@ -173,7 +194,7 @@ public class RedisConnectionFactory : IRedisConnectionFactory, IDisposable
     }
 
     /// <summary>
-    /// 创建 Redis 连接
+    ///     创建 Redis 连接
     /// </summary>
     /// <param name="instanceName">实例名称</param>
     /// <returns>Redis 连接复用器</returns>
@@ -186,16 +207,14 @@ public class RedisConnectionFactory : IRedisConnectionFactory, IDisposable
 
             var connectionString = _options.GetConnectionString(instanceName);
             if (string.IsNullOrEmpty(connectionString))
-            {
                 throw new InvalidOperationException($"Redis 实例 '{instanceName}' 未配置连接字符串");
-            }
 
             _logger.LogInformation("正在创建 Redis 连接: {InstanceName}", instanceName);
 
             try
             {
                 var configurationOptions = ConfigurationOptions.Parse(connectionString);
-                
+
                 // 应用配置选项
                 configurationOptions.AbortOnConnectFail = _options.AbortOnConnectFail;
                 configurationOptions.ConnectRetry = _options.ConnectRetry;
@@ -236,69 +255,41 @@ public class RedisConnectionFactory : IRedisConnectionFactory, IDisposable
     }
 
     /// <summary>
-    /// 验证配置选项
+    ///     验证配置选项
     /// </summary>
     private void ValidateOptions()
     {
-        if (!_options.HasInstance(DefaultInstanceName))
-        {
-            throw new InvalidOperationException("必须配置默认 Redis 连接字符串或默认实例");
-        }
-    }
-
-    /// <summary>
-    /// 释放资源
-    /// </summary>
-    public void Dispose()
-    {
-        if (_disposed)
-            return;
-
-        _disposed = true;
-
-        foreach (var connection in _connections.Values)
-        {
-            try
-            {
-                connection?.Dispose();
-            }
-            catch (Exception ex)
-            {
-                _logger.LogError(ex, "释放 Redis 连接时发生异常");
-            }
-        }
-
-        _connections.Clear();
+        if (!_options.HasInstance(DefaultInstanceName)) throw new InvalidOperationException("必须配置默认 Redis 连接字符串或默认实例");
     }
 }
 
 /// <summary>
-/// Redis 连接信息
+///     Redis 连接信息
 /// </summary>
 public class ConnectionInfo
 {
     /// <summary>
-    /// 实例名称
+    ///     实例名称
     /// </summary>
     public string InstanceName { get; set; } = string.Empty;
 
     /// <summary>
-    /// 是否已连接
+    ///     是否已连接
     /// </summary>
     public bool IsConnected { get; set; }
 
     /// <summary>
-    /// 客户端名称
+    ///     客户端名称
     /// </summary>
     public string? ClientName { get; set; }
 
     /// <summary>
-    /// 配置选项字符串
+    ///     配置选项字符串
     /// </summary>
     public string? ConfigurationString { get; set; }
 
     /// <summary>
-    /// 超时时间（毫秒）
+    ///     超时时间（毫秒）
     /// </summary>
     public int TimeoutMilliseconds { get; set; }
 }

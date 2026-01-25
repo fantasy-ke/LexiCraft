@@ -1,21 +1,21 @@
-<script setup lang="ts">
-import { useBaseStore } from '@/stores/base.ts'
+<script lang="ts" setup>
+import {useBaseStore} from '@/stores/base.ts'
 import BaseButton from '@/components/BaseButton.vue'
-import type { Statistics, TaskWords } from '@/types/types.ts'
-import { emitter, EventKey, useEvents } from '@/utils/eventBus.ts'
-import { useSettingStore } from '@/stores/setting.ts'
-import { usePracticeStore } from '@/stores/practice.ts'
+import type {Statistics, TaskWords} from '@/types/types.ts'
+import {emitter, EventKey, useEvents} from '@/utils/eventBus.ts'
+import {useSettingStore} from '@/stores/setting.ts'
+import {usePracticeStore} from '@/stores/practice.ts'
 import dayjs from 'dayjs'
 import isBetween from 'dayjs/plugin/isBetween'
-import { defineAsyncComponent, inject, watch } from 'vue'
+import {defineAsyncComponent, inject, watch} from 'vue'
 import isoWeek from 'dayjs/plugin/isoWeek'
-import { msToHourMinute } from '@/utils'
+import {msToHourMinute} from '@/utils'
 import Progress from '@/components/base/Progress.vue'
 import ChannelIcons from '@/components/ChannelIcons/ChannelIcons.vue'
-import { AppEnv } from '@/config/env.ts'
-import { addStat } from '@/apis'
+import {AppEnv} from '@/config/env.ts'
+import {addStat} from '@/apis'
 import Toast from '@/components/base/toast/Toast.ts'
-import { ShortcutKey, WordPracticeMode } from '@/types/enum.ts'
+import {ShortcutKey, WordPracticeMode} from '@/types/enum.ts'
 
 dayjs.extend(isoWeek)
 dayjs.extend(isBetween)
@@ -24,7 +24,7 @@ const Dialog = defineAsyncComponent(() => import('@/components/dialog/Dialog.vue
 const store = useBaseStore()
 const settingStore = useSettingStore()
 const statStore = usePracticeStore()
-const model = defineModel({ default: false })
+const model = defineModel({default: false})
 let list = $ref([])
 let dictIsEnd = $ref(false)
 let practiceTaskWords = inject<TaskWords>('practiceTaskWords')
@@ -158,35 +158,35 @@ calcWeekList() // 新增：计算本周学习记录
       <!-- Header Section -->
       <div class="text-center relative">
         <div
-          class="text-3xl font-bold mb-2 bg-gradient-to-r from-purple-500 to-purple-700 bg-clip-text text-transparent"
+            class="text-3xl font-bold mb-2 bg-gradient-to-r from-purple-500 to-purple-700 bg-clip-text text-transparent"
         >
-          <template v-if="practiceTaskWords.shuffle.length"> 🎯 复习完成 </template>
-          <template v-else> 🎉 今日任务完成 </template>
+          <template v-if="practiceTaskWords.shuffle.length"> 🎯 复习完成</template>
+          <template v-else> 🎉 今日任务完成</template>
         </div>
         <p class="font-medium text-lg">{{ encouragementText }}</p>
       </div>
 
       <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
         <div class="item">
-          <IconFluentClock20Regular class="text-purple-500" />
+          <IconFluentClock20Regular class="text-purple-500"/>
           <div class="text-sm mb-1 font-medium">学习时长</div>
           <div class="text-xl font-bold">{{ formattedStudyTime }}</div>
         </div>
 
         <div class="item">
-          <IconFluentTarget20Regular class="text-purple-500" />
+          <IconFluentTarget20Regular class="text-purple-500"/>
           <div class="text-sm mb-1 font-medium">正确率</div>
           <div class="text-xl font-bold">{{ accuracyRate }}%</div>
         </div>
 
         <div class="item">
-          <IconFluentSparkle20Regular class="text-purple-500" />
+          <IconFluentSparkle20Regular class="text-purple-500"/>
           <div class="text-sm mb-1 font-medium">新词</div>
           <div class="text-xl font-bold">{{ statStore.newWordNumber }}</div>
         </div>
 
         <div class="item">
-          <IconFluentBook20Regular class="text-purple-500" />
+          <IconFluentBook20Regular class="text-purple-500"/>
           <div class="text-sm mb-1 font-medium">复习</div>
           <div class="text-xl font-bold">
             {{ statStore.reviewWordNumber + statStore.writeWordNumber }}
@@ -203,15 +203,15 @@ calcWeekList() // 新增：计算本周学习记录
             </div>
             <div class="flex justify-between gap-4">
               <div
-                v-for="(item, i) in list"
-                :key="i"
-                class="flex-1 text-center px-2 py-3 rounded-lg"
-                :class="item ? 'bg-green-500 text-white shadow-lg' : 'bg-white text-gray-700'"
+                  v-for="(item, i) in list"
+                  :key="i"
+                  :class="item ? 'bg-green-500 text-white shadow-lg' : 'bg-white text-gray-700'"
+                  class="flex-1 text-center px-2 py-3 rounded-lg"
               >
                 <div class="font-semibold mb-1">{{ i + 1 }}</div>
                 <div
-                  class="w-2 h-2 rounded-full mx-auto mb-1"
-                  :class="item ? 'bg-white bg-opacity-30' : 'bg-gray-300'"
+                    :class="item ? 'bg-white bg-opacity-30' : 'bg-gray-300'"
+                    class="w-2 h-2 rounded-full mx-auto mb-1"
                 ></div>
               </div>
             </div>
@@ -223,39 +223,39 @@ calcWeekList() // 新增：计算本周学习记录
               <div class="text-xl font-semibold">学习进度</div>
               <div class="text-2xl font-bold text-purple-600">{{ studyProgress }}%</div>
             </div>
-            <Progress :percentage="studyProgress" size="large" :show-text="false" />
+            <Progress :percentage="studyProgress" :show-text="false" size="large"/>
             <div class="flex justify-between text-sm font-medium mt-4">
               <span>已学习: {{ store.sdict.lastLearnIndex }}</span>
               <span>总词数: {{ store.sdict.length }}</span>
             </div>
           </div>
         </div>
-        <ChannelIcons />
+        <ChannelIcons/>
       </div>
       <!-- Action Buttons -->
       <div class="flex min-w-130 justify-center">
         <BaseButton
-          :keyboard="settingStore.shortcutKeyMap[ShortcutKey.RepeatChapter]"
-          @click="options(EventKey.repeatStudy)"
+            :keyboard="settingStore.shortcutKeyMap[ShortcutKey.RepeatChapter]"
+            @click="options(EventKey.repeatStudy)"
         >
           <div class="center gap-2">
-            <IconFluentArrowClockwise20Regular />
+            <IconFluentArrowClockwise20Regular/>
             重学一遍
           </div>
         </BaseButton>
         <BaseButton
-          v-if="settingStore.wordPracticeMode !== WordPracticeMode.Review"
-          :keyboard="settingStore.shortcutKeyMap[ShortcutKey.NextChapter]"
-          @click="options(EventKey.continueStudy)"
+            v-if="settingStore.wordPracticeMode !== WordPracticeMode.Review"
+            :keyboard="settingStore.shortcutKeyMap[ShortcutKey.NextChapter]"
+            @click="options(EventKey.continueStudy)"
         >
           <div class="center gap-2">
-            <IconFluentPlay20Regular />
+            <IconFluentPlay20Regular/>
             {{ dictIsEnd ? '从头开始练习' : '再来一组' }}
           </div>
         </BaseButton>
         <BaseButton @click="$router.back">
           <div class="center gap-2">
-            <IconFluentHome20Regular />
+            <IconFluentHome20Regular/>
             返回主页
           </div>
         </BaseButton>
@@ -263,7 +263,7 @@ calcWeekList() // 新增：计算本周学习记录
     </div>
   </Dialog>
 </template>
-<style scoped lang="scss">
+<style lang="scss" scoped>
 // 移动端适配
 @media (max-width: 768px) {
   // 弹窗容器优化

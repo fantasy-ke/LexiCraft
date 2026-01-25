@@ -1,26 +1,26 @@
-<script setup lang="ts">
+<script lang="ts" setup>
 import Toast from '@/components/base/toast/Toast'
 import BaseButton from '@/components/BaseButton.vue'
-import { useWordOptions } from '@/hooks/dict'
-import { usePlayBeep, usePlayKeyboardAudio, usePlayWordAudio } from '@/hooks/sound'
+import {useWordOptions} from '@/hooks/dict'
+import {usePlayBeep, usePlayKeyboardAudio, usePlayWordAudio} from '@/hooks/sound'
 import QuestionForm from '@/components/article/components/QuestionForm.vue'
 import Space from '@/components/article/components/Space.vue'
 import TypingWord from '@/components/article/components/TypingWord.vue'
-import { useBaseStore } from '@/stores/base'
-import { usePracticeStore } from '@/stores/practice'
-import { useSettingStore } from '@/stores/setting'
-import { getDefaultArticle, getDefaultWord } from '@/types/func'
-import type { Article, ArticleWord, Sentence, Word } from '@/types/types'
-import { _dateFormat, _nextTick, isMobile, msToHourMinute, total } from '@/utils'
-import { emitter, EventKey, useEvents } from '@/utils/eventBus'
+import {useBaseStore} from '@/stores/base'
+import {usePracticeStore} from '@/stores/practice'
+import {useSettingStore} from '@/stores/setting'
+import {getDefaultArticle, getDefaultWord} from '@/types/func'
+import type {Article, ArticleWord, Sentence, Word} from '@/types/types'
+import {_dateFormat, _nextTick, isMobile, msToHourMinute, total} from '@/utils'
+import {emitter, EventKey, useEvents} from '@/utils/eventBus'
 import ContextMenu from '@imengyu/vue3-context-menu'
 import '@imengyu/vue3-context-menu/lib/vue3-context-menu.css'
 import nlp from 'compromise/three'
-import { nanoid } from 'nanoid'
-import { inject, onMounted, onUnmounted, watch } from 'vue'
+import {nanoid} from 'nanoid'
+import {inject, onMounted, onUnmounted, watch} from 'vue'
 
-import { getPracticeArticleCache, setPracticeArticleCache } from '@/utils/cache'
-import { PracticeArticleWordType, ShortcutKey } from '@/types/enum'
+import {getPracticeArticleCache, setPracticeArticleCache} from '@/utils/cache'
+import {PracticeArticleWordType, ShortcutKey} from '@/types/enum'
 
 interface IProps {
   article: Article
@@ -83,7 +83,7 @@ const playBeep = usePlayBeep()
 const playKeyboardAudio = usePlayKeyboardAudio()
 const playWordAudio = usePlayWordAudio()
 
-const { toggleWordCollect } = useWordOptions()
+const {toggleWordCollect} = useWordOptions()
 
 const store = useBaseStore()
 const settingStore = useSettingStore()
@@ -107,23 +107,23 @@ watch([() => sectionIndex, () => sentenceIndex, () => wordIndex, () => stringInd
 // watch(() => props.article.id, init, {immediate: true})
 
 watch(
-  () => settingStore.translate,
-  () => {
-    checkTranslateLocation().then(() => checkCursorPosition())
-  }
+    () => settingStore.translate,
+    () => {
+      checkTranslateLocation().then(() => checkCursorPosition())
+    }
 )
 
 watch(
-  () => isEnd,
-  n => {
-    if (n) {
-      _nextTick(() => {
-        typeArticleRef?.scrollTo({ top: typeArticleRef.scrollHeight, behavior: 'smooth' })
-      })
-    } else {
-      typeArticleRef?.scrollTo({ top: 0, behavior: 'smooth' })
+    () => isEnd,
+    n => {
+      if (n) {
+        _nextTick(() => {
+          typeArticleRef?.scrollTo({top: typeArticleRef.scrollHeight, behavior: 'smooth'})
+        })
+      } else {
+        typeArticleRef?.scrollTo({top: 0, behavior: 'smooth'})
+      }
     }
-  }
 )
 
 function init() {
@@ -151,10 +151,10 @@ function init() {
         })
       })
     })
-    typeArticleRef?.scrollTo({ top: 0, behavior: 'smooth' })
+    typeArticleRef?.scrollTo({top: 0, behavior: 'smooth'})
   }
   _nextTick(() => {
-    emit('play', { sentence: props.article.sections[sectionIndex][sentenceIndex], handle: false })
+    emit('play', {sentence: props.article.sections[sectionIndex][sentenceIndex], handle: false})
     if (isNameWord()) next()
   })
   checkTranslateLocation().then(() => checkCursorPosition())
@@ -166,7 +166,7 @@ function checkCursorPosition(a = sectionIndex, b = sentenceIndex, c = wordIndex)
   _nextTick(() => {
     // 选中目标元素
     const currentWord = document.querySelector(
-      `.section:nth-of-type(${a + 1}) .sentence:nth-of-type(${b + 1}) .word:nth-of-type(${c + 1})`
+        `.section:nth-of-type(${a + 1}) .sentence:nth-of-type(${b + 1}) .word:nth-of-type(${c + 1})`
     )
     if (currentWord) {
       // 在 currentWord 内找 .word-end
@@ -234,8 +234,10 @@ function processMobileCharacter(char: string) {
   const fakeEvent = {
     key: char,
     code,
-    preventDefault() {},
-    stopPropagation() {},
+    preventDefault() {
+    },
+    stopPropagation() {
+    },
   } as unknown as KeyboardEvent
   onTyping(fakeEvent)
 }
@@ -262,14 +264,14 @@ function handleMobileBeforeInput(event: InputEvent) {
 const normalize = (s: string) => s.toLowerCase().trim()
 const namePatterns = $computed(() => {
   return Array.from(
-    new Set(
-      (props.article?.nameList ?? [])
-        .map(normalize)
-        .filter(Boolean)
-        .map(s => s.split(/\s+/).filter(Boolean))
-        .flat()
-        .concat(['Mr', 'Mrs', 'Ms', 'Dr', 'Miss'].map(normalize))
-    )
+      new Set(
+          (props.article?.nameList ?? [])
+              .map(normalize)
+              .filter(Boolean)
+              .map(s => s.split(/\s+/).filter(Boolean))
+              .flat()
+              .concat(['Mr', 'Mrs', 'Ms', 'Dr', 'Miss'].map(normalize))
+      )
   )
 })
 
@@ -313,11 +315,11 @@ function nextSentence() {
       emit('complete')
     } else {
       if (isNameWord()) next()
-      emit('play', { sentence: props.article.sections[sectionIndex][0], handle: false })
+      emit('play', {sentence: props.article.sections[sectionIndex][0], handle: false})
     }
   } else {
     if (isNameWord()) next()
-    emit('play', { sentence: currentSection[sentenceIndex], handle: false })
+    emit('play', {sentence: currentSection[sentenceIndex], handle: false})
   }
   lock = false
   focusMobileInput()
@@ -341,8 +343,8 @@ const next = () => {
       word.input = word.input + word.word.slice(word.input?.length ?? 0)
     })
     if (
-      [PracticeArticleWordType.Symbol, PracticeArticleWordType.Number].includes(currentWord.type) &&
-      settingStore.ignoreSymbol
+        [PracticeArticleWordType.Symbol, PracticeArticleWordType.Number].includes(currentWord.type) &&
+        settingStore.ignoreSymbol
     ) {
       next()
     } else if (isNameWord()) {
@@ -432,7 +434,7 @@ function onTyping(e: KeyboardEvent) {
 
 function play() {
   let currentSection = props.article.sections[sectionIndex]
-  emit('play', { sentence: currentSection[sentenceIndex], handle: true })
+  emit('play', {sentence: currentSection[sentenceIndex], handle: true})
 }
 
 function del() {
@@ -485,11 +487,11 @@ function del() {
 }
 
 function showSentence(i1: number = sectionIndex, i2: number = sentenceIndex, i3: number = wordIndex) {
-  hoverIndex = { sectionIndex: i1, sentenceIndex: i2, wordIndex: i3 }
+  hoverIndex = {sectionIndex: i1, sentenceIndex: i2, wordIndex: i3}
 }
 
 function hideSentence() {
-  hoverIndex = { sectionIndex: -1, sentenceIndex: -1, wordIndex: -1 }
+  hoverIndex = {sectionIndex: -1, sentenceIndex: -1, wordIndex: -1}
 }
 
 function jump(i, j, w, sentence?) {
@@ -512,7 +514,7 @@ function jump(i, j, w, sentence?) {
     })
   })
   if (sentence) {
-    emit('play', { sentence: sentence, handle: false })
+    emit('play', {sentence: sentence, handle: false})
   }
 }
 
@@ -542,7 +544,7 @@ function onContextMenu(e: MouseEvent, sentence: Sentence, i, j, w) {
           }
           if (!text.length) text = word.word
           console.log('text', text)
-          toggleWordCollect(getDefaultWord({ word: text, id: nanoid() }))
+          toggleWordCollect(getDefaultWord({word: text, id: nanoid()}))
           Toast.success(text + ' 添加成功')
         },
       },
@@ -577,7 +579,7 @@ function onContextMenu(e: MouseEvent, sentence: Sentence, i, j, w) {
       {
         label: '播放句子',
         onClick: () => {
-          emit('play', { sentence: sentence, handle: true })
+          emit('play', {sentence: sentence, handle: true})
         },
       },
       {
@@ -660,48 +662,46 @@ const currentPractice = inject('currentPractice', [])
 </script>
 
 <template>
-  <div class="typing-article" ref="typeArticleRef" @click="focusMobileInput">
+  <div ref="typeArticleRef" class="typing-article" @click="focusMobileInput">
     <input
-      v-if="isMob"
-      ref="mobileInputRef"
-      class="mobile-input"
-      type="text"
-      inputmode="text"
-      autocomplete="off"
-      autocorrect="off"
-      autocapitalize="none"
-      @beforeinput="handleMobileBeforeInput"
-      @input="handleMobileInput"
+        v-if="isMob"
+        ref="mobileInputRef"
+        autocapitalize="none"
+        autocomplete="off"
+        autocorrect="off"
+        class="mobile-input"
+        inputmode="text"
+        type="text"
+        @beforeinput="handleMobileBeforeInput"
+        @input="handleMobileInput"
     />
     <header class="pt-10 pb-6">
       <div class="text-center">
         <span class="text-3xl">{{ store.sbook.lastLearnIndex + 1 }}. </span>
         <span class="text-3xl">{{ props.article?.title ?? '' }}</span>
-        <span class="ml-6 text-2xl" v-if="settingStore.translate">{{ props.article?.titleTranslate }}</span>
+        <span v-if="settingStore.translate" class="ml-6 text-2xl">{{ props.article?.titleTranslate }}</span>
       </div>
 
-      <div class="mt-2 text-2xl" v-if="props.article?.question?.text">
+      <div v-if="props.article?.question?.text" class="mt-2 text-2xl">
         <div>Question: {{ props.article?.question?.text }}</div>
-        <div class="text-xl color-translate-second" v-if="settingStore.translate">
+        <div v-if="settingStore.translate" class="text-xl color-translate-second">
           问题: {{ props.article?.question?.translate }}
         </div>
       </div>
     </header>
 
     <div
-      id="article-content"
-      class="article-content"
-      :class="[settingStore.translate && 'tall', settingStore.dictation && 'dictation']"
-      ref="articleWrapperRef"
+        id="article-content"
+        ref="articleWrapperRef"
+        :class="[settingStore.translate && 'tall', settingStore.dictation && 'dictation']"
+        class="article-content"
     >
       <article>
-        <div class="section" v-for="(section, indexI) in props.article.sections">
-          <span class="sentence" v-for="(sentence, indexJ) in section">
+        <div v-for="(section, indexI) in props.article.sections" class="section">
+          <span v-for="(sentence, indexJ) in section" class="sentence">
             <span
-              v-for="(word, indexW) in sentence.words"
-              @contextmenu="e => onContextMenu(e, sentence, indexI, indexJ, indexW)"
-              class="word"
-              :class="[
+                v-for="(word, indexW) in sentence.words"
+                :class="[
                 sectionIndex > indexI
                   ? 'wrote'
                   : sectionIndex >= indexI && sentenceIndex > indexJ
@@ -716,75 +716,77 @@ const currentPractice = inject('currentPractice', [])
                         : '',
                 indexW === 0 && `word${indexI}-${indexJ}`,
               ]"
+                class="word"
+                @contextmenu="e => onContextMenu(e, sentence, indexI, indexJ, indexW)"
             >
               <span
-                class="word-wrap"
-                @mouseenter="settingStore.allowWordTip && showSentence(indexI, indexJ, indexW)"
-                @mouseleave="hideSentence"
-                :class="[
+                  :class="[
                   hoverIndex.sectionIndex === indexI &&
                     hoverIndex.sentenceIndex === indexJ &&
                     hoverIndex.wordIndex === indexW &&
                     'hover-show',
                   word.type === PracticeArticleWordType.Number && 'font-family text-xl',
                 ]"
-                @click="playWordAudio(word.word)"
+                  class="word-wrap"
+                  @click="playWordAudio(word.word)"
+                  @mouseenter="settingStore.allowWordTip && showSentence(indexI, indexJ, indexW)"
+                  @mouseleave="hideSentence"
               >
-                <TypingWord :word="word" :is-typing="true" v-if="isCurrent(indexI, indexJ, indexW) && !isSpace" />
-                <TypingWord :word="word" :is-typing="false" v-else />
-                <span class="border-bottom" v-if="settingStore.dictation"></span>
+                <TypingWord v-if="isCurrent(indexI, indexJ, indexW) && !isSpace" :is-typing="true" :word="word"/>
+                <TypingWord v-else :is-typing="false" :word="word"/>
+                <span v-if="settingStore.dictation" class="border-bottom"></span>
               </span>
               <Space
-                v-if="word.nextSpace"
-                class="word-end"
-                :is-wrong="false"
-                :is-wait="isCurrent(indexI, indexJ, indexW) && isSpace"
-                :is-shake="isCurrent(indexI, indexJ, indexW) && isSpace && wrong !== ''"
+                  v-if="word.nextSpace"
+                  :is-shake="isCurrent(indexI, indexJ, indexW) && isSpace && wrong !== ''"
+                  :is-wait="isCurrent(indexI, indexJ, indexW) && isSpace"
+                  :is-wrong="false"
+                  class="word-end"
               />
             </span>
-            <span class="sentence-translate-mobile" v-if="isMob && settingStore.translate && sentence.translate">
+            <span v-if="isMob && settingStore.translate && sentence.translate" class="sentence-translate-mobile">
               {{ sentence.translate }}
             </span>
           </span>
         </div>
       </article>
-      <div class="translate" v-show="settingStore.translate">
+      <div v-show="settingStore.translate" class="translate">
         <template v-for="(v, indexI) in props.article.sections">
           <div
-            class="row"
-            :class="[
+              v-for="(item, indexJ) in v"
+              :class="[
               `translate${indexI + '-' + indexJ}`,
               sectionIndex > indexI ? 'wrote' : sectionIndex >= indexI && sentenceIndex > indexJ ? 'wrote' : '',
             ]"
-            v-for="(item, indexJ) in v"
+              class="row"
           >
             <span class="space"></span>
             <Transition name="fade">
-              <span class="text" v-if="item.translate">{{ item.translate }}</span>
+              <span v-if="item.translate" class="text">{{ item.translate }}</span>
             </Transition>
           </div>
         </template>
       </div>
-      <div class="cursor" v-if="!isEnd" :style="{ top: cursor.top + 'px', left: cursor.left + 'px' }"></div>
+      <div v-if="!isEnd" :style="{ top: cursor.top + 'px', left: cursor.left + 'px' }" class="cursor"></div>
     </div>
 
-    <div class="options flex justify-center" v-if="isEnd">
-      <BaseButton @click="emit('replay')">重新练习 </BaseButton>
+    <div v-if="isEnd" class="options flex justify-center">
+      <BaseButton @click="emit('replay')">重新练习</BaseButton>
       <BaseButton v-if="store.sbook.lastLearnIndex < store.sbook.articles.length - 1" @click="emit('next')"
-        >下一篇
+      >下一篇
       </BaseButton>
     </div>
 
-    <div class="font-family text-base pr-2 mb-50 mt-10" v-if="currentPractice.length && isEnd">
+    <div v-if="currentPractice.length && isEnd" class="font-family text-base pr-2 mb-50 mt-10">
       <div class="text-2xl font-bold">学习记录</div>
       <div class="mt-1 mb-3">总学习时长：{{ msToHourMinute(total(currentPractice, 'spend')) }}</div>
       <div
-        class="item border border-item border-solid mt-2 p-2 bg-[var(--bg-history)] rounded-md flex justify-between"
-        :class="i === currentPractice.length - 1 && 'color-red!'"
-        v-for="(item, i) in currentPractice"
+          v-for="(item, i) in currentPractice"
+          :class="i === currentPractice.length - 1 && 'color-red!'"
+          class="item border border-item border-solid mt-2 p-2 bg-[var(--bg-history)] rounded-md flex justify-between"
       >
         <span :class="i === currentPractice.length - 1 ? 'color-red' : 'color-gray'"
-          >{{ i === currentPractice.length - 1 ? '当前' : i + 1 }}.&nbsp;&nbsp;{{ _dateFormat(item.startDate) }}</span
+        >{{ i === currentPractice.length - 1 ? '当前' : i + 1 }}.&nbsp;&nbsp;{{ _dateFormat(item.startDate) }}</span
         >
         <span>{{ msToHourMinute(item.spend) }}</span>
       </div>
@@ -794,14 +796,14 @@ const currentPractice = inject('currentPractice', [])
       <div class="center">
         <BaseButton @click="showQuestions = !showQuestions">显示题目</BaseButton>
       </div>
-      <div class="toggle" v-if="showQuestions">
-        <QuestionForm :questions="article.questions" :duration="300" :immediateFeedback="false" :randomize="true" />
+      <div v-if="showQuestions" class="toggle">
+        <QuestionForm :duration="300" :immediateFeedback="false" :questions="article.questions" :randomize="true"/>
       </div>
     </template>
   </div>
 </template>
 
-<style scoped lang="scss">
+<style lang="scss" scoped>
 .wrote {
   color: grey;
 }
@@ -834,6 +836,7 @@ $article-lh: 2.4;
     .border-bottom {
       display: inline-block !important;
     }
+
     .translate {
       color: var(--color-reverse-black);
     }

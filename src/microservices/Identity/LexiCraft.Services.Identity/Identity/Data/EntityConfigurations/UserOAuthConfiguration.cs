@@ -9,7 +9,7 @@ public class UserOAuthConfiguration : IEntityTypeConfiguration<UserOAuth>
     public void Configure(EntityTypeBuilder<UserOAuth> builder)
     {
         builder.HasKey(x => x.Id);
-            
+
         builder.Property(x => x.Provider)
             .IsRequired()
             .HasComment("OAuth 提供者");

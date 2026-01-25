@@ -1,18 +1,18 @@
-<script setup lang="ts">
-import { resourceWrap, useNav } from "@/utils";
+<script lang="ts" setup>
+import {resourceWrap, useNav} from "@/utils";
 import BasePage from "@/components/BasePage.vue";
-import type { DictResource } from "@/types/types.ts";
-import { useRuntimeStore } from "@/stores/runtime.ts";
+import type {DictResource} from "@/types/types.ts";
+import {useRuntimeStore} from "@/stores/runtime.ts";
 import BaseIcon from "@/components/BaseIcon.vue";
 import Empty from "@/components/Empty.vue";
 import BaseButton from "@/components/BaseButton.vue";
 import DictList from "@/components/list/DictList.vue";
 import BackIcon from "@/components/BackIcon.vue";
-import { useRouter } from "vue-router";
-import { computed } from "vue";
-import { getDefaultDict } from "@/types/func.ts";
-import { useFetch } from "@vueuse/core";
-import { DICT_LIST } from "@/config/env.ts";
+import {useRouter} from "vue-router";
+import {computed} from "vue";
+import {getDefaultDict} from "@/types/func.ts";
+import {useFetch} from "@vueuse/core";
+import {DICT_LIST} from "@/config/env.ts";
 import BaseInput from "@/components/base/BaseInput.vue";
 
 const {nav} = useNav()
@@ -38,10 +38,10 @@ const searchList = computed<any[]>(() => {
     let s = searchKey.toLowerCase()
     return bookList.value.filter((item) => {
       return item.id.toLowerCase().includes(s)
-        || item.name.toLowerCase().includes(s)
-        || item.category.toLowerCase().includes(s)
-        || item.tags.join('').replace('所有', '').toLowerCase().includes(s)
-        || item?.url?.toLowerCase?.().includes?.(s)
+          || item.name.toLowerCase().includes(s)
+          || item.category.toLowerCase().includes(s)
+          || item.tags.join('').replace('所有', '').toLowerCase().includes(s)
+          || item?.url?.toLowerCase?.().includes?.(s)
     })
   }
   return []
@@ -51,41 +51,42 @@ const searchList = computed<any[]>(() => {
 
 <template>
   <BasePage>
-    <div class="card min-h-50" v-loading="isFetching">
+    <div v-loading="isFetching" class="card min-h-50">
       <div class="flex items-center relative gap-2">
         <BackIcon class="z-2" @Click='router.back'/>
-        <div class="flex flex-1 gap-4" v-if="showSearchInput">
-          <BaseInput prefix-icon placeholder="请输入书籍名称/缩写/类别" v-model="searchKey" class="flex-1" autofocus clearable/>
+        <div v-if="showSearchInput" class="flex flex-1 gap-4">
+          <BaseInput v-model="searchKey" autofocus class="flex-1" clearable placeholder="请输入书籍名称/缩写/类别"
+                     prefix-icon/>
           <BaseButton @click="showSearchInput = false, searchKey = ''">取消</BaseButton>
         </div>
-        <div class="py-1 flex flex-1 justify-end" v-else>
+        <div v-else class="py-1 flex flex-1 justify-end">
           <span class="page-title absolute w-full center">书籍列表</span>
-          <BaseIcon @click="showSearchInput = true"
-                    class="z-1">
+          <BaseIcon class="z-1"
+                    @click="showSearchInput = true">
             <IconFluentSearch24Regular/>
           </BaseIcon>
         </div>
       </div>
-      <div class="mt-4" v-if="searchKey">
+      <div v-if="searchKey" class="mt-4">
         <DictList
-          v-if="searchList.length "
-          @selectDict="selectDict"
-          :list="searchList"
-          quantifier="篇"
-          :select-id="'-1'"/>
+            v-if="searchList.length "
+            :list="searchList"
+            :select-id="'-1'"
+            quantifier="篇"
+            @selectDict="selectDict"/>
         <Empty v-else text="没有相关书籍"/>
       </div>
-      <div class="w-full mt-2" v-else>
+      <div v-else class="w-full mt-2">
         <DictList
-          v-if="bookList?.length "
-          @selectDict="selectDict"
-          :list="bookList"
-          quantifier="篇"
-          :select-id="'-1'"/>
+            v-if="bookList?.length "
+            :list="bookList"
+            :select-id="'-1'"
+            quantifier="篇"
+            @selectDict="selectDict"/>
       </div>
     </div>
   </BasePage>
 </template>
 
-<style scoped lang="scss">
+<style lang="scss" scoped>
 </style>

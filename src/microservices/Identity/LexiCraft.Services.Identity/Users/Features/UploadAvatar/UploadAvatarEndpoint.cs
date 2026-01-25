@@ -27,10 +27,7 @@ public static class UploadAvatarEndpoint
         {
             var (avatar, mediator, userContext, cancellationToken) = requestParameters;
 
-            if (avatar == null)
-            {
-                throw new ArgumentException("头像文件不能为空");
-            }
+            if (avatar == null) throw new ArgumentException("头像文件不能为空");
 
             var result = await mediator.Send(new UploadAvatarCommand(avatar, userContext.UserId), cancellationToken);
 
@@ -40,21 +37,21 @@ public static class UploadAvatarEndpoint
 }
 
 /// <summary>
-/// 上传用户头像请求参数
+///     上传用户头像请求参数
 /// </summary>
 /// <param name="Mediator"></param>
 /// <param name="UserContext"></param>
 /// <param name="Avatar"></param>
 /// <param name="CancellationToken"></param>
 internal record UploadAvatarRequestParameters(
-    [FromForm]  IFormFile? Avatar,
+    [FromForm] IFormFile? Avatar,
     IMediator Mediator,
     IUserContext UserContext,
     CancellationToken CancellationToken
 );
 
 /// <summary>
-/// 上传头像响应
+///     上传头像响应
 /// </summary>
 /// <param name="AvatarUrl">头像URL</param>
 /// <param name="FileId">文件ID</param>

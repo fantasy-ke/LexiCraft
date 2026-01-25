@@ -21,19 +21,19 @@ public class RegisterCommandValidator : AbstractValidator<RegisterCommand>
         RuleFor(x => x.UserAccount)
             .NotEmpty().WithMessage("请输入账号")
             .MaximumLength(50).WithMessage("账号长度不能超过50个字符");
-            
+
         RuleFor(x => x.Email)
             .NotEmpty().WithMessage("请输入邮箱")
             .EmailAddress().WithMessage("邮箱格式不正确");
-            
+
         RuleFor(x => x.Password)
             .NotEmpty().WithMessage("请输入密码")
             .MinimumLength(6).WithMessage("密码长度至少6位")
             .Matches("^(?=.*[0-9])(?=.*[a-zA-Z]).*$").WithMessage("密码必须包含字母和数字");
-            
+
         RuleFor(x => x.CaptchaKey)
             .NotEmpty().WithMessage("验证码Key不能为空");
-            
+
         RuleFor(x => x.CaptchaCode)
             .NotEmpty().WithMessage("请输入验证码");
     }
@@ -50,7 +50,8 @@ public class RegisterCommandHandler(
         // 验证验证码
         if (!captcha.Validate(command.CaptchaKey, command.CaptchaCode))
         {
-            await mediator.Send(new PublishLoginLogCommand(command.UserAccount, "验证码不正确", LoginType: "Register"), cancellationToken);
+            await mediator.Send(new PublishLoginLogCommand(command.UserAccount, "验证码不正确", LoginType: "Register"),
+                cancellationToken);
             ThrowUserFriendlyException.ThrowException("验证码不正确");
         }
 
@@ -58,7 +59,9 @@ public class RegisterCommandHandler(
         var any = await userRepository.AnyAsync(p => p.UserAccount == command.UserAccount);
         if (any)
         {
-            await mediator.Send(new PublishLoginLogCommand(command.UserAccount, "当前用户名已存在，请重新输入",LoginType: "Register"), cancellationToken);
+            await mediator.Send(
+                new PublishLoginLogCommand(command.UserAccount, "当前用户名已存在，请重新输入", LoginType: "Register"),
+                cancellationToken);
             ThrowUserFriendlyException.ThrowException("当前用户名已存在，请重新输入");
         }
 

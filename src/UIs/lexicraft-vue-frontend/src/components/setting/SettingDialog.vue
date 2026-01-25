@@ -1,5 +1,5 @@
-<script setup lang="ts">
-import { defineAsyncComponent } from "vue";
+<script lang="ts" setup>
+import {defineAsyncComponent} from "vue";
 import BaseIcon from "@/components/BaseIcon.vue";
 import CommonSetting from "@/components/setting/CommonSetting.vue";
 import WordSetting from "@/components/setting/WordSetting.vue";
@@ -17,20 +17,20 @@ let show = $ref(false)
 </script>
 
 <template>
-  <Dialog v-model="show" title="设置" padding>
+  <Dialog v-model="show" padding title="设置">
     <div class="setting text-lg w-200 h-[60vh] text-md flex flex-col">
       <div class="flex flex-1 overflow-hidden">
         <div class="left">
           <div class="tabs">
-            <div class="tab" :class="tabIndex === 1 && 'active'" @click="tabIndex = 1" v-if="type === 'word'">
+            <div v-if="type === 'word'" :class="tabIndex === 1 && 'active'" class="tab" @click="tabIndex = 1">
               <IconFluentTextUnderlineDouble20Regular width="20"/>
               <span>单词设置</span>
             </div>
-            <div class="tab" :class="tabIndex === 2 && 'active'" @click="tabIndex = 2" v-if="type === 'article'">
+            <div v-if="type === 'article'" :class="tabIndex === 2 && 'active'" class="tab" @click="tabIndex = 2">
               <IconFluentBookLetter20Regular width="20"/>
               <span>文章设置</span>
             </div>
-            <div class="tab" :class="tabIndex === 0 && 'active'" @click="tabIndex = 0">
+            <div :class="tabIndex === 0 && 'active'" class="tab" @click="tabIndex = 0">
               <IconFluentSettings20Regular width="20"/>
               <span>通用设置</span>
             </div>
@@ -49,7 +49,7 @@ let show = $ref(false)
   </BaseIcon>
 </template>
 
-<style scoped lang="scss">
+<style lang="scss" scoped>
 
 .setting {
 

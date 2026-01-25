@@ -1,43 +1,44 @@
 <template>
-  <aside class="sidebar" :class="{ collapsed: !sidebarExpanded }">
+  <aside :class="{ collapsed: !sidebarExpanded }" class="sidebar">
     <nav class="sidebar-nav">
       <div class="nav-section">
-        <div class="nav-item" @click="navigateTo('/app/dashboard')" :class="{ active: isActiveRoute('/app/dashboard') }">
-          <IconFluentHome20Regular class="nav-icon" />
+        <div :class="{ active: isActiveRoute('/app/dashboard') }" class="nav-item"
+             @click="navigateTo('/app/dashboard')">
+          <IconFluentHome20Regular class="nav-icon"/>
           <span v-if="sidebarExpanded" class="nav-text">主页</span>
         </div>
 
-        <div class="nav-item" @click="navigateTo('/app/words')" :class="{ active: isActiveRoute('/app/words') }">
-          <IconFluentTextUnderlineDouble20Regular class="nav-icon" />
+        <div :class="{ active: isActiveRoute('/app/words') }" class="nav-item" @click="navigateTo('/app/words')">
+          <IconFluentTextUnderlineDouble20Regular class="nav-icon"/>
           <span v-if="sidebarExpanded" class="nav-text">单词练习</span>
         </div>
 
-        <div class="nav-item" @click="navigateTo('/app/articles')" :class="{ active: isActiveRoute('/app/articles') }">
-          <IconFluentBookLetter20Regular class="nav-icon" />
+        <div :class="{ active: isActiveRoute('/app/articles') }" class="nav-item" @click="navigateTo('/app/articles')">
+          <IconFluentBookLetter20Regular class="nav-icon"/>
           <span v-if="sidebarExpanded" class="nav-text">文章背诵</span>
         </div>
 
-        <div class="nav-item" @click="navigateTo('/app/setting')" :class="{ active: isActiveRoute('/app/setting') }">
-          <IconFluentSettings20Regular class="nav-icon" />
+        <div :class="{ active: isActiveRoute('/app/setting') }" class="nav-item" @click="navigateTo('/app/setting')">
+          <IconFluentSettings20Regular class="nav-icon"/>
           <span v-if="sidebarExpanded" class="nav-text">设置</span>
         </div>
       </div>
 
       <div class="nav-section">
-        <div class="section-title" v-if="sidebarExpanded">学习工具</div>
+        <div v-if="sidebarExpanded" class="section-title">学习工具</div>
 
-        <div class="nav-item" @click="navigateTo('/app/feedback')" :class="{ active: isActiveRoute('/app/feedback') }">
-          <IconFluentCommentEdit20Regular class="nav-icon" />
+        <div :class="{ active: isActiveRoute('/app/feedback') }" class="nav-item" @click="navigateTo('/app/feedback')">
+          <IconFluentCommentEdit20Regular class="nav-icon"/>
           <span v-if="sidebarExpanded" class="nav-text">反馈建议</span>
         </div>
 
-        <div class="nav-item" @click="navigateTo('/app/doc')" :class="{ active: isActiveRoute('/app/doc') }">
-          <IconFluentBook20Regular class="nav-icon" />
+        <div :class="{ active: isActiveRoute('/app/doc') }" class="nav-item" @click="navigateTo('/app/doc')">
+          <IconFluentBook20Regular class="nav-icon"/>
           <span v-if="sidebarExpanded" class="nav-text">学习资料</span>
         </div>
 
-        <div class="nav-item" @click="navigateTo('/app/qa')" :class="{ active: isActiveRoute('/app/qa') }">
-          <IconFluentQuestionCircle20Regular class="nav-icon" />
+        <div :class="{ active: isActiveRoute('/app/qa') }" class="nav-item" @click="navigateTo('/app/qa')">
+          <IconFluentQuestionCircle20Regular class="nav-icon"/>
           <span v-if="sidebarExpanded" class="nav-text">帮助中心</span>
         </div>
       </div>
@@ -50,27 +51,29 @@
 
   <!-- 移动端底部导航 -->
   <nav class="mobile-nav">
-    <div class="mobile-nav-item" @click="navigateTo('/app/dashboard')" :class="{ active: isActiveRoute('/app/dashboard') }">
-      <IconFluentHome20Regular class="nav-icon" />
+    <div :class="{ active: isActiveRoute('/app/dashboard') }" class="mobile-nav-item"
+         @click="navigateTo('/app/dashboard')">
+      <IconFluentHome20Regular class="nav-icon"/>
       <span>主页</span>
     </div>
-    <div class="mobile-nav-item" @click="navigateTo('/app/words')" :class="{ active: isActiveRoute('/app/words') }">
-      <IconFluentTextUnderlineDouble20Regular class="nav-icon" />
+    <div :class="{ active: isActiveRoute('/app/words') }" class="mobile-nav-item" @click="navigateTo('/app/words')">
+      <IconFluentTextUnderlineDouble20Regular class="nav-icon"/>
       <span>单词</span>
     </div>
-    <div class="mobile-nav-item" @click="navigateTo('/app/articles')" :class="{ active: isActiveRoute('/app/articles') }">
-      <IconFluentBookLetter20Regular class="nav-icon" />
+    <div :class="{ active: isActiveRoute('/app/articles') }" class="mobile-nav-item"
+         @click="navigateTo('/app/articles')">
+      <IconFluentBookLetter20Regular class="nav-icon"/>
       <span>文章</span>
     </div>
-    <div class="mobile-nav-item" @click="navigateTo('/app/setting')" :class="{ active: isActiveRoute('/app/setting') }">
-      <IconFluentSettings20Regular class="nav-icon" />
+    <div :class="{ active: isActiveRoute('/app/setting') }" class="mobile-nav-item" @click="navigateTo('/app/setting')">
+      <IconFluentSettings20Regular class="nav-icon"/>
       <span>设置</span>
     </div>
   </nav>
 </template>
 
-<script setup lang="ts">
-import { useRouter, useRoute } from 'vue-router'
+<script lang="ts" setup>
+import {useRoute, useRouter} from 'vue-router'
 
 const props = defineProps<{
   sidebarExpanded: boolean;
@@ -92,7 +95,7 @@ const isActiveRoute = (path: string) => {
 }
 </script>
 
-<style scoped lang="scss">
+<style lang="scss" scoped>
 /* Sidebar Styles */
 .sidebar {
   width: 240px;
@@ -156,11 +159,11 @@ const isActiveRoute = (path: string) => {
 
       &:hover {
         background: var(--hover-bg);
-        
+
         .nav-text {
           color: var(--text-primary);
         }
-        
+
         .nav-icon {
           color: var(--text-primary);
         }
@@ -169,7 +172,7 @@ const isActiveRoute = (path: string) => {
       &.active {
         background: var(--active-bg);
         color: var(--text-active);
-        
+
         &::before {
           content: '';
           position: absolute;
@@ -184,7 +187,7 @@ const isActiveRoute = (path: string) => {
           color: var(--text-active);
           font-weight: 600;
         }
-        
+
         .nav-icon {
           color: var(--text-active);
         }
@@ -240,7 +243,7 @@ const isActiveRoute = (path: string) => {
       .nav-icon, span {
         color: var(--text-active);
       }
-      
+
       &::before {
         content: '';
         position: absolute;
@@ -258,7 +261,7 @@ const isActiveRoute = (path: string) => {
   .sidebar {
     display: none;
   }
-  
+
   .mobile-nav {
     display: flex;
   }

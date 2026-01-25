@@ -11,6 +11,8 @@ public class MongoQueryRepository<TEntity>(IMongoDbContext context) : IQueryRepo
     protected readonly IMongoCollection<TEntity> Collection =
         context.Database.GetCollection<TEntity>(typeof(TEntity).Name);
 
+    protected IMongoDbContext Context { get; } = context;
+
     public IQueryable<TTemp> Select<TTemp>() where TTemp : class
     {
         throw new NotSupportedException(
@@ -74,10 +76,7 @@ public class MongoQueryRepository<TEntity>(IMongoDbContext context) : IQueryRepo
 
     public IQueryable<T> QueryNoTracking<T>() where T : class
     {
-        if (typeof(T) == typeof(TEntity))
-        {
-            return (IQueryable<T>)Collection.AsQueryable();
-        }
+        if (typeof(T) == typeof(TEntity)) return (IQueryable<T>)Collection.AsQueryable();
 
         throw new NotSupportedException(
             "QueryNoTracking with different type not fully supported in this generic adapter.");
@@ -90,10 +89,7 @@ public class MongoQueryRepository<TEntity>(IMongoDbContext context) : IQueryRepo
         var findOptions = Collection.Find(predicate);
         var total = (int)await findOptions.CountDocumentsAsync();
 
-        if (orderBy != null)
-        {
-            findOptions = isAsc ? findOptions.SortBy(orderBy) : findOptions.SortByDescending(orderBy);
-        }
+        if (orderBy != null) findOptions = isAsc ? findOptions.SortBy(orderBy) : findOptions.SortByDescending(orderBy);
 
         var result = await findOptions.Skip((pageIndex - 1) * pageSize)
             .Limit(pageSize)

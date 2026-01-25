@@ -1,9 +1,8 @@
-<script setup lang="ts">
+<script lang="ts" setup>
 
-import { defineAsyncComponent, onMounted, watch } from "vue";
-import { useSettingStore } from "@/stores/setting.ts";
-import { jump2Feedback } from "@/utils";
-import { useDisableEventListener } from "@/hooks/event.ts";
+import {defineAsyncComponent, watch} from "vue";
+import {useSettingStore} from "@/stores/setting.ts";
+import {useDisableEventListener} from "@/hooks/event.ts";
 import ConflictNoticeText from "@/components/ConflictNoticeText.vue";
 
 const Dialog = defineAsyncComponent(() => import('@/components/dialog/Dialog.vue'))
@@ -17,7 +16,7 @@ watch(() => settingStore.load, (n) => {
       show = true
     }, 300)
   }
-}, { immediate: true })
+}, {immediate: true})
 
 useDisableEventListener(() => show)
 
@@ -26,12 +25,12 @@ useDisableEventListener(() => show)
 <template>
   <Dialog
       v-model="show"
-      title="重要提示"
-      footer
-      padding
       :closeOnClickBg="false"
       cancel-button-text="不再提醒"
       confirm-button-text="关闭"
+      footer
+      padding
+      title="重要提示"
       @cancel="settingStore.conflictNotice = false"
   >
     <div class="w-150 center flex-col color-main">

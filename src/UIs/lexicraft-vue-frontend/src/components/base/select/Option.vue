@@ -1,5 +1,5 @@
-<script setup lang="ts">
-import { inject, computed, watch } from 'vue';
+<script lang="ts" setup>
+import {computed, inject, watch} from 'vue';
 
 const props = defineProps<{
   label: string;
@@ -25,17 +25,18 @@ const handleClick = () => {
 };
 
 // 监听props变化，确保在props更新时重新计算isSelected
-watch(() => props.value, () => {}, { immediate: true });
+watch(() => props.value, () => {
+}, {immediate: true});
 </script>
 
 <template>
   <li
-    class="option"
-    :class="{
+      :class="{
       'is-selected': isSelected,
       'is-disabled': disabled
     }"
-    @click="handleClick"
+      class="option"
+      @click="handleClick"
   >
     <slot>
       <span class="option__label">{{ label }}</span>
@@ -43,7 +44,7 @@ watch(() => props.value, () => {}, { immediate: true });
   </li>
 </template>
 
-<style scoped lang="scss">
+<style lang="scss" scoped>
 .option {
   @apply flex items-center px-2 py-1 cursor-pointer transition-all duration-300;
 

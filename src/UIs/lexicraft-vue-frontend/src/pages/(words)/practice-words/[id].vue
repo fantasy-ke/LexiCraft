@@ -1,16 +1,16 @@
-<script setup lang="ts">
-import { onMounted, onUnmounted, provide, ref, watch } from 'vue'
+<script lang="ts" setup>
+import {onMounted, onUnmounted, provide, ref, watch} from 'vue'
 
 import Statistics from '@/components/word/components/Statistics.vue'
-import { emitter, EventKey, useEvents } from '@/utils/eventBus.ts'
-import { useSettingStore } from '@/stores/setting.ts'
-import { useRuntimeStore } from '@/stores/runtime.ts'
-import type { Dict, PracticeData, TaskWords, Word } from '@/types/types.ts'
-import { useDisableEventListener, useOnKeyboardEventListener, useStartKeyboardEventListener } from '@/hooks/event.ts'
+import {emitter, EventKey, useEvents} from '@/utils/eventBus.ts'
+import {useSettingStore} from '@/stores/setting.ts'
+import {useRuntimeStore} from '@/stores/runtime.ts'
+import type {Dict, PracticeData, TaskWords, Word} from '@/types/types.ts'
+import {useDisableEventListener, useOnKeyboardEventListener, useStartKeyboardEventListener} from '@/hooks/event.ts'
 import useTheme from '@/hooks/theme.ts'
-import { getCurrentStudyWord, useWordOptions } from '@/hooks/dict.ts'
-import { _getDictDataByUrl, _nextTick, cloneDeep, isMobile, loadJsLib, resourceWrap, shuffle } from '@/utils'
-import { useRoute, useRouter } from 'vue-router'
+import {getCurrentStudyWord, useWordOptions} from '@/hooks/dict.ts'
+import {_getDictDataByUrl, _nextTick, cloneDeep, isMobile, loadJsLib, resourceWrap, shuffle} from '@/utils'
+import {useRoute, useRouter} from 'vue-router'
 import Footer from '@/components/word/components/Footer.vue'
 import Panel from '@/components/Panel.vue'
 import BaseIcon from '@/components/BaseIcon.vue'
@@ -18,26 +18,26 @@ import Tooltip from '@/components/base/Tooltip.vue'
 import WordList from '@/components/list/WordList.vue'
 import TypeWord from '@/components/word/components/TypeWord.vue'
 import Empty from '@/components/Empty.vue'
-import { useBaseStore } from '@/stores/base.ts'
-import { usePracticeStore } from '@/stores/practice.ts'
+import {useBaseStore} from '@/stores/base.ts'
+import {usePracticeStore} from '@/stores/practice.ts'
 import Toast from '@/components/base/toast/Toast.ts'
-import { getDefaultDict, getDefaultWord } from '@/types/func.ts'
+import {getDefaultDict, getDefaultWord} from '@/types/func.ts'
 import ConflictNotice from '@/components/ConflictNotice.vue'
 import PracticeLayout from '@/components/PracticeLayout.vue'
 import ShortcutHints from '@/components/ShortcutHints.vue'
 
-import { AppEnv, DICT_LIST, LIB_JS_URL, TourConfig, WordPracticeModeStageMap } from '@/config/env.ts'
-import { ToastInstance } from '@/components/base/toast/type.ts'
-import { watchOnce } from '@vueuse/core'
-import { setUserDictProp } from '@/apis'
+import {AppEnv, DICT_LIST, LIB_JS_URL, TourConfig, WordPracticeModeStageMap} from '@/config/env.ts'
+import {ToastInstance} from '@/components/base/toast/type.ts'
+import {watchOnce} from '@vueuse/core'
+import {setUserDictProp} from '@/apis'
 import GroupList from '@/components/word/components/GroupList.vue'
-import { getPracticeWordCache, setPracticeWordCache } from '@/utils/cache.ts'
-import { ShortcutKey, WordPracticeMode, WordPracticeStage, WordPracticeType } from '@/types/enum.ts'
+import {getPracticeWordCache, setPracticeWordCache} from '@/utils/cache.ts'
+import {ShortcutKey, WordPracticeMode, WordPracticeStage, WordPracticeType} from '@/types/enum.ts'
 
-const { isWordCollect, toggleWordCollect, isWordSimple, toggleWordSimple } = useWordOptions()
+const {isWordCollect, toggleWordCollect, isWordSimple, toggleWordSimple} = useWordOptions()
 const settingStore = useSettingStore()
 const runtimeStore = useRuntimeStore()
-const { toggleTheme } = useTheme()
+const {toggleTheme} = useTheme()
 const router = useRouter()
 const route = useRoute()
 const store = useBaseStore()
@@ -97,11 +97,11 @@ async function loadDict() {
 }
 
 watch(
-  () => store.load,
-  n => {
-    if (n && loading) loadDict()
-  },
-  { immediate: true }
+    () => store.load,
+    n => {
+      if (n && loading) loadDict()
+    },
+    {immediate: true}
 )
 
 onMounted(() => {
@@ -130,50 +130,50 @@ onUnmounted(() => {
 })
 
 watchOnce(
-  () => data.words.length,
-  (newVal, oldVal) => {
-    //如果是从无值变有值，代表是开始
-    if (!oldVal && newVal) {
-      _nextTick(async () => {
-        const Shepherd = await loadJsLib('Shepherd', LIB_JS_URL.SHEPHERD)
-        const tour = new Shepherd.Tour(TourConfig)
-        tour.on('cancel', () => {
-          localStorage.setItem('tour-guide', '1')
-        })
-        tour.addStep({
-          id: 'step5',
-          text: '这里可以练习拼写单词，只需要按下键盘上对应的按键即可，没有输入框！',
-          attachTo: { element: '#word', on: 'bottom' },
-          buttons: [
-            {
-              text: `下一步（5/${TourConfig.total}）`,
-              action: tour.next,
-            },
-          ],
-        })
-
-        tour.addStep({
-          id: 'step6',
-          text: '这里是文章练习',
-          attachTo: { element: '#article', on: 'top' },
-          buttons: [
-            {
-              text: `下一步（6/${TourConfig.total}）`,
-              action() {
-                tour.next()
-                router.push('/articles')
+    () => data.words.length,
+    (newVal, oldVal) => {
+      //如果是从无值变有值，代表是开始
+      if (!oldVal && newVal) {
+        _nextTick(async () => {
+          const Shepherd = await loadJsLib('Shepherd', LIB_JS_URL.SHEPHERD)
+          const tour = new Shepherd.Tour(TourConfig)
+          tour.on('cancel', () => {
+            localStorage.setItem('tour-guide', '1')
+          })
+          tour.addStep({
+            id: 'step5',
+            text: '这里可以练习拼写单词，只需要按下键盘上对应的按键即可，没有输入框！',
+            attachTo: {element: '#word', on: 'bottom'},
+            buttons: [
+              {
+                text: `下一步（5/${TourConfig.total}）`,
+                action: tour.next,
               },
-            },
-          ],
-        })
+            ],
+          })
 
-        const r = localStorage.getItem('tour-guide')
-        if (settingStore.first && !r && !isMobile()) {
-          tour.start()
-        }
-      }, 500)
+          tour.addStep({
+            id: 'step6',
+            text: '这里是文章练习',
+            attachTo: {element: '#article', on: 'top'},
+            buttons: [
+              {
+                text: `下一步（6/${TourConfig.total}）`,
+                action() {
+                  tour.next()
+                  router.push('/articles')
+                },
+              },
+            ],
+          })
+
+          const r = localStorage.getItem('tour-guide')
+          if (settingStore.first && !r && !isMobile()) {
+            tour.start()
+          }
+        }, 500)
+      }
     }
-  }
 )
 
 useStartKeyboardEventListener()
@@ -284,60 +284,60 @@ const nextWord: Word = $computed(() => {
 })
 
 watch(
-  () => settingStore.wordPracticeType,
-  n => {
-    if (settingStore.wordPracticeMode === WordPracticeMode.Free) return
-    switch (n) {
-      case WordPracticeType.Spell:
-      case WordPracticeType.Dictation:
-        settingStore.dictation = true
-        settingStore.translate = true
-        break
-      case WordPracticeType.Listen:
-        settingStore.dictation = true
-        settingStore.translate = false
-        break
-      case WordPracticeType.FollowWrite:
-        settingStore.dictation = false
-        settingStore.translate = true
-        break
-      case WordPracticeType.Identify:
-        settingStore.dictation = false
-        settingStore.translate = false
-        break
-    }
-  },
-  { immediate: true }
+    () => settingStore.wordPracticeType,
+    n => {
+      if (settingStore.wordPracticeMode === WordPracticeMode.Free) return
+      switch (n) {
+        case WordPracticeType.Spell:
+        case WordPracticeType.Dictation:
+          settingStore.dictation = true
+          settingStore.translate = true
+          break
+        case WordPracticeType.Listen:
+          settingStore.dictation = true
+          settingStore.translate = false
+          break
+        case WordPracticeType.FollowWrite:
+          settingStore.dictation = false
+          settingStore.translate = true
+          break
+        case WordPracticeType.Identify:
+          settingStore.dictation = false
+          settingStore.translate = false
+          break
+      }
+    },
+    {immediate: true}
 )
 
 watch(
-  () => statStore.stage,
-  n => {
-    switch (n) {
-      case WordPracticeStage.DictationNewWord:
-      case WordPracticeStage.DictationReview:
-      case WordPracticeStage.DictationReviewAll:
-      case WordPracticeStage.Shuffle:
-        settingStore.wordPracticeType = WordPracticeType.Dictation
-        break
-      case WordPracticeStage.ListenNewWord:
-      case WordPracticeStage.ListenReview:
-      case WordPracticeStage.ListenReviewAll:
-        settingStore.wordPracticeType = WordPracticeType.Listen
-        break
-      case WordPracticeStage.FollowWriteNewWord:
-      case WordPracticeStage.FollowWriteReview:
-      case WordPracticeStage.FollowWriteReviewAll:
-        settingStore.wordPracticeType = WordPracticeType.FollowWrite
-        break
-      case WordPracticeStage.IdentifyNewWord:
-      case WordPracticeStage.IdentifyReview:
-      case WordPracticeStage.IdentifyReviewAll:
-        settingStore.wordPracticeType = WordPracticeType.Identify
-        break
-    }
-  },
-  { immediate: true }
+    () => statStore.stage,
+    n => {
+      switch (n) {
+        case WordPracticeStage.DictationNewWord:
+        case WordPracticeStage.DictationReview:
+        case WordPracticeStage.DictationReviewAll:
+        case WordPracticeStage.Shuffle:
+          settingStore.wordPracticeType = WordPracticeType.Dictation
+          break
+        case WordPracticeStage.ListenNewWord:
+        case WordPracticeStage.ListenReview:
+        case WordPracticeStage.ListenReviewAll:
+          settingStore.wordPracticeType = WordPracticeType.Listen
+          break
+        case WordPracticeStage.FollowWriteNewWord:
+        case WordPracticeStage.FollowWriteReview:
+        case WordPracticeStage.FollowWriteReviewAll:
+          settingStore.wordPracticeType = WordPracticeType.FollowWrite
+          break
+        case WordPracticeStage.IdentifyNewWord:
+        case WordPracticeStage.IdentifyReview:
+        case WordPracticeStage.IdentifyReviewAll:
+          settingStore.wordPracticeType = WordPracticeType.Identify
+          break
+      }
+    },
+    {immediate: true}
 )
 
 const groupSize = 7
@@ -371,7 +371,7 @@ function nextStage(originList: Word[], log: string = '', toast: boolean = false)
   if (list.length) {
     if (toast) {
       if (toastInstance) toastInstance.close()
-      toastInstance = Toast.info('输入完成后按空格键切换下一个', { duration: 5000 })
+      toastInstance = Toast.info('输入完成后按空格键切换下一个', {duration: 5000})
     }
     data.words = list
     data.index = 0
@@ -644,8 +644,8 @@ async function continueStudy() {
   //随机练习单独处理
   if (settingStore.wordPracticeMode === WordPracticeMode.Shuffle) {
     temp.shuffle = shuffle(store.sdict.words.filter(v => !ignoreList.includes(v.word))).slice(
-      0,
-      runtimeStore.routeData.total ?? temp.shuffle.length
+        0,
+        runtimeStore.routeData.total ?? temp.shuffle.length
     )
     if (showStatDialog) showStatDialog = false
   } else {
@@ -671,7 +671,7 @@ async function continueStudy() {
   initData(temp)
 
   if (AppEnv.CAN_REQUEST) {
-    let res = await setUserDictProp(null, { ...store.sdict, type: 'word' })
+    let res = await setUserDictProp(null, {...store.sdict, type: 'word'})
     if (!res.success) {
       Toast.error(res.msg)
     }
@@ -686,7 +686,7 @@ async function jumpToGroup(group: number) {
   initData(getCurrentStudyWord())
 
   if (AppEnv.CAN_REQUEST) {
-    let res = await setUserDictProp(null, { ...store.sdict, type: 'word' })
+    let res = await setUserDictProp(null, {...store.sdict, type: 'word'})
     if (!res.success) {
       Toast.error(res.msg)
     }
@@ -725,7 +725,7 @@ useEvents([
   <PracticeLayout v-loading="loading" maxWidth="var(--toolbar-width)">
     <template v-slot:hints>
       <ShortcutHints
-        :hints="[
+          :hints="[
           { key: ShortcutKey.PlayWordPronunciation, label: '播音' },
           { key: ShortcutKey.ToggleSimple, label: '掌握' },
           { key: ShortcutKey.ToggleCollect, label: '生词' },
@@ -737,33 +737,33 @@ useEvents([
     <!-- 导航区域 -->
     <template v-slot:navigation>
       <div
-        class="navigation-buttons"
-        v-if="settingStore.showNearWord"
+          v-if="settingStore.showNearWord"
+          class="navigation-buttons"
       >
-        <div class="nav-btn nav-btn-prev" @click="prev" v-if="prevWord">
-          <IconFluentArrowLeft16Regular class="nav-arrow" width="22" />
+        <div v-if="prevWord" class="nav-btn nav-btn-prev" @click="prev">
+          <IconFluentArrowLeft16Regular class="nav-arrow" width="22"/>
           <Tooltip :title="`上一个(${settingStore.shortcutKeyMap[ShortcutKey.Previous]})`">
             <div class="nav-word">{{ prevWord.word }}</div>
           </Tooltip>
         </div>
         <div v-else class="nav-placeholder"></div>
-        
-        <div class="nav-btn nav-btn-next" @click="next(false)" v-if="nextWord">
+
+        <div v-if="nextWord" class="nav-btn nav-btn-next" @click="next(false)">
           <Tooltip :title="`下一个(${settingStore.shortcutKeyMap[ShortcutKey.Next]})`">
-            <div class="nav-word" :class="settingStore.dictation && 'word-shadow'">
+            <div :class="settingStore.dictation && 'word-shadow'" class="nav-word">
               {{ nextWord.word }}
             </div>
           </Tooltip>
-          <IconFluentArrowRight16Regular class="nav-arrow" width="22" />
+          <IconFluentArrowRight16Regular class="nav-arrow" width="22"/>
         </div>
         <div v-else class="nav-placeholder"></div>
       </div>
     </template>
-    
+
     <!-- 练习内容区域 -->
     <template v-slot:practice>
       <div class="practice-word">
-        <TypeWord ref="typingRef" :word="word" @wrong="onTypeWrong" @complete="next" @know="onWordKnow" />
+        <TypeWord ref="typingRef" :word="word" @complete="next" @know="onWordKnow" @wrong="onTypeWrong"/>
       </div>
     </template>
     <template v-slot:panel>
@@ -773,57 +773,57 @@ useEvents([
             <span>{{ store.sdict.name }}</span>
 
             <GroupList
-              @click="jumpToGroup"
-              v-if="taskWords.new.length && settingStore.wordPracticeMode !== WordPracticeMode.Shuffle"
+                v-if="taskWords.new.length && settingStore.wordPracticeMode !== WordPracticeMode.Shuffle"
+                @click="jumpToGroup"
             />
             <BaseIcon
-              v-if="
+                v-if="
                 taskWords.new.length &&
                 ![WordPracticeMode.Review, WordPracticeMode.Shuffle].includes(settingStore.wordPracticeMode)
               "
-              @click="continueStudy"
-              :title="`下一组(${settingStore.shortcutKeyMap[ShortcutKey.NextChapter]})`"
+                :title="`下一组(${settingStore.shortcutKeyMap[ShortcutKey.NextChapter]})`"
+                @click="continueStudy"
             >
-              <IconFluentArrowRight16Regular class="arrow" width="22" />
+              <IconFluentArrowRight16Regular class="arrow" width="22"/>
             </BaseIcon>
 
-            <BaseIcon @click="randomWrite" :title="`随机默写(${settingStore.shortcutKeyMap[ShortcutKey.RandomWrite]})`">
-              <IconFluentArrowShuffle16Regular class="arrow" width="22" />
+            <BaseIcon :title="`随机默写(${settingStore.shortcutKeyMap[ShortcutKey.RandomWrite]})`" @click="randomWrite">
+              <IconFluentArrowShuffle16Regular class="arrow" width="22"/>
             </BaseIcon>
           </div>
         </template>
         <div class="panel-page-item pl-4">
           <WordList
-            v-if="data.words.length"
-            :is-active="settingStore.showPanel"
-            :static="false"
-            :show-word="!settingStore.dictation"
-            :show-translate="settingStore.translate"
-            :list="data.words"
-            :activeIndex="data.index"
-            @click="(val: any) => (data.index = val.index)"
+              v-if="data.words.length"
+              :activeIndex="data.index"
+              :is-active="settingStore.showPanel"
+              :list="data.words"
+              :show-translate="settingStore.translate"
+              :show-word="!settingStore.dictation"
+              :static="false"
+              @click="(val: any) => (data.index = val.index)"
           >
           </WordList>
-          <Empty v-else />
+          <Empty v-else/>
         </div>
       </Panel>
     </template>
     <template v-slot:footer>
       <Footer
-        :is-simple="isWordSimple(word)"
-        @toggle-simple="toggleWordSimpleWrapper"
-        :is-collect="isWordCollect(word)"
-        @toggle-collect="toggleWordCollect(word)"
-        @skip="next(false)"
-        @skipStep="skipStep"
+          :is-collect="isWordCollect(word)"
+          :is-simple="isWordSimple(word)"
+          @skip="next(false)"
+          @skipStep="skipStep"
+          @toggle-simple="toggleWordSimpleWrapper"
+          @toggle-collect="toggleWordCollect(word)"
       />
     </template>
   </PracticeLayout>
-  <Statistics v-model="showStatDialog" />
-  <ConflictNotice v-if="showConflictNotice" />
+  <Statistics v-model="showStatDialog"/>
+  <ConflictNotice v-if="showConflictNotice"/>
 </template>
 
-<style scoped lang="scss">
+<style lang="scss" scoped>
 .practice-wrapper {
   width: 100%;
   height: 100vh;
@@ -864,7 +864,7 @@ useEvents([
   cursor: pointer;
   transition: all 0.2s;
   backdrop-filter: blur(10px);
-  
+
   &:hover {
     background: rgba(255, 255, 255, 0.95);
     border-color: rgba(0, 0, 0, 0.2);
@@ -889,7 +889,7 @@ useEvents([
 .nav-arrow {
   color: #6b7280;
   transition: color 0.2s;
-  
+
   .nav-btn:hover & {
     color: #3b82f6;
   }
@@ -899,7 +899,7 @@ useEvents([
   font-weight: 500;
   color: #374151;
   font-size: 0.875rem;
-  
+
   &.word-shadow {
     color: transparent;
     text-shadow: 0 0 8px rgba(0, 0, 0, 0.5);
@@ -916,11 +916,11 @@ useEvents([
   .nav-btn {
     padding: 0.4rem 0.8rem;
     min-height: 44px; // 确保触摸友好
-    
+
     .nav-word {
       font-size: 0.8rem;
     }
-    
+
     .nav-arrow {
       width: 18px;
       height: 18px;
@@ -936,7 +936,7 @@ useEvents([
 
   .nav-btn {
     padding: 0.3rem 0.6rem;
-    
+
     .nav-word {
       font-size: 0.75rem;
       max-width: 4rem;
@@ -944,7 +944,7 @@ useEvents([
       text-overflow: ellipsis;
       white-space: nowrap;
     }
-    
+
     .nav-arrow {
       width: 16px;
       height: 16px;
@@ -957,20 +957,20 @@ useEvents([
   .nav-btn {
     background: rgba(31, 41, 55, 0.9);
     border-color: rgba(255, 255, 255, 0.1);
-    
+
     &:hover {
       background: rgba(31, 41, 55, 0.95);
       border-color: rgba(255, 255, 255, 0.2);
     }
   }
-  
+
   .nav-word {
     color: #d1d5db;
   }
-  
+
   .nav-arrow {
     color: #9ca3af;
-    
+
     .nav-btn:hover & {
       color: #60a5fa;
     }

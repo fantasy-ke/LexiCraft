@@ -1,5 +1,5 @@
-<script setup lang="ts">
-import {ref, computed, watch} from 'vue';
+<script lang="ts" setup>
+import {computed, ref, watch} from 'vue';
 
 interface IProps {
   modelValue: boolean;
@@ -43,33 +43,33 @@ const ballSize = computed(() => switchHeight.value - 4);
 
 <template>
   <div
-      class="switch"
-      :class="{ 'checked': isChecked, 'disabled': disabled }"
-      :tabindex="disabled ? -1 : 0"
-      role="switch"
       :aria-checked="isChecked"
+      :class="{ 'checked': isChecked, 'disabled': disabled }"
+      :style="{ width: switchWidth + 'px', height: switchHeight + 'px' ,borderRadius: switchHeight + 'px'}"
+      :tabindex="disabled ? -1 : 0"
+      class="switch"
+      role="switch"
       @click="toggle"
       @keydown="onKeydown"
-      :style="{ width: switchWidth + 'px', height: switchHeight + 'px' ,borderRadius: switchHeight + 'px'}"
   >
     <transition name="fade">
-      <span class="text left" v-if="isChecked && activeText">{{ activeText }}</span>
+      <span v-if="isChecked && activeText" class="text left">{{ activeText }}</span>
     </transition>
     <div
-        class="ball"
         :style="{
           width: ballSize + 'px',
           height: ballSize + 'px',
           transform: isChecked ? 'translateX(' + (switchWidth - ballSize - 2) + 'px)' : 'translateX(2px)'
         }"
+        class="ball"
     ></div>
     <transition name="fade">
-      <span class="text right" v-if="!isChecked && inactiveText">{{ inactiveText }}</span>
+      <span v-if="!isChecked && inactiveText" class="text right">{{ inactiveText }}</span>
     </transition>
   </div>
 </template>
 
-<style scoped lang="scss">
+<style lang="scss" scoped>
 .switch {
   @apply inline-flex items-center cursor-pointer user-select-none outline-none bg-gray-200 position-relative transition-all duration-300;
 
@@ -89,9 +89,11 @@ const ballSize = computed(() => switchHeight.value - 4);
   .text {
     @apply absolute text-xs text-white user-select-none;
     font-size: 0.75rem;
+
     &.left {
       @apply ml-1.5;
     }
+
     &.right {
       @apply right-1.5;
     }

@@ -12,7 +12,7 @@
     <div class="header-center">
       <div class="search-box">
         <i class="search-icon">🔍</i>
-        <input type="text" placeholder="搜索单词或文章..." class="search-input">
+        <input class="search-input" placeholder="搜索单词或文章..." type="text">
       </div>
     </div>
 
@@ -28,17 +28,17 @@
         </div>
       </div>
 
-      <div class="user-menu" ref="userMenuRef">
+      <div ref="userMenuRef" class="user-menu">
         <!-- 移动端遮罩层 -->
-        <div 
-          v-if="showUserMenu" 
-          class="menu-overlay"
-          @click="emit('update:showUserMenu', false)"
+        <div
+            v-if="showUserMenu"
+            class="menu-overlay"
+            @click="emit('update:showUserMenu', false)"
         ></div>
-        
-<button class="user-avatar" @click.stop="toggleUserMenu" title="个人中心">
-	<img :src="avatarUrl" alt="avatar" class="avatar-img" @error="handleAvatarError" />
-</button>
+
+        <button class="user-avatar" title="个人中心" @click.stop="toggleUserMenu">
+          <img :src="avatarUrl" alt="avatar" class="avatar-img" @error="handleAvatarError"/>
+        </button>
 
         <transition name="dropdown">
           <div v-if="showUserMenu" class="user-dropdown" @click.stop>
@@ -53,21 +53,21 @@
             <!-- Menu Items -->
             <div class="menu-list">
               <div class="menu-item" @click="navigateTo('/app/user')">
-                <IconFluentPerson20Regular class="menu-icon" />
+                <IconFluentPerson20Regular class="menu-icon"/>
                 <span>个人主页</span>
               </div>
               <div class="menu-item" @click="navigateTo('/app/setting')">
-                <IconFluentSettings20Regular class="menu-icon" />
+                <IconFluentSettings20Regular class="menu-icon"/>
                 <span>设置</span>
               </div>
               <div class="menu-item">
-                <IconFluentNote20Regular class="menu-icon" />
+                <IconFluentNote20Regular class="menu-icon"/>
                 <span>更新日志</span>
               </div>
               <div class="menu-item" @click="navigateTo('/app/doc')">
-                <IconFluentBookQuestionMark20Regular class="menu-icon" />
+                <IconFluentBookQuestionMark20Regular class="menu-icon"/>
                 <span>帮助文档</span>
-                <IconFluentArrowUpRight16Regular class="external-icon" />
+                <IconFluentArrowUpRight16Regular class="external-icon"/>
               </div>
             </div>
 
@@ -79,29 +79,29 @@
               <div class="pref-row">
                 <span class="pref-name">主题</span>
                 <div class="theme-switch">
-                  <div 
-                    class="theme-option" 
-                    :class="{ active: getThemeSetting() === 'light' }"
-                    @click="setTheme('light')"
-                    title="浅色模式"
+                  <div
+                      :class="{ active: getThemeSetting() === 'light' }"
+                      class="theme-option"
+                      title="浅色模式"
+                      @click="setTheme('light')"
                   >
-                    <IconFluentWeatherSunny16Regular />
+                    <IconFluentWeatherSunny16Regular/>
                   </div>
-                  <div 
-                    class="theme-option" 
-                    :class="{ active: getThemeSetting() === 'dark' }"
-                    @click="setTheme('dark')"
-                    title="深色模式"
+                  <div
+                      :class="{ active: getThemeSetting() === 'dark' }"
+                      class="theme-option"
+                      title="深色模式"
+                      @click="setTheme('dark')"
                   >
-                    <IconFluentWeatherMoon16Regular />
+                    <IconFluentWeatherMoon16Regular/>
                   </div>
-                  <div 
-                    class="theme-option" 
-                    :class="{ active: getThemeSetting() === 'auto' }"
-                    @click="setTheme('auto')"
-                    title="跟随系统"
+                  <div
+                      :class="{ active: getThemeSetting() === 'auto' }"
+                      class="theme-option"
+                      title="跟随系统"
+                      @click="setTheme('auto')"
                   >
-                    <IconFluentLaptop16Regular />
+                    <IconFluentLaptop16Regular/>
                   </div>
                 </div>
               </div>
@@ -111,7 +111,7 @@
 
             <!-- Logout -->
             <div class="logout-item" @click="handleLogout">
-              <IconFluentSignOut20Regular class="menu-icon" />
+              <IconFluentSignOut20Regular class="menu-icon"/>
               <span>退出登录</span>
             </div>
           </div>
@@ -121,12 +121,12 @@
   </header>
 </template>
 
-<script setup lang="ts">
-import { ref, onMounted, onUnmounted, computed } from 'vue'
-import { useRouter } from 'vue-router'
+<script lang="ts" setup>
+import {computed, onMounted, onUnmounted, ref} from 'vue'
+import {useRouter} from 'vue-router'
 import useTheme from '@/hooks/theme'
-import { useUserStore } from '@/stores/user'
-import { getUserAvatarUrl, getDefaultAvatarUrl } from '@/utils/authHelpers'
+import {useUserStore} from '@/stores/user'
+import {getDefaultAvatarUrl, getUserAvatarUrl} from '@/utils/authHelpers'
 
 const props = defineProps<{
   todayStats: { words: number; days: number };
@@ -139,20 +139,20 @@ const emit = defineEmits<{
 }>()
 
 const router = useRouter()
-const { setTheme, getThemeSetting } = useTheme()
+const {setTheme, getThemeSetting} = useTheme()
 const userStore = useUserStore()
 const userMenuRef = ref<HTMLElement | null>(null)
 
 const avatarUrl = computed(() => {
-	const user = userStore.user
-	if (!user) {
-		return getDefaultAvatarUrl({ username: 'User' })
-	}
-	return getUserAvatarUrl({
-		avatar: user.avatar,
-		email: user.email,
-		username: user.username
-	})
+  const user = userStore.user
+  if (!user) {
+    return getDefaultAvatarUrl({username: 'User'})
+  }
+  return getUserAvatarUrl({
+    avatar: user.avatar,
+    email: user.email,
+    username: user.username
+  })
 })
 
 const toggleUserMenu = () => {
@@ -175,13 +175,13 @@ const handleLogout = async () => {
 }
 
 const handleAvatarError = (event: Event) => {
-	const img = event.target as HTMLImageElement | null
-	if (!img) return
-	const user = userStore.user
-	img.src = getDefaultAvatarUrl({
-		email: user?.email,
-		username: user?.username
-	})
+  const img = event.target as HTMLImageElement | null
+  if (!img) return
+  const user = userStore.user
+  img.src = getDefaultAvatarUrl({
+    email: user?.email,
+    username: user?.username
+  })
 }
 
 // 点击外部区域关闭菜单
@@ -202,7 +202,7 @@ onUnmounted(() => {
 })
 </script>
 
-<style scoped lang="scss">
+<style lang="scss" scoped>
 /* Header Styles */
 .top-header {
   height: 60px;
@@ -323,7 +323,7 @@ onUnmounted(() => {
 
     .user-menu {
       position: relative;
-      
+
       .menu-overlay {
         display: none;
       }
@@ -368,7 +368,7 @@ onUnmounted(() => {
           display: flex;
           justify-content: space-between;
           align-items: flex-start;
-          
+
           .user-info {
             .user-name {
               font-size: 1rem;
@@ -376,6 +376,7 @@ onUnmounted(() => {
               color: var(--text-primary);
               margin-bottom: 0.25rem;
             }
+
             .user-handle {
               font-size: 0.8rem;
               color: var(--text-tertiary);
@@ -391,7 +392,7 @@ onUnmounted(() => {
 
         .menu-list {
           padding: 0 0.5rem;
-          
+
           .menu-item {
             display: flex;
             align-items: center;
@@ -411,44 +412,44 @@ onUnmounted(() => {
               font-size: 1.1rem;
               color: var(--text-tertiary);
             }
-            
+
             span {
               font-size: 0.9rem;
               flex: 1;
             }
-            
+
             .external-icon {
               font-size: 0.8rem;
               color: var(--text-tertiary);
             }
           }
         }
-        
+
         .preference-section {
           padding: 0.5rem 1.25rem;
-          
+
           .pref-label {
             font-size: 0.75rem;
             color: var(--text-tertiary);
             margin-bottom: 0.75rem;
           }
-          
+
           .pref-row {
             display: flex;
             align-items: center;
             justify-content: space-between;
-            
+
             .pref-name {
               font-size: 0.9rem;
               color: var(--text-secondary);
             }
-            
+
             .theme-switch {
               display: flex;
               background: var(--hover-bg);
               padding: 2px;
               border-radius: 6px;
-              
+
               .theme-option {
                 width: 28px;
                 height: 28px;
@@ -459,23 +460,23 @@ onUnmounted(() => {
                 cursor: pointer;
                 color: var(--text-tertiary);
                 transition: all 0.2s;
-                
+
                 &:hover {
                   color: var(--text-primary);
                 }
-                
+
                 &.active {
                   background: var(--header-bg);
                   color: var(--text-active);
                   box-shadow: 0 1px 2px var(--shadow-color);
                 }
-                
+
                 font-size: 0.9rem;
               }
             }
           }
         }
-        
+
         .logout-item {
           margin: 0 0.5rem;
           display: flex;
@@ -490,11 +491,11 @@ onUnmounted(() => {
           &:hover {
             background: #fef2f2;
           }
-          
+
           .menu-icon {
             font-size: 1.1rem;
           }
-          
+
           span {
             font-size: 0.9rem;
           }
@@ -520,34 +521,34 @@ onUnmounted(() => {
   .top-header {
     padding: 0 1rem;
     gap: 1rem;
-    
+
     .header-left {
       .logo-section {
         gap: 0.5rem;
-        
+
         .logo-icon {
           width: 32px;
           height: 32px;
         }
-        
+
         .logo-text {
           font-size: 1.1rem;
         }
       }
     }
-    
-    .header-stats { 
+
+    .header-stats {
       display: none !important;
     }
-    
-    .header-center { 
+
+    .header-center {
       display: none !important;
     }
-    
+
     .header-right {
       gap: 0.75rem;
       margin-left: auto;
-      
+
       .user-menu {
         // 移动端遮罩层
         .menu-overlay {
@@ -558,12 +559,12 @@ onUnmounted(() => {
           z-index: 999;
           animation: fadeIn 0.2s ease;
         }
-        
+
         .user-avatar {
           width: 32px;
           height: 32px;
         }
-        
+
         .user-dropdown {
           width: 280px;
           max-width: calc(100vw - 2rem);
@@ -573,28 +574,28 @@ onUnmounted(() => {
           max-height: calc(100vh - 80px);
           overflow-y: auto;
           -webkit-overflow-scrolling: touch;
-          
+
           .user-header {
             padding: 1rem;
           }
-          
+
           .menu-list {
             .menu-item {
               padding: 0.75rem;
-              
+
               &:active {
                 background: var(--active-bg);
               }
             }
           }
-          
+
           .preference-section {
             padding: 0.5rem 1rem;
           }
-          
+
           .logout-item {
             padding: 0.75rem;
-            
+
             &:active {
               background: #fee2e2;
             }
@@ -619,7 +620,7 @@ onUnmounted(() => {
   .top-header {
     padding: 0 0.75rem;
     gap: 0.5rem;
-    
+
     .header-left {
       .logo-section {
         .logo-text {
@@ -627,7 +628,7 @@ onUnmounted(() => {
         }
       }
     }
-    
+
     .header-right {
       .user-menu {
         .user-dropdown {

@@ -1,3 +1,4 @@
+using System.Security.Claims;
 using BuildingBlocks.Authentication.Shared;
 using BuildingBlocks.Caching.Abstractions;
 using Microsoft.AspNetCore.Authorization;
@@ -13,13 +14,19 @@ public sealed class AuthorizeHandler(
 {
     private readonly AsyncServiceScope _scope = serviceProvider.CreateAsyncScope();
 
-    protected override async Task HandleRequirementAsync(AuthorizationHandlerContext context, AuthorizeRequirement requirement)
+    public void Dispose()
+    {
+        Dispose(true);
+    }
+
+    protected override async Task HandleRequirementAsync(AuthorizationHandlerContext context,
+        AuthorizeRequirement requirement)
     {
         AuthorizationFailureReason failureReason;
 
         var currentEndpoint = contextAccessor.HttpContext?.GetEndpoint();
 
-        if(currentEndpoint is null)
+        if (currentEndpoint is null)
         {
             failureReason = new AuthorizationFailureReason(this, "非法路由，What are you doing, man ?");
             context.Fail(failureReason);
@@ -48,18 +55,18 @@ public sealed class AuthorizeHandler(
             context.Fail();
             return;
         }
-        
+
         // 检查是否启用Redis权限验证
         var oauthOptions = _scope.ServiceProvider.GetRequiredService<IOptionsMonitor<OAuthOptions>>();
         var redisEnabled = oauthOptions.CurrentValue.OAuthRedis.Enable;
-        
+
         // 如果未启用Redis权限验证，直接通过（降级策略）
         if (!redisEnabled)
-           goto next;
+            goto next;
 
         // Redis白名单/黑名单校验：检查Token是否有效（是否在Redis中存在）
         if (!await CheckTokenValidityAsync(context)) return;
-        
+
         var permissionCheck = _scope.ServiceProvider.GetRequiredService<IPermissionCheck>();
         // 检查所有需要的权限
         foreach (var permission in requirement.AuthorizeName)
@@ -71,18 +78,19 @@ public sealed class AuthorizeHandler(
             context.Fail(failureReason);
             return;
         }
+
         next:
         context.Succeed(requirement);
     }
 
     /// <summary>
-    /// 检查Token有效性（Redis白名单/黑名单校验）
+    ///     检查Token有效性（Redis白名单/黑名单校验）
     /// </summary>
     private async Task<bool> CheckTokenValidityAsync(AuthorizationHandlerContext context)
     {
         var cacheService = _scope.ServiceProvider.GetRequiredService<ICacheService>();
-        var userId = context.User.FindFirst(System.Security.Claims.ClaimTypes.Sid)?.Value;
-            
+        var userId = context.User.FindFirst(ClaimTypes.Sid)?.Value;
+
         if (string.IsNullOrEmpty(userId))
         {
             var failureReason = new AuthorizationFailureReason(this, "Token无效，缺少用户ID Claim");
@@ -100,20 +108,12 @@ public sealed class AuthorizeHandler(
             context.Fail(failureReason);
             return false;
         }
-
     }
 
     private void Dispose(bool disposing)
     {
         if (disposing)
-        {
             // TODO 在此释放托管资源
             _scope.Dispose();
-        }
-    }
-
-    public void Dispose()
-    {
-        Dispose(true);
     }
 }

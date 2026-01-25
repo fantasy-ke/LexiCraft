@@ -33,7 +33,7 @@ public static class UpdatePermissionsEndpoint
 }
 
 /// <summary>
-/// 批量更新权限请求参数
+///     批量更新权限请求参数
 /// </summary>
 /// <param name="Mediator"></param>
 /// <param name="Request"></param>
@@ -45,7 +45,7 @@ internal record UpdatePermissionsRequestParameters(
 );
 
 /// <summary>
-/// 批量更新权限响应
+///     批量更新权限响应
 /// </summary>
 /// <param name="Success">是否成功</param>
 internal record UpdatePermissionsResponse(bool Success);

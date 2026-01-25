@@ -1,32 +1,32 @@
 namespace LexiCraft.Services.Identity.Shared.Dtos;
 
 /// <summary>
-/// OAuth用户信息
+///     OAuth用户信息
 /// </summary>
 public class OAuthUserDto
 {
     /// <summary>
-    /// 用户唯一标识
+    ///     用户唯一标识
     /// </summary>
     public string? Id { get; set; }
 
     /// <summary>
-    /// 用户名login
+    ///     用户名login
     /// </summary>
     public string? Name { get; set; }
 
     /// <summary>
-    /// 用户昵称
+    ///     用户昵称
     /// </summary>
     public string? Nickname { get; set; }
 
     /// <summary>
-    /// 邮箱
+    ///     邮箱
     /// </summary>
     public string? Email { get; set; }
 
     /// <summary>
-    /// 头像链接avatar_url
+    ///     头像链接avatar_url
     /// </summary>
     public string? AvatarUrl { get; set; }
 }

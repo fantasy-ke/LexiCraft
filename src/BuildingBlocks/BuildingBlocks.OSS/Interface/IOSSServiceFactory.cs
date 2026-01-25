@@ -1,7 +1,6 @@
-namespace BuildingBlocks.OSS.Interface
+namespace BuildingBlocks.OSS.Interface;
+
+public interface IOSSServiceFactory
 {
-    public interface IOSSServiceFactory
-    {
-        IOSSService Create();
-    }
+    IOSSService Create();
 }

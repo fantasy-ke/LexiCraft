@@ -1,24 +1,18 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
+namespace BuildingBlocks.OSS.Models;
 
-namespace BuildingBlocks.OSS.Models
+public class ItemMeta
 {
-    public class ItemMeta
-    {
-        public string ObjectName { get; internal set; }
+    public string ObjectName { get; internal set; } = string.Empty;
 
-        public long Size { get; internal set; }
+    public long Size { get; internal set; }
 
-        public DateTime LastModified { get; internal set; }
+    public DateTime LastModified { get; internal set; }
 
-        public string ETag { get; internal set; }
+    public string ETag { get; internal set; } = string.Empty;
 
-        public string ContentType { get; internal set; }
+    public string ContentType { get; internal set; } = string.Empty;
 
-        public bool IsEnableHttps { get; set; }
+    public bool IsEnableHttps { get; set; }
 
-        public Dictionary<string, string> MetaData { get; internal set; }
-
-    }
+    public Dictionary<string, string> MetaData { get; internal set; } = [];
 }

@@ -1,8 +1,9 @@
-<script setup lang="ts">
-import { ref, computed, watch, nextTick } from 'vue'
+<script lang="ts" setup>
+import {nextTick, ref, watch} from 'vue'
 import RadioGroup from '@/components/base/radio/RadioGroup.vue'
 import Radio from '@/components/base/radio/Radio.vue'
-import { useBaseStore } from '@/stores/base.ts'
+import {useBaseStore} from '@/stores/base.ts'
+
 const store = useBaseStore()
 
 const isVisible = ref(false)
@@ -68,26 +69,26 @@ const emit = defineEmits<{
 <template>
   <div class="relative z-999" @mouseenter="handleMouseEnter" @mouseleave="handleMouseLeave">
     <div
-      class="pt-2 left-1/2 -transform-translate-x-1/2 absolute z-999 top-full transition-all duration-300"
-      :class="{
+        :class="{
         'opacity-0 scale-95 pointer-events-none': !isVisible,
         'opacity-100 scale-100 pointer-events-auto': isVisible,
       }"
+        class="pt-2 left-1/2 -transform-translate-x-1/2 absolute z-999 top-full transition-all duration-300"
     >
       <RadioGroup :model-value="store.currentGroup">
         <div class="card-white">
           <div ref="scrollContainer" class="max-h-70 overflow-y-auto space-y-2">
             <div
-              :ref="el => setItemRef(el as HTMLElement, value - 1)"
-              class="break-keep flex bg-primary px-3 py-1 rounded-md hover:bg-card-active anim border border-solid border-item"
-              :class="{
+                v-for="(value) in store.groupLength"
+                :key="value"
+                :ref="el => setItemRef(el as HTMLElement, value - 1)"
+                :class="{
                 'bg-card-active!': value === store.currentGroup,
               }"
-              @click="emit('click', value)"
-              v-for="(value) in store.groupLength"
-              :key="value"
+                class="break-keep flex bg-primary px-3 py-1 rounded-md hover:bg-card-active anim border border-solid border-item"
+                @click="emit('click', value)"
             >
-              <Radio :value="value" :label="`第${value}组`" />
+              <Radio :label="`第${value}组`" :value="value"/>
               <span class="text-sm ml-2">{{ getGroupWordCount(value) }}词</span>
             </div>
           </div>
@@ -98,7 +99,7 @@ const emit = defineEmits<{
   </div>
 </template>
 
-<style scoped lang="scss">
+<style lang="scss" scoped>
 .target {
   padding: 0.2rem 0.5rem;
   border-radius: 0.3rem;
@@ -107,6 +108,7 @@ const emit = defineEmits<{
   text-decoration: underline dashed gray;
   text-decoration-thickness: 2px;
   text-underline-offset: 0.3rem;
+
   &:hover {
     text-decoration: underline dashed transparent;
     color: white;

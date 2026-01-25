@@ -1,14 +1,14 @@
-<script setup lang="ts">
+<script lang="ts" setup>
 import BaseIcon from '@/components/BaseIcon.vue'
 import Switch from '@/components/base/Switch.vue'
-import { Option, Select } from '@/components/base/select'
+import {Option, Select} from '@/components/base/select'
 import MiniDialog from '@/components/dialog/MiniDialog.vue'
 import VolumeIcon from '@/components/icon/VolumeIcon.vue'
-import { SoundFileOptions } from '@/config/env.ts'
-import { useWindowClick } from '@/hooks/event.ts'
-import { getAudioFileUrl, usePlayAudio } from '@/hooks/sound.ts'
-import { useSettingStore } from '@/stores/setting.ts'
-import { emitter, EventKey } from '@/utils/eventBus.ts'
+import {SoundFileOptions} from '@/config/env.ts'
+import {useWindowClick} from '@/hooks/event.ts'
+import {getAudioFileUrl, usePlayAudio} from '@/hooks/sound.ts'
+import {useSettingStore} from '@/stores/setting.ts'
+import {emitter, EventKey} from '@/utils/eventBus.ts'
 
 const settingStore = useSettingStore()
 let timer = 0
@@ -55,39 +55,39 @@ function eventCheck(e) {
 <template>
   <div class="setting" @click="eventCheck">
     <BaseIcon @mouseenter="toggle(true)" @mouseleave="toggle(false)">
-      <IconClarityVolumeUpLine />
+      <IconClarityVolumeUpLine/>
     </BaseIcon>
-    <MiniDialog width="18rem" @mouseenter="toggle(true)" @mouseleave="toggle(false)" v-model="show">
+    <MiniDialog v-model="show" width="18rem" @mouseenter="toggle(true)" @mouseleave="toggle(false)">
       <div class="mini-row-title">音效设置</div>
       <div class="mini-row">
         <label class="item-title">单词自动发音</label>
         <div class="wrapper">
-          <Switch v-model="settingStore.wordSound" inline-prompt active-text="开" inactive-text="关" />
+          <Switch v-model="settingStore.wordSound" active-text="开" inactive-text="关" inline-prompt/>
         </div>
       </div>
       <div class="mini-row">
         <label class="item-title">单词发音口音</label>
         <div class="wrapper">
-          <Select v-model="settingStore.soundType" @toggle="selectToggle" placeholder="请选择" size="small">
-            <Option label="美音" value="us" />
-            <Option label="英音" value="uk" />
+          <Select v-model="settingStore.soundType" placeholder="请选择" size="small" @toggle="selectToggle">
+            <Option label="美音" value="us"/>
+            <Option label="英音" value="uk"/>
           </Select>
         </div>
       </div>
       <div class="mini-row">
         <label class="item-title">按键音</label>
         <div class="wrapper">
-          <Switch v-model="settingStore.keyboardSound" inline-prompt active-text="开" inactive-text="关" />
+          <Switch v-model="settingStore.keyboardSound" active-text="开" inactive-text="关" inline-prompt/>
         </div>
       </div>
       <div class="mini-row">
         <label class="item-title">按键音效</label>
         <div class="wrapper">
-          <Select v-model="settingStore.keyboardSoundFile" @toggle="selectToggle" placeholder="请选择" size="small">
+          <Select v-model="settingStore.keyboardSoundFile" placeholder="请选择" size="small" @toggle="selectToggle">
             <Option v-for="item in SoundFileOptions" :key="item.value" :label="item.label" :value="item.value">
               <div class="el-option-row">
                 <span>{{ item.label }}</span>
-                <VolumeIcon :time="100" @click="usePlayAudio(getAudioFileUrl(item.value)[0])" />
+                <VolumeIcon :time="100" @click="usePlayAudio(getAudioFileUrl(item.value)[0])"/>
               </div>
             </Option>
           </Select>
@@ -96,14 +96,14 @@ function eventCheck(e) {
       <div class="mini-row">
         <label class="item-title">效果音</label>
         <div class="wrapper">
-          <Switch v-model="settingStore.effectSound" inline-prompt active-text="开" inactive-text="关" />
+          <Switch v-model="settingStore.effectSound" active-text="开" inactive-text="关" inline-prompt/>
         </div>
       </div>
     </MiniDialog>
   </div>
 </template>
 
-<style scoped lang="scss">
+<style lang="scss" scoped>
 
 .wrapper {
   width: 50%;

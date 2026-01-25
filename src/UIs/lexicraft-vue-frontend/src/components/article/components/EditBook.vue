@@ -1,20 +1,20 @@
-<script setup lang="ts">
-import type { Dict } from '@/types/types.ts'
-import { cloneDeep } from '@/utils'
+<script lang="ts" setup>
+import type {Dict} from '@/types/types.ts'
+import {cloneDeep} from '@/utils'
 import Toast from '@/components/base/toast/Toast.ts'
-import { onMounted, reactive } from 'vue'
-import { useRuntimeStore } from '@/stores/runtime.ts'
-import { useBaseStore } from '@/stores/base.ts'
+import {onMounted, reactive} from 'vue'
+import {useRuntimeStore} from '@/stores/runtime.ts'
+import {useBaseStore} from '@/stores/base.ts'
 import BaseButton from '@/components/BaseButton.vue'
-import { getDefaultDict } from '@/types/func.ts'
-import { Option, Select } from '@/components/base/select'
+import {getDefaultDict} from '@/types/func.ts'
+import {Option, Select} from '@/components/base/select'
 import BaseInput from '@/components/base/BaseInput.vue'
 import Form from '@/components/base/form/Form.vue'
 import FormItem from '@/components/base/form/FormItem.vue'
-import { addDict } from '@/apis'
-import { AppEnv, DictId } from '@/config/env.ts'
-import { nanoid } from 'nanoid'
-import { DictType } from '@/types/enum.ts'
+import {addDict} from '@/apis'
+import {AppEnv, DictId} from '@/config/env.ts'
+import {nanoid} from 'nanoid'
+import {DictType} from '@/types/enum.ts'
 
 const props = defineProps<{
   isAdd: boolean
@@ -41,8 +41,8 @@ const dictFormRef = $ref()
 let loading = $ref(false)
 const dictRules = reactive({
   name: [
-    { required: true, message: '请输入名称', trigger: 'blur' },
-    { max: 20, message: '名称不能超过20个字符', trigger: 'blur' },
+    {required: true, message: '请输入名称', trigger: 'blur'},
+    {max: 20, message: '名称不能超过20个字符', trigger: 'blur'},
   ],
 })
 
@@ -79,10 +79,10 @@ async function onSubmit() {
         let rIndex = source.bookList.findIndex(v => v.id === data.id)
         //任意修改，都将其变为自定义词典
         if (
-          !data.custom &&
-          ![DictId.wordKnown, DictId.wordWrong, DictId.wordCollect, DictId.articleCollect].includes(
-            data.en_name || data.id
-          )
+            !data.custom &&
+            ![DictId.wordKnown, DictId.wordWrong, DictId.wordCollect, DictId.articleCollect].includes(
+                data.en_name || data.id
+            )
         ) {
           data.custom = true
           if (!data.id.includes('_custom')) {
@@ -115,35 +115,35 @@ onMounted(() => {
 
 <template>
   <div class="w-120 mt-4">
-    <Form ref="dictFormRef" :rules="dictRules" :model="dictForm" label-width="8rem">
+    <Form ref="dictFormRef" :model="dictForm" :rules="dictRules" label-width="8rem">
       <FormItem label="名称" prop="name">
-        <BaseInput v-model="dictForm.name" />
+        <BaseInput v-model="dictForm.name"/>
       </FormItem>
       <FormItem label="描述">
-        <BaseInput v-model="dictForm.description" textarea />
+        <BaseInput v-model="dictForm.description" textarea/>
       </FormItem>
-      <FormItem label="原文语言" v-if="false">
+      <FormItem v-if="false" label="原文语言">
         <Select v-model="dictForm.language" placeholder="请选择选项">
-          <Option label="英语" value="en" />
-          <Option label="德语" value="de" />
-          <Option label="日语" value="ja" />
-          <Option label="代码" value="code" />
+          <Option label="英语" value="en"/>
+          <Option label="德语" value="de"/>
+          <Option label="日语" value="ja"/>
+          <Option label="代码" value="code"/>
         </Select>
       </FormItem>
-      <FormItem label="译文语言" v-if="false">
+      <FormItem v-if="false" label="译文语言">
         <Select v-model="dictForm.translateLanguage" placeholder="请选择选项">
-          <Option label="中文" value="zh-CN" />
-          <Option label="英语" value="en" />
-          <Option label="德语" value="de" />
-          <Option label="日语" value="ja" />
+          <Option label="中文" value="zh-CN"/>
+          <Option label="英语" value="en"/>
+          <Option label="德语" value="de"/>
+          <Option label="日语" value="ja"/>
         </Select>
       </FormItem>
       <div class="center">
         <base-button type="info" @click="emit('close')">关闭</base-button>
-        <base-button type="primary" :loading="loading" @click="onSubmit">确定</base-button>
+        <base-button :loading="loading" type="primary" @click="onSubmit">确定</base-button>
       </div>
     </Form>
   </div>
 </template>
 
-<style scoped lang="scss"></style>
+<style lang="scss" scoped></style>

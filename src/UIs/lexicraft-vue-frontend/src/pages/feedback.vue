@@ -1,4 +1,4 @@
-<script setup lang="ts">
+<script lang="ts" setup>
 
 import BasePage from "@/components/BasePage.vue";
 import About from "@/components/About.vue";
@@ -14,6 +14,6 @@ import About from "@/components/About.vue";
   </BasePage>
 </template>
 
-<style scoped lang="scss">
+<style lang="scss" scoped>
 
 </style>
