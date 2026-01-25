@@ -42,7 +42,22 @@ public class GenerateTokenResponseCommandHandler(
             new PublishLoginLogCommand(user.UserAccount, logMessage, user.Id, true, user.Source.ToString()),
             cancellationToken);
 
-        await cacheService.SetAsync(string.Format(UserInfoConst.RedisTokenKey, user.Id.ToString("N")), response,
+        var cacheKey = string.Format(UserInfoConst.RedisTokenKey, user.Id.ToString("N"));
+
+        // 检查Redis中是否存在该用户的Token记录，如果存在则先删除旧的Token
+        var oldToken = await cacheService.GetAsync<TokenResponse>(cacheKey, cancellationToken: cancellationToken);
+        if (oldToken != null)
+        {
+            if (!string.IsNullOrEmpty(oldToken.RefreshToken))
+            {
+                var oldRefreshTokenKey = string.Format(UserInfoConst.RedisRefreshTokenKey, oldToken.RefreshToken);
+                await cacheService.RemoveAsync(oldRefreshTokenKey, cancellationToken: cancellationToken);
+            }
+
+            await cacheService.RemoveAsync(cacheKey, cancellationToken: cancellationToken);
+        }
+
+        await cacheService.SetAsync(cacheKey, response,
             options => options.Expiry = TimeSpan.FromDays(7), cancellationToken);
         await cacheService.SetAsync(string.Format(UserInfoConst.RedisRefreshTokenKey, refreshToken),
             user.Id.ToString("N"), options => options.Expiry = TimeSpan.FromDays(7), cancellationToken);

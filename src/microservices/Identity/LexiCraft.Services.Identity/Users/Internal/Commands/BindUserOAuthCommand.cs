@@ -14,7 +14,8 @@ namespace LexiCraft.Services.Identity.Users.Internal.Commands;
 public record BindUserOAuthCommand(
     Guid UserId,
     string Provider,
-    string ProviderUserId) : ICommand<UserOAuth>;
+    string ProviderUserId,
+    User? TrackedUser = null) : ICommand<UserOAuth>;
 
 public class BindUserOAuthCommandHandler(
     IQueryRepository<UserOAuth> userOAuthQueryRepository,
@@ -30,8 +31,21 @@ public class BindUserOAuthCommandHandler(
 
         if (existing != null) return existing;
 
-        var user = await userRepository.GetAsync(x => x.Id == command.UserId)
-                   ?? throw new InvalidOperationException("User not found");
+        User user;
+        if (command.TrackedUser != null)
+        {
+            user = command.TrackedUser;
+            // 确保 userId 匹配
+            if (user.Id != command.UserId)
+                throw new InvalidOperationException("TrackedUser ID does not match Command UserId");
+        }
+        else
+        {
+            // 加载聚合根及其关联集合（OAuths）
+            user = await userRepository.Query()
+                       .Include(u => u.OAuths)
+                       .FirstAsync(x => x.Id == command.UserId, cancellationToken);
+        }
 
         user.BindOAuth(
             command.Provider,
@@ -42,8 +56,7 @@ public class BindUserOAuthCommandHandler(
         );
 
         await userRepository.UpdateAsync(user);
-        await userRepository.SaveChangesAsync();
-
+        
         return user.OAuths.First(x => x.Provider == command.Provider);
     }
 }

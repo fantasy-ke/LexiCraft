@@ -99,6 +99,12 @@ public sealed class AuthorizeHandler(
             return false;
         }
 
+        // 尝试将UserId格式化为N格式（32位无连字符），以匹配缓存Key
+        if (Guid.TryParse(userId, out var uid))
+        {
+            userId = uid.ToString("N");
+        }
+
         // 检查Redis中是否存在该用户的Token记录
         var cacheKey = string.Format(UserInfoConst.RedisTokenKey, userContext.UserId.ToString("N"));
         var tokenExists = await cacheService.ExistsAsync(cacheKey);

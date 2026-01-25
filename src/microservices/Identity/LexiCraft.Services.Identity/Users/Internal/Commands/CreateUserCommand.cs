@@ -40,11 +40,8 @@ public class CreateUserCommandHandler(
 
         // 为用户分配默认权限
         var defaultPermissions = PermissionConstant.DefaultUserPermissions.Permissions;
-        foreach (var permission in defaultPermissions) user.AddPermission(permission);
-
         var afterUser = await userRepository.InsertAsync(user);
-
-        await userRepository.SaveChangesAsync();
+        foreach (var permission in defaultPermissions) afterUser.AddPermission(permission);
 
         return afterUser;
     }

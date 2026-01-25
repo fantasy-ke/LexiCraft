@@ -34,6 +34,8 @@ public class IdentityDbContext(DbContextOptions<IdentityDbContext> options, ISer
     {
         base.OnModelCreating(modelBuilder);
 
+        modelBuilder.ApplyConfigurationsFromAssembly(typeof(IdentityDbContext).Assembly);
+
         //软删除查询过滤
         OnModelCreatingConfigureGlobalFilters(modelBuilder);
     }
