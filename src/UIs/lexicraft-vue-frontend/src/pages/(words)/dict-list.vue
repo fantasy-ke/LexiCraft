@@ -24,7 +24,7 @@ const settingStore = useSettingStore()
 const store = useBaseStore()
 const router = useRouter()
 
-function selectDict(e) {
+function selectDict(e: any) {
   console.log(e.dict)
   getDictDetail(e.dict)
 }
@@ -35,8 +35,8 @@ async function getDictDetail(val: DictResource) {
 }
 
 
-function groupByDictTags(dictList: DictResource[]) {
-  return dictList.reduce<Record<string, DictResource[]>>((result, dict) => {
+function groupByDictTags(dictList: DictResource[]): [string, DictResource[]][] {
+  const grouped = dictList.reduce<Record<string, DictResource[]>>((result, dict) => {
     dict.tags.forEach((tag) => {
       if (result[tag]) {
         result[tag].push(dict)
@@ -46,18 +46,21 @@ function groupByDictTags(dictList: DictResource[]) {
     })
     return result
   }, {})
+  return Object.entries(grouped)
 }
 
 const {data: dict_list, isFetching} = useFetch(resourceWrap(DICT_LIST.WORD.ALL)).json()
 
 const groupedByCategoryAndTag = $computed(() => {
-  let data = []
+  let data: [string, [string, DictResource[]][]] [] = []
   if (!dict_list.value) return data
   const groupByCategory = groupBy(dict_list.value, 'category')
   for (const [key, value] of Object.entries(groupByCategory)) {
-    data.push([key, groupByDictTags(value)])
+    data.push([key, groupByDictTags(value as DictResource[])])
   }
-  [data[2], data[3]] = [data[3], data[2]];
+  if (data.length > 3) {
+    [data[2], data[3]] = [data[3], data[2]];
+  }
   // console.log('data', data)
   return data
 })
@@ -115,22 +118,32 @@ watch(dict_list, (val) => {
 
 <template>
   <BasePage>
-    <div v-loading="isFetching" class="card min-h-200 dict-list-page">
-      <div class="flex items-center relative gap-2 header-section">
-        <BackIcon class="z-2" @click='router.back'/>
-        <div v-if="showSearchInput" class="flex flex-1 gap-4">
-          <BaseInput v-model="searchKey" autofocus class="flex-1" clearable placeholder="请输入词典名称/缩写/类别"/>
-          <BaseButton @click="showSearchInput = false, searchKey = ''">取消</BaseButton>
+    <div v-loading="isFetching" class="card-white min-h-200 dict-list-page p-8! overflow-hidden relative">
+      <!-- Decorator Background -->
+      <div class="absolute -right-20 -top-20 w-80 h-80 bg-blue-500/5 rounded-full blur-3xl pointer-events-none"></div>
+      <div class="absolute -left-20 bottom-20 w-64 h-64 bg-indigo-500/5 rounded-full blur-3xl pointer-events-none"></div>
+
+      <div class="flex items-center relative gap-6 header-section mb-10">
+        <div class="z-10">
+          <BackIcon class="transition-transform hover:-translate-x-1" @click='router.back'/>
         </div>
-        <div v-else class="py-1 flex flex-1 justify-end">
-          <span class="page-title absolute w-full center">词典列表</span>
-          <BaseIcon
-              class="z-1"
-              icon="fluent:search-24-regular"
-              title="搜索"
-              @click="showSearchInput = true">
-            <IconFluentSearch24Regular/>
-          </BaseIcon>
+        
+        <div v-if="showSearchInput" class="flex flex-1 gap-4 items-center z-10">
+          <div class="flex-1 relative">
+            <BaseInput v-model="searchKey" autofocus class="w-full !rounded-2xl !bg-slate-50 dark:!bg-slate-800/40 border-none shadow-inner" clearable placeholder="搜索您想学习的词典..."/>
+            <IconFluentSearch24Regular class="absolute right-4 top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none"/>
+          </div>
+          <BaseButton type="info" class="rounded-xl px-6 h-11 bg-white/50 dark:bg-slate-800/50" @click="showSearchInput = false, searchKey = ''">取消</BaseButton>
+        </div>
+        
+        <div v-else class="flex flex-1 items-center justify-between z-10">
+          <div class="page-title-group">
+            <h1 class="text-3xl font-black grad-text m-0 leading-tight">词典列表</h1>
+            <p class="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] mt-1">AVAILABLE DICTIONARIES</p>
+          </div>
+          <div class="w-12 h-12 rounded-2xl bg-slate-50 dark:bg-slate-800/40 border border-slate-100 dark:border-slate-800 center cursor-pointer hover:bg-white dark:hover:bg-slate-800 transition-all duration-300 shadow-sm group" @click="showSearchInput = true">
+            <IconFluentSearch24Regular class="text-xl text-slate-600 dark:text-slate-300 group-hover:scale-110 transition-transform"/>
+          </div>
         </div>
       </div>
       <div v-if="searchKey" class="mt-4">

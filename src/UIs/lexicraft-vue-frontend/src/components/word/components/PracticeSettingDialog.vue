@@ -17,7 +17,7 @@ const Dialog = defineAsyncComponent(() => import('@/components/dialog/Dialog.vue
 const settings = useSettingStore()
 const runtimeStore = useRuntimeStore()
 
-const model = defineModel()
+const model = defineModel<boolean>()
 
 defineProps<{
   showLeftOption: boolean
@@ -60,82 +60,101 @@ watch(
 
 <template>
   <Dialog v-model="model" :footer="true" padding title="学习设置" @ok="changePerDayStudyNumber">
-    <div id="mode" class="target-modal color-main">
-      <div class="text-center mt-4">
-        <span
-        >共<span class="target-number mx-2">{{ runtimeStore.editDict.length }}</span
-        >个单词，</span
-        >
-        <span
-        >预计<span class="target-number mx-2">{{
-            _getAccomplishDays(
-              runtimeStore.editDict.length - tempLastLearnIndex,
-              tempPerDayStudyNumber
-            )
-          }}</span
-        >天完成</span
-        >
-      </div>
-
-      <div class="text-center mt-4 mb-8 flex gap-1 items-end justify-center">
-        <span>从第</span>
-        <div class="w-20">
-          <BaseInput v-model="tempLastLearnIndex" class="target-number"/>
-        </div>
-        <span>个开始，每日</span>
-        <div class="w-16">
-          <BaseInput v-model="tempPerDayStudyNumber" class="target-number"/>
-        </div>
-        <span>个新词</span>
-        <span>，复习</span>
-        <div class="target-number mx-2">
-          {{ tempPerDayStudyNumber * tempWordReviewRatio }}
-        </div>
-        <span>个</span>
-      </div>
-
-      <div class="mb-4 space-y-2">
-        <div class="flex items-center gap-space">
-          <Tooltip title="复习词与新词的比例">
-            <div class="flex items-center gap-1 w-20 break-keep">
-              <span>复习比</span>
-              <IconFluentQuestionCircle20Regular/>
+    <div id="mode" class="target-modal p-4">
+      <!-- Header Stats -->
+      <div class="bg-blue-50 dark:bg-blue-900/20 rounded-3xl p-6 mb-8 border border-blue-100 dark:border-blue-800/50">
+        <div class="flex items-center justify-around text-center">
+          <div class="space-y-1">
+            <div class="text-[10px] font-black text-blue-500 uppercase tracking-[0.2em]">Total Words</div>
+            <div class="text-3xl font-black text-slate-900 dark:text-white">{{ runtimeStore.editDict.length }}</div>
+          </div>
+          <div class="w-px h-10 bg-blue-200 dark:bg-blue-800"></div>
+          <div class="space-y-1">
+            <div class="text-[10px] font-black text-indigo-500 uppercase tracking-[0.2em]">Estimated Days</div>
+            <div class="text-3xl font-black text-slate-900 dark:text-white">
+              {{ _getAccomplishDays(runtimeStore.editDict.length - tempLastLearnIndex, tempPerDayStudyNumber) }}
             </div>
-          </Tooltip>
-          <InputNumber v-model="tempWordReviewRatio" :max="10" :min="0"/>
-        </div>
-        <div v-if="!tempWordReviewRatio" class="flex">
-          <div class="w-23 flex-shrink-0"></div>
-          <div class="text-sm text-gray-500">
-            <div>未完成学习时，复习数量按照设置的复习比生成，为0则不复习</div>
-            <div>完成学习后，新词数量固定为0，复习数量按照比例生成（若复习比小于1，以 1 计算）</div>
           </div>
         </div>
       </div>
 
-      <div class="flex mb-4 gap-space">
-        <span class="shrink-0 w-20">每日学习</span>
-        <Slider
-            v-model="tempPerDayStudyNumber"
-            :max="200"
-            :min="10"
-            :step="10"
-            class="mt-1"
-            show-text
-        />
+      <!-- Quick Summary Sentence -->
+      <div class="bg-slate-50 dark:bg-slate-800/40 rounded-2xl p-4 mb-8 flex flex-wrap items-center justify-center gap-2 text-slate-600 dark:text-slate-300 font-bold border border-slate-100 dark:border-slate-800">
+        <span>从第</span>
+        <div class="w-20">
+          <BaseInput v-model="tempLastLearnIndex" class="!bg-white dark:!bg-slate-900 !rounded-xl text-center font-black text-blue-600"/>
+        </div>
+        <span>个开始</span>
+        <span class="opacity-30">|</span>
+        <span>每日新词</span>
+        <div class="w-16">
+          <BaseInput v-model="tempPerDayStudyNumber" class="!bg-white dark:!bg-slate-900 !rounded-xl text-center font-black text-blue-600"/>
+        </div>
+        <span class="opacity-30">|</span>
+        <span>复习</span>
+        <span class="text-indigo-600 font-black text-xl">{{ Math.floor(tempPerDayStudyNumber * tempWordReviewRatio) }}</span>
+        <span>个</span>
       </div>
-      <div class="flex gap-space">
-        <span class="shrink-0 w-20">学习进度</span>
-        <div class="flex-1">
-          <Slider
-              v-model="tempLastLearnIndex"
-              :max="runtimeStore.editDict.words.length"
-              :min="0"
-              :step="10"
-              class="my-1"
-              show-text
-          />
-          <BaseButton @click="show = true">从词典选起始位置</BaseButton>
+
+      <!-- Detailed Settings -->
+      <div class="space-y-8">
+        <!-- Review Ratio -->
+        <div class="space-y-3">
+          <div class="flex items-center justify-between">
+            <div class="flex items-center gap-2">
+              <div class="w-8 h-8 rounded-lg bg-indigo-100 dark:bg-indigo-900/30 center text-indigo-600">
+                <IconFluentArrowSync24Regular class="text-lg"/>
+              </div>
+              <span class="font-black text-slate-700 dark:text-slate-200 uppercase tracking-widest text-xs">复习比例</span>
+              <Tooltip title="复习词与新词的比例 (建议 1:1 或 1:2)">
+                <IconFluentQuestionCircle20Regular class="text-slate-400 cursor-help"/>
+              </Tooltip>
+            </div>
+            <div class="bg-indigo-50 dark:bg-indigo-900/20 px-3 py-1 rounded-lg text-indigo-600 font-black text-sm">
+              {{ tempWordReviewRatio.toFixed(1) }}x
+            </div>
+          </div>
+          <Slider v-model="tempWordReviewRatio" :max="5" :min="0" :step="0.1" class="px-2" />
+          <p class="text-[10px] text-slate-500 font-bold italic pl-10">
+            * {{ tempWordReviewRatio === 0 ? '当前模式不包含复习任务' : `每学习 1 个新词，将安排 ${tempWordReviewRatio} 个复习任务` }}
+          </p>
+        </div>
+
+        <!-- Daily Count -->
+        <div class="space-y-3">
+          <div class="flex items-center justify-between">
+            <div class="flex items-center gap-2">
+              <div class="w-8 h-8 rounded-lg bg-blue-100 dark:bg-blue-900/30 center text-blue-600">
+                <IconFluentAddSquare24Regular class="text-lg"/>
+              </div>
+              <span class="font-black text-slate-700 dark:text-slate-200 uppercase tracking-widest text-xs">每日学习量</span>
+            </div>
+            <div class="bg-blue-50 dark:bg-blue-900/20 px-3 py-1 rounded-lg text-blue-600 font-black text-sm">
+              {{ tempPerDayStudyNumber }} words
+            </div>
+          </div>
+          <Slider v-model="tempPerDayStudyNumber" :max="200" :min="10" :step="10" class="px-2" />
+        </div>
+
+        <!-- Start Position -->
+        <div class="space-y-3">
+          <div class="flex items-center justify-between">
+            <div class="flex items-center gap-2">
+              <div class="w-8 h-8 rounded-lg bg-emerald-100 dark:bg-emerald-900/30 center text-emerald-600">
+                <IconFluentFlag24Regular class="text-lg"/>
+              </div>
+              <span class="font-black text-slate-700 dark:text-slate-200 uppercase tracking-widest text-xs">起始位置</span>
+            </div>
+            <BaseButton size="small" class="h-8 rounded-lg text-[10px] font-black uppercase tracking-widest px-3 border-emerald-100 text-emerald-600 hover:bg-emerald-50 transition-colors" @click="show = true">
+              <IconFluentList24Regular class="mr-1"/> 词表选择
+            </BaseButton>
+          </div>
+          <div class="flex items-center gap-4">
+             <Slider v-model="tempLastLearnIndex" :max="runtimeStore.editDict.words.length" :min="0" :step="1" class="flex-1 px-2" />
+             <div class="bg-emerald-50 dark:bg-emerald-900/20 px-3 py-1 rounded-lg text-emerald-600 font-black text-sm shrink-0">
+               {{ tempLastLearnIndex }} / {{ runtimeStore.editDict.length }}
+             </div>
+          </div>
         </div>
       </div>
     </div>
@@ -161,15 +180,8 @@ watch(
 
 <style lang="scss" scoped>
 .target-modal {
-  width: 35rem;
-
-  .mode-item {
-    @apply w-50% border border-blue border-solid p-2 rounded-lg cursor-pointer;
-  }
-
-  .active {
-    @apply bg-blue color-white;
-  }
+  width: 40rem;
+  max-width: 100%;
 }
 
 // 移动端适配

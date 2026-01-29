@@ -55,8 +55,8 @@ const getDefaultFormWord = () => {
 }
 let isOperate = $ref(false)
 let wordForm = $ref(getDefaultFormWord())
-let wordFormRef = $ref()
-const wordRules = reactive({
+let wordFormRef = $ref<any>()
+const wordRules: any = reactive({
   word: [
     {required: true, message: '请输入单词', trigger: 'blur'},
     {max: 100, message: '名称不能超过100个字符', trigger: 'blur'},
@@ -574,45 +574,61 @@ defineRender(() => {
       <BasePage>
         {showBookDetail.value ? (
 
-            <div className="card mb-0 dict-detail-card flex flex-col p-0! overflow-hidden">
-              {/* New Rich Header */}
-              <div class="content-header">
-                <div class="header-bg"></div>
-                <div class="header-content">
-                  <div class="left-section">
-                    <BackIcon class="back-btn"/>
-                    <div class="info-box">
-                      <div class="title-row">
-                        <h1 class="dict-title">{runtimeStore.editDict.name}</h1>
-                        {runtimeStore.editDict.custom && <span class="badge custom">Custom</span>}
+            <div class="card mb-0 dict-detail-card flex flex-col p-0! overflow-hidden">
+              {/* Enhanced Premium Header */}
+              <div class="content-header relative overflow-hidden p-8 pb-12">
+                <div class="absolute inset-0 bg-gradient-to-br from-slate-900 via-indigo-950 to-slate-900 z-0"></div>
+                <div class="absolute -right-20 -top-20 w-80 h-80 bg-blue-500/10 rounded-full blur-3xl z-1 animate-pulse"></div>
+                <div class="absolute -left-20 -bottom-20 w-64 h-64 bg-indigo-500/10 rounded-full blur-3xl z-1"></div>
+                
+                <div class="header-content relative z-10 flex flex-col lg:flex-row justify-between items-start lg:items-center gap-8">
+                  <div class="left-section flex items-center gap-6">
+                    <BackIcon class="back-btn !text-white/80 hover:!text-white transition-all transform hover:-translate-x-1"/>
+                    <div class="info-box space-y-2">
+                      <div class="title-row flex items-center gap-3">
+                        <h1 class="dict-title text-4xl font-black text-white m-0 tracking-tight">{runtimeStore.editDict.name}</h1>
+                        {runtimeStore.editDict.custom && <span class="bg-amber-400 text-amber-950 font-black text-[10px] px-2 py-0.5 rounded-md uppercase tracking-widest shadow-lg shadow-amber-400/20">Custom</span>}
                       </div>
-                      <div class="meta-row">
-                    <span class="meta-item">
-                      <BaseIcon><IconFluentBookNumber20Regular/></BaseIcon>
-                      {runtimeStore.editDict.length || 0} 单词
-                    </span>
-                        <span class="meta-item">
-                     <BaseIcon><IconFluentTargetArrow20Regular/></BaseIcon>
-                          {runtimeStore.editDict.lastLearnIndex || 0} 已学
-                    </span>
+                      <div class="meta-row flex gap-4 text-white/60 font-bold text-sm">
+                        <span class="meta-item flex items-center gap-1.5 hover:text-white/80 transition-colors">
+                          <BaseIcon class="text-blue-400"><IconFluentBookNumber20Regular/></BaseIcon>
+                          {runtimeStore.editDict.length || 0} WORDS
+                        </span>
+                        <span class="meta-item flex items-center gap-1.5 hover:text-white/80 transition-colors">
+                          <BaseIcon class="text-emerald-400"><IconFluentTargetArrow20Regular/></BaseIcon>
+                          {runtimeStore.editDict.lastLearnIndex || 0} LEARNED
+                        </span>
                       </div>
-                      {dict.description && <div class="description" title={dict.description}>{dict.description}</div>}
+                      {runtimeStore.editDict.description && <div class="description text-white/50 text-sm max-w-xl line-clamp-2 mt-2 font-medium italic" title={runtimeStore.editDict.description}>{runtimeStore.editDict.description}</div>}
                     </div>
                   </div>
 
-                  <div class="right-section">
-                    <div class="action-group">
-                      <BaseButton loading={studyLoading || loading} type="primary" size="large" onClick={addMyStudyList}
-                                  icon={<IconFluentHatGraduation20Regular/>}>
+                  <div class="right-section flex flex-col gap-4">
+                    <div class="action-group flex gap-3">
+                      <BaseButton 
+                        loading={studyLoading || loading} 
+                        class="!h-14 !px-8 !rounded-2xl !bg-white !text-slate-900 !border-none font-black text-lg shadow-2xl transition-all hover:scale-[1.05] active:scale-[0.95]"
+                        onClick={addMyStudyList}
+                        icon={<IconFluentHatGraduation24Filled class="text-blue-600"/>}
+                      >
                         开始学习
                       </BaseButton>
-                      <BaseButton loading={studyLoading || loading} size="large" onClick={startTest}
-                                  icon={<IconFluentQuizNew20Regular/>}>
+                      <BaseButton 
+                        loading={studyLoading || loading} 
+                        class="!h-14 !px-8 !rounded-2xl !bg-white/10 !text-white !border-white/20 backdrop-blur-md font-black text-lg hover:!bg-white/20 transition-all hover:scale-[1.05] active:scale-[0.95]"
+                        onClick={startTest}
+                        icon={<IconFluentQuizNew20Regular/>}
+                      >
                         测试
                       </BaseButton>
                     </div>
-                    <div class="secondary-actions">
-                      <BaseButton loading={studyLoading || loading} type="text" onClick={() => (isEdit = true)}>
+                    <div class="flex justify-end">
+                      <BaseButton 
+                        loading={studyLoading || loading} 
+                        class="!text-white/60 hover:!text-white font-bold transition-colors !bg-transparent border-none"
+                        onClick={() => (isEdit = true)}
+                        icon={<IconFluentList24Regular class="mr-1.5"/>}
+                      >
                         编辑详情
                       </BaseButton>
                     </div>
@@ -634,20 +650,21 @@ defineRender(() => {
                   </div>
               )}
 
-              <div class="flex flex-1 overflow-hidden content-area">
-                <div class={`word-list-section ${isMob && isOperate && activeTab !== 'list' ? 'mobile-hidden' : ''}`}>
-                  <BaseTable
-                      ref={tableRef}
-                      class="h-full"
-                      request={requestList}
-                      onDel={batchDel}
-                      onSort={onSort}
-                      onAdd={addWord}
-                      onImport={importData}
-                      onExport={exportData}
-                      exportLoading={exportLoading}
-                      importLoading={importLoading}
-                  >
+              <div class="flex flex-1 overflow-hidden content-area bg-slate-50/50 dark:bg-slate-900/50">
+                <div class={`word-list-section flex-1 h-full p-6 ${isMob && isOperate && activeTab !== 'list' ? 'mobile-hidden' : ''}`}>
+                  <div class="card-white h-full flex flex-col p-0! overflow-hidden border-none shadow-xl shadow-slate-200/50 dark:shadow-none">
+                    <BaseTable
+                        ref={tableRef}
+                        class="h-full"
+                        request={requestList}
+                        onDel={batchDel}
+                        onSort={onSort}
+                        onAdd={addWord}
+                        onImport={importData}
+                        onExport={exportData}
+                        exportLoading={exportLoading}
+                        importLoading={importLoading}
+                    >
                     {val => (
                         <WordItem
                             showTransPop={false}
@@ -675,7 +692,7 @@ defineRender(() => {
                         </WordItem>
                     )}
                   </BaseTable>
-                </div>
+                </div></div>
                 {isOperate ? (
                     <div
                         class={`edit-section flex-1 flex flex-col ${isMob && activeTab !== 'edit' ? 'mobile-hidden' : ''}`}>
@@ -748,12 +765,18 @@ defineRender(() => {
                           />
                         </FormItem>
                       </Form>
-                      <div class="center">
-                        <BaseButton type="info" onClick={closeWordForm}>
+                      <div class="center gap-4 mt-8">
+                        <BaseButton 
+                          class="!h-12 !px-8 !rounded-xl bg-slate-100 dark:bg-slate-800 text-slate-600 font-bold hover:bg-slate-200 transition-all" 
+                          onClick={closeWordForm}
+                        >
                           关闭
                         </BaseButton>
-                        <BaseButton type="primary" onClick={onSubmitWord}>
-                          保存
+                        <BaseButton 
+                          class="!h-12 !px-10 !rounded-xl bg-gradient-to-r from-blue-600 to-indigo-600 text-white font-black shadow-lg shadow-blue-500/20 hover:scale-[1.02] active:scale-[0.98] transition-all" 
+                          onClick={onSubmitWord}
+                        >
+                          保存单词
                         </BaseButton>
                       </div>
                     </div>
@@ -761,23 +784,8 @@ defineRender(() => {
               </div>
             </div>
         ) : (
-            <div class="card mb-0 dict-detail-card">
-              <div class="dict-header flex justify-between items-center relative">
-                <BackIcon
-                    class="dict-back z-2"
-                    onClick={() => {
-                      if (isAdd) {
-                        router.back()
-                      } else {
-                        isEdit = false
-                      }
-                    }}
-                />
-                <div class="dict-title absolute page-title text-align-center w-full">
-                  {runtimeStore.editDict.id ? '修改' : '创建'}词典
-                </div>
-              </div>
-              <div class="center">
+            <div class="card mb-0 dict-detail-card flex flex-col justify-center items-center bg-slate-50 dark:bg-slate-950 p-12">
+              <div class="w-full max-w-2xl">
                 <EditBook isAdd={isAdd} isBook={false} onClose={formClose} onSubmit={() => (isEdit = isAdd = false)}/>
               </div>
             </div>
@@ -790,7 +798,7 @@ defineRender(() => {
             onOk={startPractice}
         />
       </BasePage>
-  )
+    )
 })
 </script>
 
@@ -960,6 +968,7 @@ defineRender(() => {
     max-width: 600px;
     display: -webkit-box;
     -webkit-line-clamp: 2;
+    line-clamp: 2;
     -webkit-box-orient: vertical;
     overflow: hidden;
   }
@@ -1045,6 +1054,7 @@ defineRender(() => {
     .description {
       font-size: 0.85rem;
       -webkit-line-clamp: 3;
+      line-clamp: 3;
     }
   }
 

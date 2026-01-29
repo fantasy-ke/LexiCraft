@@ -222,57 +222,73 @@ watch([() => displayMode, () => selectArticle.id, () => showTranslate], () => {
         class="bg-second w-full 3xl:w-7/10 2xl:w-8/10 xl:w-full 2xl:card 2xl:h-[97vh] h-full p-3 box-border overflow-hidden mb-0"
     >
       <div v-if="showBookDetail" v-loading="loading" class="flex box-border flex-col h-full">
-        <!-- New Rich Header -->
-        <div class="content-header">
-          <div class="header-bg"></div>
-          <div class="header-content">
-            <div class="left-section">
-              <BackIcon class="back-btn"/>
-              <div class="info-box">
-                <div class="title-row">
-                  <h1 class="dict-title">{{ runtimeStore.editDict.name }}</h1>
-                  <span v-if="runtimeStore.editDict.custom" class="badge custom">Custom</span>
+        <!-- Premium Rich Header -->
+        <div class="content-header relative overflow-hidden p-8 pb-12 mb-6">
+          <div class="absolute inset-0 bg-gradient-to-br from-slate-900 via-indigo-950 to-slate-900 z-0"></div>
+          <div class="absolute -right-20 -top-20 w-80 h-80 bg-blue-500/10 rounded-full blur-3xl z-1 animate-pulse"></div>
+          <div class="absolute -left-20 -bottom-20 w-64 h-64 bg-indigo-500/10 rounded-full blur-3xl z-1"></div>
+
+          <div class="header-content relative z-10 flex flex-col lg:flex-row justify-between items-start lg:items-center gap-8">
+            <div class="left-section flex items-center gap-6">
+              <BackIcon class="back-btn !text-white/80 hover:!text-white transition-all transform hover:-translate-x-1"/>
+              <div class="info-box space-y-2">
+                <div class="title-row flex items-center gap-3">
+                  <h1 class="dict-title text-4xl font-black text-white m-0 tracking-tight">{{ runtimeStore.editDict.name }}</h1>
+                  <span v-if="runtimeStore.editDict.custom" class="bg-amber-400 text-amber-950 font-black text-[10px] px-2 py-0.5 rounded-md uppercase tracking-widest shadow-lg shadow-amber-400/20">Custom</span>
                 </div>
 
-                <div class="meta-row">
-                  <span class="meta-item">
-                    <IconFluentDocumentMultiple20Regular/>
+                <div class="meta-row flex gap-4 text-white/60 font-bold text-sm">
+                  <span class="meta-item flex items-center gap-1.5 hover:text-white/80 transition-colors">
+                    <BaseIcon class="text-blue-400"><IconFluentDocumentMultiple20Regular/></BaseIcon>
                     {{ list.length - 1 }} Articles
                   </span>
-                  <span v-if="totalSpend" class="meta-item">
-                    <IconFluentClock20Regular/>
+                  <span v-if="totalSpend" class="meta-item flex items-center gap-1.5 hover:text-white/80 transition-colors">
+                    <BaseIcon class="text-emerald-400"><IconFluentClock20Regular/></BaseIcon>
                     {{ totalSpend }} Learning
                   </span>
                 </div>
 
                 <div v-if="runtimeStore.editDict.description" :title="runtimeStore.editDict.description"
-                     class="description">
+                     class="description text-white/50 text-sm max-w-xl line-clamp-2 mt-2 font-medium italic">
                   {{ runtimeStore.editDict.description }}
                 </div>
               </div>
             </div>
 
-            <div class="right-section">
-              <div class="action-group">
-                <BaseButton :loading="studyLoading || loading" size="large" type="primary" @click="startPractice">
-                  <div class="flex items-center gap-1">
-                    <IconFluentHatGraduation20Regular/>
+            <div class="right-section flex flex-col gap-4">
+              <div class="action-group flex gap-3">
+                <BaseButton 
+                  :loading="studyLoading || loading" 
+                  class="!h-14 !px-8 !rounded-2xl !bg-white !text-slate-900 !border-none font-black text-lg shadow-2xl transition-all hover:scale-[1.05] active:scale-[0.95]"
+                  @click="startPractice"
+                >
+                  <div class="flex items-center gap-3">
+                    <IconFluentHatGraduation24Filled class="text-blue-600"/>
                     <span>开始学习</span>
                   </div>
                 </BaseButton>
-                <BaseButton size="large" type="info" @click="router.push('/batch-edit-article')">
-                  <IconFluentAppsListDetail20Regular/>
-                  <span>文章管理</span>
+                <BaseButton 
+                  class="!h-14 !px-8 !rounded-2xl !bg-white/10 !text-white !border-white/20 backdrop-blur-md font-black text-lg hover:!bg-white/20 transition-all hover:scale-[1.05] active:scale-[0.95]"
+                  @click="router.push('/batch-edit-article')"
+                >
+                  <div class="flex items-center gap-2">
+                    <IconFluentAppsListDetail24Regular/>
+                    <span>文章管理</span>
+                  </div>
                 </BaseButton>
               </div>
 
-              <div class="secondary-actions">
-                <BaseButton :loading="studyLoading || loading" type="text" @click="isEdit = true">
+              <div class="flex justify-end gap-4">
+                <BaseButton 
+                  :loading="studyLoading || loading" 
+                  class="!text-white/60 hover:!text-white font-bold transition-colors !bg-transparent border-none"
+                  @click="isEdit = true"
+                >
                   编辑详情
                 </BaseButton>
                 <BaseButton
                     v-if="runtimeStore.editDict.custom && runtimeStore.editDict.url"
-                    type="text"
+                    class="!text-white/60 hover:!text-white font-bold transition-colors !bg-transparent border-none"
                     @click="reset"
                 >
                   恢复默认
@@ -594,6 +610,7 @@ watch([() => displayMode, () => selectArticle.id, () => showTranslate], () => {
     max-width: 600px;
     display: -webkit-box;
     -webkit-line-clamp: 2;
+    line-clamp: 2;
     -webkit-box-orient: vertical;
     overflow: hidden;
   }

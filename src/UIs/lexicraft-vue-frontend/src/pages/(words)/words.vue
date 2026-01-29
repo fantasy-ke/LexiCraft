@@ -323,14 +323,14 @@ const systemPracticeText = $computed(() => {
             </div>
 
             <div class="flex gap-4">
-              <BaseButton size="small" type="info" class="rounded-xl px-6 h-11" @click="router.push('/app/dict-list')">
+              <BaseButton size="small" type="info" class="rounded-xl px-6 h-11 bg-slate-50 border-slate-100 hover:bg-blue-50 hover:border-blue-200 hover:text-blue-600 transition-all duration-300" @click="router.push('/app/dict-list')">
                 <div class="flex items-center gap-2">
                   <IconFluentArrowSwap24Regular class="text-lg"/>
                   <span class="font-bold">更换词典</span>
                 </div>
               </BaseButton>
               <PopConfirm :disabled="!isSaveData" title="更改进度将重新生成任务，是否继续？" @confirm="check(() => (showChangeLastPracticeIndexDialog = true))">
-                <BaseButton v-if="store.sdict.id" size="small" type="info" class="rounded-xl px-6 h-11">
+                <BaseButton v-if="store.sdict.id" size="small" type="info" class="rounded-xl px-6 h-11 bg-slate-50 border-slate-100 hover:bg-indigo-50 hover:border-indigo-200 hover:text-indigo-600 transition-all duration-300">
                   <div class="flex items-center gap-2">
                     <IconFluentSlideTextTitleEdit24Regular class="text-lg"/>
                     <span class="font-bold">调整位置</span>
@@ -393,24 +393,24 @@ const systemPracticeText = $computed(() => {
 
             <div class="flex gap-4">
               <BaseButton
-                class="flex-[2] h-14 rounded-2xl font-black text-lg shadow-xl shadow-indigo-600/30"
-                :class="settingStore.wordPracticeMode !== WordPracticeMode.Free ? 'bg-gradient-to-r from-indigo-600 to-blue-600 border-none' : 'bg-white/10 border-white/20'"
+                class="flex-[2] h-14 rounded-2xl font-black text-lg shadow-xl shadow-indigo-600/30 transition-all duration-300 hover:scale-[1.02] hover:shadow-indigo-600/40 active:scale-[0.98]"
+                :class="settingStore.wordPracticeMode !== WordPracticeMode.Free ? 'bg-gradient-to-r from-indigo-600 to-blue-600 border-none' : 'bg-white/10 border-white/20 hover:bg-white/15'"
                 :loading="loading"
                 @click="systemPractice"
               >
                 <div class="center gap-3">
                   <span>{{ systemPracticeText }}</span>
-                  <IconFluentChevronCircleRight24Regular/>
+                  <IconFluentChevronCircleRight24Regular class="text-2xl"/>
                 </div>
               </BaseButton>
 
               <BaseButton
-                class="flex-1 h-14 rounded-2xl bg-white/5 border-white/10 backdrop-blur-md"
+                class="flex-1 h-14 rounded-2xl bg-white/5 border-white/10 backdrop-blur-md transition-all duration-300 hover:bg-white/10 hover:border-white/30 hover:scale-[1.02] active:scale-[0.98]"
                 :loading="loading"
                 @click="freePractice()"
               >
                 <div class="center gap-2">
-                   <IconStreamlineColorPenDrawFlat class="text-xl"/>
+                   <IconStreamlineColorPenDrawFlat class="text-2xl text-blue-300"/>
                 </div>
               </BaseButton>
             </div>

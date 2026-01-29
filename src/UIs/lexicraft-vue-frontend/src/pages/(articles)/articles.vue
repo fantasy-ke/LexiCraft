@@ -267,10 +267,14 @@ let isNewHost = $ref(window.location.host === Host)
               </div>
             </div>
             
-            <BaseButton v-opacity="base.sbook.id" type="info" size="small" class="rounded-xl px-4 h-9 bg-slate-50 border-slate-100" @click="router.push('/app/book-list')">
+            <BaseButton 
+              v-opacity="base.sbook.id" 
+              class="!h-10 !px-5 !rounded-2xl !bg-white dark:!bg-slate-800 !border-slate-100 dark:!border-slate-700 !text-slate-600 dark:!text-slate-300 shadow-sm hover:!bg-blue-50 dark:hover:!bg-blue-950/30 hover:!border-blue-200 dark:hover:!border-blue-800 hover:!text-blue-600 transition-all duration-300 group" 
+              @click="router.push('/app/book-list')"
+            >
                <div class="flex items-center gap-2">
-                 <IconFluentArrowSwap24Regular class="text-base"/>
-                 <span class="font-bold">更换书籍</span>
+                 <IconFluentArrowSwap24Regular class="text-lg group-hover:rotate-180 transition-transform duration-500"/>
+                 <span class="font-black text-xs uppercase tracking-wider">Change Book</span>
                </div>
             </BaseButton>
           </div>
@@ -316,13 +320,16 @@ let isNewHost = $ref(window.location.host === Host)
 
             <BaseButton
               :disabled="!base.sbook.name"
-              class="w-full sm:w-48 h-14 rounded-2xl bg-gradient-to-r from-indigo-600 to-blue-600 border-none shadow-xl shadow-indigo-600/30 text-lg font-black flex items-center justify-center"
+              class="w-full sm:w-60 h-16 rounded-[1.25rem] bg-gradient-to-r from-slate-900 via-indigo-950 to-slate-900 border-none shadow-2xl shadow-slate-900/40 text-xl font-black flex items-center justify-center transition-all duration-500 hover:scale-[1.05] active:scale-[0.95] group relative overflow-hidden"
               @click="startStudy"
             >
-              <div class="center gap-3 w-full">
-                <span>{{ isSaveData ? '继续阅读' : '开始学习' }}</span>
-                <IconFluentArrowCircleRight24Regular class="text-2xl"/>
-              </div>
+               <div class="absolute inset-0 bg-gradient-to-r from-white/0 via-white/5 to-white/0 translate-x-[-100%] group-hover:translate-x-[100%] transition-transform duration-1000"></div>
+               <div class="center gap-4 w-full relative z-10">
+                 <div class="w-10 h-10 rounded-full bg-white/10 center group-hover:bg-white/20 transition-colors">
+                   <IconFluentPlay24Filled class="text-xl group-hover:scale-125 transition-transform"/>
+                 </div>
+                 <span class="tracking-widest uppercase text-sm">{{ isSaveData ? 'Continue' : 'Start Path' }}</span>
+               </div>
             </BaseButton>
           </div>
         </div>

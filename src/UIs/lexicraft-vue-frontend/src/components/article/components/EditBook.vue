@@ -37,9 +37,9 @@ const DefaultDictForm = {
   type: DictType.article,
 }
 let dictForm: any = $ref(cloneDeep(DefaultDictForm))
-const dictFormRef = $ref()
+const dictFormRef = $ref<any>()
 let loading = $ref(false)
-const dictRules = reactive({
+const dictRules: any = reactive({
   name: [
     {required: true, message: '请输入名称', trigger: 'blur'},
     {max: 20, message: '名称不能超过20个字符', trigger: 'blur'},
@@ -114,35 +114,48 @@ onMounted(() => {
 </script>
 
 <template>
-  <div class="w-120 mt-4">
-    <Form ref="dictFormRef" :model="dictForm" :rules="dictRules" label-width="8rem">
-      <FormItem label="名称" prop="name">
-        <BaseInput v-model="dictForm.name"/>
-      </FormItem>
-      <FormItem label="描述">
-        <BaseInput v-model="dictForm.description" textarea/>
-      </FormItem>
-      <FormItem v-if="false" label="原文语言">
-        <Select v-model="dictForm.language" placeholder="请选择选项">
-          <Option label="英语" value="en"/>
-          <Option label="德语" value="de"/>
-          <Option label="日语" value="ja"/>
-          <Option label="代码" value="code"/>
-        </Select>
-      </FormItem>
-      <FormItem v-if="false" label="译文语言">
-        <Select v-model="dictForm.translateLanguage" placeholder="请选择选项">
-          <Option label="中文" value="zh-CN"/>
-          <Option label="英语" value="en"/>
-          <Option label="德语" value="de"/>
-          <Option label="日语" value="ja"/>
-        </Select>
-      </FormItem>
-      <div class="center">
-        <base-button type="info" @click="emit('close')">关闭</base-button>
-        <base-button :loading="loading" type="primary" @click="onSubmit">确定</base-button>
+  <div class="edit-book-container w-140 mt-8 p-10 bg-white dark:bg-slate-900 rounded-[2.5rem] shadow-2xl border border-slate-100 dark:border-slate-800 relative overflow-hidden group">
+    <!-- Background Decorators -->
+    <div class="absolute -right-20 -top-20 w-80 h-80 bg-blue-500/5 rounded-full blur-3xl pointer-events-none group-hover:bg-blue-500/10 transition-colors duration-700"></div>
+    <div class="absolute -left-20 -bottom-20 w-64 h-64 bg-indigo-500/5 rounded-full blur-3xl pointer-events-none"></div>
+
+    <div class="relative z-10">
+      <div class="mb-10 text-center lg:text-left">
+        <h2 class="text-3xl font-black grad-text m-0 mb-2">{{ isAdd ? 'Create Dictionary' : 'Edit Dictionary' }}</h2>
+        <p class="text-xs font-bold text-slate-400 uppercase tracking-[0.1em]">Customize your learning collection details</p>
       </div>
-    </Form>
+
+      <Form ref="dictFormRef" :model="dictForm" :rules="dictRules" class="premium-form space-y-6">
+        <FormItem label="词典名称" prop="name">
+          <BaseInput v-model="dictForm.name" class="!h-12 !rounded-xl !bg-slate-50 dark:!bg-slate-800 border-none px-4 font-bold" placeholder="例如：考研英语词汇"/>
+        </FormItem>
+        
+        <FormItem label="详细描述" prop="description">
+          <Textarea 
+             v-model="dictForm.description" 
+             class="!rounded-2xl !bg-slate-50 dark:!bg-slate-800 border-none p-4 font-medium" 
+             placeholder="添加一些备注或说明..."
+             :autosize="{ minRows: 4, maxRows: 6 }"
+          />
+        </FormItem>
+
+        <div class="flex items-center gap-4 pt-8">
+          <BaseButton 
+             class="flex-[2] h-14 rounded-2xl bg-gradient-to-r from-blue-600 to-indigo-600 border-none text-white font-black text-lg shadow-xl shadow-blue-600/20 transition-all hover:scale-[1.02] active:scale-[0.98]" 
+             :loading="loading"
+             @click="onSubmit"
+          >
+            Confirm & Save
+          </BaseButton>
+          <BaseButton 
+             class="flex-1 h-14 rounded-2xl bg-slate-50 dark:bg-slate-800 border-slate-100 dark:border-slate-700 text-slate-500 font-bold transition-all hover:bg-slate-100 active:scale-[0.98]" 
+             @click="emit('close')"
+          >
+            Cancel
+          </BaseButton>
+        </div>
+      </Form>
+    </div>
   </div>
 </template>
 
