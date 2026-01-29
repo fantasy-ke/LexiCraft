@@ -215,143 +215,181 @@ let isNewHost = $ref(window.location.host === Host)
 
 <template>
   <BasePage>
-    <div class="card flex flex-col md:flex-row justify-between gap-space p-4 md:p-6">
-      <div class="">
-        <Book
+    <!-- Study Record Header Card -->
+    <div class="card-white p-8 relative group mb-6">
+      <div class="absolute inset-0 overflow-hidden rounded-xl pointer-events-none">
+        <div class="absolute -right-20 -top-20 w-64 h-64 bg-indigo-500/10 rounded-full blur-3xl group-hover:bg-indigo-500/20 transition-colors duration-700"></div>
+      </div>
+      
+      <div class="flex flex-col lg:flex-row gap-10 relative z-10">
+        <!-- Current Book Focus -->
+        <div class="shrink-0">
+          <Book
             v-if="base.sbook.id"
             :is-add="false"
             :item="base.sbook"
             :show-progress="false"
             quantifier="篇"
+            class="scale-110 lg:scale-100 origin-top shadow-2xl"
             @click="goBookDetail(base.sbook)"
-        />
-        <Book v-else :is-add="true" @click="router.push('/app/book-list')"/>
-      </div>
-      <div class="flex-1">
-        <div class="flex justify-between items-start">
-          <div class="flex items-center min-w-0">
-            <div class="title mr-4 truncate">本周学习记录</div>
-            <div class="flex gap-4 color-gray">
-              <div
+          />
+          <Book v-else :is-add="true" class="scale-110 lg:scale-100 origin-top shadow-2xl" @click="router.push('/app/book-list')"/>
+        </div>
+
+        <!-- Weekly & Stats -->
+        <div class="flex-1 space-y-8">
+          <div class="flex justify-between items-start">
+            <div class="space-y-4">
+              <div class="flex items-center gap-3">
+                <div class="w-10 h-10 rounded-xl bg-blue-500/10 center text-blue-600">
+                  <IconFluentCalendarWeekNumbers24Filled class="text-2xl"/>
+                </div>
+                <div>
+                   <h2 class="text-2xl font-black m-0 tracking-tight">本周学习记录</h2>
+                   <p class="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em]">WEEKLY ACTIVITY</p>
+                </div>
+              </div>
+              
+              <div class="flex gap-2">
+                <div
                   v-for="(item, i) in weekList"
                   :key="i"
-                  :class="item ? 'bg-[#409eff] color-white' : 'bg-gray-200'"
-                  class="w-6 h-6 md:w-8 md:h-8 rounded-md center text-sm md:text-base"
-              >
-                {{ i + 1 }}
+                  class="flex flex-col items-center gap-2"
+                >
+                   <div 
+                     :class="item ? 'bg-gradient-to-br from-blue-500 to-indigo-600 shadow-lg shadow-blue-500/30' : 'bg-slate-100 dark:bg-slate-800'"
+                     class="w-8 h-8 md:w-10 md:h-10 rounded-xl center transition-all duration-500 hover:scale-110"
+                   >
+                     <IconFluentCheckmark12Filled v-if="item" class="text-white text-lg"/>
+                     <span v-else class="text-xs font-black text-slate-300">{{ i + 1 }}</span>
+                   </div>
+                </div>
+              </div>
+            </div>
+            
+            <BaseButton v-opacity="base.sbook.id" type="info" size="small" class="rounded-xl px-4 h-9 bg-slate-50 border-slate-100" @click="router.push('/app/book-list')">
+               <div class="flex items-center gap-2">
+                 <IconFluentArrowSwap24Regular class="text-base"/>
+                 <span class="font-bold">更换书籍</span>
+               </div>
+            </BaseButton>
+          </div>
+
+          <!-- Quick Stats -->
+          <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+            <div class="stat-card-premium">
+              <div class="icon bg-blue-100 text-blue-600"><IconFluentTimer24Filled/></div>
+              <div>
+                 <div class="value">{{ todayTotalSpend }}</div>
+                 <div class="label">今日时长</div>
+              </div>
+            </div>
+            <div class="stat-card-premium">
+              <div class="icon bg-indigo-100 text-indigo-600"><IconFluentFlash24Filled/></div>
+              <div>
+                 <div class="value">{{ totalDay }}</div>
+                 <div class="label">累计天数</div>
+              </div>
+            </div>
+            <div class="stat-card-premium">
+              <div class="icon bg-emerald-100 text-emerald-600"><IconFluentHistory24Filled/></div>
+              <div>
+                 <div class="value text-emerald-600">{{ totalSpend }}</div>
+                 <div class="label">总计时长</div>
               </div>
             </div>
           </div>
-          <div v-opacity="base.sbook.id" class="flex gap-4 items-center">
-            <div class="color-link cursor-pointer" @click="router.push('/app/book-list')">更换</div>
-          </div>
-        </div>
-        <div class="flex flex-col sm:flex-row gap-3 items-center mt-3 gap-space w-full">
-          <div
-              class="w-full sm:flex-1 rounded-xl p-4 box-border relative bg-[var(--bg-history)] border border-gray-200"
-          >
-            <div class="text-[#409eff] text-xl font-bold">{{ todayTotalSpend }}</div>
-            <div class="text-gray-500">今日学习时长</div>
-          </div>
-          <div
-              class="w-full sm:flex-1 rounded-xl p-4 box-border relative bg-[var(--bg-history)] border border-gray-200"
-          >
-            <div class="text-[#409eff] text-xl font-bold">{{ totalDay }}</div>
-            <div class="text-gray-500">总学习天数</div>
-          </div>
-          <div
-              class="w-full sm:flex-1 rounded-xl p-4 box-border relative bg-[var(--bg-history)] border border-gray-200"
-          >
-            <div class="text-[#409eff] text-xl font-bold">{{ totalSpend }}</div>
-            <div class="text-gray-500">总学习时长</div>
-          </div>
-        </div>
-        <div class="flex gap-3 mt-3">
-          <Progress
-              :format="() => `${base.sbook?.lastLearnIndex || 0}/${base.sbook?.length || 0}篇`"
-              :percentage="base.currentBookProgress"
-              :show-text="true"
-              class="w-full md:w-auto"
-              size="large"
-          ></Progress>
 
-          <BaseButton
-              :disabled="!base.sbook.name"
-              class="w-full md:w-auto"
-              size="large"
-              @click="startStudy"
-          >
-            <div class="flex items-center gap-2 justify-center w-full">
-              <span class="line-height-[2]">{{ isSaveData ? '继续学习' : '开始学习' }}</span>
-              <IconFluentArrowCircleRight16Regular class="text-xl"/>
+          <!-- Progress and Action -->
+          <div class="flex flex-col sm:flex-row gap-6 items-center bg-slate-50 dark:bg-slate-800/40 p-6 rounded-3xl border border-slate-100 dark:border-slate-800">
+            <div class="flex-1 w-full space-y-2">
+               <div class="flex justify-between items-end">
+                  <span class="text-sm font-black text-indigo-600 dark:text-indigo-400 uppercase tracking-widest">{{ base.currentBookProgress }}% 完成</span>
+                  <span class="text-xs font-bold text-slate-400">{{ base.sbook?.lastLearnIndex || 0 }} / {{ base.sbook?.length || 0 }} 篇</span>
+               </div>
+               <Progress
+                  :percentage="base.currentBookProgress"
+                  :show-text="false"
+                  class="h-3 rounded-full"
+               ></Progress>
             </div>
+
+            <BaseButton
+              :disabled="!base.sbook.name"
+              class="w-full sm:w-48 h-14 rounded-2xl bg-gradient-to-r from-indigo-600 to-blue-600 border-none shadow-xl shadow-indigo-600/30 text-lg font-black flex items-center justify-center"
+              @click="startStudy"
+            >
+              <div class="center gap-3 w-full">
+                <span>{{ isSaveData ? '继续阅读' : '开始学习' }}</span>
+                <IconFluentArrowCircleRight24Regular class="text-2xl"/>
+              </div>
+            </BaseButton>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- My Books Section -->
+    <div class="card-white p-8 mb-6">
+      <div class="flex justify-between items-center mb-10">
+        <div>
+          <h2 class="text-2xl font-black m-0 grad-text">我的书读</h2>
+          <p class="text-sm font-bold text-slate-400 mt-1 uppercase tracking-widest">PERSONAL LIBRARY</p>
+        </div>
+        <div class="flex gap-4 items-center">
+          <PopConfirm v-if="selectIds.length" title="确认要移出选中的书籍吗？" @confirm="handleBatchDel">
+            <div class="w-10 h-10 rounded-xl bg-rose-50 text-rose-500 center cursor-pointer hover:bg-rose-100 transition-colors">
+              <DeleteIcon class="text-xl"/>
+            </div>
+          </PopConfirm>
+
+          <BaseButton type="info" size="small" class="rounded-xl px-4" @click="isMultiple = !isMultiple; selectIds = []">
+            {{ isMultiple ? '完成管理' : '批量管理' }}
+          </BaseButton>
+          
+          <BaseButton type="primary" size="small" class="rounded-xl px-6 bg-gradient-to-r from-blue-600 to-indigo-600 border-none font-bold" @click="nav('/app/book-detail', { isAdd: true })">
+            添加书籍
           </BaseButton>
         </div>
       </div>
-    </div>
-
-    <div class="card flex flex-col">
-      <div class="flex justify-between">
-        <div class="title">我的书籍</div>
-        <div class="flex gap-4 items-center">
-          <PopConfirm
-              v-if="selectIds.length"
-              title="确认删除所有选中书籍？"
-              @confirm="handleBatchDel"
-          >
-            <BaseIcon class="del" title="删除">
-              <DeleteIcon/>
-            </BaseIcon>
-          </PopConfirm>
-
-          <div
-              v-if="base.article.bookList.length > 1"
-              class="color-link cursor-pointer"
-              @click="
-             () => {
-              isMultiple = !isMultiple
-              selectIds = []
-             }
-            "
-          >
-            {{ isMultiple ? '取消' : '管理书籍' }}
-          </div>
-          <div class="color-link cursor-pointer" @click="nav('/app/book-detail', { isAdd: true })">
-            创建个人书籍
-          </div>
-        </div>
-      </div>
-      <div class="flex gap-4 flex-wrap mt-4">
+      
+      <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-6">
         <Book
-            v-for="(item, j) in base.article.bookList"
-            :checked="selectIds.includes(item.id)"
-            :is-add="false"
-            :is-user="true"
-            :item="item"
-            :show-checkbox="isMultiple && j >= 1"
-            quantifier="篇"
-            @check="() => toggleSelect(item)"
-            @click="goBookDetail(item)"
+          v-for="(item, j) in base.article.bookList"
+          :checked="selectIds.includes(item.id)"
+          :is-add="false"
+          :is-user="true"
+          :item="item"
+          :show-checkbox="isMultiple && j >= 1"
+          quantifier="篇"
+          class="hover:-translate-y-2 transition-transform duration-300"
+          @check="() => toggleSelect(item)"
+          @click="goBookDetail(item)"
         />
-        <Book :is-add="true" @click="router.push('/app/book-list')"/>
+        <Book :is-add="true" class="hover:-translate-y-2 transition-transform duration-300" @click="router.push('/app/book-list')"/>
       </div>
     </div>
 
-    <div v-loading="isFetching" class="card flex flex-col min-h-50">
-      <div class="flex justify-between">
-        <div class="title">推荐</div>
-        <div class="flex gap-4 items-center">
-          <div class="color-link cursor-pointer" @click="router.push('/app/book-list')">更多</div>
+    <!-- Recommendations Section -->
+    <div v-loading="isFetching" class="card-white p-8">
+      <div class="flex justify-between items-center mb-10 border-b border-slate-50 dark:border-slate-800 pb-6">
+        <div>
+          <h2 class="text-2xl font-black m-0">精选书籍</h2>
+          <p class="text-sm font-bold text-slate-400 mt-1 uppercase tracking-widest">HAND-PICKED FOR YOU</p>
         </div>
+        <BaseButton type="info" size="small" class="rounded-xl px-6" @click="router.push('/app/book-list')">
+          发现更多
+        </BaseButton>
       </div>
 
-      <div class="flex gap-4 flex-wrap mt-4">
+      <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-6">
         <Book
-            v-for="(item, j) in recommendBookList"
-            :is-add="false"
-            :item="item as any"
-            quantifier="篇"
-            @click="goBookDetail(item as any)"
+          v-for="(item, j) in recommendBookList"
+          :is-add="false"
+          :item="item as any"
+          quantifier="篇"
+          class="hover:-translate-y-2 transition-transform duration-300"
+          @click="goBookDetail(item as any)"
         />
       </div>
     </div>
@@ -359,16 +397,23 @@ let isNewHost = $ref(window.location.host === Host)
 </template>
 
 <style lang="scss" scoped>
-.stat {
-  @apply rounded-xl p-4 box-border relative flex-1 bg-[var(--bg-history)];
-  border: 1px solid gainsboro;
-
-  .num {
-    @apply color-[#409eff] text-xl font-bold;
+.stat-card-premium {
+  @apply flex items-center gap-4 p-5 rounded-3xl bg-slate-50 dark:bg-slate-800/40 border border-slate-100 dark:border-slate-800 transition-all duration-300;
+  
+  .icon {
+    @apply w-12 h-12 rounded-2xl center text-2xl shrink-0;
   }
-
-  .txt {
-    @apply color-gray-500;
+  
+  .value {
+    @apply text-xl font-black text-slate-900 dark:text-white leading-tight;
+  }
+  
+  .label {
+    @apply text-[10px] font-black text-slate-400 uppercase tracking-widest mt-1;
+  }
+  
+  &:hover {
+    @apply -translate-y-1 shadow-lg shadow-slate-200/50 dark:shadow-none bg-white dark:bg-slate-800;
   }
 }
 </style>

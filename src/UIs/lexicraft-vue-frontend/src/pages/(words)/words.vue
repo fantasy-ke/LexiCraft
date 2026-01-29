@@ -277,255 +277,208 @@ const systemPracticeText = $computed(() => {
 
 <template>
   <BasePage>
-    <div class="card flex flex-col md:flex-row gap-4">
-      <div class="flex-1 w-full flex flex-col justify-between">
-        <div class="flex gap-3">
-          <div class="p-1 center rounded-full bg-white">
-            <IconFluentBookNumber20Filled class="text-xl color-link"/>
-          </div>
-          <div class="text-2xl font-bold cursor-pointer" @click="goDictDetail(store.sdict)">
-            {{ store.sdict.name || '当前无正在学习的词典' }}
-          </div>
-        </div>
-
-        <template v-if="store.sdict.id">
-          <div class="mt-4 space-y-2">
-            <div class="text-sm flex justify-between">
-              <span v-opacity="store.sdict.id && store.sdict.lastLearnIndex < store.sdict.length">
-                预计完成日期：{{
-                  _getAccomplishDate(
-                    store.sdict.words.length - store.sdict.lastLearnIndex,
-                    store.sdict.perDayStudyNumber
-                  )
-                }}
-              </span>
+    <!-- Current Dictionary Progress Card -->
+    <div class="card-white p-8 relative group mb-6">
+      <div class="absolute inset-0 overflow-hidden rounded-xl pointer-events-none">
+        <div class="absolute -right-20 -top-20 w-64 h-64 bg-blue-500/10 rounded-full blur-3xl group-hover:bg-blue-500/20 transition-colors duration-700"></div>
+      </div>
+      
+      <div class="flex flex-col lg:flex-row gap-8 relative z-10 items-stretch">
+        <div class="flex-1 space-y-6">
+          <div class="flex items-center gap-4">
+            <div class="w-14 h-14 rounded-2xl bg-gradient-to-br from-blue-500 to-indigo-600 center shadow-xl text-white shadow-blue-500/20">
+              <IconFluentBookNumber24Filled class="text-3xl"/>
             </div>
-            <Progress :percentage="store.currentStudyProgress" :show-text="false" size="large"></Progress>
-
-            <div class="text-sm flex justify-between">
-              <span>{{ progressTextLeft }}</span>
-              <span> {{ store.sdict?.lastLearnIndex }} / {{ store.sdict.words.length }} 词</span>
-            </div>
-          </div>
-          <div class="flex items-center mt-4 gap-4">
-            <BaseButton size="small" type="info" @click="router.push('/app/dict-list')">
-              <div class="center gap-1">
-                <IconFluentArrowSwap20Regular/>
-                <span>选择词典</span>
+            <div class="flex-1">
+              <h2 class="text-3xl font-black grad-text m-0 cursor-pointer" @click="goDictDetail(store.sdict)">
+                {{ store.sdict.name || '开启词典学习之旅' }}
+              </h2>
+              <div v-if="store.sdict.id" class="text-slate-400 font-bold text-sm tracking-widest uppercase mt-1">
+                {{ store.sdict.complete ? '字典已完成' : '学习进度进行中' }}
               </div>
-            </BaseButton>
-            <PopConfirm
-                :disabled="!isSaveData"
-                title="当前存在未完成的学习任务，修改会重新生成学习任务，是否继续？"
-                @confirm="check(() => (showChangeLastPracticeIndexDialog = true))"
-            >
-              <BaseButton v-if="store.sdict.id" size="small" type="info">
-                <div class="center gap-1">
-                  <IconFluentSlideTextTitleEdit20Regular/>
-                  <span>更改进度</span>
+            </div>
+          </div>
+
+          <template v-if="store.sdict.id">
+            <div class="bg-slate-50 dark:bg-slate-800/40 p-6 rounded-3xl border border-slate-100 dark:border-slate-800">
+              <div class="flex justify-between items-end mb-4">
+                <div class="space-y-1">
+                  <div class="text-sm font-bold text-slate-400 uppercase tracking-wider">预期完成</div>
+                  <div class="text-xl font-black text-slate-900 dark:text-white">
+                    {{ _getAccomplishDate(store.sdict.words.length - store.sdict.lastLearnIndex, store.sdict.perDayStudyNumber) }}
+                  </div>
+                </div>
+                <div class="text-right">
+                  <div class="text-4xl font-black text-indigo-600 dark:text-indigo-400 leading-none">{{ store.currentStudyProgress }}<span class="text-lg ml-1 opacity-50">%</span></div>
+                  <div class="text-xs font-bold text-slate-400 uppercase tracking-widest mt-1">总进度</div>
+                </div>
+              </div>
+              
+              <Progress :percentage="store.currentStudyProgress" :show-text="false" class="h-3 rounded-full" />
+              
+              <div class="flex justify-between mt-4 text-sm font-bold text-slate-500">
+                <span>{{ progressTextLeft }}</span>
+                <span class="text-slate-900 dark:text-slate-300">{{ store.sdict?.lastLearnIndex }} / {{ store.sdict.words.length }} 词</span>
+              </div>
+            </div>
+
+            <div class="flex gap-4">
+              <BaseButton size="small" type="info" class="rounded-xl px-6 h-11" @click="router.push('/app/dict-list')">
+                <div class="flex items-center gap-2">
+                  <IconFluentArrowSwap24Regular class="text-lg"/>
+                  <span class="font-bold">更换词典</span>
                 </div>
               </BaseButton>
-            </PopConfirm>
-          </div>
-        </template>
+              <PopConfirm :disabled="!isSaveData" title="更改进度将重新生成任务，是否继续？" @confirm="check(() => (showChangeLastPracticeIndexDialog = true))">
+                <BaseButton v-if="store.sdict.id" size="small" type="info" class="rounded-xl px-6 h-11">
+                  <div class="flex items-center gap-2">
+                    <IconFluentSlideTextTitleEdit24Regular class="text-lg"/>
+                    <span class="font-bold">调整位置</span>
+                  </div>
+                </BaseButton>
+              </PopConfirm>
+            </div>
+          </template>
 
-        <div v-else class="flex items-center gap-4 mt-2 flex-1">
-          <div class="title">请选择一本词典开始学习</div>
-          <BaseButton id="step1" size="large" type="primary" @click="router.push('/app/dict-list')">>
-            <div class="center gap-1">
-              <IconFluentAdd16Regular/>
-              <span>选择词典</span>
-            </div>
-          </BaseButton>
-        </div>
-      </div>
-
-      <div :class="!store.sdict.id && 'opacity-30 cursor-not-allowed'" class="flex-1 w-full mt-4 md:mt-0">
-        <div class="flex justify-between">
-          <div class="flex items-center gap-2">
-            <div class="p-2 center rounded-full bg-white">
-              <IconFluentStar20Filled class="text-lg color-amber"/>
-            </div>
-            <div class="text-xl font-bold">
-              {{ isSaveData ? '上次任务' : '今日任务' }}
-            </div>
-            <span v-if="store.sdict.id" class="color-link cursor-pointer" @click="showPracticeWordListDialog = true"
-            >词表</span
-            >
-          </div>
-          <div v-if="store.sdict.id" class="flex gap-1 items-center">
-            每日目标
-            <div class="bg-third px-2 h-10 flex center text-2xl rounded" style="color: #ac6ed1">
-              {{ store.sdict.id ? store.sdict.perDayStudyNumber : 0 }}
-            </div>
-            个单词
-            <PopConfirm
-                :disabled="!isSaveData"
-                title="当前存在未完成的学习任务，修改会重新生成学习任务，是否继续？"
-                @confirm="check(() => (showPracticeSettingDialog = true))"
-            >
-              <BaseButton size="small" type="info">更改</BaseButton>
-            </PopConfirm>
-          </div>
-        </div>
-        <div class="flex mt-4 justify-between">
-          <div class="stat">
-            <div class="num">{{ currentStudy.new.length }}</div>
-            <div class="txt">新词数</div>
-          </div>
-          <div class="stat">
-            <div class="num">{{ currentStudy.review.length }}</div>
-            <div class="txt">复习上次</div>
-          </div>
-          <div class="stat">
-            <div class="num">{{ currentStudy.write.length }}</div>
-            <div class="txt">复习之前</div>
-          </div>
-        </div>
-        <div class="flex items-end mt-4 gap-4 btn-no-margin">
-          <OptionButton
-              :class="settingStore.wordPracticeMode !== WordPracticeMode.Free ? 'flex-1 orange-btn' : 'primary-btn'"
-          >
-            <BaseButton
-                :disabled="!store.sdict.id"
-                :loading="loading"
-                :type="settingStore.wordPracticeMode !== WordPracticeMode.Free ? 'orange' : 'primary'"
-                size="large"
-                @click="systemPractice"
-            >
-              <div class="flex items-center gap-2">
-                <span class="line-height-[2]">{{ systemPracticeText }}</span>
-                <IconFluentArrowCircleRight16Regular class="text-xl"/>
+          <div v-else class="py-10 text-center lg:text-left bg-slate-50/50 dark:bg-slate-800/20 rounded-3xl border-2 border-dashed border-slate-200 dark:border-slate-800 p-8">
+            <h3 class="text-xl font-bold text-slate-400 mb-6">您当前还没有正在学习的词库</h3>
+            <BaseButton id="step1" size="large" class="h-14 px-10 text-lg shadow-2xl" @click="router.push('/app/dict-list')">
+              <div class="flex items-center gap-3">
+                <IconFluentAdd24Filled/>
+                <span>挑选一本词典</span>
               </div>
             </BaseButton>
-            <template #options>
-              <BaseButton
-                  v-if="
-                  settingStore.wordPracticeMode !== WordPracticeMode.System &&
-                  settingStore.wordPracticeMode !== WordPracticeMode.Free
-                "
-                  class="w-full"
-                  @click="startPractice(WordPracticeMode.System, true)"
-              >
-                智能学习
-              </BaseButton>
+          </div>
+        </div>
 
-              <BaseButton
-                  v-if="settingStore.wordPracticeMode !== WordPracticeMode.Review"
-                  :disabled="!currentStudy.review.length && !currentStudy.write.length"
-                  class="w-full"
-                  @click="startPractice(WordPracticeMode.Review, true)"
-              >
-                复习
-              </BaseButton>
-              <BaseButton
-                  v-if="settingStore.wordPracticeMode !== WordPracticeMode.Shuffle"
-                  :disabled="store.sdict.lastLearnIndex < 10 && !store.sdict.complete"
-                  class="w-full"
-                  @click="check(() => (showShufflePracticeSettingDialog = true))"
-              >
-                随机复习
-              </BaseButton>
-
-              <!--              <BaseButton-->
-              <!--                class="w-full"-->
-              <!--                v-if="settingStore.wordPracticeMode !== WordPracticeMode.IdentifyOnly"-->
-              <!--                @click="startPractice(WordPracticeMode.IdentifyOnly, true)"-->
-              <!--              >-->
-              <!--                {{ WordPracticeModeNameMap[WordPracticeMode.IdentifyOnly] }}-->
-              <!--              </BaseButton>-->
-              <!--              <BaseButton-->
-              <!--                class="w-full"-->
-              <!--                v-if="settingStore.wordPracticeMode !== WordPracticeMode.ListenOnly"-->
-              <!--                @click="startPractice(WordPracticeMode.ListenOnly, true)"-->
-              <!--              >-->
-              <!--                {{ WordPracticeModeNameMap[WordPracticeMode.ListenOnly] }}-->
-              <!--              </BaseButton>-->
-              <!--              <BaseButton-->
-              <!--                class="w-full"-->
-              <!--                v-if="settingStore.wordPracticeMode !== WordPracticeMode.DictationOnly"-->
-              <!--                @click="startPractice(WordPracticeMode.DictationOnly, true)"-->
-              <!--              >-->
-              <!--                {{ WordPracticeModeNameMap[WordPracticeMode.DictationOnly] }}-->
-              <!--              </BaseButton>-->
-            </template>
-          </OptionButton>
-
-          <BaseButton
-              :class="settingStore.wordPracticeMode === WordPracticeMode.Free ? 'flex-1' : ''"
-              :loading="loading"
-              :type="settingStore.wordPracticeMode === WordPracticeMode.Free ? 'orange' : 'primary'"
-              size="large"
-              @click="freePractice()"
-          >
-            <div class="flex items-center gap-2">
-              <span class="line-height-[2]">
-                {{
-                  settingStore.wordPracticeMode === WordPracticeMode.Free && isSaveData ? '继续自由练习' : '自由练习'
-                }}
-              </span>
-              <IconStreamlineColorPenDrawFlat class="text-xl"/>
+        <!-- Daily Task Area -->
+        <div class="flex-1 min-w-[340px] flex flex-col" :class="!store.sdict.id && 'opacity-20 grayscale pointer-events-none'">
+          <div class="bg-gradient-to-br from-slate-900 to-slate-800 dark:from-slate-800 dark:to-slate-900 rounded-[2.5rem] p-8 text-white shadow-2xl shadow-slate-900/20 flex flex-col justify-between flex-1">
+            <div class="flex justify-between items-start mb-8">
+              <div class="space-y-1">
+                <div class="flex items-center gap-2">
+                  <div class="w-8 h-8 rounded-lg bg-red-500/20 center text-red-400">
+                    <IconFluentTarget24Filled class="text-xl"/>
+                  </div>
+                  <h3 class="text-xl font-black m-0">{{ isSaveData ? '继续任务' : '今日目标' }}</h3>
+                </div>
+                <div class="text-xs font-bold text-slate-400 uppercase tracking-widest pl-10" @click="showPracticeWordListDialog = true">
+                   查看完整词表 <IconFluentChevronRight20Regular class="inline text-xs"/>
+                </div>
+              </div>
+              
+              <div class="text-right">
+                <div class="text-3xl font-black text-amber-400 leading-none">
+                  {{ store.sdict.id ? store.sdict.perDayStudyNumber : 0 }}
+                </div>
+                <div class="text-[10px] font-black text-slate-500 uppercase tracking-[0.2em] mt-1">DAILY COUNT</div>
+                <BaseButton size="small" type="info" class="mt-2 h-7 px-3 bg-white/10 border-white/10 hover:bg-white/20 text-[10px]" @click="check(() => (showPracticeSettingDialog = true))">调整</BaseButton>
+              </div>
             </div>
+
+            <div class="grid grid-cols-3 gap-3 mb-8">
+              <div class="task-stat-box">
+                <div class="num text-blue-400">{{ currentStudy.new.length }}</div>
+                <div class="label">新词学习</div>
+              </div>
+              <div class="task-stat-box">
+                <div class="num text-indigo-400">{{ currentStudy.review.length }}</div>
+                <div class="label">复习新词</div>
+              </div>
+              <div class="task-stat-box">
+                <div class="num text-emerald-400">{{ currentStudy.write.length }}</div>
+                <div class="label">巩固单词</div>
+              </div>
+            </div>
+
+            <div class="flex gap-4">
+              <BaseButton
+                class="flex-[2] h-14 rounded-2xl font-black text-lg shadow-xl shadow-indigo-600/30"
+                :class="settingStore.wordPracticeMode !== WordPracticeMode.Free ? 'bg-gradient-to-r from-indigo-600 to-blue-600 border-none' : 'bg-white/10 border-white/20'"
+                :loading="loading"
+                @click="systemPractice"
+              >
+                <div class="center gap-3">
+                  <span>{{ systemPracticeText }}</span>
+                  <IconFluentChevronCircleRight24Regular/>
+                </div>
+              </BaseButton>
+
+              <BaseButton
+                class="flex-1 h-14 rounded-2xl bg-white/5 border-white/10 backdrop-blur-md"
+                :loading="loading"
+                @click="freePractice()"
+              >
+                <div class="center gap-2">
+                   <IconStreamlineColorPenDrawFlat class="text-xl"/>
+                </div>
+              </BaseButton>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- My Dicts Section -->
+    <div class="card-white p-8 mb-6">
+      <div class="flex justify-between items-center mb-10">
+        <div>
+          <h2 class="text-2xl font-black m-0 grad-text">我的学习库</h2>
+          <p class="text-sm font-bold text-slate-400 mt-1 uppercase tracking-widest">PERSONAL DICTIONARIES</p>
+        </div>
+        <div class="flex gap-4 items-center">
+          <PopConfirm v-if="selectIds.length" title="确认要删除选中的词典吗？" @confirm="handleBatchDel">
+            <div class="w-10 h-10 rounded-xl bg-rose-50 text-rose-500 center cursor-pointer hover:bg-rose-100 transition-colors">
+              <DeleteIcon class="text-xl"/>
+            </div>
+          </PopConfirm>
+
+          <BaseButton type="info" size="small" class="rounded-xl px-4" @click="isManageDict = !isManageDict; selectIds = []">
+            {{ isManageDict ? '完成管理' : '批量管理' }}
+          </BaseButton>
+          
+          <BaseButton type="primary" size="small" class="rounded-xl px-6 bg-gradient-to-r from-blue-600 to-indigo-600 border-none font-bold" @click="nav('/app/dict-detail', { isAdd: true })">
+            新建库
           </BaseButton>
         </div>
       </div>
-    </div>
-
-    <div class="card flex flex-col">
-      <div class="flex justify-between">
-        <div class="title">我的词典</div>
-        <div class="flex gap-4 items-center">
-          <PopConfirm v-if="selectIds.length" title="确认删除所有选中词典？" @confirm="handleBatchDel">
-            <BaseIcon class="del" title="删除">
-              <DeleteIcon/>
-            </BaseIcon>
-          </PopConfirm>
-
-          <div
-              v-if="store.word.bookList.length > 3"
-              class="color-link cursor-pointer"
-              @click="
-              () => {
-                isManageDict = !isManageDict
-                selectIds = []
-              }
-            "
-          >
-            {{ isManageDict ? '取消' : '管理词典' }}
-          </div>
-          <div class="color-link cursor-pointer" @click="nav('/app/dict-detail', { isAdd: true })">创建个人词典</div>
-        </div>
-      </div>
-      <div class="flex gap-4 flex-wrap mt-4">
+      
+      <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-6">
         <Book
-            v-for="(item, j) in store.word.bookList"
-            :checked="selectIds.includes(item.id)"
-            :is-add="false"
-            :item="item"
-            :show-checkbox="isManageDict && j >= 3"
-            quantifier="词"
-            @check="() => toggleSelect(item)"
-            @click="goDictDetail(item)"
+          v-for="(item, j) in store.word.bookList"
+          :checked="selectIds.includes(item.id)"
+          :is-add="false"
+          :item="item"
+          :show-checkbox="isManageDict && j >= 3"
+          quantifier="词"
+          class="hover:-translate-y-2 transition-transform duration-300"
+          @check="() => toggleSelect(item)"
+          @click="goDictDetail(item)"
         />
-        <Book :is-add="true" @click="router.push('/app/dict-list')"/>
+        <Book :is-add="true" class="hover:-translate-y-2 transition-transform duration-300" @click="router.push('/app/dict-list')"/>
       </div>
     </div>
 
-    <div v-loading="isFetching" class="card flex flex-col overflow-hidden">
-      <div class="flex justify-between">
-        <div class="title">推荐</div>
-        <div class="flex gap-4 items-center">
-          <div class="color-link cursor-pointer" @click="router.push('/app/dict-list')">更多</div>
+    <!-- Recommendations Section -->
+    <div v-loading="isFetching" class="card-white p-8 relative overflow-hidden">
+      <div class="flex justify-between items-center mb-10 border-b border-slate-50 dark:border-slate-800 pb-6">
+        <div>
+          <h2 class="text-2xl font-black m-0">热门推荐</h2>
+          <p class="text-sm font-bold text-slate-400 mt-1 uppercase tracking-widest">BEST SELECTION FOR YOU</p>
         </div>
+        <BaseButton type="info" size="small" class="rounded-xl px-6" @click="router.push('/app/dict-list')">
+          浏览更多
+        </BaseButton>
       </div>
 
-      <div class="flex gap-4 flex-wrap mt-4 min-h-50">
+      <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-6">
         <Book
-            v-for="(item, j) in recommendDictList"
-            :is-add="false"
-            :item="item as any"
-            quantifier="词"
-            @click="goDictDetail(item as any)"
+          v-for="(item, j) in recommendDictList"
+          :is-add="false"
+          :item="item as any"
+          quantifier="词"
+          class="hover:-translate-y-2 transition-transform duration-300"
+          @click="goDictDetail(item as any)"
         />
       </div>
     </div>
@@ -541,16 +494,27 @@ const systemPracticeText = $computed(() => {
 </template>
 
 <style lang="scss" scoped>
-.stat {
-  @apply w-31% box-border flex flex-col items-center justify-center rounded-xl p-2 bg-[var(--bg-history)];
-  border: 1px solid gainsboro;
-
+.task-stat-box {
+  @apply flex flex-col items-center justify-center p-4 rounded-3xl bg-white/5 border border-white/10 backdrop-blur-md transition-all duration-300;
+  
   .num {
-    @apply color-[#409eff] text-4xl font-bold;
+    @apply text-3xl font-black mb-1;
   }
+  
+  .label {
+    @apply text-[10px] font-black text-slate-500 uppercase tracking-widest whitespace-nowrap;
+  }
+  
+  &:hover {
+    @apply bg-white/10 -translate-y-1;
+  }
+}
 
-  .txt {
-    @apply color-gray-500;
-  }
+.fade-item-enter-active, .fade-item-leave-active {
+  transition: all 0.5s ease;
+}
+.fade-item-enter-from, .fade-item-leave-to {
+  opacity: 0;
+  transform: translateY(20px);
 }
 </style>

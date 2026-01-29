@@ -1,5 +1,5 @@
 // uno.config.ts
-import {defineConfig, presetWind3} from 'unocss'
+import { defineConfig, presetWind3 } from 'unocss'
 
 export default defineConfig({
     shortcuts: {
@@ -25,6 +25,7 @@ export default defineConfig({
         'color-translate-second': 'color-[var(--color-translate-second)]',
         'en-article-family': 'font-[var(--en-article-family)]',
         'cn-article-family': 'font-[var(--zh-article-family)]',
+        center: 'flex items-center justify-center',
     },
     presets: [presetWind3()],
     // 自定义断点

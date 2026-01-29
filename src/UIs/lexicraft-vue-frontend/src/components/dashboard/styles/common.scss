@@ -1,64 +1,89 @@
 // 通用卡片样式
 .card {
-  background: var(--header-bg);
-  border-radius: 12px;
-  padding: 1.25rem;
-  box-shadow: 0 1px 3px var(--shadow-color);
-  border: 1px solid var(--border-color);
+  background: var(--color-card-bg);
+  border-radius: 16px;
+  padding: 1.5rem;
+  box-shadow: var(--shadow-premium);
+  border: 1px solid var(--color-item-border);
   display: flex;
   flex-direction: column;
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+  position: relative;
+  overflow: hidden;
+
+  &:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+  }
 }
 
 .card-header {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin-bottom: 1.25rem;
+  margin-bottom: 1.5rem;
 
   .title {
-    font-size: 1.1rem;
-    font-weight: 700;
+    font-size: 1.25rem;
+    font-weight: 800;
+    letter-spacing: -0.025em;
     color: var(--text-primary);
     margin: 0;
+    background: var(--grad-premium);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
   }
 }
 
 .icon-btn {
-  background: none;
-  border: none;
-  color: #94a3b8;
+  background: rgba(var(--color-primary), 0.5);
+  border: 1px solid var(--color-item-border);
+  color: var(--color-sub-text);
   cursor: pointer;
-  padding: 4px;
+  padding: 8px;
+  border-radius: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s ease;
 
   &:hover {
-    color: #64748b;
+    background: var(--color-primary);
+    color: var(--color-link);
+    transform: scale(1.05);
   }
 }
 
 .date-selector {
   display: flex;
   align-items: center;
-  gap: 0.25rem;
+  gap: 0.5rem;
   font-size: 0.875rem;
-  color: var(--text-tertiary);
+  font-weight: 600;
+  color: var(--color-sub-text);
   cursor: pointer;
+  padding: 6px 12px;
+  background: var(--color-primary);
+  border-radius: 20px;
+  transition: all 0.2s ease;
 
   &:hover {
-    color: var(--text-primary);
+    color: var(--color-link);
+    background: var(--color-third);
   }
 }
 
 // 移动端通用优化
 @media (max-width: 768px) {
   .card {
-    padding: 1rem;
+    padding: 1.25rem;
   }
 
   .card-header {
-    margin-bottom: 1rem;
+    margin-bottom: 1.25rem;
 
     .title {
-      font-size: 1rem;
+      font-size: 1.1rem;
     }
   }
 }

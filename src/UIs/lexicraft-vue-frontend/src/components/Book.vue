@@ -32,9 +32,7 @@ defineEmits<{
       </div>
 
       <!-- Status Tags -->
-      <div v-if="item?.lastLearnIndex > 0 && item?.lastLearnIndex < item?.length" class="status-tag learning">学习中
-      </div>
-      <div v-else-if="item?.lastLearnIndex >= item?.length" class="status-tag complete">已完成</div>
+      <div v-if="item?.lastLearnIndex >= item?.length" class="status-tag complete">已完成</div>
 
       <!-- Custom Tag -->
       <div v-if="item.custom" class="status-tag custom">自定义</div>
@@ -69,20 +67,21 @@ defineEmits<{
 
 <style lang="scss" scoped>
 .book-card {
-  width: 160px; /* Smaller than dashboard's 280px */
-  background: var(--header-bg);
-  border: 1px solid var(--border-color);
-  border-radius: 12px;
+  width: 160px;
+  background: var(--color-card-bg);
+  border: 1px solid var(--color-item-border);
+  border-radius: 20px;
   overflow: hidden;
   cursor: pointer;
-  transition: all 0.2s;
+  transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
   display: flex;
   flex-direction: column;
+  box-shadow: var(--shadow-premium);
 
   &:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
-    border-color: var(--text-tertiary);
+    transform: translateY(-8px);
+    box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+    border-color: var(--color-primary);
   }
 }
 
@@ -111,26 +110,25 @@ defineEmits<{
 
   .status-tag {
     position: absolute;
-    top: 0.25rem;
+    top: 0.5rem;
     color: white;
-    font-size: 0.6rem;
-    padding: 0.1rem 0.4rem;
-    border-radius: 100px;
+    font-size: 10px;
+    font-weight: 800;
+    padding: 2px 8px;
+    border-radius: 8px;
     z-index: 2;
-
-    &.learning {
-      right: 0.25rem;
-      background: rgba(59, 130, 246, 0.9);
-    }
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
 
     &.complete {
-      right: 0.25rem;
-      background: rgba(16, 185, 129, 0.9);
+      right: 0.5rem;
+      background: linear-gradient(135deg, #10b981 0%, #059669 100%);
     }
 
     &.custom {
-      left: 0.25rem;
-      background: rgba(168, 85, 247, 0.9);
+      left: 0.5rem;
+      background: linear-gradient(135deg, #a855f7 0%, #7c3aed 100%);
     }
   }
 
