@@ -2,6 +2,7 @@ using BuildingBlocks.Domain;
 using BuildingBlocks.Mediator;
 using LexiCraft.Services.Identity.Identity.Models;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Logging;
 
 namespace LexiCraft.Services.Identity.Users.Internal.Commands;
 
@@ -19,17 +20,24 @@ public record BindUserOAuthCommand(
 
 public class BindUserOAuthCommandHandler(
     IQueryRepository<UserOAuth> userOAuthQueryRepository,
-    IRepository<User> userRepository)
+    IRepository<User> userRepository,
+    ILogger<BindUserOAuthCommandHandler> logger)
     : ICommandHandler<BindUserOAuthCommand, UserOAuth>
 {
     public async Task<UserOAuth> Handle(BindUserOAuthCommand command, CancellationToken cancellationToken)
     {
+        logger.LogInformation("开始处理OAuth绑定，UserId: {UserId}, Provider: {Provider}", command.UserId, command.Provider);
+
         // 检查是否已经存在绑定
         var existing = await userOAuthQueryRepository.QueryNoTracking()
             .FirstOrDefaultAsync(x => x.Provider == command.Provider && x.ProviderUserId == command.ProviderUserId,
                 cancellationToken);
 
-        if (existing != null) return existing;
+        if (existing != null)
+        {
+            logger.LogInformation("OAuth绑定已存在，UserId: {UserId}, Provider: {Provider}", existing.UserId, command.Provider);
+            return existing;
+        }
 
         User user;
         if (command.TrackedUser != null)
@@ -37,7 +45,10 @@ public class BindUserOAuthCommandHandler(
             user = command.TrackedUser;
             // 确保 userId 匹配
             if (user.Id != command.UserId)
+            {
+                logger.LogError("用户ID不匹配，TrackedUser.Id: {TrackedId}, Command.UserId: {CommandId}", user.Id, command.UserId);
                 throw new InvalidOperationException("TrackedUser ID does not match Command UserId");
+            }
         }
         else
         {
@@ -55,8 +66,11 @@ public class BindUserOAuthCommandHandler(
             string.Empty
         );
 
-        await userRepository.UpdateAsync(user);
+        // [重点] 移除冗余的 UpdateAsync。实体已被跟踪，在主 Handler 的 SaveChangesAsync 中会自动提交。
         
-        return user.OAuths.First(x => x.Provider == command.Provider);
+        var oauth = user.OAuths.First(x => x.Provider == command.Provider);
+        logger.LogInformation("OAuth绑定成功，UserId: {UserId}, Provider: {Provider}", command.UserId, command.Provider);
+
+        return oauth;
     }
 }

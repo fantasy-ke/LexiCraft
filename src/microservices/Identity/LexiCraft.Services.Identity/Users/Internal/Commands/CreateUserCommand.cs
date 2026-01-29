@@ -3,6 +3,7 @@ using LexiCraft.Services.Identity.Identity.Models;
 using LexiCraft.Services.Identity.Identity.Models.Enum;
 using LexiCraft.Services.Identity.Shared.Contracts;
 using LexiCraft.Shared.Permissions;
+using Microsoft.Extensions.Logging;
 
 namespace LexiCraft.Services.Identity.Users.Internal.Commands;
 
@@ -22,14 +23,21 @@ public record CreateUserCommand(
     string? Avatar = "🦜") : ICommand<User>;
 
 public class CreateUserCommandHandler(
-    IUserRepository userRepository)
+    IUserRepository userRepository,
+    ILogger<CreateUserCommandHandler> logger)
     : ICommandHandler<CreateUserCommand, User>
 {
     public async Task<User> Handle(CreateUserCommand command, CancellationToken cancellationToken)
     {
+        logger.LogInformation("开始创建用户，账户: {UserAccount}, 来源: {Source}", command.UserAccount, command.Source);
+        
         // 检查用户账号是否已存在（双重检查，虽然上层可能查过）
         var any = await userRepository.AnyAsync(p => p.UserAccount == command.UserAccount);
-        if (any) throw new InvalidOperationException("当前用户名已存在");
+        if (any)
+        {
+            logger.LogWarning("用户账号已存在: {UserAccount}", command.UserAccount);
+            throw new InvalidOperationException("当前用户名已存在");
+        }
 
         // 创建用户
         var user = new User(command.UserAccount, command.Email, command.Source);
@@ -37,12 +45,14 @@ public class CreateUserCommandHandler(
         user.UpdateAvatar(command.Avatar ?? "🦜");
         user.AddRole(PermissionConstant.User);
         user.UpdateLastLoginTime();
-
+        
         // 为用户分配默认权限
         var defaultPermissions = PermissionConstant.DefaultUserPermissions.Permissions;
-        var afterUser = await userRepository.InsertAsync(user);
-        foreach (var permission in defaultPermissions) afterUser.AddPermission(permission);
+        await userRepository.InsertAsync(user);
+        user.AddPermissions(PermissionConstant.DefaultUserPermissions.Permissions);
 
-        return afterUser;
+        logger.LogInformation("用户创建成功，ID: {UserId}, 分配了 {Count} 个默认权限", user.Id, defaultPermissions.Count());
+
+        return user;
     }
 }
