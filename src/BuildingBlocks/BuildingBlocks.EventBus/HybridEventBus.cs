@@ -2,7 +2,7 @@ using BuildingBlocks.EventBus.Abstractions;
 using BuildingBlocks.EventBus.Local;
 using BuildingBlocks.EventBus.Options;
 using BuildingBlocks.EventBus.Shared;
-using FreeRedis;
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using StackExchange.Redis;

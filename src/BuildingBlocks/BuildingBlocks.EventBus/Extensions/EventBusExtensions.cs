@@ -4,7 +4,6 @@ using BuildingBlocks.EventBus.Options;
 using BuildingBlocks.EventBus.Redis;
 using BuildingBlocks.EventBus.Shared;
 using BuildingBlocks.Extensions;
-using FreeRedis;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using StackExchange.Redis;
