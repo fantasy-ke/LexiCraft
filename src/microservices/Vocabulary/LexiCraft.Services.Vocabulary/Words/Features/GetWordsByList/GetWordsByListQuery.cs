@@ -1,12 +1,14 @@
 using BuildingBlocks.Mediator;
 using LexiCraft.Services.Vocabulary.Shared.Contracts;
 using LexiCraft.Services.Vocabulary.Words.Features.SearchWord;
+using LexiCraft.Services.Vocabulary.Words.Features.SearchWord;
+using LexiCraft.Services.Vocabulary.Words.Models;
 using Microsoft.EntityFrameworkCore;
 
 namespace LexiCraft.Services.Vocabulary.Words.Features.GetWordsByList;
 
 public record GetWordsByListQuery(
-    long WordListId,
+    WordListId WordListId,
     int PageIndex = 1,
     int PageSize = 20,
     string? Seed = null) : IQuery<PagedWordResult>;
@@ -40,7 +42,7 @@ public class GetWordsByListQueryHandler(
 
             // 使用位异或进行打乱。PostgreSQL 支持 bigint 的 ^ 运算符。
             // 这种方式比字符串拼接更有效，且能产生真正的乱序。
-            dbQuery = dbQuery.OrderBy(x => x.WordId ^ seedHash);
+            dbQuery = dbQuery.OrderBy(x => x.WordId.Value ^ seedHash);
         }
         else
         {

@@ -6,6 +6,8 @@ using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Routing;
+using LexiCraft.Shared.Models;
+using LexiCraft.Services.Vocabulary.Words.Models;
 
 namespace LexiCraft.Services.Vocabulary.UserStates.Features.UpdateState;
 
@@ -39,8 +41,8 @@ public static class UpdateStateEndpoint
 }
 
 public record UpdateStateRequest(
-    Guid UserId,
-    long WordId,
+    UserId UserId,
+    WordId WordId,
     WordState State,
     bool? IsInWordBook,
     int? MasteryScore);

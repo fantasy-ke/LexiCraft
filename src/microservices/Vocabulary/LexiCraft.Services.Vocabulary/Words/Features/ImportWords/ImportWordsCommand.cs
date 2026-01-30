@@ -23,13 +23,13 @@ public record ImportWordsRequest(
     List<WordImportDto> Words);
 
 public record WordImportResult(
-    long WordListId,
+    WordListId WordListId,
     int TotalProcessed,
     int NewWordsCount,
     int ExistingWordsCount,
     List<WordDuplicateInfo> DeployedWords);
 
-public record WordDuplicateInfo(string Spelling, long Id);
+public record WordDuplicateInfo(string Spelling, WordId Id);
 
 public record ImportWordsCommand(ImportWordsRequest Request) : ICommand<WordImportResult>;
 
@@ -146,7 +146,7 @@ public class ImportWordsCommandHandler(
         return (deployedWordsResult, newWordsToInsert.Count);
     }
 
-    private async Task LinkWordsToListAsync(long wordListId, List<WordDuplicateInfo> deployedWords,
+    private async Task LinkWordsToListAsync(WordListId wordListId, List<WordDuplicateInfo> deployedWords,
         CancellationToken cancellationToken)
     {
         var wordList = await wordListRepository.FirstOrDefaultAsync(x => x.Id == wordListId)

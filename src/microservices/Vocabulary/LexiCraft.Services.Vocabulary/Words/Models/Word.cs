@@ -2,7 +2,7 @@ using BuildingBlocks.Domain.Internal;
 
 namespace LexiCraft.Services.Vocabulary.Words.Models;
 
-public class Word : AuditEntity<long>
+public class Word : AuditEntity<WordId>
 {
     private Word()
     {

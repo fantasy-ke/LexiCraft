@@ -1,13 +1,14 @@
 using BuildingBlocks.Mediator;
+using LexiCraft.Shared.Models;
 using LexiCraft.Services.Identity.Shared.Contracts;
 using Microsoft.EntityFrameworkCore;
 
 namespace LexiCraft.Services.Identity.Users.Features.GetUserInfo;
 
-public record GetUserInfoQuery(Guid UserId) : IQuery<GetUserInfoResult>;
+public record GetUserInfoQuery(UserId UserId) : IQuery<GetUserInfoResult>;
 
 public record GetUserInfoResult(
-    Guid UserId,
+    UserId UserId,
     string UserName,
     string Email,
     string? Phone,
@@ -31,7 +32,7 @@ public class GetUserInfoQueryHandler(IUserRepository userRepository)
             .FirstOrDefaultAsync(cancellationToken);
 
         return user ?? new GetUserInfoResult(
-            Guid.Empty,
+            UserId.Empty,
             string.Empty,
             string.Empty,
             null,

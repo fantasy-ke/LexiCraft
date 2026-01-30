@@ -1,9 +1,10 @@
 using BuildingBlocks.Domain.Internal;
+using LexiCraft.Shared.Models;
 using LexiCraft.Services.Identity.Identity.Models.Enum;
 
 namespace LexiCraft.Services.Identity.Identity.Models;
 
-public class User : AuditAggregateRoot<Guid, Guid?>
+public class User : AuditAggregateRoot<UserId, UserId?>
 {
     private User() { } // For EF Core
 
@@ -30,7 +31,7 @@ public class User : AuditAggregateRoot<Guid, Guid?>
     /// <param name="source"></param>
     public User(string userAccount, string email, SourceEnum source = SourceEnum.Register)
     {
-        Id = Guid.NewGuid();
+        Id = UserId.New();
         Username = userAccount;
         UserAccount = userAccount;
         Email = email;

@@ -2,19 +2,20 @@ using BuildingBlocks.Exceptions;
 using BuildingBlocks.Grpc.Contracts.FileGrpc;
 using BuildingBlocks.Mediator;
 using FluentValidation;
+using LexiCraft.Shared.Models;
 using LexiCraft.Services.Identity.Shared.Contracts;
 using Microsoft.AspNetCore.Http;
 
 namespace LexiCraft.Services.Identity.Users.Features.UploadAvatar;
 
-public record UploadAvatarCommand(IFormFile Avatar, Guid UserId) : ICommand<UploadAvatarResult>;
+public record UploadAvatarCommand(IFormFile Avatar, UserId UserId) : ICommand<UploadAvatarResult>;
 
 public class UploadAvatarCommandValidator : AbstractValidator<UploadAvatarCommand>
 {
     public UploadAvatarCommandValidator()
     {
         RuleFor(x => x.UserId)
-            .NotEqual(Guid.Empty).WithMessage("用户ID不能为空");
+            .Must(x => x.Value != Guid.Empty).WithMessage("用户ID不能为空");
 
         RuleFor(x => x.Avatar)
             .NotNull().WithMessage("头像文件不能为空")

@@ -1,4 +1,5 @@
 using BuildingBlocks.Domain.Internal;
+using LexiCraft.Shared.Models;
 
 namespace LexiCraft.Services.Identity.Identity.Models;
 
@@ -6,9 +7,10 @@ public class UserOAuth : SimpleAuditEntity<Guid>
 {
     private UserOAuth()
     {
+        UserId = UserId.Empty;
     } // For EF Core
 
-    public UserOAuth(Guid userId, string provider, string providerUserId, string accessToken,
+    public UserOAuth(UserId userId, string provider, string providerUserId, string accessToken,
         DateTimeOffset accessTokenExpiresAt, string refreshToken = "")
     {
         Id = Guid.NewGuid();
@@ -23,7 +25,7 @@ public class UserOAuth : SimpleAuditEntity<Guid>
     /// <summary>
     ///     获取或设置用户的唯一标识符
     /// </summary>
-    public Guid UserId { get; private set; }
+    public UserId UserId { get; private set; }
 
     /// <summary>
     ///     获取或设置 OAuth 提供者的名称（如 Google, Facebook, etc.）

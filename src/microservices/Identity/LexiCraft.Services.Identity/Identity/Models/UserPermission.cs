@@ -1,4 +1,5 @@
 using BuildingBlocks.Domain.Internal;
+using LexiCraft.Shared.Models;
 
 namespace LexiCraft.Services.Identity.Identity.Models;
 
@@ -9,9 +10,10 @@ public class UserPermission : AuditEntity<long>
 {
     private UserPermission()
     {
+        UserId = UserId.Empty;
     } // EF Core需要的无参构造函数
 
-    public UserPermission(Guid userId, string permissionName)
+    public UserPermission(UserId userId, string permissionName)
     {
         UserId = userId;
         PermissionName = permissionName;
@@ -20,7 +22,7 @@ public class UserPermission : AuditEntity<long>
     /// <summary>
     ///     用户ID
     /// </summary>
-    public Guid UserId { get; private set; }
+    public UserId UserId { get; private set; }
 
     /// <summary>
     ///     权限名称

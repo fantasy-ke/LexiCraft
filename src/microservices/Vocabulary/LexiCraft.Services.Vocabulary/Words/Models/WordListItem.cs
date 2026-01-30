@@ -6,17 +6,19 @@ public class WordListItem : AuditEntity<long>
 {
     private WordListItem()
     {
+        WordListId = WordListId.Empty;
+        WordId = WordId.Empty;
     }
 
-    public WordListItem(long wordListId, long wordId, int sortOrder = 0)
+    public WordListItem(WordListId wordListId, WordId wordId, int sortOrder = 0)
     {
         WordListId = wordListId;
         WordId = wordId;
         SortOrder = sortOrder;
     }
 
-    public long WordListId { get; private set; }
-    public long WordId { get; private set; }
+    public WordListId WordListId { get; private set; }
+    public WordId WordId { get; private set; }
 
     /// <summary>
     ///     排序权重

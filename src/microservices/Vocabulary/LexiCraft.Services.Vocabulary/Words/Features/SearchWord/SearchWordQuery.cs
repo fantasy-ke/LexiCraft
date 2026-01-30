@@ -1,6 +1,7 @@
 using BuildingBlocks.Mediator;
 using FluentValidation;
 using LexiCraft.Services.Vocabulary.Shared.Contracts;
+using LexiCraft.Services.Vocabulary.Words.Models;
 using Microsoft.EntityFrameworkCore;
 
 namespace LexiCraft.Services.Vocabulary.Words.Features.SearchWord;
@@ -8,7 +9,7 @@ namespace LexiCraft.Services.Vocabulary.Words.Features.SearchWord;
 public record SearchWordQuery(string Keyword) : IQuery<List<WordDto>>;
 
 public record WordDto(
-    long Id,
+    WordId Id,
     string Spelling,
     string? Phonetic,
     string? PronunciationUrl,

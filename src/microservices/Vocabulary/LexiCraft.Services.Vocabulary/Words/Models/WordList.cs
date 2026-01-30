@@ -2,7 +2,7 @@ using BuildingBlocks.Domain.Internal;
 
 namespace LexiCraft.Services.Vocabulary.Words.Models;
 
-public class WordList(string name, string? category = null) : AuditAggregateRoot<long>
+public class WordList(string name, string? category = null) : AuditAggregateRoot<WordListId>
 {
     /// <summary>
     ///     词库名称
@@ -35,7 +35,7 @@ public class WordList(string name, string? category = null) : AuditAggregateRoot
         Description = description;
     }
 
-    public void AddWord(long wordId, int sortOrder = 0)
+    public void AddWord(WordId wordId, int sortOrder = 0)
     {
         if (Items.All(x => x.WordId != wordId)) Items.Add(new WordListItem(Id, wordId, sortOrder));
     }

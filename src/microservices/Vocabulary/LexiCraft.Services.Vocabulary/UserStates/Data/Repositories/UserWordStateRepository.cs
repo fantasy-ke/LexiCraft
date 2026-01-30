@@ -2,13 +2,15 @@ using BuildingBlocks.EntityFrameworkCore;
 using LexiCraft.Services.Vocabulary.Shared.Contracts;
 using LexiCraft.Services.Vocabulary.Shared.Data;
 using LexiCraft.Services.Vocabulary.UserStates.Models;
+using LexiCraft.Shared.Models;
+using LexiCraft.Services.Vocabulary.Words.Models;
 
 namespace LexiCraft.Services.Vocabulary.UserStates.Data.Repositories;
 
 public class UserWordStateRepository(VocabularyDbContext context)
     : QueryRepository<VocabularyDbContext, UserWordState>(context), IUserWordStateRepository
 {
-    public async Task<UserWordState?> GetAsync(Guid userId, long wordId)
+    public async Task<UserWordState?> GetAsync(UserId userId, WordId wordId)
     {
         return await FirstOrDefaultAsync(x => x.UserId == userId && x.WordId == wordId);
     }

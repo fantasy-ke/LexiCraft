@@ -3,7 +3,7 @@ using BuildingBlocks.EventBus.Abstractions;
 namespace LexiCraft.Services.Practice.Shared.Events.IntegrationEvents;
 
 public record PracticeCompletedIntegrationEvent(
-    string UserId,
+    Guid UserId,
     string TaskId,
     int TotalItems,
     int CorrectCount,
@@ -13,7 +13,7 @@ public record PracticeCompletedIntegrationEvent(
 ) : IntegrationEvent;
 
 public record WordMistakeOccurredIntegrationEvent(
-    string UserId,
+    Guid UserId,
     string WordId,
     string MistakeType,
     string UserInput,

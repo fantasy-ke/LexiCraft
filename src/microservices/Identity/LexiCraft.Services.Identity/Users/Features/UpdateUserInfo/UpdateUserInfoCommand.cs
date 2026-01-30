@@ -1,12 +1,13 @@
 using BuildingBlocks.Exceptions;
 using BuildingBlocks.Mediator;
 using FluentValidation;
+using LexiCraft.Shared.Models;
 using LexiCraft.Services.Identity.Shared.Contracts;
 using LexiCraft.Services.Identity.Users.Features.GetUserInfo;
 
 namespace LexiCraft.Services.Identity.Users.Features.UpdateUserInfo;
 
-public record UpdateUserInfoCommand(Guid UserId, string? Username, string? Avatar)
+public record UpdateUserInfoCommand(UserId UserId, string? Username, string? Avatar)
     : ICommand<GetUserInfoResult>;
 
 public class UpdateUserInfoCommandValidator : AbstractValidator<UpdateUserInfoCommand>
@@ -14,7 +15,7 @@ public class UpdateUserInfoCommandValidator : AbstractValidator<UpdateUserInfoCo
     public UpdateUserInfoCommandValidator()
     {
         RuleFor(x => x.UserId)
-            .NotEqual(Guid.Empty).WithMessage("用户ID不能为空");
+            .Must(x => x.Value != Guid.Empty).WithMessage("用户ID不能为空");
 
         When(x => !string.IsNullOrWhiteSpace(x.Username), () =>
         {

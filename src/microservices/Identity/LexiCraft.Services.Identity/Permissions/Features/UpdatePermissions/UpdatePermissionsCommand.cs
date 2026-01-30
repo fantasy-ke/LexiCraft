@@ -2,12 +2,13 @@ using BuildingBlocks.Authentication.Contract;
 using BuildingBlocks.Exceptions;
 using BuildingBlocks.Mediator;
 using FluentValidation;
+using LexiCraft.Shared.Models;
 using LexiCraft.Services.Identity.Shared.Contracts;
 using Microsoft.EntityFrameworkCore;
 
 namespace LexiCraft.Services.Identity.Permissions.Features.UpdatePermissions;
 
-public record UpdatePermissionsCommand(Guid UserId, List<string> Permissions)
+public record UpdatePermissionsCommand(UserId UserId, List<string> Permissions)
     : ICommand<bool>;
 
 public class UpdatePermissionsCommandValidator : AbstractValidator<UpdatePermissionsCommand>
@@ -56,7 +57,7 @@ public class UpdatePermissionsCommandHandler(
 
             // 同步更新缓存
             await permissionCache.SetUserPermissionsAsync(
-                command.UserId,
+                command.UserId.Value,
                 command.Permissions.ToHashSet()
             );
 

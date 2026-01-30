@@ -1,11 +1,12 @@
 using BuildingBlocks.MongoDB;
+using LexiCraft.Shared.Models;
 using LexiCraft.Services.Practice.Assessments.Models;
 
 namespace LexiCraft.Services.Practice.Tasks.Models;
 
 public class PracticeTask : MongoAggregateRoot
 {
-    public string UserId { get; private set; } = string.Empty;
+    public UserId UserId { get; private set; } = UserId.Empty;
     public PracticeTaskType TaskType { get; private set; }
     public PracticeTaskSource SourceType { get; private set; }
     public string Category { get; private set; } = string.Empty;
@@ -16,7 +17,7 @@ public class PracticeTask : MongoAggregateRoot
     public List<PracticeTaskItem> Items { get; private set; } = new();
     public List<AnswerRecord> Answers { get; } = new();
 
-    public static PracticeTask Create(string userId, PracticeTaskType type, PracticeTaskSource source, string category,
+    public static PracticeTask Create(UserId userId, PracticeTaskType type, PracticeTaskSource source, string category,
         List<PracticeTaskItem> items)
     {
         var task = new PracticeTask

@@ -4,6 +4,7 @@ using MediatR;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Routing;
+using LexiCraft.Shared.Models;
 
 namespace LexiCraft.Services.Identity.Users.Features.GetUserInfo;
 
@@ -24,7 +25,8 @@ public static class GetUserInfoEndpoint
         )
         {
             var (queryProcessor, userContext, cancellationToken) = requestParameters;
-            var result = await queryProcessor.Send(new GetUserInfoQuery(userContext.UserId), cancellationToken);
+            var userId = new UserId(userContext.UserId);
+            var result = await queryProcessor.Send(new GetUserInfoQuery(userId), cancellationToken);
 
             return new GetUserInfoResponse(
                 result.UserId,
@@ -58,7 +60,7 @@ internal record GetUserInfoRequestParameters(
 /// <param name="Phone">手机号</param>
 /// <param name="Avatar">头像</param>
 internal record GetUserInfoResponse(
-    Guid UserId,
+    UserId UserId,
     string UserName,
     string Email,
     string? Phone,

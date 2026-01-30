@@ -1,5 +1,7 @@
 using BuildingBlocks.Domain.Internal;
+using LexiCraft.Shared.Models;
 using LexiCraft.Services.Vocabulary.UserStates.Models.Enum;
+using LexiCraft.Services.Vocabulary.Words.Models;
 
 namespace LexiCraft.Services.Vocabulary.UserStates.Models;
 
@@ -7,9 +9,11 @@ public class UserWordState : AuditEntity<long>
 {
     private UserWordState()
     {
+        UserId = UserId.Empty;
+        WordId = WordId.Empty;
     }
 
-    public UserWordState(Guid userId, long wordId)
+    public UserWordState(UserId userId, WordId wordId)
     {
         UserId = userId;
         WordId = wordId;
@@ -18,8 +22,8 @@ public class UserWordState : AuditEntity<long>
         IsInWordBook = false;
     }
 
-    public Guid UserId { get; private set; }
-    public long WordId { get; private set; }
+    public UserId UserId { get; private set; }
+    public WordId WordId { get; private set; }
 
     /// <summary>
     ///     掌握状态 (未学 / 模糊 / 掌握)

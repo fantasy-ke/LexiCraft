@@ -6,6 +6,7 @@ using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Routing;
+using LexiCraft.Shared.Models;
 
 namespace LexiCraft.Services.Vocabulary.UserStates.Features.GetWeakWords;
 
@@ -26,7 +27,7 @@ public static class GetWeakWordsEndpoint
         {
             var (mediator, userId, cancellationToken) = requestParameters;
 
-            var result = await mediator.Send(new GetWeakWordsQuery(userId), cancellationToken);
+            var result = await mediator.Send(new GetWeakWordsQuery(new UserId(userId)), cancellationToken);
 
             return result;
         }

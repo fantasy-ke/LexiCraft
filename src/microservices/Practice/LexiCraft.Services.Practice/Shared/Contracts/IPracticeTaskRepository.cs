@@ -1,5 +1,6 @@
 using BuildingBlocks.Domain;
 using LexiCraft.Services.Practice.Tasks.Models;
+using LexiCraft.Shared.Models;
 
 namespace LexiCraft.Services.Practice.Shared.Contracts;
 
@@ -10,8 +11,7 @@ public interface IPracticeTaskRepository : IRepository<PracticeTask>
     /// </summary>
     /// <param name="userId">User identifier</param>
     /// <param name="cancellationToken">Cancellation token</param>
-    /// <returns>Active practice task or null if none exists</returns>
-    Task<PracticeTask?> GetActiveTaskForUserAsync(string userId, CancellationToken cancellationToken = default);
+    Task<PracticeTask?> GetActiveTaskForUserAsync(UserId userId, CancellationToken cancellationToken = default);
 
     /// <summary>
     ///     Get completed practice tasks for a specific user
@@ -20,7 +20,7 @@ public interface IPracticeTaskRepository : IRepository<PracticeTask>
     /// <param name="limit">Maximum number of tasks to return</param>
     /// <param name="cancellationToken">Cancellation token</param>
     /// <returns>List of completed practice tasks</returns>
-    Task<List<PracticeTask>> GetCompletedTasksAsync(string userId, int limit = 10,
+    Task<List<PracticeTask>> GetCompletedTasksAsync(UserId userId, int limit = 10,
         CancellationToken cancellationToken = default);
 
     /// <summary>
@@ -30,7 +30,7 @@ public interface IPracticeTaskRepository : IRepository<PracticeTask>
     /// <param name="taskType">Type of practice task</param>
     /// <param name="cancellationToken">Cancellation token</param>
     /// <returns>List of practice tasks of the specified type</returns>
-    Task<List<PracticeTask>> GetTasksByTypeAsync(string userId, PracticeTaskType taskType,
+    Task<List<PracticeTask>> GetTasksByTypeAsync(UserId userId, PracticeTaskType taskType,
         CancellationToken cancellationToken = default);
 
     /// <summary>
@@ -40,6 +40,6 @@ public interface IPracticeTaskRepository : IRepository<PracticeTask>
     /// <param name="sourceType">Source type of practice task</param>
     /// <param name="cancellationToken">Cancellation token</param>
     /// <returns>List of practice tasks from the specified source</returns>
-    Task<List<PracticeTask>> GetTasksBySourceAsync(string userId, PracticeTaskSource sourceType,
+    Task<List<PracticeTask>> GetTasksBySourceAsync(UserId userId, PracticeTaskSource sourceType,
         CancellationToken cancellationToken = default);
 }

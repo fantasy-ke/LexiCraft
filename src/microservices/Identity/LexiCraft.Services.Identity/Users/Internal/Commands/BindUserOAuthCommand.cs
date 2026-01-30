@@ -3,6 +3,7 @@ using BuildingBlocks.Mediator;
 using LexiCraft.Services.Identity.Identity.Models;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
+using LexiCraft.Shared.Models;
 
 namespace LexiCraft.Services.Identity.Users.Internal.Commands;
 
@@ -13,7 +14,7 @@ namespace LexiCraft.Services.Identity.Users.Internal.Commands;
 /// <param name="Provider">提供者</param>
 /// <param name="ProviderUserId">提供者用户ID</param>
 public record BindUserOAuthCommand(
-    Guid UserId,
+    UserId UserId,
     string Provider,
     string ProviderUserId,
     User? TrackedUser = null) : ICommand<UserOAuth>;

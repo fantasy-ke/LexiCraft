@@ -1,6 +1,7 @@
 using FluentValidation;
 using LexiCraft.Services.Practice.Shared.Contracts;
 using LexiCraft.Services.Practice.Tasks.Models;
+using LexiCraft.Shared.Models;
 using MediatR;
 
 namespace LexiCraft.Services.Practice.Tasks.Features.CreatePracticeTask;
@@ -14,7 +15,7 @@ namespace LexiCraft.Services.Practice.Tasks.Features.CreatePracticeTask;
 /// <param name="Category">练习任务分类</param>
 /// <param name="Items">练习任务项列表</param>
 public record CreatePracticeTaskCommand(
-    string UserId,
+    UserId UserId,
     PracticeTaskType Type,
     PracticeTaskSource Source,
     string Category,
@@ -56,7 +57,7 @@ public class CreatePracticeTaskValidator : AbstractValidator<CreatePracticeTaskC
     public CreatePracticeTaskValidator()
     {
         RuleFor(x => x.UserId)
-            .NotEmpty()
+            .Must(x => x != null && x.Value != Guid.Empty)
             .WithMessage("用户ID不能为空。");
 
         RuleFor(x => x.Type)

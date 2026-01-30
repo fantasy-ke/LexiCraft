@@ -1,10 +1,11 @@
-using BuildingBlocks.Authentication.Contract;
 using BuildingBlocks.Domain.Internal;
 using IdGen;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.ChangeTracking;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.Extensions.DependencyInjection;
+using System.Reflection;
+using BuildingBlocks.Authentication.Contract;
 
 namespace BuildingBlocks.EntityFrameworkCore.Interceptors;
 
@@ -84,94 +85,121 @@ public class AuditableEntityInterceptor(IServiceProvider? serviceProvider = null
 
     private void SetEntityId(EntityEntry<IEntity> entry, IdGenerator? idGenerator)
     {
-        switch (entry.Entity)
+        var idProperty = entry.Entity.GetType().GetProperty("Id");
+        if (idProperty == null || !idProperty.CanWrite) return;
+
+        var idType = idProperty.PropertyType;
+        var idValue = idProperty.GetValue(entry.Entity);
+
+        if (idType == typeof(Guid) || idType == typeof(Guid?))
         {
-            case IEntity<Guid?> guidId when guidId.Id == null || guidId.Id == Guid.Empty:
-                guidId.Id = Guid.NewGuid();
-                break;
-            case IEntity<long?> { Id: null or <= 0 } longId:
-                longId.Id = idGenerator?.CreateId() ?? 0;
-                break;
+            if (idValue == null || (Guid)idValue == Guid.Empty)
+                idProperty.SetValue(entry.Entity, Guid.NewGuid());
+        }
+        else if (idType == typeof(long) || idType == typeof(long?))
+        {
+            if (idValue == null || (long)idValue <= 0)
+                idProperty.SetValue(entry.Entity, idGenerator?.CreateId() ?? 0);
+        }
+        else if (typeof(IStrongId<Guid>).IsAssignableFrom(idType))
+        {
+            if (idValue == null || ((IStrongId<Guid>)idValue).Value == Guid.Empty)
+                idProperty.SetValue(entry.Entity, Activator.CreateInstance(idType, Guid.NewGuid()));
+        }
+        else if (typeof(IStrongId<long>).IsAssignableFrom(idType))
+        {
+            if (idValue == null || ((IStrongId<long>)idValue).Value <= 0)
+                idProperty.SetValue(entry.Entity, Activator.CreateInstance(idType, idGenerator?.CreateId() ?? 0));
         }
     }
 
     private void ProcessCreatableEntity(EntityEntry<IEntity> entry, IUserContext? userContext)
     {
-        switch (entry.Entity)
+        if (entry.Entity is ICreatable creatable)
         {
-            case ICreatable<Guid?> creatable:
-                SetIfNotSet(() => creatable.CreateById, v => creatable.CreateById = v, () => userContext?.UserId);
-                SetIfNotSetString(() => creatable.CreateByName, v => creatable.CreateByName = v,
-                    () => userContext?.UserName ?? "systemUser");
-                break;
-            case ICreatable<Guid> creatableValue:
-                SetIfNotSet(() => creatableValue.CreateById, v => creatableValue.CreateById = v,
-                    () => userContext?.UserId ?? Guid.Empty);
-                SetIfNotSetString(() => creatableValue.CreateByName, v => creatableValue.CreateByName = v,
-                    () => userContext?.UserName);
-                break;
+            SetIfNotSetString(() => creatable.CreateByName, v => creatable.CreateByName = v,
+                () => userContext?.UserName ?? "systemUser");
         }
+
+        ProcessGenericId(entry, entry.Entity.GetType(), typeof(ICreatable<>), nameof(ICreatable<int>.CreateById), userContext?.UserId);
     }
 
     private void ProcessUpdatableEntity(EntityEntry<IEntity> entry, IUserContext? userContext)
     {
-        switch (entry.Entity)
+        if (entry.Entity is IUpdatable updatable)
         {
-            case IUpdatable<Guid?> updatable:
-                SetIfNotSet(() => updatable.UpdateById, v => updatable.UpdateById = v, () => userContext?.UserId);
-                SetIfNotSetString(() => updatable.UpdateByName, v => updatable.UpdateByName = v,
-                    () => userContext?.UserName ?? "systemUser");
-                break;
-            case IUpdatable<Guid> updatableValue:
-                SetIfNotSet(() => updatableValue.UpdateById, v => updatableValue.UpdateById = v,
-                    () => userContext?.UserId ?? Guid.Empty);
-                SetIfNotSetString(() => updatableValue.UpdateByName, v => updatableValue.UpdateByName = v,
-                    () => userContext?.UserName);
-                break;
+            SetIfNotSetString(() => updatable.UpdateByName, v => updatable.UpdateByName = v,
+                () => userContext?.UserName ?? "systemUser");
         }
+
+        ProcessGenericId(entry, entry.Entity.GetType(), typeof(IUpdatable<>), nameof(IUpdatable<int>.UpdateById), userContext?.UserId);
     }
 
     private void ProcessSoftDeletedEntity(EntityEntry<IEntity> entry, IUserContext? userContext)
     {
-        switch (entry.Entity)
+        if (entry.Entity is ISoftDeleted softDeleted)
         {
-            case ISoftDeleted<Guid?> softDeleted:
-                SetIfNotSet(() => softDeleted.DeleteById, v => softDeleted.DeleteById = v, () => userContext?.UserId);
-                SetIfNotSetString(() => softDeleted.DeleteByName, v => softDeleted.DeleteByName = v,
-                    () => userContext?.UserName);
-                break;
-            case ISoftDeleted<Guid> softDeletedValue:
-                SetIfNotSet(() => softDeletedValue.DeleteById, v => softDeletedValue.DeleteById = v,
-                    () => userContext?.UserId ?? Guid.Empty);
-                SetIfNotSetString(() => softDeletedValue.DeleteByName, v => softDeletedValue.DeleteByName = v,
-                    () => userContext?.UserName);
-                break;
+            SetIfNotSetString(() => softDeleted.DeleteByName, v => softDeleted.DeleteByName = v,
+                () => userContext?.UserName);
+        }
+
+        ProcessGenericId(entry, entry.Entity.GetType(), typeof(ISoftDeleted<>), nameof(ISoftDeleted<int>.DeleteById), userContext?.UserId);
+    }
+
+    private void ProcessGenericId(EntityEntry<IEntity> entry, Type entityType, Type genericInterfaceDefinition, string propertyName, Guid? userId)
+    {
+        var interfaceType = entityType.GetInterfaces()
+            .FirstOrDefault(x => x.IsGenericType && x.GetGenericTypeDefinition() == genericInterfaceDefinition);
+
+        if (interfaceType == null) return;
+
+        var property = interfaceType.GetProperty(propertyName);
+        if (property == null || !property.CanWrite) return;
+
+        var currentValue = property.GetValue(entry.Entity);
+        var targetType = interfaceType.GetGenericArguments()[0];
+        
+        // 检查是否已赋值
+        bool isSet = false;
+        if (currentValue != null)
+        {
+             if (targetType.IsValueType)
+             {
+                 var defaultValue = Activator.CreateInstance(targetType);
+                 isSet = !currentValue.Equals(defaultValue);
+             }
+             else
+             {
+                 // 引用类型不为 null 即视为已赋值
+                 isSet = true;
+             }
+        }
+
+        if (!isSet)
+        {
+            var newValue = CreateUserKey(targetType, userId);
+            if (newValue != null)
+            {
+                property.SetValue(entry.Entity, newValue);
+            }
         }
     }
 
-    /// <summary>
-    ///     当目标值未设置时，使用提供的值进行设置
-    /// </summary>
-    /// <typeparam name="T">值的类型</typeparam>
-    /// <param name="getter">获取当前值的函数</param>
-    /// <param name="setter">设置新值的Action</param>
-    /// <param name="valueProvider">提供新值的函数</param>
-    private void SetIfNotSet<T>(Func<T> getter, Action<T> setter, Func<T> valueProvider)
+    private object? CreateUserKey(Type targetType, Guid? userId)
     {
-        var currentValue = getter();
-        bool isNotSet;
+        if (userId == null) return null;
 
-        // 对于引用类型或可空值类型，检查是否为null
-        if (typeof(T).IsClass || Nullable.GetUnderlyingType(typeof(T)) != null)
-            isNotSet = EqualityComparer<T>.Default.Equals(currentValue, default);
-        // 对于非可空值类型，检查是否为默认值
-        else
-            isNotSet = EqualityComparer<T>.Default.Equals(currentValue, default);
+        if (targetType == typeof(Guid) || targetType == typeof(Guid?))
+            return userId.Value;
 
-        if (!isNotSet) return;
-        var newValue = valueProvider();
-        setter(newValue);
+        if (typeof(IStrongId<Guid>).IsAssignableFrom(targetType))
+        {
+            return Activator.CreateInstance(targetType, userId.Value);
+        }
+
+        return null;
     }
+
 
     /// <summary>
     ///     专门用于字符串类型的SetIfNotSet方法

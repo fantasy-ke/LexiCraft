@@ -84,7 +84,7 @@ public class CompletePracticeHandler : IRequestHandler<CompletePracticeCommand, 
 
         // 创建“练习完成”集成事件
         var completedEvent = new PracticeCompletedIntegrationEvent(
-            task.UserId,
+            task.UserId.Value,
             task.Id,
             task.Items.Count,
             correctCount,
@@ -110,7 +110,7 @@ public class CompletePracticeHandler : IRequestHandler<CompletePracticeCommand, 
 
             // 创建“单词出错”集成事件
             var mistakeEvent = new WordMistakeOccurredIntegrationEvent(
-                task.UserId,
+                task.UserId.Value,
                 item.WordId,
                 mistakeType.ToString(),
                 mistake.UserInput ?? string.Empty,

@@ -2,12 +2,13 @@ using BuildingBlocks.Authentication.Contract;
 using BuildingBlocks.Exceptions;
 using BuildingBlocks.Mediator;
 using FluentValidation;
+using LexiCraft.Shared.Models;
 using LexiCraft.Services.Identity.Shared.Contracts;
 using Microsoft.EntityFrameworkCore;
 
 namespace LexiCraft.Services.Identity.Permissions.Features.AddPermission;
 
-public record AddPermissionCommand(Guid UserId, List<string> Permissions)
+public record AddPermissionCommand(UserId UserId, List<string> Permissions)
     : ICommand<bool>;
 
 public class AddPermissionCommandValidator : AbstractValidator<AddPermissionCommand>
@@ -55,7 +56,7 @@ public class AddPermissionCommandHandler(
             await userRepository.SaveChangesAsync();
 
             // 同步更新缓存：批量添加权限
-            await permissionCache.AddPermissionsAsync(command.UserId, command.Permissions);
+            await permissionCache.AddPermissionsAsync(command.UserId.Value, command.Permissions);
 
             return true;
         }

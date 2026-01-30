@@ -2,12 +2,13 @@ using BuildingBlocks.Authentication.Contract;
 using BuildingBlocks.Exceptions;
 using BuildingBlocks.Mediator;
 using FluentValidation;
+using LexiCraft.Shared.Models;
 using LexiCraft.Services.Identity.Shared.Contracts;
 using Microsoft.EntityFrameworkCore;
 
 namespace LexiCraft.Services.Identity.Permissions.Features.RemovePermission;
 
-public record RemovePermissionCommand(Guid UserId, List<string> Permissions)
+public record RemovePermissionCommand(UserId UserId, List<string> Permissions)
     : ICommand<bool>;
 
 public class RemovePermissionCommandValidator : AbstractValidator<RemovePermissionCommand>
@@ -55,7 +56,7 @@ public class RemovePermissionCommandHandler(
             await userRepository.SaveChangesAsync();
 
             // 同步更新缓存：批量删除权限
-            await permissionCache.RemovePermissionsAsync(command.UserId, command.Permissions);
+            await permissionCache.RemovePermissionsAsync(command.UserId.Value, command.Permissions);
 
             return true;
         }

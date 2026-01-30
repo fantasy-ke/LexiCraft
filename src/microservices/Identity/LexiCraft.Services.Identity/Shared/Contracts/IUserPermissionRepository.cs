@@ -1,4 +1,5 @@
 using BuildingBlocks.Domain;
+using LexiCraft.Shared.Models;
 using LexiCraft.Services.Identity.Identity.Models;
 
 namespace LexiCraft.Services.Identity.Shared.Contracts;
@@ -13,5 +14,5 @@ public interface IUserPermissionRepository : IQueryRepository<UserPermission>
     /// </summary>
     /// <param name="userId"></param>
     /// <returns></returns>
-    Task<List<string>> GetUserPermissionsAsync(Guid userId);
+    Task<List<string>> GetUserPermissionsAsync(UserId userId);
 }

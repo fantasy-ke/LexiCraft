@@ -1,5 +1,6 @@
 using BuildingBlocks.Mediator;
 using LexiCraft.Services.Vocabulary.Shared.Contracts;
+using LexiCraft.Services.Vocabulary.Words.Models;
 using Microsoft.EntityFrameworkCore;
 
 namespace LexiCraft.Services.Vocabulary.Words.Features.GetWordLists;
@@ -7,7 +8,7 @@ namespace LexiCraft.Services.Vocabulary.Words.Features.GetWordLists;
 public record GetWordListsQuery(string? Category = null) : IQuery<List<WordListDto>>;
 
 public record WordListDto(
-    long Id,
+    WordListId Id,
     string Name,
     string? Category,
     string? Description);

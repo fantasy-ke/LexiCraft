@@ -2,6 +2,7 @@ using System.Linq.Expressions;
 using System.Reflection;
 using BuildingBlocks.Domain.Internal;
 using BuildingBlocks.Shared;
+using BuildingBlocks.EntityFrameworkCore.Extensions;
 using LexiCraft.Services.Identity.Identity.Models;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata;
@@ -35,6 +36,7 @@ public class IdentityDbContext(DbContextOptions<IdentityDbContext> options, ISer
         base.OnModelCreating(modelBuilder);
 
         modelBuilder.ApplyConfigurationsFromAssembly(typeof(IdentityDbContext).Assembly);
+        modelBuilder.ConfigureStrongIds();
 
         //软删除查询过滤
         OnModelCreatingConfigureGlobalFilters(modelBuilder);

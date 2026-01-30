@@ -1,14 +1,16 @@
 using BuildingBlocks.Mediator;
 using FluentValidation;
+using LexiCraft.Shared.Models;
 using LexiCraft.Services.Vocabulary.Shared.Contracts;
 using LexiCraft.Services.Vocabulary.UserStates.Models;
 using LexiCraft.Services.Vocabulary.UserStates.Models.Enum;
+using LexiCraft.Services.Vocabulary.Words.Models;
 
 namespace LexiCraft.Services.Vocabulary.UserStates.Features.UpdateState;
 
 public record UpdateStateCommand(
-    Guid UserId,
-    long WordId,
+    UserId UserId,
+    WordId WordId,
     WordState State,
     bool? IsInWordBook,
     int? MasteryScore) : ICommand<bool>;

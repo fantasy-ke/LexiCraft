@@ -2,6 +2,7 @@ using BuildingBlocks.EventBus.Abstractions;
 using BuildingBlocks.Extensions;
 using BuildingBlocks.Mediator;
 using LexiCraft.Services.Identity.Shared.Dtos;
+using LexiCraft.Shared.Models;
 using Microsoft.AspNetCore.Http;
 
 namespace LexiCraft.Services.Identity.Identity.Internal.Commands;
@@ -9,7 +10,7 @@ namespace LexiCraft.Services.Identity.Identity.Internal.Commands;
 public record PublishLoginLogCommand(
     string UserAccount,
     string? ErrorMessage,
-    Guid? UserId = null,
+    UserId? UserId = null,
     bool IsSuccess = false,
     string LoginType = "Password") : ICommand;
 
@@ -25,7 +26,7 @@ public class PublishLoginLogCommandHandler(
         var origin = context?.Request.Headers["Origin"].ToString();
 
         var logDto = new LoginLogEvent(
-            command.UserId,
+            command.UserId?.Value,
             command.UserAccount,
             DateTime.Now,
             origin,

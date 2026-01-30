@@ -54,14 +54,14 @@ public class RefreshTokenCommandHandler(
             userDict.Add("UserInfo", JsonSerializer.Serialize(userForClaims, JsonSerializerOptions.Web));
         }
 
-        var token = jwtTokenProvider.GenerateAccessToken(userDict, user.Id, user.Roles.ToArray());
+        var token = jwtTokenProvider.GenerateAccessToken(userDict, user.Id.Value, user.Roles.ToArray());
         var newRefreshToken = jwtTokenProvider.GenerateRefreshToken();
         var response = new TokenResponse(token, newRefreshToken);
 
-        await cacheService.SetAsync(string.Format(UserInfoConst.RedisTokenKey, user.Id.ToString("N")), response,
+        await cacheService.SetAsync(string.Format(UserInfoConst.RedisTokenKey, user.Id.Value.ToString("N")), response,
             options => options.Expiry = TimeSpan.FromDays(7), cancellationToken);
         await cacheService.SetAsync(string.Format(UserInfoConst.RedisRefreshTokenKey, newRefreshToken),
-            user.Id.ToString("N"), options => options.Expiry = TimeSpan.FromDays(7), cancellationToken);
+            user.Id.Value.ToString("N"), options => options.Expiry = TimeSpan.FromDays(7), cancellationToken);
 
         return response;
     }

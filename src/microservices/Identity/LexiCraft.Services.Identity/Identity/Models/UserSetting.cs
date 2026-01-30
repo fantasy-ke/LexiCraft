@@ -1,4 +1,5 @@
 using BuildingBlocks.Domain.Internal;
+using LexiCraft.Shared.Models;
 
 namespace LexiCraft.Services.Identity.Identity.Models;
 
@@ -6,9 +7,10 @@ public class UserSetting : SimpleAuditEntity<Guid>
 {
     private UserSetting()
     {
+        UserId = UserId.Empty;
     } // For EF Core
 
-    public UserSetting(Guid userId)
+    public UserSetting(UserId userId)
     {
         Id = Guid.NewGuid();
         UserId = userId;
@@ -25,7 +27,7 @@ public class UserSetting : SimpleAuditEntity<Guid>
     /// <summary>
     ///     用户ID
     /// </summary>
-    public Guid UserId { get; private set; }
+    public UserId UserId { get; private set; }
 
     /// <summary>
     ///     性别

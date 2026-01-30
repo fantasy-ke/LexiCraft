@@ -1,4 +1,5 @@
 using BuildingBlocks.Mediator;
+using LexiCraft.Shared.Models;
 using LexiCraft.Services.Vocabulary.Shared.Contracts;
 using LexiCraft.Services.Vocabulary.UserStates.Models;
 using LexiCraft.Services.Vocabulary.UserStates.Models.Enum;
@@ -8,7 +9,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace LexiCraft.Services.Vocabulary.UserStates.Features.GetWeakWords;
 
-public record GetWeakWordsQuery(Guid UserId) : IQuery<List<WordDto>>;
+public record GetWeakWordsQuery(UserId UserId) : IQuery<List<WordDto>>;
 
 public class GetWeakWordsQueryHandler(
     IUserWordStateRepository userWordStateRepository,

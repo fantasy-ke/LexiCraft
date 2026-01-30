@@ -2,6 +2,7 @@ using System.Linq.Expressions;
 using System.Reflection;
 using BuildingBlocks.Domain.Internal;
 using BuildingBlocks.Shared;
+using BuildingBlocks.EntityFrameworkCore.Extensions;
 using LexiCraft.Services.Vocabulary.UserStates.Models;
 using LexiCraft.Services.Vocabulary.Words.Models;
 using Microsoft.EntityFrameworkCore;
@@ -33,6 +34,7 @@ public class VocabularyDbContext(
         modelBuilder.HasPostgresExtension("unaccent");
 
         modelBuilder.ApplyConfigurationsFromAssembly(typeof(VocabularyDbContext).Assembly);
+        modelBuilder.ConfigureStrongIds();
 
         // 软删除查询过滤
         OnModelCreatingConfigureGlobalFilters(modelBuilder);

@@ -1,13 +1,14 @@
 using BuildingBlocks.Authentication.Contract;
 using BuildingBlocks.Mediator;
+using LexiCraft.Shared.Models;
 using LexiCraft.Services.Identity.Shared.Contracts;
 
 namespace LexiCraft.Services.Identity.Permissions.Features.GetUserPermissions;
 
-public record GetUserPermissionsQuery(Guid UserId) : IQuery<GetUserPermissionsResult>;
+public record GetUserPermissionsQuery(UserId UserId) : IQuery<GetUserPermissionsResult>;
 
 public record GetUserPermissionsResult(
-    Guid UserId,
+    UserId UserId,
     List<string> Permissions
 );
 
@@ -20,7 +21,7 @@ public class GetUserPermissionsQueryHandler(
         CancellationToken cancellationToken)
     {
         // 先查询缓存
-        var cachedPermissions = await permissionCache.GetUserPermissionsAsync(query.UserId);
+        var cachedPermissions = await permissionCache.GetUserPermissionsAsync(query.UserId.Value);
         if (cachedPermissions != null)
             return new GetUserPermissionsResult(
                 query.UserId,
@@ -33,7 +34,7 @@ public class GetUserPermissionsQueryHandler(
         // 回写到缓存
         if (permissions.Count > 0)
             await permissionCache.SetUserPermissionsAsync(
-                query.UserId,
+                query.UserId.Value,
                 permissions.ToHashSet()
             );
 

@@ -3,6 +3,7 @@ using MediatR;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Routing;
+using LexiCraft.Shared.Models;
 
 namespace LexiCraft.Services.Identity.Permissions.Features.GetUserPermissions;
 
@@ -23,7 +24,7 @@ public static class GetUserPermissionsEndpoint
         )
         {
             var (queryProcessor, userId, cancellationToken) = requestParameters;
-            var result = await queryProcessor.Send(new GetUserPermissionsQuery(userId), cancellationToken);
+            var result = await queryProcessor.Send(new GetUserPermissionsQuery(new UserId(userId)), cancellationToken);
 
             return new GetUserPermissionsResponse(result.UserId, result.Permissions);
         }
@@ -48,6 +49,6 @@ internal record GetUserPermissionsRequestParameters(
 /// <param name="UserId">用户ID</param>
 /// <param name="Permissions">权限列表</param>
 internal record GetUserPermissionsResponse(
-    Guid UserId,
+    UserId UserId,
     List<string> Permissions
 );

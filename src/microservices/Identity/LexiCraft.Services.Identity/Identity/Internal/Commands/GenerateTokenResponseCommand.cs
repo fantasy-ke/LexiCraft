@@ -32,9 +32,10 @@ public class GenerateTokenResponseCommandHandler(
             userDict.Add("UserInfo", JsonSerializer.Serialize(userForClaims, JsonSerializerOptions.Web));
         }
 
-        var token = jwtTokenProvider.GenerateAccessToken(userDict, user.Id, user.Roles.ToArray());
+        var accessToken = jwtTokenProvider.GenerateAccessToken(userDict, user.Id.Value, user.Roles.ToArray());
         var refreshToken = jwtTokenProvider.GenerateRefreshToken();
-        var response = new TokenResponse(token, refreshToken);
+
+        var response = new TokenResponse(accessToken, refreshToken);
 
         // 发布登录日志
         var logMessage = request.Message ?? (user.Source == SourceEnum.Register ? "注册成功" : "登录成功");
@@ -42,7 +43,7 @@ public class GenerateTokenResponseCommandHandler(
             new PublishLoginLogCommand(user.UserAccount, logMessage, user.Id, true, user.Source.ToString()),
             cancellationToken);
 
-        var cacheKey = string.Format(UserInfoConst.RedisTokenKey, user.Id.ToString("N"));
+        var cacheKey = string.Format(UserInfoConst.RedisTokenKey, user.Id.Value.ToString("N"));
 
         // 检查Redis中是否存在该用户的Token记录，如果存在则先删除旧的Token
         var oldToken = await cacheService.GetAsync<TokenResponse>(cacheKey, cancellationToken: cancellationToken);
@@ -60,7 +61,7 @@ public class GenerateTokenResponseCommandHandler(
         await cacheService.SetAsync(cacheKey, response,
             options => options.Expiry = TimeSpan.FromDays(7), cancellationToken);
         await cacheService.SetAsync(string.Format(UserInfoConst.RedisRefreshTokenKey, refreshToken),
-            user.Id.ToString("N"), options => options.Expiry = TimeSpan.FromDays(7), cancellationToken);
+            user.Id.Value.ToString("N"), options => options.Expiry = TimeSpan.FromDays(7), cancellationToken);
 
         return response;
     }
