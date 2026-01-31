@@ -9,5 +9,5 @@ public record WordId(long Value) : StrongId<long>(Value)
 {
     public static explicit operator long(WordId id) => id.Value;
     public static implicit operator WordId(long value) => new(value);
-    public static WordId Empty => new(0);
+    public static readonly WordId Empty = new(0);
 }
