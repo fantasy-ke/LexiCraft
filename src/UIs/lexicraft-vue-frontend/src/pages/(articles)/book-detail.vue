@@ -324,47 +324,74 @@ watch([() => displayMode, () => selectArticle.id, () => showTranslate], () => {
                 <div v-if="totalSpend" class="text-base mt-10">总学习时长：{{ totalSpend }}</div>
               </template>
               <template v-else>
-                <div class="flex-1 overflow-auto pb-30">
+                <div class="flex-1 overflow-auto pb-30 p-8 bg-white dark:bg-slate-900 rounded-3xl shadow-sm border border-slate-100 dark:border-slate-800 mr-2">
                   <div>
-                    <div class="flex justify-between items-center relative">
-                      <span>
-                        <span class="text-3xl">{{ selectArticle.title }}</span>
-                        <span v-if="showTranslate" class="ml-6 text-2xl">{{ selectArticle.titleTranslate }}</span>
-                      </span>
-                      <div class="flex items-center gap-2 mr-4">
-                        <BaseIcon :title="`开关释义显示`" @click="showTranslate = !showTranslate">
-                          <IconFluentTranslate16Regular v-if="showTranslate"/>
-                          <IconFluentTranslateOff16Regular v-else/>
-                        </BaseIcon>
-                        <BaseIcon
-                            :disabled="!showTranslate"
-                            :title="`切换显示模式`"
-                            @click="showDisplayMode = !showDisplayMode"
-                        >
-                          <IconFluentTextAlignLeft16Regular/>
-                        </BaseIcon>
+                    <div class="flex justify-between items-start relative mb-8 pb-6 border-b border-slate-100 dark:border-slate-800">
+                      <div class="flex-1 pr-8">
+                        <h2 class="text-3xl font-black text-slate-900 dark:text-white leading-tight mb-3 tracking-tight">{{ selectArticle.title }}</h2>
+                        <p v-if="showTranslate" class="text-xl text-slate-500 dark:text-slate-400 font-medium leading-relaxed">{{ selectArticle.titleTranslate }}</p>
+                      </div>
+                      <div class="flex flex-col items-end gap-3 shrink-0">
+                        <div class="flex items-center gap-2 bg-slate-100 dark:bg-slate-800 p-1.5 rounded-xl">
+                          <BaseIcon 
+                            :title="`开关释义显示`" 
+                            @click="showTranslate = !showTranslate"
+                            class="!w-9 !h-9 !p-2 rounded-lg hover:bg-white dark:hover:bg-slate-700 transition-all"
+                            :class="showTranslate ? 'text-blue-600 bg-white dark:bg-slate-700 shadow-sm' : 'text-slate-400'"
+                          >
+                            <IconFluentTranslate16Regular v-if="showTranslate"/>
+                            <IconFluentTranslateOff16Regular v-else/>
+                          </BaseIcon>
+                          <BaseIcon
+                              :disabled="!showTranslate"
+                              :title="`切换显示模式`"
+                              @click="showDisplayMode = !showDisplayMode"
+                              class="!w-9 !h-9 !p-2 rounded-lg hover:bg-white dark:hover:bg-slate-700 transition-all"
+                              :class="showDisplayMode ? 'text-blue-600 bg-white dark:bg-slate-700 shadow-sm' : 'text-slate-400'"
+                          >
+                            <IconFluentTextAlignLeft16Regular/>
+                          </BaseIcon>
+                        </div>
+                        
+                        <div v-if="showDisplayMode" class="flex gap-1 bg-slate-100 dark:bg-slate-800 p-1.5 rounded-xl animate-in slide-in-from-top-2 fade-in duration-200">
+                          <BaseIcon 
+                            title="逐行显示" 
+                            @click="displayMode = 'inline'"
+                            class="!w-8 !h-8 !p-1.5 rounded-lg transition-all"
+                            :class="displayMode === 'inline' ? 'text-blue-600 bg-white dark:bg-slate-700 shadow-sm' : 'text-slate-400 hover:text-slate-600'"
+                          >
+                            <IconFluentTextPositionThrough20Regular/>
+                          </BaseIcon>
+                          <BaseIcon 
+                            title="单行显示" 
+                            @click="displayMode = 'line'"
+                            class="!w-8 !h-8 !p-1.5 rounded-lg transition-all"
+                            :class="displayMode === 'line' ? 'text-blue-600 bg-white dark:bg-slate-700 shadow-sm' : 'text-slate-400 hover:text-slate-600'"
+                          >
+                            <IconFluentTextAlignLeft16Regular/>
+                          </BaseIcon>
+                          <BaseIcon 
+                            title="对照显示" 
+                            @click="displayMode = 'card'"
+                            class="!w-8 !h-8 !p-1.5 rounded-lg transition-all"
+                            :class="displayMode === 'card' ? 'text-blue-600 bg-white dark:bg-slate-700 shadow-sm' : 'text-slate-400 hover:text-slate-600'"
+                          >
+                            <IconFluentAlignSpaceFitVertical20Regular/>
+                          </BaseIcon>
+                        </div>
                       </div>
                     </div>
 
-                    <div v-if="showDisplayMode" class="flex gap-1 mr-4 justify-end">
-                      <BaseIcon title="逐行显示" @click="displayMode = 'inline'">
-                        <IconFluentTextPositionThrough20Regular/>
-                      </BaseIcon>
-                      <BaseIcon title="单行显示" @click="displayMode = 'line'">
-                        <IconFluentTextAlignLeft16Regular/>
-                      </BaseIcon>
-                      <BaseIcon title="对照显示" @click="displayMode = 'card'">
-                        <IconFluentAlignSpaceFitVertical20Regular/>
-                      </BaseIcon>
-                    </div>
-
-                    <div v-if="selectArticle?.question?.text" class="mt-2 text-2xl">
-                      <div>Question: {{ selectArticle?.question?.text }}</div>
+                    <div v-if="selectArticle?.question?.text" class="mb-8 p-6 bg-blue-50 dark:bg-blue-900/20 rounded-2xl border border-blue-100 dark:border-blue-900/30">
+                      <div class="text-xl font-bold text-slate-800 dark:text-slate-200 mb-2 flex items-start gap-3">
+                        <span class="text-blue-500 font-black text-2xl leading-none mt-1">Q:</span>
+                        {{ selectArticle?.question?.text }}
+                      </div>
                       <div
                           v-if="showTranslate && (displayMode !== 'card' || shouldShowInlineTranslation)"
-                          class="text-xl color-translate-second"
+                          class="text-lg text-slate-500 dark:text-slate-400 pl-8"
                       >
-                        问题: {{ selectArticle?.question?.translate }}
+                        {{ selectArticle?.question?.translate }}
                       </div>
                     </div>
                   </div>
@@ -572,7 +599,6 @@ watch([() => displayMode, () => selectArticle.id, () => showTranslate], () => {
     .dict-title {
       font-size: 1.5rem;
       font-weight: 700;
-      color: var(--text-primary);
       margin: 0;
     }
 
@@ -593,7 +619,6 @@ watch([() => displayMode, () => selectArticle.id, () => showTranslate], () => {
   .meta-row {
     display: flex;
     gap: 1.5rem;
-    color: var(--text-tertiary);
     font-size: 0.9rem;
 
     .meta-item {
@@ -605,7 +630,6 @@ watch([() => displayMode, () => selectArticle.id, () => showTranslate], () => {
 
   .description {
     font-size: 0.9rem;
-    color: var(--text-secondary);
     line-height: 1.5;
     max-width: 600px;
     display: -webkit-box;
