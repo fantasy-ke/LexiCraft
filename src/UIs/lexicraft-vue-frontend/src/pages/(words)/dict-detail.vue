@@ -652,7 +652,7 @@ defineRender(() => {
 
               <div class="flex flex-1 overflow-hidden content-area bg-slate-50/50 dark:bg-slate-900/50">
                 <div class={`word-list-section flex-1 h-full p-6 ${isMob && isOperate && activeTab !== 'list' ? 'mobile-hidden' : ''}`}>
-                  <div class="card-white h-full flex flex-col p-0! overflow-hidden border-none shadow-xl shadow-slate-200/50 dark:shadow-none">
+                  <div class="h-full flex flex-col p-0! overflow-hidden">
                     <BaseTable
                         ref={tableRef}
                         class="h-full"
@@ -677,12 +677,12 @@ defineRender(() => {
                           {{
                             prefix: () => val.checkbox(val.item),
                             suffix: () => (
-                                <div class="flex flex-col">
-                                  <BaseIcon class="option-icon" onClick={() => editWord(val.item)} title="编辑">
+                                <div class="flex flex-row items-center gap-2">
+                                  <BaseIcon class="option-icon hover:text-blue-600 transition-colors" onClick={() => editWord(val.item)} title="编辑">
                                     <IconFluentTextEditStyle20Regular/>
                                   </BaseIcon>
                                   <PopConfirm title="确认删除？" onConfirm={() => batchDel([val.item.id])}>
-                                    <BaseIcon class="option-icon" title="删除">
+                                    <BaseIcon class="option-icon hover:text-red-500 transition-colors" title="删除">
                                       <DeleteIcon/>
                                     </BaseIcon>
                                   </PopConfirm>
@@ -695,10 +695,14 @@ defineRender(() => {
                 </div></div>
                 {isOperate ? (
                     <div
-                        class={`edit-section flex-1 flex flex-col ${isMob && activeTab !== 'edit' ? 'mobile-hidden' : ''}`}>
-                      <div class="common-title">{wordForm.id ? '修改' : '添加'}单词</div>
+                        class={`edit-section flex-1 flex flex-col p-6 pl-0 ${isMob && activeTab !== 'edit' ? 'mobile-hidden' : ''}`}>
+                      <div class="h-full bg-white dark:bg-slate-800 rounded-2xl shadow-xl shadow-slate-200/50 dark:shadow-none border border-slate-100 dark:border-slate-700 flex flex-col overflow-hidden">
+                        <div class="p-6 border-b border-slate-100 dark:border-slate-700">
+                          <div class="text-xl font-black text-slate-800 dark:text-slate-100">{wordForm.id ? '修改' : '添加'}单词</div>
+                        </div>
+                        <div class="flex-1 overflow-hidden flex flex-col p-6">
                       <Form
-                          class="flex-1 overflow-auto pr-2"
+                          class="flex-1 overflow-auto pr-2 custom-scrollbar"
                           ref={e => (wordFormRef = e)}
                           rules={wordRules}
                           model={wordForm}
@@ -765,19 +769,23 @@ defineRender(() => {
                           />
                         </FormItem>
                       </Form>
-                      <div class="center gap-4 mt-8">
+                      </div>
+                      <div class="p-6 border-t border-slate-100 dark:border-slate-700 bg-slate-50/50 dark:bg-slate-900/20">
+                        <div class="center gap-4">
                         <BaseButton 
-                          class="!h-12 !px-8 !rounded-xl bg-slate-100 dark:bg-slate-800 text-slate-600 font-bold hover:bg-slate-200 transition-all" 
+                          class="!h-12 !px-8 !rounded-xl bg-white dark:bg-slate-800 text-slate-600 dark:text-slate-300 font-bold border border-slate-200 dark:border-slate-600 hover:bg-slate-50 dark:hover:bg-slate-700 transition-all shadow-sm" 
                           onClick={closeWordForm}
                         >
                           关闭
                         </BaseButton>
                         <BaseButton 
-                          class="!h-12 !px-10 !rounded-xl bg-gradient-to-r from-blue-600 to-indigo-600 text-white font-black shadow-lg shadow-blue-500/20 hover:scale-[1.02] active:scale-[0.98] transition-all" 
+                          class="!h-12 !px-10 !rounded-xl bg-slate-900 dark:bg-blue-600 text-white font-black shadow-lg shadow-slate-900/20 dark:shadow-blue-600/20 hover:scale-[1.02] active:scale-[0.98] transition-all border-none" 
                           onClick={onSubmitWord}
                         >
                           保存单词
                         </BaseButton>
+                        </div>
+                      </div>
                       </div>
                     </div>
                 ) : null}
@@ -833,19 +841,10 @@ defineRender(() => {
 }
 
 .edit-section {
-  width: 44%;
-  padding: 0 2rem;
-  overflow-y: auto;
-  border-left: 1px solid var(--border-color);
-
-  .common-title {
-    font-size: 1.2rem;
-    font-weight: 600;
-    color: var(--text-primary);
-    margin-bottom: 1.5rem;
-    padding-bottom: 1rem;
-    border-bottom: 2px solid var(--border-color);
-  }
+  /* width: 44%; Removed to use flex-1 for better responsiveness */
+  /* padding: 0 2rem; Handled by utility classes */
+  /* overflow-y: auto; Handled by internal container */
+  /* border-left: 1px solid var(--border-color); Removed for card style */
 }
 
 .mobile-hidden {
@@ -930,7 +929,7 @@ defineRender(() => {
     .dict-title {
       font-size: 1.5rem;
       font-weight: 700;
-      color: var(--text-primary);
+      color: white;
       margin: 0;
     }
 

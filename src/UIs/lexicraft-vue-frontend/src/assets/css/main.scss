@@ -76,28 +76,38 @@
   --grad-surface: linear-gradient(180deg, rgba(255, 255, 255, 0) 0%, rgba(255, 255, 255, 0.05) 100%);
 
   /* Logic Colors */
-  --layout-bg: #f8fafc;
+  --layout-bg: #f9fafb; /* Lighter, cleaner background */
   --header-bg: #ffffff;
   --sidebar-bg: #ffffff;
-  --border-color: #e2e8f0;
+  --border-color: rgba(226, 232, 240, 0.6); /* Softer border */
 
-  --text-primary: #0f172a;
-  --text-secondary: #475569;
-  --text-tertiary: #94a3b8;
-  --text-active: #2563eb;
+  --text-primary: #1e293b; /* Slate 800 */
+  --text-secondary: #64748b; /* Slate 500 */
+  --text-tertiary: #94a3b8; /* Slate 400 */
+  --text-active: #0ea5e9; /* Sky 500 - fresher blue */
 
   --hover-bg: #f1f5f9;
-  --active-bg: #eff6ff;
+  --active-bg: #e0f2fe; /* Very light sky blue */
 
-  --shadow-premium: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
-  --shadow-color: rgba(0, 0, 0, 0.05);
+  --shadow-premium: 0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -1px rgba(0, 0, 0, 0.03); /* Softer shadow */
+  --shadow-color: rgba(0, 0, 0, 0.03);
 }
 
 html.dark {
-  --color-reverse-white: black;
-  --color-reverse-black: white;
+  --color-reverse-white: #0f172a;
+  --color-reverse-black: #f8fafc;
 
-  --color-primary: #202124;
+  --color-primary: #1e293b;
+  --layout-bg: #0f172a;
+  --header-bg: #1e293b;
+  --sidebar-bg: #1e293b;
+  --border-color: #334155;
+  --text-primary: #f1f5f9;
+  --text-secondary: #94a3b8;
+  --text-active: #38bdf8;
+  --active-bg: rgba(56, 189, 248, 0.1);
+  --hover-bg: #334155;
+
   --color-second: #292a2d;
   --color-third: #35373a;
   --color-fourth: rgb(70, 70, 70);

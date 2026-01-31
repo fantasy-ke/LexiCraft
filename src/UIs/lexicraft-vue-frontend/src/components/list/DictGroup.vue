@@ -47,25 +47,38 @@ watch(() => props.groupByTag, () => {
 
 .category {
   margin-top: 1.4rem;
-  font-weight: bold;
-  color: var(--color-font-1);
+  font-weight: 700;
+  color: var(--text-primary);
+  font-size: 1.1rem;
 }
 
 .tags {
   display: flex;
   flex-wrap: wrap;
+  gap: 0.5rem;
   margin: 1rem 0;
   margin-top: calc(1rem - 0.4rem);
 
   .tag {
-    color: var(--color-font-1);
+    color: var(--text-secondary);
     cursor: pointer;
-    padding: 0.4rem 1rem;
+    padding: 0.4rem 1.25rem;
     border-radius: 2rem;
+    font-weight: 600;
+    font-size: 0.9rem;
+    transition: all 0.2s ease;
+    background: transparent;
+    border: 1px solid transparent;
+
+    &:hover {
+      color: var(--text-primary);
+      background: var(--hover-bg);
+    }
 
     &.active {
-      color: var(--color-font-active-1);
-      background: gray;
+      color: white;
+      background: var(--color-select-bg);
+      box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
     }
   }
 }

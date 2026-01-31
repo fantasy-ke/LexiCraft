@@ -205,12 +205,13 @@ onUnmounted(() => {
 <style lang="scss" scoped>
 /* Header Styles */
 .top-header {
-  height: 60px;
+  height: 64px; /* Slightly taller */
   background: var(--header-bg);
-  border-bottom: 1px solid var(--border-color);
+  /* border-bottom: 1px solid var(--border-color); Removed for cleaner look */
+  /* box-shadow: var(--shadow-premium);  Optional: subtle shadow */
   display: flex;
   align-items: center;
-  padding: 0 1.5rem;
+  padding: 0 2rem; /* More padding */
   gap: 2rem;
   flex-shrink: 0;
   z-index: 200;
@@ -222,7 +223,7 @@ onUnmounted(() => {
     .logo-section {
       display: flex;
       align-items: center;
-      gap: 0.75rem;
+      gap: 1rem;
       cursor: pointer;
       background: none;
       border: none;
@@ -234,27 +235,29 @@ onUnmounted(() => {
       }
 
       .logo-icon {
-        width: 36px;
-        height: 36px;
-        background: linear-gradient(135deg, #3b82f6, #1d4ed8);
-        border-radius: 8px;
+        width: 32px;
+        height: 32px;
+        background: linear-gradient(135deg, #0ea5e9, #3b82f6); /* Fresher blue */
+        border-radius: 10px; /* Softer rect */
         display: flex;
         align-items: center;
         justify-content: center;
         flex-shrink: 0;
+        box-shadow: 0 4px 6px -1px rgba(59, 130, 246, 0.2);
       }
 
       .logo-text {
         font-size: 1.25rem;
-        font-weight: 700;
+        font-weight: 600; /* Lighter weight */
         color: var(--text-primary);
+        letter-spacing: -0.02em;
       }
     }
   }
 
   .header-center {
     flex: 1;
-    max-width: 500px;
+    max-width: 480px;
     margin: 0 auto;
 
     .search-box {
@@ -263,28 +266,29 @@ onUnmounted(() => {
 
       .search-icon {
         position: absolute;
-        left: 1rem;
+        left: 1.2rem;
         top: 50%;
         transform: translateY(-50%);
         color: var(--text-tertiary);
+        font-size: 0.9rem;
       }
 
       .search-input {
         width: 100%;
-        height: 38px;
-        padding: 0 1rem 0 2.5rem;
-        border: 1px solid var(--border-color);
-        border-radius: 4px;
-        background: var(--layout-bg);
-        font-size: 0.875rem;
+        height: 42px; /* Taller input */
+        padding: 0 1rem 0 2.8rem;
+        border: 1px solid transparent; /* No border initially */
+        border-radius: 9999px; /* Pill shape */
+        background: var(--layout-bg); /* Use layout bg */
+        font-size: 0.9rem;
         transition: all 0.2s;
         color: var(--text-primary);
 
         &:focus {
           outline: none;
-          background: var(--header-bg);
+          background: #ffffff;
           border-color: var(--text-active);
-          box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+          box-shadow: 0 0 0 4px rgba(14, 165, 233, 0.1);
         }
 
         &::placeholder {

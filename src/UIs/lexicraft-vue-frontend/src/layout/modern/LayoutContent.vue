@@ -11,7 +11,7 @@
         </div>
       </div>
 
-      <div class="content-wrapper">
+      <div class="content-wrapper" ref="contentWrapperRef">
         <router-view></router-view>
       </div>
     </div>
@@ -19,6 +19,9 @@
 </template>
 
 <script lang="ts" setup>
+import { ref, watch, nextTick } from 'vue'
+import { useRoute } from 'vue-router'
+
 defineProps<{
   sidebarExpanded: boolean;
   currentRouteName: string;
@@ -27,6 +30,21 @@ defineProps<{
 defineEmits<{
   (e: 'toggleSidebar'): void;
 }>()
+
+const route = useRoute()
+const contentWrapperRef = ref<HTMLElement | null>(null)
+
+// 监听路由变化，切换页面时自动滚动到顶部
+watch(
+  () => route.path,
+  () => {
+    nextTick(() => {
+      if (contentWrapperRef.value) {
+        contentWrapperRef.value.scrollTop = 0
+      }
+    })
+  }
+)
 </script>
 
 <style lang="scss" scoped>
@@ -35,7 +53,7 @@ defineEmits<{
   flex: 1;
   display: flex;
   flex-direction: column;
-  padding: 0.5rem;
+  padding: 1rem; /* More padding around the card */
   overflow: hidden;
   position: relative;
 }
@@ -43,9 +61,9 @@ defineEmits<{
 .content-card {
   flex: 1;
   background: var(--header-bg);
-  border-radius: 2px;
-  border: 1px solid var(--border-color);
-  box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+  border-radius: 1rem; /* Much softer radius */
+  /* border: 1px solid var(--border-color); Removed */
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -1px rgba(0, 0, 0, 0.03); /* Soft shadow */
   display: flex;
   flex-direction: column;
   overflow: hidden;
@@ -53,20 +71,20 @@ defineEmits<{
 }
 
 .content-header {
-  height: 45px;
+  height: 60px; /* Taller header */
   display: flex;
   align-items: center;
-  padding: 0 1rem;
-  border-bottom: 1px solid var(--hover-bg);
+  padding: 0 1.5rem;
+  /* border-bottom: 1px solid var(--hover-bg); Removed */
   background: var(--header-bg);
   gap: 1rem;
 }
 
 .sidebar-toggle-btn {
-  width: 32px;
-  height: 32px;
-  border: 1px solid var(--border-color);
-  background: var(--header-bg);
+  width: 36px;
+  height: 36px;
+  border: none; /* No border */
+  background: transparent;
   border-radius: 8px;
   display: flex;
   align-items: center;
@@ -78,7 +96,6 @@ defineEmits<{
   &:hover {
     background: var(--hover-bg);
     color: var(--text-active);
-    border-color: var(--text-tertiary);
   }
 
   .toggle-icon {
@@ -92,15 +109,15 @@ defineEmits<{
 }
 
 .page-title {
-  font-size: 1rem;
-  font-weight: 600;
+  font-size: 1.125rem;
+  font-weight: 700;
   color: var(--text-primary);
-  border-left: 3px solid var(--text-active);
-  padding-left: 0.75rem;
-  height: 18px;
-  line-height: 18px;
+  /* border-left: 3px solid var(--text-active); Removed */
+  padding-left: 0;
+  height: auto;
   display: flex;
   align-items: center;
+
 }
 
 .content-wrapper {

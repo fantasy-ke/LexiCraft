@@ -35,7 +35,7 @@ async function getDictDetail(val: DictResource) {
 }
 
 
-function groupByDictTags(dictList: DictResource[]): [string, DictResource[]][] {
+function groupByDictTags(dictList: DictResource[]): Record<string, DictResource[]> {
   const grouped = dictList.reduce<Record<string, DictResource[]>>((result, dict) => {
     dict.tags.forEach((tag) => {
       if (result[tag]) {
@@ -46,13 +46,13 @@ function groupByDictTags(dictList: DictResource[]): [string, DictResource[]][] {
     })
     return result
   }, {})
-  return Object.entries(grouped)
+  return grouped
 }
 
 const {data: dict_list, isFetching} = useFetch(resourceWrap(DICT_LIST.WORD.ALL)).json()
 
 const groupedByCategoryAndTag = $computed(() => {
-  let data: [string, [string, DictResource[]][]] [] = []
+  let data: [string, Record<string, DictResource[]>][] = []
   if (!dict_list.value) return data
   const groupByCategory = groupBy(dict_list.value, 'category')
   for (const [key, value] of Object.entries(groupByCategory)) {
@@ -118,7 +118,7 @@ watch(dict_list, (val) => {
 
 <template>
   <BasePage>
-    <div v-loading="isFetching" class="card-white min-h-200 dict-list-page p-8! overflow-hidden relative">
+    <div v-loading="isFetching" class="min-h-200 dict-list-page p-8! overflow-hidden relative">
       <!-- Decorator Background -->
       <div class="absolute -right-20 -top-20 w-80 h-80 bg-blue-500/5 rounded-full blur-3xl pointer-events-none"></div>
       <div class="absolute -left-20 bottom-20 w-64 h-64 bg-indigo-500/5 rounded-full blur-3xl pointer-events-none"></div>

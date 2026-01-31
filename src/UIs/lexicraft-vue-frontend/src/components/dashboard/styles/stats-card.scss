@@ -22,21 +22,21 @@
 
         &.active {
           background: #ffffff;
-          color: #6366f1;
-          box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+          color: var(--text-active); /* Use theme active color */
+          box-shadow: 0 2px 4px -1px rgba(0, 0, 0, 0.05); /* Softer shadow */
         }
       }
     }
   }
 
   .stats-content {
-    background: var(--grad-surface);
+    background: var(--bg-card-secend); /* Use variable */
     padding: 1.5rem;
-    border-radius: 16px;
+    border-radius: 1rem;
     display: flex;
     justify-content: space-around;
     align-items: center;
-    border: 1px solid var(--color-item-border);
+    /* border: 1px solid var(--color-item-border); Removed */
     margin-top: 0.5rem;
 
     .stat-block {

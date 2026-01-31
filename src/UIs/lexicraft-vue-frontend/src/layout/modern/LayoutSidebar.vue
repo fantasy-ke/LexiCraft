@@ -100,7 +100,7 @@ const isActiveRoute = (path: string) => {
 .sidebar {
   width: 240px;
   background: var(--sidebar-bg);
-  border-right: 1px solid var(--border-color);
+  /* border-right: 1px solid var(--border-color); Removed for cleaner look */
   display: flex;
   flex-direction: column;
   z-index: 10;
@@ -115,7 +115,7 @@ const isActiveRoute = (path: string) => {
 
 .sidebar-nav {
   flex: 1;
-  padding: 1rem 0;
+  padding: 1.5rem 0.5rem; /* More horizontal padding */
   overflow-y: auto;
   overflow-x: hidden;
 
@@ -124,23 +124,23 @@ const isActiveRoute = (path: string) => {
 
     .section-title {
       padding: 0 1rem;
-      margin-bottom: 0.5rem;
-      font-size: 0.75rem;
-      font-weight: 600;
+      margin-bottom: 0.75rem;
+      font-size: 0.7rem;
+      font-weight: 700;
       color: var(--text-tertiary);
       text-transform: uppercase;
-      letter-spacing: 0.05em;
+      letter-spacing: 0.08em;
     }
 
     .nav-item {
       display: flex;
       align-items: center;
       gap: 0.75rem;
-      padding: 0.5rem 1rem;
-      margin: 0.1rem 0;
-      border-radius: 2px;
+      padding: 0.6rem 1rem;
+      margin: 0.25rem 0.5rem; /* Increased margins */
+      border-radius: 0.5rem; /* Softer radius */
       cursor: pointer;
-      transition: all 0.2s;
+      transition: all 0.2s ease-in-out;
       white-space: nowrap;
       position: relative;
 
@@ -149,12 +149,14 @@ const isActiveRoute = (path: string) => {
         min-width: 1.1rem;
         text-align: center;
         color: var(--text-tertiary);
+        transition: color 0.2s;
       }
 
       .nav-text {
-        font-size: 0.85rem;
+        font-size: 0.875rem;
         color: var(--text-secondary);
         font-weight: 500;
+        transition: color 0.2s;
       }
 
       &:hover {
@@ -173,16 +175,8 @@ const isActiveRoute = (path: string) => {
         background: var(--active-bg);
         color: var(--text-active);
 
-        &::before {
-          content: '';
-          position: absolute;
-          left: 0;
-          top: 0;
-          bottom: 0;
-          width: 3px;
-          background: var(--text-active);
-        }
-
+        /* Removed side border ::before */
+        
         .nav-text {
           color: var(--text-active);
           font-weight: 600;
