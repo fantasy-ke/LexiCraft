@@ -9,7 +9,7 @@ namespace LexiCraft.Services.Identity.Identity.Internal.Commands;
 
 public record PublishLoginLogCommand(
     string UserAccount,
-    string? ErrorMessage,
+    string? Message,
     UserId? UserId = null,
     bool IsSuccess = false,
     string LoginType = "Password") : ICommand;
@@ -34,7 +34,7 @@ public class PublishLoginLogCommandHandler(
             userAgent,
             command.LoginType,
             command.IsSuccess,
-            command.ErrorMessage);
+            command.Message);
 
         await loginEventBus.PublishAsync(logDto);
     }

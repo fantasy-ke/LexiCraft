@@ -63,9 +63,9 @@ public class LoginLog : Entity<long>
     public bool IsSuccess { get; private set; }
 
     /// <summary>
-    ///     错误信息
+    ///     登录/操作信息
     /// </summary>
-    public string? ErrorMessage { get; private set; }
+    public string? Message { get; private set; }
 
     public void SetUser(Guid? userId, string? username)
     {
@@ -73,15 +73,16 @@ public class LoginLog : Entity<long>
         Username = username;
     }
 
-    public void SetSuccess(string? token)
+    public void SetSuccess(string? token, string? message)
     {
         IsSuccess = true;
         Token = token;
+        Message = message;
     }
 
-    public void SetFailure(string errorMessage)
+    public void SetFailure(string message)
     {
         IsSuccess = false;
-        ErrorMessage = errorMessage;
+        Message = message;
     }
 }

@@ -1,4 +1,4 @@
-﻿namespace LexiCraft.Services.Identity.Shared.Dtos;
+namespace LexiCraft.Services.Identity.Shared.Dtos;
 
 /// <summary>
 ///     登录日志DTO
@@ -21,4 +21,4 @@ public record LoginLogEvent(
     string? UserAgent,
     string? LoginType,
     bool IsSuccess,
-    string? ErrorMessage);
+    string? Message);

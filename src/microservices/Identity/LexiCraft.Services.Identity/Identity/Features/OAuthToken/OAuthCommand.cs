@@ -61,7 +61,7 @@ internal class OAuthCommandHandler(
                 var user = await ProcessUserLoginAsync(request.Type, userDto, cancellationToken);
 
                 // 3. 生成Token与处理后续逻辑
-                var tokenResponse = await HandlePostLoginAsync(user, cancellationToken);
+                var tokenResponse = await HandlePostLoginAsync(user, request.Type, cancellationToken);
 
                 await unitOfWork.SaveChangesAsync();
                 await unitOfWork.CommitTransactionAsync();
@@ -159,10 +159,10 @@ internal class OAuthCommandHandler(
         return user;
     }
 
-    private async Task<TokenResponse> HandlePostLoginAsync(User user,
+    private async Task<TokenResponse> HandlePostLoginAsync(User user, string provider,
         CancellationToken cancellationToken)
     {
-        return await mediator.Send(new GenerateTokenResponseCommand(user, $"{user.Source}登录成功"),
+        return await mediator.Send(new GenerateTokenResponseCommand(user, provider, $"{provider}登录成功"),
             cancellationToken);
     }
 }

@@ -9,7 +9,7 @@ using MediatR;
 
 namespace LexiCraft.Services.Identity.Identity.Internal.Commands;
 
-public record GenerateTokenResponseCommand(User User, string? Message = null) : IRequest<TokenResponse>;
+public record GenerateTokenResponseCommand(User User, string LoginType, string? Message = null) : IRequest<TokenResponse>;
 
 public class GenerateTokenResponseCommandHandler(
     IJwtTokenProvider jwtTokenProvider,
@@ -38,9 +38,9 @@ public class GenerateTokenResponseCommandHandler(
         var response = new TokenResponse(accessToken, refreshToken);
 
         // 发布登录日志
-        var logMessage = request.Message ?? (user.Source == SourceEnum.Register ? "注册成功" : "登录成功");
+        var logMessage = request.Message ?? "登录成功";
         await mediator.Send(
-            new PublishLoginLogCommand(user.UserAccount, logMessage, user.Id, true, user.Source.ToString()),
+            new PublishLoginLogCommand(user.UserAccount, logMessage, user.Id, true, request.LoginType),
             cancellationToken);
 
         var cacheKey = string.Format(UserInfoConst.RedisTokenKey, user.Id.Value.ToString("N"));
