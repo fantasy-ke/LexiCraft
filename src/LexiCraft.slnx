@@ -1,66 +1,65 @@
 <Solution>
     <Folder Name="/BuildingBlocks/">
-        <Project Path="BuildingBlocks/BuildingBlocks.Authorization/BuildingBlocks.Authorization.csproj"/>
-        <Project
-                Path="BuildingBlocks/BuildingBlocks.EntityFrameworkCore.Postgres/BuildingBlocks.EntityFrameworkCore.Postgres.csproj"/>
-        <Project Path="BuildingBlocks/BuildingBlocks.EntityFrameworkCore/BuildingBlocks.EntityFrameworkCore.csproj"/>
-        <Project Path="BuildingBlocks/BuildingBlocks.Grpc.Contracts/BuildingBlocks.Grpc.Contracts.csproj"/>
-        <Project Path="BuildingBlocks/BuildingBlocks.MongoDB/BuildingBlocks.MongoDB.csproj"/>
-        <Project Path="BuildingBlocks/BuildingBlocks.OpenApi/BuildingBlocks.OpenApi.csproj"/>
-        <Project Path="BuildingBlocks/BuildingBlocks.SerilogLogging/BuildingBlocks.SerilogLogging.csproj"/>
-        <Project Path="BuildingBlocks/BuildingBlocks.Validation/BuildingBlocks.Validation.csproj"/>
-        <Project Path="BuildingBlocks/BuildingBlocks.Caching/BuildingBlocks.Caching.csproj"/>
-        <Project Path="BuildingBlocks/BuildingBlocks.EventBus/BuildingBlocks.EventBus.csproj"/>
-        <Project Path="BuildingBlocks/BuildingBlocks/BuildingBlocks.csproj"/>
-        <Project Path="BuildingBlocks/BuildingBlocks.OSS/BuildingBlocks.OSS.csproj"/>
+        <Project Path="BuildingBlocks/BuildingBlocks.Authorization/BuildingBlocks.Authorization.csproj" />
+        <Project Path="BuildingBlocks/BuildingBlocks.EntityFrameworkCore.Postgres/BuildingBlocks.EntityFrameworkCore.Postgres.csproj" />
+        <Project Path="BuildingBlocks/BuildingBlocks.EntityFrameworkCore/BuildingBlocks.EntityFrameworkCore.csproj" />
+        <Project Path="BuildingBlocks/BuildingBlocks.Grpc.Contracts/BuildingBlocks.Grpc.Contracts.csproj" />
+        <Project Path="BuildingBlocks/BuildingBlocks.MassTransit/BuildingBlocks.MassTransit.csproj" />
+        <Project Path="BuildingBlocks/BuildingBlocks.MongoDB/BuildingBlocks.MongoDB.csproj" />
+        <Project Path="BuildingBlocks/BuildingBlocks.OpenApi/BuildingBlocks.OpenApi.csproj" />
+        <Project Path="BuildingBlocks/BuildingBlocks.SerilogLogging/BuildingBlocks.SerilogLogging.csproj" />
+        <Project Path="BuildingBlocks/BuildingBlocks.Validation/BuildingBlocks.Validation.csproj" />
+        <Project Path="BuildingBlocks/BuildingBlocks.Caching/BuildingBlocks.Caching.csproj" />
+        <Project Path="BuildingBlocks/BuildingBlocks.EventBus/BuildingBlocks.EventBus.csproj" />
+        <Project Path="BuildingBlocks/BuildingBlocks/BuildingBlocks.csproj" />
+        <Project Path="BuildingBlocks/BuildingBlocks.OSS/BuildingBlocks.OSS.csproj" />
     </Folder>
-    <Folder Name="/microservices/"/>
+    <Folder Name="/microservices/" />
     <Folder Name="/microservices/Files/">
-        <File Path="../.dockerignore"/>
-        <File Path="microservices/Files/Dockerfile"/>
-        <Project Path="microservices/Files/LexiCraft.Files.Grpc/LexiCraft.Files.Grpc.csproj"/>
+        <File Path="../.dockerignore" />
+        <File Path="microservices/Files/Dockerfile" />
+        <Project Path="microservices/Files/LexiCraft.Files.Grpc/LexiCraft.Files.Grpc.csproj" />
     </Folder>
     <Folder Name="/microservices/Identity/">
-        <File Path="../.dockerignore"/>
-        <File Path="microservices/Identity/Dockerfile"/>
-        <Project Path="microservices/Identity/LexiCraft.Services.Identity.Api/LexiCraft.Services.Identity.Api.csproj"/>
-        <Project Path="microservices/Identity/LexiCraft.Services.Identity/LexiCraft.Services.Identity.csproj"/>
+        <File Path="../.dockerignore" />
+        <File Path="microservices/Identity/Dockerfile" />
+        <Project Path="microservices/Identity/LexiCraft.Services.Identity.Api/LexiCraft.Services.Identity.Api.csproj" />
+        <Project Path="microservices/Identity/LexiCraft.Services.Identity/LexiCraft.Services.Identity.csproj" />
     </Folder>
     <Folder Name="/microservices/Shared/">
-        <Project Path="microservices/Shared/LexiCraft.Shared/LexiCraft.Shared.csproj"/>
+        <Project Path="microservices/Shared/LexiCraft.Shared/LexiCraft.Shared.csproj" />
     </Folder>
     <Folder Name="/microservices/Vocabulary/">
-        <File Path="../.dockerignore"/>
-        <File Path="microservices/Vocabulary/Dockerfile"/>
-        <Project
-                Path="microservices/Vocabulary/LexiCraft.Services.Vocabulary.Api/LexiCraft.Services.Vocabulary.Api.csproj"/>
-        <Project Path="microservices/Vocabulary/LexiCraft.Services.Vocabulary/LexiCraft.Services.Vocabulary.csproj"/>
+        <File Path="../.dockerignore" />
+        <File Path="microservices/Vocabulary/Dockerfile" />
+        <Project Path="microservices/Vocabulary/LexiCraft.Services.Vocabulary.Api/LexiCraft.Services.Vocabulary.Api.csproj" />
+        <Project Path="microservices/Vocabulary/LexiCraft.Services.Vocabulary/LexiCraft.Services.Vocabulary.csproj" />
     </Folder>
     <Folder Name="/microservices/Practice/">
-        <File Path="../.dockerignore"/>
-        <File Path="microservices/Practice/Dockerfile"/>
-        <Project Path="microservices/Practice/LexiCraft.Services.Practice.Api/LexiCraft.Services.Practice.Api.csproj"/>
-        <Project Path="microservices/Practice/LexiCraft.Services.Practice/LexiCraft.Services.Practice.csproj"/>
+        <File Path="../.dockerignore" />
+        <File Path="microservices/Practice/Dockerfile" />
+        <Project Path="microservices/Practice/LexiCraft.Services.Practice.Api/LexiCraft.Services.Practice.Api.csproj" />
+        <Project Path="microservices/Practice/LexiCraft.Services.Practice/LexiCraft.Services.Practice.csproj" />
     </Folder>
     <Folder Name="/ApiGateway/">
-        <File Path="../.dockerignore"/>
-        <File Path="ApiGateway/Dockerfile"/>
-        <Project Path="ApiGateway/LexiCraft.ApiGateway/LexiCraft.ApiGateway.csproj"/>
+        <File Path="../.dockerignore" />
+        <File Path="ApiGateway/Dockerfile" />
+        <Project Path="ApiGateway/LexiCraft.ApiGateway/LexiCraft.ApiGateway.csproj" />
     </Folder>
     <Folder Name="/Solution Items/">
-        <File Path="../.gitignore"/>
-        <File Path="../LICENSE"/>
-        <File Path="../README.md"/>
-        <File Path="compose.yaml"/>
-        <File Path="Directory.Build.props"/>
-        <File Path="Directory.Packages.props"/>
+        <File Path="../.gitignore" />
+        <File Path="../LICENSE" />
+        <File Path="../README.md" />
+        <File Path="compose.yaml" />
+        <File Path="Directory.Build.props" />
+        <File Path="Directory.Packages.props" />
     </Folder>
     <Folder Name="/UIs/">
         <Project Path="UIs/lexicraft-vue-frontend/lexicraft-vue-frontend.esproj">
-            <BuildType Project="Debug"/>
-            <Build/>
+            <BuildType Project="Debug" />
+            <Build />
         </Project>
     </Folder>
-    <Project Path="LexiCraft.Aspire.Host/LexiCraft.Aspire.Host.csproj"/>
-    <Project Path="LexiCraft.Aspire.ServiceDefaults/LexiCraft.Aspire.ServiceDefaults.csproj"/>
+    <Project Path="LexiCraft.Aspire.Host/LexiCraft.Aspire.Host.csproj" />
+    <Project Path="LexiCraft.Aspire.ServiceDefaults/LexiCraft.Aspire.ServiceDefaults.csproj" />
 </Solution>
