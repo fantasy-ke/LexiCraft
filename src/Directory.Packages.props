@@ -76,6 +76,8 @@
     <PackageVersion Include="MassTransit" Version="8.3.6" />
     <PackageVersion Include="MassTransit.RabbitMQ" Version="8.3.6" />
     <PackageVersion Include="MassTransit.Abstractions" Version="8.3.6" />
+    <PackageVersion Include="MassTransit.Redis" Version="8.3.6" />
+    <PackageVersion Include="MassTransit.MongoDb" Version="8.3.6" />
   </ItemGroup>
   <ItemGroup Label="API Documentation &amp; Versioning">
     <PackageVersion Include="Asp.Versioning.Mvc.ApiExplorer" Version="8.1.0" />
