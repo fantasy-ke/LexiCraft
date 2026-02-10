@@ -115,9 +115,7 @@ public static class MassTransitExtensions
             var eventSourcingOptions = currentOptions.EventSourcing;
 
             // 确定使用的 Redis 连接字符串
-            var connectionString = !string.IsNullOrWhiteSpace(eventSourcingOptions.RedisConnectionString)
-                ? eventSourcingOptions.RedisConnectionString
-                : currentOptions.RedisConnectionString;
+            var connectionString = eventSourcingOptions.RedisConnectionString;
 
             var config = ConfigurationOptions.Parse(connectionString);
             return ConnectionMultiplexer.Connect(config);

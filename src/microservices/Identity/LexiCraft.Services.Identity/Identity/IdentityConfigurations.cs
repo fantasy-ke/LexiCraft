@@ -1,4 +1,3 @@
-using BuildingBlocks.EventBus.Abstractions;
 using BuildingBlocks.Filters;
 using LexiCraft.Services.Identity.Identity.Events;
 using LexiCraft.Services.Identity.Identity.Features.Login;
@@ -21,7 +20,7 @@ internal static class IdentityConfigurations
 
     internal static WebApplicationBuilder AddIdentityModuleServices(this WebApplicationBuilder builder)
     {
-        builder.Services.AddScoped<IEventHandler<LoginLogEvent>, LoginEventHandler>();
+        // builder.Services.AddScoped<IEventHandler<LoginLogEvent>, LoginEventHandler>();
         return builder;
     }
 

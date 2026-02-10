@@ -58,11 +58,6 @@ public class MassTransitOptions
     public int CircuitBreakerResetIntervalSeconds { get; set; } = 60;
 
     /// <summary>
-    /// Redis 连接字符串，用于默认事件存储
-    /// </summary>
-    public string RedisConnectionString { get; set; } = "localhost:6379";
-
-    /// <summary>
     /// Saga 持久化配置
     /// </summary>
     public SagaOptions Saga { get; set; } = new();
@@ -107,9 +102,8 @@ public class EventSourcingOptions
 
     /// <summary>
     /// 事件存储的 Redis 连接字符串
-    /// 如果为空，则使用全局 RedisConnectionString
     /// </summary>
-    public string? RedisConnectionString { get; set; }
+    public string RedisConnectionString { get; set; } = "localhost:6379";
 
     /// <summary>
     /// Redis Stream Key 前缀

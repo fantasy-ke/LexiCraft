@@ -1,3 +1,4 @@
+using BuildingBlocks.Mediator;
 using MediatR;
 
 namespace BuildingBlocks.MassTransit.Abstractions;
@@ -5,7 +6,7 @@ namespace BuildingBlocks.MassTransit.Abstractions;
 /// <summary>
 /// 集成事件接口，同时也支持本地事件 (MediatR INotification)
 /// </summary>
-public interface IIntegrationEvent : INotification
+public interface IIntegrationEvent : IDomainEvent
 {
     /// <summary>
     /// 事件唯一标识

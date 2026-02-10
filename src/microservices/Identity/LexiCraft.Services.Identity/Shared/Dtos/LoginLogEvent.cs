@@ -1,3 +1,5 @@
+using BuildingBlocks.MassTransit.Abstractions;
+
 namespace LexiCraft.Services.Identity.Shared.Dtos;
 
 /// <summary>
@@ -21,4 +23,4 @@ public record LoginLogEvent(
     string? UserAgent,
     string? LoginType,
     bool IsSuccess,
-    string? Message);
+    string? Message) : IntegrationEvent;

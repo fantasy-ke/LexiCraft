@@ -21,8 +21,21 @@ public class RedisEventStore(IConnectionMultiplexer redis, IOptionsMonitor<MassT
         var key = $"{_streamPrefix}{streamId}";
 
         // 获取当前流的长度作为版本号基准
-        var info = await db.StreamInfoAsync(key);
-        long currentVersion = info.Length;
+        long currentVersion = 0;
+        if (await db.KeyExistsAsync(key))
+        {
+            try
+            {
+                var info = await db.StreamInfoAsync(key);
+                currentVersion = info.Length;
+            }
+            catch (RedisServerException)
+            {
+                // 如果 Key 存在但不是 Stream 类型，或者其他异常，视为 0 或抛出
+                // 这里简单处理：如果获取失败，假设为 0 (针对 no such key 虽然 KeyExists 为 false，但为了保险)
+                currentVersion = 0;
+            }
+        }
 
         // 简单的乐观并发控制
         if (expectedVersion.HasValue && expectedVersion.Value != currentVersion)

@@ -1,4 +1,4 @@
-using BuildingBlocks.EventBus.Abstractions;
+using BuildingBlocks.MassTransit.Services;
 using BuildingBlocks.Extensions;
 using BuildingBlocks.Mediator;
 using LexiCraft.Services.Identity.Shared.Dtos;
@@ -16,7 +16,7 @@ public record PublishLoginLogCommand(
 
 public class PublishLoginLogCommandHandler(
     IHttpContextAccessor httpContextAccessor,
-    IEventBus<LoginLogEvent> loginEventBus) : ICommandHandler<PublishLoginLogCommand>
+    IEventPublisher eventPublisher) : ICommandHandler<PublishLoginLogCommand>
 {
     public async Task Handle(PublishLoginLogCommand command, CancellationToken cancellationToken)
     {
@@ -36,6 +36,6 @@ public class PublishLoginLogCommandHandler(
             command.IsSuccess,
             command.Message);
 
-        await loginEventBus.PublishAsync(logDto);
+        await eventPublisher.PublishLocalAsync(logDto, cancellationToken);
     }
 }

@@ -7,7 +7,6 @@ using LexiCraft.Services.Identity.Identity.Internal.Commands;
 using LexiCraft.Services.Identity.Shared.Contracts;
 using MediatR;
 using LexiCraft.Services.Identity.Shared.Dtos;
-using MediatR;
 using Microsoft.EntityFrameworkCore;
 
 namespace LexiCraft.Services.Identity.Identity.Features.Login;
