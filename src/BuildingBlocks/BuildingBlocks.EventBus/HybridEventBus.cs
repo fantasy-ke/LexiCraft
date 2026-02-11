@@ -26,14 +26,9 @@ public class HybridEventBus<TEvent>(
         ArgumentNullException.ThrowIfNull(@event);
 
         if (Options.EnableRedis && @event is ISagaIntegrationEvent)
-        {
             await PublishDistributedAsync(@event);
-        }
         // 否则走本地通道 (如果启用)
-        else if (Options.EnableLocal)
-        {
-            await PublishLocalAsync(@event);
-        }
+        else if (Options.EnableLocal) await PublishLocalAsync(@event);
     }
 
     public async ValueTask PublishLocalAsync(TEvent @event)

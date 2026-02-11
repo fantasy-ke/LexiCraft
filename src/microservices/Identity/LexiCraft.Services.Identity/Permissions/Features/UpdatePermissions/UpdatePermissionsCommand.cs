@@ -2,8 +2,8 @@ using BuildingBlocks.Authentication.Contract;
 using BuildingBlocks.Exceptions;
 using BuildingBlocks.Mediator;
 using FluentValidation;
-using LexiCraft.Shared.Models;
 using LexiCraft.Services.Identity.Shared.Contracts;
+using LexiCraft.Shared.Models;
 using Microsoft.EntityFrameworkCore;
 
 namespace LexiCraft.Services.Identity.Permissions.Features.UpdatePermissions;

@@ -1,13 +1,13 @@
+using BuildingBlocks.Extensions.System;
 using LexiCraft.ApiGateway.Configuration;
 using Microsoft.Extensions.Options;
-using BuildingBlocks.Extensions.System;
 
 namespace LexiCraft.ApiGateway.Middlewares;
 
 /// <summary>
-/// 限流信息传递中间件
-/// 在请求转发到后端服务之前，将限流相关信息添加到请求头中
-/// 以便后端服务可以基于这些信息实现更精细的业务级限流
+///     限流信息传递中间件
+///     在请求转发到后端服务之前，将限流相关信息添加到请求头中
+///     以便后端服务可以基于这些信息实现更精细的业务级限流
 /// </summary>
 public class RateLimitInfoMiddleware(
     RequestDelegate next,
@@ -22,7 +22,7 @@ public class RateLimitInfoMiddleware(
         {
             // 获取客户端IP
             var clientIp = context.Connection.RemoteIpAddress?.ToString() ?? "unknown";
-            
+
             // 构建限流信息
             var limitInfo = new Dictionary<string, string?>
             {

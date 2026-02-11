@@ -21,6 +21,15 @@ public interface IStrongId<out TValue> : IStrongId
 public abstract record StrongId<TValue>(TValue Value) : IStrongId<TValue>, IComparable<StrongId<TValue>>, IComparable
     where TValue : notnull, IComparable<TValue>, IComparable
 {
+    public int CompareTo(object? obj)
+    {
+        if (ReferenceEquals(null, obj)) return 1;
+        if (ReferenceEquals(this, obj)) return 0;
+        return obj is StrongId<TValue> other
+            ? CompareTo(other)
+            : throw new ArgumentException($"Object must be of type {nameof(StrongId<TValue>)}");
+    }
+
     public int CompareTo(StrongId<TValue>? other)
     {
         if (ReferenceEquals(this, other)) return 0;
@@ -28,12 +37,8 @@ public abstract record StrongId<TValue>(TValue Value) : IStrongId<TValue>, IComp
         return Value.CompareTo(other.Value);
     }
 
-    public int CompareTo(object? obj)
+    public override string ToString()
     {
-        if (ReferenceEquals(null, obj)) return 1;
-        if (ReferenceEquals(this, obj)) return 0;
-        return obj is StrongId<TValue> other ? CompareTo(other) : throw new ArgumentException($"Object must be of type {nameof(StrongId<TValue>)}");
+        return Value.ToString() ?? string.Empty;
     }
-
-    public override string ToString() => Value.ToString() ?? string.Empty;
 }

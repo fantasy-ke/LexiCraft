@@ -1,8 +1,8 @@
 using BuildingBlocks.EntityFrameworkCore;
 using LexiCraft.Services.Identity.Identity.Models;
-using LexiCraft.Shared.Models;
 using LexiCraft.Services.Identity.Shared.Contracts;
 using LexiCraft.Services.Identity.Shared.Data;
+using LexiCraft.Shared.Models;
 using Microsoft.EntityFrameworkCore;
 
 namespace LexiCraft.Services.Identity.Identity.Data.Repositories;

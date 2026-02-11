@@ -1,10 +1,10 @@
 using BuildingBlocks.Authentication.Contract;
 using Humanizer;
+using LexiCraft.Shared.Models;
 using MediatR;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Routing;
-using LexiCraft.Shared.Models;
 
 namespace LexiCraft.Services.Identity.Users.Features.GetUserInfo;
 

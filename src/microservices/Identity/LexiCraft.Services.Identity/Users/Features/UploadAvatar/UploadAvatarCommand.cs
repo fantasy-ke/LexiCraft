@@ -2,8 +2,8 @@ using BuildingBlocks.Exceptions;
 using BuildingBlocks.Grpc.Contracts.FileGrpc;
 using BuildingBlocks.Mediator;
 using FluentValidation;
-using LexiCraft.Shared.Models;
 using LexiCraft.Services.Identity.Shared.Contracts;
+using LexiCraft.Shared.Models;
 using Microsoft.AspNetCore.Http;
 
 namespace LexiCraft.Services.Identity.Users.Features.UploadAvatar;

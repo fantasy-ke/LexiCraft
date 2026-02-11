@@ -1,11 +1,11 @@
+using BuildingBlocks.Extensions.System;
 using BuildingBlocks.MassTransit.EventSourcing.Abstractions;
 using MassTransit;
-using BuildingBlocks.Extensions.System;
 
 namespace BuildingBlocks.MassTransit.EventSourcing.Services;
 
 /// <summary>
-/// 事件回放服务实现
+///     事件回放服务实现
 /// </summary>
 public class EventReplayer : IEventReplayer
 {
@@ -36,21 +36,18 @@ public class EventReplayer : IEventReplayer
             var @event = storedEvent.Data.FromJson(eventType);
             if (@event == null) continue;
 
-            await _publishEndpoint.Publish(@event, context => 
+            await _publishEndpoint.Publish(@event, context =>
             {
                 // 标记为回放事件
                 context.Headers.Set("MT-Event-Replay", "true");
-                
+
                 // 传递原始事件信息
                 context.Headers.Set("MT-Original-MessageId", storedEvent.Id);
                 context.Headers.Set("MT-Original-Timestamp", storedEvent.Timestamp);
                 context.Headers.Set("MT-Stream-Version", storedEvent.Version);
-                
-                if (!string.IsNullOrEmpty(storedEvent.MetaData))
-                {
-                    context.Headers.Set("MT-Original-MetaData", storedEvent.MetaData);
-                }
 
+                if (!string.IsNullOrEmpty(storedEvent.MetaData))
+                    context.Headers.Set("MT-Original-MetaData", storedEvent.MetaData);
             }, cancellationToken);
         }
     }

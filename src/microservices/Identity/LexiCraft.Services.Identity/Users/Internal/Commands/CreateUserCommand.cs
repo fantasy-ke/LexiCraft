@@ -30,7 +30,7 @@ public class CreateUserCommandHandler(
     public async Task<User> Handle(CreateUserCommand command, CancellationToken cancellationToken)
     {
         logger.LogInformation("开始创建用户，账户: {UserAccount}, 来源: {Source}", command.UserAccount, command.Source);
-        
+
         // 检查用户账号是否已存在（双重检查，虽然上层可能查过）
         var any = await userRepository.AnyAsync(p => p.UserAccount == command.UserAccount);
         if (any)
@@ -45,7 +45,7 @@ public class CreateUserCommandHandler(
         user.UpdateAvatar(command.Avatar ?? "🦜");
         user.AddRole(PermissionConstant.User);
         user.UpdateLastLoginTime();
-        
+
         // 为用户分配默认权限
         var defaultPermissions = PermissionConstant.DefaultUserPermissions.Permissions;
         await userRepository.InsertAsync(user);

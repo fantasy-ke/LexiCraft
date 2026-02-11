@@ -1,7 +1,6 @@
 using BuildingBlocks.Mediator;
 using LexiCraft.Services.Vocabulary.Shared.Contracts;
 using LexiCraft.Services.Vocabulary.Words.Features.SearchWord;
-using LexiCraft.Services.Vocabulary.Words.Features.SearchWord;
 using LexiCraft.Services.Vocabulary.Words.Models;
 using Microsoft.EntityFrameworkCore;
 

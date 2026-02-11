@@ -1,24 +1,23 @@
 using System.Globalization;
-using BuildingBlocks.MassTransit.Options;
-using Microsoft.Extensions.Options;
-using System.Text.Json;
+using BuildingBlocks.Extensions.System;
 using BuildingBlocks.MassTransit.Abstractions;
 using BuildingBlocks.MassTransit.EventSourcing.Abstractions;
+using BuildingBlocks.MassTransit.Options;
+using Microsoft.Extensions.Options;
 using StackExchange.Redis;
-using Microsoft.Extensions.DependencyInjection;
-using BuildingBlocks.Extensions.System;
 
 namespace BuildingBlocks.MassTransit.EventSourcing.Store;
 
 /// <summary>
-/// 基于 Redis 的事件存储实现
+///     基于 Redis 的事件存储实现
 /// </summary>
 public class RedisEventStore(IConnectionMultiplexer redis, IOptionsMonitor<MassTransitOptions> options)
     : IEventStore
 {
     private readonly string _streamPrefix = options.CurrentValue.EventSourcing.StreamPrefix;
 
-    public async Task AppendEventsAsync(string streamId, IEnumerable<object> events, long? expectedVersion = null, CancellationToken cancellationToken = default)
+    public async Task AppendEventsAsync(string streamId, IEnumerable<object> events, long? expectedVersion = null,
+        CancellationToken cancellationToken = default)
     {
         var db = redis.GetDatabase();
         var key = $"{_streamPrefix}{streamId}";
@@ -26,7 +25,6 @@ public class RedisEventStore(IConnectionMultiplexer redis, IOptionsMonitor<MassT
         // 获取当前流的长度作为版本号基准
         long currentVersion = 0;
         if (await db.KeyExistsAsync(key))
-        {
             try
             {
                 var info = await db.StreamInfoAsync(key);
@@ -38,14 +36,12 @@ public class RedisEventStore(IConnectionMultiplexer redis, IOptionsMonitor<MassT
                 // 这里简单处理：如果获取失败，假设为 0 (针对 no such key 虽然 KeyExists 为 false，但为了保险)
                 currentVersion = 0;
             }
-        }
 
         // 简单的乐观并发控制
         if (expectedVersion.HasValue && expectedVersion.Value != currentVersion)
-        {
-             // 实际生产中应抛出并发异常，这里仅记录或抛出通用异常
-             throw new InvalidOperationException($"Concurrency conflict. Expected version: {expectedVersion}, Actual version: {currentVersion}");
-        }
+            // 实际生产中应抛出并发异常，这里仅记录或抛出通用异常
+            throw new InvalidOperationException(
+                $"Concurrency conflict. Expected version: {expectedVersion}, Actual version: {currentVersion}");
 
         foreach (var @event in events)
         {
@@ -83,15 +79,16 @@ public class RedisEventStore(IConnectionMultiplexer redis, IOptionsMonitor<MassT
         }
     }
 
-    public async Task<IEnumerable<StoredEvent>> ReadStoredEventsAsync(string streamId, long fromVersion = 0, CancellationToken cancellationToken = default)
+    public async Task<IEnumerable<StoredEvent>> ReadStoredEventsAsync(string streamId, long fromVersion = 0,
+        CancellationToken cancellationToken = default)
     {
         var db = redis.GetDatabase();
         var key = $"{_streamPrefix}{streamId}";
-        
+
         // 简单读取所有，实际应根据 fromVersion 过滤 (Redis Stream 支持 Range 查询，但 ID 是时间戳)
         // 如果要精确按 Version 查询，可能需要自行索引或遍历
         // 这里为了演示，使用 Range - + 读取所有
-        var streamEntries = await db.StreamRangeAsync(key, minId: "-", maxId: "+");
+        var streamEntries = await db.StreamRangeAsync(key, "-", "+");
 
         var events = new List<StoredEvent>();
 
@@ -99,17 +96,16 @@ public class RedisEventStore(IConnectionMultiplexer redis, IOptionsMonitor<MassT
         {
             var storedEvent = ParseStoredEvent(entry);
 
-            if (storedEvent.Version < fromVersion)
-            {
-                continue;
-            }
+            if (storedEvent.Version < fromVersion) continue;
+
             events.Add(storedEvent);
         }
 
         return events;
     }
 
-    public async Task<IEnumerable<object>> ReadEventsAsync(string streamId, long fromVersion = 0, CancellationToken cancellationToken = default)
+    public async Task<IEnumerable<object>> ReadEventsAsync(string streamId, long fromVersion = 0,
+        CancellationToken cancellationToken = default)
     {
         var storedEvents = await ReadStoredEventsAsync(streamId, fromVersion, cancellationToken);
         var events = new List<object>();
@@ -120,10 +116,7 @@ public class RedisEventStore(IConnectionMultiplexer redis, IOptionsMonitor<MassT
             if (eventType != null)
             {
                 var @event = storedEvent.Data.FromJson(eventType);
-                if (@event != null)
-                {
-                    events.Add(@event);
-                }
+                if (@event != null) events.Add(@event);
             }
         }
 
@@ -134,21 +127,23 @@ public class RedisEventStore(IConnectionMultiplexer redis, IOptionsMonitor<MassT
     {
         var dict = new Dictionary<string, string>();
         foreach (var val in entry.Values)
-        {
             if (!val.Name.IsNull && !val.Value.IsNull)
-            {
                 dict[val.Name.ToString()] = val.Value.ToString();
-            }
-        }
 
         var id = dict.TryGetValue(nameof(StoredEvent.Id), out var cacheId) ? Guid.Parse(cacheId) : Guid.Empty;
-        var streamId = dict.TryGetValue(nameof(StoredEvent.StreamId), out var cacheStreamId) ? cacheStreamId : string.Empty;
-        var eventType = dict.TryGetValue(nameof(StoredEvent.EventType), out var cacheEventType) ? cacheEventType : string.Empty;
+        var streamId = dict.TryGetValue(nameof(StoredEvent.StreamId), out var cacheStreamId)
+            ? cacheStreamId
+            : string.Empty;
+        var eventType = dict.TryGetValue(nameof(StoredEvent.EventType), out var cacheEventType)
+            ? cacheEventType
+            : string.Empty;
         var data = dict.TryGetValue(nameof(StoredEvent.Data), out var cacheData) ? cacheData : string.Empty;
-        var timestamp = dict.TryGetValue(nameof(StoredEvent.Timestamp), out var cacheTimestamp) 
-            ? DateTime.Parse(cacheTimestamp, CultureInfo.InvariantCulture) : DateTime.MinValue;
-        var version = dict.TryGetValue(nameof(StoredEvent.Version), out var cacheVersion) 
-            ? long.Parse(cacheVersion, CultureInfo.InvariantCulture) : 0;
+        var timestamp = dict.TryGetValue(nameof(StoredEvent.Timestamp), out var cacheTimestamp)
+            ? DateTime.Parse(cacheTimestamp, CultureInfo.InvariantCulture)
+            : DateTime.MinValue;
+        var version = dict.TryGetValue(nameof(StoredEvent.Version), out var cacheVersion)
+            ? long.Parse(cacheVersion, CultureInfo.InvariantCulture)
+            : 0;
         var metaData = dict.TryGetValue(nameof(StoredEvent.MetaData), out var cacheMetaData) ? cacheMetaData : null;
 
         return new StoredEvent(id, streamId, eventType, data, timestamp, version, metaData);
@@ -156,16 +151,11 @@ public class RedisEventStore(IConnectionMultiplexer redis, IOptionsMonitor<MassT
 
     private Guid GetEventId(object @event)
     {
-        if (@event is IIntegrationEvent integrationEvent)
-        {
-            return integrationEvent.Id;
-        }
+        if (@event is IIntegrationEvent integrationEvent) return integrationEvent.Id;
 
         var property = @event.GetType().GetProperty("Id");
-        if (property != null && property.PropertyType == typeof(Guid))
-        {
-            return (Guid)property.GetValue(@event)!;
-        }
+        if (property != null && property.PropertyType == typeof(Guid)) return (Guid)property.GetValue(@event)!;
+
         return Guid.NewGuid();
     }
 
@@ -183,14 +173,10 @@ public class RedisEventStore(IConnectionMultiplexer redis, IOptionsMonitor<MassT
             if (property == null) return metaDataDict != null ? metaDataDict.ToJson() : null;
             var value = property.GetValue(@event);
             if (value is IDictionary<string, object> dict)
-            {
                 metaDataDict = dict;
-            }
             else if (value != null)
-            {
                 // 如果不是字典但有值，尝试序列化它
                 return value.ToJson();
-            }
         }
 
         return metaDataDict != null ? metaDataDict.ToJson() : null;

@@ -1,9 +1,9 @@
 using BuildingBlocks.Domain;
 using BuildingBlocks.Mediator;
 using LexiCraft.Services.Identity.Identity.Models;
+using LexiCraft.Shared.Models;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
-using LexiCraft.Shared.Models;
 
 namespace LexiCraft.Services.Identity.Users.Internal.Commands;
 
@@ -36,7 +36,8 @@ public class BindUserOAuthCommandHandler(
 
         if (existing != null)
         {
-            logger.LogInformation("OAuth绑定已存在，UserId: {UserId}, Provider: {Provider}", existing.UserId, command.Provider);
+            logger.LogInformation("OAuth绑定已存在，UserId: {UserId}, Provider: {Provider}", existing.UserId,
+                command.Provider);
             return existing;
         }
 
@@ -47,7 +48,8 @@ public class BindUserOAuthCommandHandler(
             // 确保 userId 匹配
             if (user.Id != command.UserId)
             {
-                logger.LogError("用户ID不匹配，TrackedUser.Id: {TrackedId}, Command.UserId: {CommandId}", user.Id, command.UserId);
+                logger.LogError("用户ID不匹配，TrackedUser.Id: {TrackedId}, Command.UserId: {CommandId}", user.Id,
+                    command.UserId);
                 throw new InvalidOperationException("TrackedUser ID does not match Command UserId");
             }
         }
@@ -55,8 +57,8 @@ public class BindUserOAuthCommandHandler(
         {
             // 加载聚合根及其关联集合（OAuths）
             user = await userRepository.Query()
-                       .Include(u => u.OAuths)
-                       .FirstAsync(x => x.Id == command.UserId, cancellationToken);
+                .Include(u => u.OAuths)
+                .FirstAsync(x => x.Id == command.UserId, cancellationToken);
         }
 
         user.BindOAuth(
@@ -68,7 +70,7 @@ public class BindUserOAuthCommandHandler(
         );
 
         // [重点] 移除冗余的 UpdateAsync。实体已被跟踪，在主 Handler 的 SaveChangesAsync 中会自动提交。
-        
+
         var oauth = user.OAuths.First(x => x.Provider == command.Provider);
         logger.LogInformation("OAuth绑定成功，UserId: {UserId}, Provider: {Provider}", command.UserId, command.Provider);
 

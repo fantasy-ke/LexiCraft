@@ -2,7 +2,6 @@ using BuildingBlocks.Mediator;
 using LexiCraft.Services.Identity.Identity.Models;
 using LexiCraft.Services.Identity.Shared.Data;
 using LexiCraft.Services.Identity.Shared.Dtos;
-using MediatR;
 using Microsoft.Extensions.Logging;
 
 namespace LexiCraft.Services.Identity.Identity.Events;
@@ -10,7 +9,8 @@ namespace LexiCraft.Services.Identity.Identity.Events;
 /// <summary>
 ///     登录事件处理器
 /// </summary>
-public sealed class LoginEventHandler(IdentityDbContext dbContext, 
+public sealed class LoginEventHandler(
+    IdentityDbContext dbContext,
     ILogger<LoginEventHandler> logger)
     : IDomainEventHandler<LoginLogEvent>
 {
@@ -30,13 +30,9 @@ public sealed class LoginEventHandler(IdentityDbContext dbContext,
             entity.SetUser(@event.UserId, @event.Username);
 
             if (@event.IsSuccess)
-            {
                 entity.SetSuccess(null, @event.Message);
-            }
             else
-            {
                 entity.SetFailure(@event.Message ?? string.Empty);
-            }
 
             await dbContext.LoginLogs.AddAsync(entity, cancellationToken);
 

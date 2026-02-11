@@ -1,17 +1,18 @@
 # BuildingBlocks.MassTransit
 
-该项目是基于 MassTransit 的分布式事件总线封装，旨在简化 RabbitMQ 的集成与配置，并支持与本地事件（MediatR）的混合使用。此外，它还提供了基础的事件溯源（Event Sourcing）支持和 Saga 状态机持久化（基于 MongoDB）。
+该项目是基于 MassTransit 的分布式事件总线封装，旨在简化 RabbitMQ 的集成与配置，并支持与本地事件（MediatR）的混合使用。此外，它还提供了基础的事件溯源（Event
+Sourcing）支持和 Saga 状态机持久化（基于 MongoDB）。
 
 ## 功能特性
 
-*   **开箱即用**：集成了 RabbitMQ 的连接、认证和重试机制。
-*   **灵活配置**：通过 `appsettings.json` 进行参数化配置。
-*   **统一发布**：提供 `IEventPublisher` 接口，统一处理集成事件（MQ）和本地事件（MediatR）。
-*   **本地异步处理**：本地事件（`PublishLocalAsync`）采用基于 `Channel` 的后台任务模式，不占用主线程，实现真正的异步非阻塞处理。
-*   **自动注册**：支持自动扫描指定程序集中的 Consumer、Saga 和 Saga State Machine。
-*   **事件溯源**：提供 `IEventStore` 和 `EventSourcedAggregate` 支持基于 Redis Stream 的事件存储。
-*   **Saga 持久化**：内置 MongoDB Saga Repository 支持，轻松实现分布式事务。
-*   **事件回放**：提供 `IEventReplayer` 服务，支持事件回放和补偿。
+* **开箱即用**：集成了 RabbitMQ 的连接、认证和重试机制。
+* **灵活配置**：通过 `appsettings.json` 进行参数化配置。
+* **统一发布**：提供 `IEventPublisher` 接口，统一处理集成事件（MQ）和本地事件（MediatR）。
+* **本地异步处理**：本地事件（`PublishLocalAsync`）采用基于 `Channel` 的后台任务模式，不占用主线程，实现真正的异步非阻塞处理。
+* **自动注册**：支持自动扫描指定程序集中的 Consumer、Saga 和 Saga State Machine。
+* **事件溯源**：提供 `IEventStore` 和 `EventSourcedAggregate` 支持基于 Redis Stream 的事件存储。
+* **Saga 持久化**：内置 MongoDB Saga Repository 支持，轻松实现分布式事务。
+* **事件回放**：提供 `IEventReplayer` 服务，支持事件回放和补偿。
 
 ---
 
@@ -106,7 +107,8 @@ var app = builder.Build();
 
 ## 集成事件 (IntegrationEvent) 使用指南
 
-`IntegrationEvent` 是跨服务通信的基础单元。本库提供了一个基类 `IntegrationEvent`，它实现了 `MediatR.INotification` 接口，使其既可以作为分布式消息发送，也可以作为本地事件发布。
+`IntegrationEvent` 是跨服务通信的基础单元。本库提供了一个基类 `IntegrationEvent`，它实现了 `MediatR.INotification`
+接口，使其既可以作为分布式消息发送，也可以作为本地事件发布。
 
 ### 1. 定义事件
 
@@ -124,8 +126,8 @@ public record OrderCreatedEvent(Guid OrderId, decimal Amount) : IntegrationEvent
 
 使用 `IEventPublisher` 接口来发布事件。
 
-*   **发布到消息队列 (RabbitMQ)**：使用 `PublishAsync`
-*   **发布到本地 (MediatR)**：使用 `PublishLocalAsync`（后台异步处理，非阻塞）
+* **发布到消息队列 (RabbitMQ)**：使用 `PublishAsync`
+* **发布到本地 (MediatR)**：使用 `PublishLocalAsync`（后台异步处理，非阻塞）
 
 ```csharp
 public class OrderService(IEventPublisher publisher)
@@ -305,19 +307,20 @@ await _eventReplayer.ReplayAsync(
 ```
 
 **预期结果**：
-1.  **触发处理**：系统会从 Redis 读取该 Stream 的所有历史事件。
-2.  **重新执行**：消费者会再次收到这些事件（仿佛它们刚刚发生一样），从而触发新的业务逻辑或数据更新。
-3.  **元数据**：在回放的事件中，通常会包含 `IsReplay = true` 的元数据，消费者可以据此判断是否需要跳过某些副作用（如发送邮件）。
+
+1. **触发处理**：系统会从 Redis 读取该 Stream 的所有历史事件。
+2. **重新执行**：消费者会再次收到这些事件（仿佛它们刚刚发生一样），从而触发新的业务逻辑或数据更新。
+3. **元数据**：在回放的事件中，通常会包含 `IsReplay = true` 的元数据，消费者可以据此判断是否需要跳过某些副作用（如发送邮件）。
 
 ---
 
 ## 常见问题排查
 
-1.  **连接失败**：检查 `appsettings.json` 中的 Host, Port, Username, Password 是否正确，确保 RabbitMQ/Redis/MongoDB 服务已启动。
-2.  **Consumer 未收到消息**：
-    *   检查 Queue 是否在 RabbitMQ 中创建。
-    *   确保 `Program.cs` 中注册时包含了 Consumer 所在的程序集。
-    *   检查 Exchange 和 Queue 的绑定关系。
-3.  **Saga 未持久化**：
-    *   确保 `Saga:Enabled` 为 `true`。
-    *   确保 MongoDB 连接字符串正确且数据库可写。
+1. **连接失败**：检查 `appsettings.json` 中的 Host, Port, Username, Password 是否正确，确保 RabbitMQ/Redis/MongoDB 服务已启动。
+2. **Consumer 未收到消息**：
+    * 检查 Queue 是否在 RabbitMQ 中创建。
+    * 确保 `Program.cs` 中注册时包含了 Consumer 所在的程序集。
+    * 检查 Exchange 和 Queue 的绑定关系。
+3. **Saga 未持久化**：
+    * 确保 `Saga:Enabled` 为 `true`。
+    * 确保 MongoDB 连接字符串正确且数据库可写。

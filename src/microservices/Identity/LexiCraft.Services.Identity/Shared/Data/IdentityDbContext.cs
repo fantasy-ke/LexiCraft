@@ -1,8 +1,8 @@
 using System.Linq.Expressions;
 using System.Reflection;
 using BuildingBlocks.Domain.Internal;
-using BuildingBlocks.Shared;
 using BuildingBlocks.EntityFrameworkCore.Extensions;
+using BuildingBlocks.Shared;
 using LexiCraft.Services.Identity.Identity.Models;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata;

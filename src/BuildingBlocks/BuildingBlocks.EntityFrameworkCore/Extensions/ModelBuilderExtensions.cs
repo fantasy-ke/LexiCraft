@@ -23,9 +23,10 @@ public static class ModelBuilderExtensions
 
                 if (valueType != null)
                 {
-                    var converterType = typeof(StrongIdValueConverter<,>).MakeGenericType(property.PropertyType, valueType);
+                    var converterType =
+                        typeof(StrongIdValueConverter<,>).MakeGenericType(property.PropertyType, valueType);
                     var converter = Activator.CreateInstance(converterType);
-                    
+
                     modelBuilder.Entity(entityType.ClrType)
                         .Property(property.Name)
                         .HasConversion((dynamic)converter!);

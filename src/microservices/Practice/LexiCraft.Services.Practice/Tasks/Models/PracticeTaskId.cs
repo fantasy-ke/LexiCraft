@@ -7,6 +7,13 @@ namespace LexiCraft.Services.Practice.Tasks.Models;
 /// </summary>
 public record PracticeTaskId(string Value) : StrongId<string>(Value)
 {
-    public static implicit operator string(PracticeTaskId id) => id.Value;
-    public static implicit operator PracticeTaskId(string value) => new(value);
+    public static implicit operator string(PracticeTaskId id)
+    {
+        return id.Value;
+    }
+
+    public static implicit operator PracticeTaskId(string value)
+    {
+        return new PracticeTaskId(value);
+    }
 }

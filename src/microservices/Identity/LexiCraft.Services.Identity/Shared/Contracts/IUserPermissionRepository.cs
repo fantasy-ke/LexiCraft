@@ -1,6 +1,6 @@
 using BuildingBlocks.Domain;
-using LexiCraft.Shared.Models;
 using LexiCraft.Services.Identity.Identity.Models;
+using LexiCraft.Shared.Models;
 
 namespace LexiCraft.Services.Identity.Shared.Contracts;
 

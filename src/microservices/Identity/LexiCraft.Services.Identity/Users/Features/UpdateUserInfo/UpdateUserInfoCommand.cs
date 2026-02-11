@@ -1,9 +1,9 @@
 using BuildingBlocks.Exceptions;
 using BuildingBlocks.Mediator;
 using FluentValidation;
-using LexiCraft.Shared.Models;
 using LexiCraft.Services.Identity.Shared.Contracts;
 using LexiCraft.Services.Identity.Users.Features.GetUserInfo;
+using LexiCraft.Shared.Models;
 
 namespace LexiCraft.Services.Identity.Users.Features.UpdateUserInfo;
 

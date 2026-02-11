@@ -1,5 +1,5 @@
-using BuildingBlocks.MassTransit.Services;
 using BuildingBlocks.Extensions;
+using BuildingBlocks.MassTransit.Services;
 using BuildingBlocks.Mediator;
 using LexiCraft.Services.Identity.Shared.Dtos;
 using LexiCraft.Shared.Models;

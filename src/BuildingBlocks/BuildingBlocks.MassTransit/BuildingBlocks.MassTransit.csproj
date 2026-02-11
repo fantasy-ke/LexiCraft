@@ -9,17 +9,17 @@
     </PropertyGroup>
 
     <ItemGroup>
-        <PackageReference Include="MassTransit" />
-        <PackageReference Include="MassTransit.RabbitMQ" />
-        <PackageReference Include="MassTransit.MongoDb" />
-        <PackageReference Include="Scrutor" />
-        <PackageReference Include="StackExchange.Redis" />
-        <PackageReference Include="Microsoft.Extensions.Configuration.Abstractions" />
-        <PackageReference Include="Microsoft.Extensions.Options.ConfigurationExtensions" />
+        <PackageReference Include="MassTransit"/>
+        <PackageReference Include="MassTransit.RabbitMQ"/>
+        <PackageReference Include="MassTransit.MongoDb"/>
+        <PackageReference Include="Scrutor"/>
+        <PackageReference Include="StackExchange.Redis"/>
+        <PackageReference Include="Microsoft.Extensions.Configuration.Abstractions"/>
+        <PackageReference Include="Microsoft.Extensions.Options.ConfigurationExtensions"/>
     </ItemGroup>
 
     <ItemGroup>
-        <ProjectReference Include="..\BuildingBlocks\BuildingBlocks.csproj" />
+        <ProjectReference Include="..\BuildingBlocks\BuildingBlocks.csproj"/>
     </ItemGroup>
 
 </Project>

@@ -26,11 +26,17 @@ public record LoginLogEvent(
     bool IsSuccess,
     string? Message) : IntegrationEvent, IEventSourced
 {
-    public string GetStreamId() => $"identity-login-{(UserId.HasValue ? UserId.Value.ToString() : Username)}";
-
-    public IDictionary<string, object>? GetMetaData() => new Dictionary<string, object>
+    public string GetStreamId()
     {
-        { "App", "IdentityService" },
-        { "Category", "Security" }
-    };
+        return $"identity-login-{(UserId.HasValue ? UserId.Value.ToString() : Username)}";
+    }
+
+    public IDictionary<string, object>? GetMetaData()
+    {
+        return new Dictionary<string, object>
+        {
+            { "App", "IdentityService" },
+            { "Category", "Security" }
+        };
+    }
 }

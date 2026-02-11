@@ -4,13 +4,13 @@ using BuildingBlocks.Authentication.Contract;
 using BuildingBlocks.Caching.Abstractions;
 using BuildingBlocks.Extensions.System;
 using LexiCraft.Services.Identity.Identity.Models;
-using LexiCraft.Services.Identity.Identity.Models.Enum;
 using LexiCraft.Services.Identity.Shared.Dtos;
 using MediatR;
 
 namespace LexiCraft.Services.Identity.Identity.Internal.Commands;
 
-public record GenerateTokenResponseCommand(User User, string LoginType, string? Message = null) : IRequest<TokenResponse>;
+public record GenerateTokenResponseCommand(User User, string LoginType, string? Message = null)
+    : IRequest<TokenResponse>;
 
 public class GenerateTokenResponseCommandHandler(
     IJwtTokenProvider jwtTokenProvider,

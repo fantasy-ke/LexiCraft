@@ -1,5 +1,5 @@
-using FluentValidation.Results;
 using BuildingBlocks.Extensions.System;
+using FluentValidation.Results;
 
 namespace BuildingBlocks.Validation;
 

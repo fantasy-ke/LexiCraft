@@ -1,14 +1,14 @@
+using BuildingBlocks.MassTransit.EventSourcing.Abstractions;
+using BuildingBlocks.Mediator;
+using MediatR;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
-using MediatR;
-using BuildingBlocks.Mediator;
-using BuildingBlocks.MassTransit.EventSourcing.Abstractions;
 
 namespace BuildingBlocks.MassTransit.LocalEvents;
 
 /// <summary>
-/// 后台任务，负责消费本地事件总线中的消息并通过 MediatR 分发
+///     后台任务，负责消费本地事件总线中的消息并通过 MediatR 分发
 /// </summary>
 public class LocalEventBackgroundService(
     ILocalEventBus localEventBus,
@@ -22,9 +22,7 @@ public class LocalEventBackgroundService(
         try
         {
             await foreach (var @event in localEventBus.DequeueAsync(stoppingToken))
-            {
                 await ProcessEventAsync(@event, stoppingToken);
-            }
         }
         catch (OperationCanceledException)
         {
@@ -40,7 +38,7 @@ public class LocalEventBackgroundService(
     {
         // 为每个事件创建一个新的服务范围，以便正确注入 Scoped 服务（如 DbContext）
         using var scope = serviceScopeFactory.CreateScope();
-        
+
         // 自动化事件溯源处理
         await HandleEventSourcingAsync(scope.ServiceProvider, @event, cancellationToken);
 
@@ -57,10 +55,10 @@ public class LocalEventBackgroundService(
         }
     }
 
-    private async Task HandleEventSourcingAsync(IServiceProvider serviceProvider, IDomainEvent @event, CancellationToken cancellationToken)
+    private async Task HandleEventSourcingAsync(IServiceProvider serviceProvider, IDomainEvent @event,
+        CancellationToken cancellationToken)
     {
         if (@event is IEventSourced eventSourced)
-        {
             try
             {
                 var eventStore = serviceProvider.GetService<IEventStore>();
@@ -75,6 +73,5 @@ public class LocalEventBackgroundService(
             {
                 logger.LogError(ex, "自动化事件溯源处理失败: {EventType}", @event.GetType().Name);
             }
-        }
     }
 }

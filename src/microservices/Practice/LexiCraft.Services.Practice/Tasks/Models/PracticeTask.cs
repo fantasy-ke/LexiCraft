@@ -1,6 +1,6 @@
 using BuildingBlocks.MongoDB;
-using LexiCraft.Shared.Models;
 using LexiCraft.Services.Practice.Assessments.Models;
+using LexiCraft.Shared.Models;
 
 namespace LexiCraft.Services.Practice.Tasks.Models;
 

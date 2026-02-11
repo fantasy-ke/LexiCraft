@@ -1,12 +1,12 @@
 using Humanizer;
 using LexiCraft.Services.Vocabulary.Words.Features.SearchWord;
+using LexiCraft.Shared.Models;
 using LexiCraft.Shared.Permissions;
 using MediatR;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Routing;
-using LexiCraft.Shared.Models;
 
 namespace LexiCraft.Services.Vocabulary.UserStates.Features.GetWeakWords;
 

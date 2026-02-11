@@ -1,7 +1,7 @@
 using BuildingBlocks.Caching.Extensions;
-using BuildingBlocks.MassTransit.Extensions;
 using BuildingBlocks.Exceptions.Handler;
 using BuildingBlocks.Extensions;
+using BuildingBlocks.MassTransit.Extensions;
 using BuildingBlocks.OpenApi.AspnetOpenApi.Extensions;
 using BuildingBlocks.SerilogLogging.Extensions;
 using LexiCraft.Services.Identity;
@@ -18,7 +18,7 @@ builder.Services
     .AddCaching(builder.Configuration);
 builder.Services.AddExceptionHandler<CustomExceptionHandler>();
 
-builder.Services.AddCustomMassTransit(builder.Configuration, assemblies: [typeof(IdentityMetadata).Assembly]);
+builder.Services.AddCustomMassTransit(builder.Configuration, [typeof(IdentityMetadata).Assembly]);
 
 builder.AddApplicationServices();
 

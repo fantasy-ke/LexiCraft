@@ -3,11 +3,11 @@ using System.Linq.Expressions;
 using BuildingBlocks.EventBus.Abstractions;
 using BuildingBlocks.EventBus.Options;
 using BuildingBlocks.EventBus.Shared;
-using StackExchange.Redis;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
+using StackExchange.Redis;
 
 namespace BuildingBlocks.EventBus.Redis;
 
@@ -42,11 +42,12 @@ public class RedisEventConsumerService(
             _typeCache.TryAdd(eventType.FullName!, eventType);
 
             logger.LogInformation("正在订阅 Redis 频道: {Channel} 用于事件 {Event}", channelName, eventType.Name);
-            
-            await subscriber.SubscribeAsync(RedisChannel.Literal(channelName), (channel, msg) => 
-            {
-                _ = Task.Run(async () => await HandleMessageAsync(msg, stoppingToken), stoppingToken);
-            });
+
+            await subscriber.SubscribeAsync(RedisChannel.Literal(channelName),
+                (channel, msg) =>
+                {
+                    _ = Task.Run(async () => await HandleMessageAsync(msg, stoppingToken), stoppingToken);
+                });
         }
 
         while (!stoppingToken.IsCancellationRequested) await Task.Delay(1000, stoppingToken);
@@ -97,16 +98,16 @@ public class RedisEventConsumerService(
             {
                 var idempotencyKey = $"lexicraft:idempotency:{eventEto.FullName}:{integrationEvent.Id}";
                 var db = connectionMultiplexer.GetDatabase();
-                
+
                 // 使用 SetNx (When.NotExists) 并设置过期时间
                 var isNew = await db.StringSetAsync(
-                    idempotencyKey, 
-                    "1", 
-                    TimeSpan.FromSeconds(Options.Redis.IdempotencyExpireSeconds), 
+                    idempotencyKey,
+                    "1",
+                    TimeSpan.FromSeconds(Options.Redis.IdempotencyExpireSeconds),
                     When.NotExists
                 );
 
-                if (!isNew) 
+                if (!isNew)
                 {
                     logger.LogInformation("检测到重复消息，已跳过处理: {EventId}, Type: {EventType}", integrationEvent.Id,
                         eventEto.FullName);
@@ -131,7 +132,7 @@ public class RedisEventConsumerService(
         foreach (var handler in handlers)
         {
             if (handler == null) continue;
-            
+
             var handlerKey = handler.GetType();
             var method = _handlerCache.GetOrAdd(handlerKey, key =>
             {
@@ -146,7 +147,9 @@ public class RedisEventConsumerService(
                 var castEvent = Expression.Convert(eventParam, eventType);
 
                 var call = Expression.Call(castInstance, handleMethod, castEvent, tokenParam);
-                return Expression.Lambda<Func<object, object, CancellationToken, Task>>(call, instanceParam, eventParam, tokenParam).Compile();
+                return Expression
+                    .Lambda<Func<object, object, CancellationToken, Task>>(call, instanceParam, eventParam, tokenParam)
+                    .Compile();
             });
 
             await method(handler, eventData, cancellationToken);

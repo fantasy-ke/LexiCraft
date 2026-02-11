@@ -1,10 +1,10 @@
 using BuildingBlocks.Mediator;
 using FluentValidation;
-using LexiCraft.Shared.Models;
 using LexiCraft.Services.Vocabulary.Shared.Contracts;
 using LexiCraft.Services.Vocabulary.UserStates.Models;
 using LexiCraft.Services.Vocabulary.UserStates.Models.Enum;
 using LexiCraft.Services.Vocabulary.Words.Models;
+using LexiCraft.Shared.Models;
 
 namespace LexiCraft.Services.Vocabulary.UserStates.Features.UpdateState;
 

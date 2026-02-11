@@ -7,7 +7,6 @@ using LexiCraft.Services.Identity.Identity.Models.Enum;
 using LexiCraft.Services.Identity.Shared.Authorize;
 using LexiCraft.Services.Identity.Shared.Dtos;
 using LexiCraft.Services.Identity.Users.Internal.Commands;
-using LexiCraft.Shared.Permissions;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
@@ -48,7 +47,7 @@ internal class OAuthCommandHandler(
     public async Task<TokenResponse> Handle(OAuthCommand request, CancellationToken cancellationToken)
     {
         logger.LogInformation("接收到OAuth登录请求，类型: {Type}, 代码: {Code}", request.Type, request.Code);
-        
+
         return await unitOfWork.ExecuteAsync(async () =>
         {
             await unitOfWork.BeginTransactionAsync();
@@ -67,7 +66,7 @@ internal class OAuthCommandHandler(
                 await unitOfWork.CommitTransactionAsync();
 
                 logger.LogInformation("OAuth登录处理完成，用户: {UserAccount}, 来源: {Source}", user.UserAccount, user.Source);
-                
+
                 return tokenResponse;
             }
             catch (Exception ex)
@@ -109,13 +108,11 @@ internal class OAuthCommandHandler(
         User? user = null;
 
         if (oauth != null)
-        {
             // 老用户：直接通过绑定获取 User
             user = await userRepository.Query()
                 .Include(u => u.OAuths)
                 .Include(u => u.Permissions)
                 .FirstOrDefaultAsync(x => x.Id == oauth.UserId, cancellationToken);
-        }
 
         if (user == null)
         {
@@ -155,7 +152,7 @@ internal class OAuthCommandHandler(
 
         // 5. 统一更新登录状态
         user.UpdateLastLoginTime();
-        
+
         return user;
     }
 

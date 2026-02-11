@@ -1,11 +1,10 @@
+using BuildingBlocks.Authentication.Contract;
 using BuildingBlocks.Domain.Internal;
 using IdGen;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.ChangeTracking;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.Extensions.DependencyInjection;
-using System.Reflection;
-using BuildingBlocks.Authentication.Contract;
 
 namespace BuildingBlocks.EntityFrameworkCore.Interceptors;
 
@@ -116,37 +115,35 @@ public class AuditableEntityInterceptor(IServiceProvider? serviceProvider = null
     private void ProcessCreatableEntity(EntityEntry<IEntity> entry, IUserContext? userContext)
     {
         if (entry.Entity is ICreatable creatable)
-        {
             SetIfNotSetString(() => creatable.CreateByName, v => creatable.CreateByName = v,
                 () => userContext?.UserName ?? "systemUser");
-        }
 
-        ProcessGenericId(entry, entry.Entity.GetType(), typeof(ICreatable<>), nameof(ICreatable<int>.CreateById), userContext?.UserId);
+        ProcessGenericId(entry, entry.Entity.GetType(), typeof(ICreatable<>), nameof(ICreatable<int>.CreateById),
+            userContext?.UserId);
     }
 
     private void ProcessUpdatableEntity(EntityEntry<IEntity> entry, IUserContext? userContext)
     {
         if (entry.Entity is IUpdatable updatable)
-        {
             SetIfNotSetString(() => updatable.UpdateByName, v => updatable.UpdateByName = v,
                 () => userContext?.UserName ?? "systemUser");
-        }
 
-        ProcessGenericId(entry, entry.Entity.GetType(), typeof(IUpdatable<>), nameof(IUpdatable<int>.UpdateById), userContext?.UserId);
+        ProcessGenericId(entry, entry.Entity.GetType(), typeof(IUpdatable<>), nameof(IUpdatable<int>.UpdateById),
+            userContext?.UserId);
     }
 
     private void ProcessSoftDeletedEntity(EntityEntry<IEntity> entry, IUserContext? userContext)
     {
         if (entry.Entity is ISoftDeleted softDeleted)
-        {
             SetIfNotSetString(() => softDeleted.DeleteByName, v => softDeleted.DeleteByName = v,
                 () => userContext?.UserName);
-        }
 
-        ProcessGenericId(entry, entry.Entity.GetType(), typeof(ISoftDeleted<>), nameof(ISoftDeleted<int>.DeleteById), userContext?.UserId);
+        ProcessGenericId(entry, entry.Entity.GetType(), typeof(ISoftDeleted<>), nameof(ISoftDeleted<int>.DeleteById),
+            userContext?.UserId);
     }
 
-    private void ProcessGenericId(EntityEntry<IEntity> entry, Type entityType, Type genericInterfaceDefinition, string propertyName, Guid? userId)
+    private void ProcessGenericId(EntityEntry<IEntity> entry, Type entityType, Type genericInterfaceDefinition,
+        string propertyName, Guid? userId)
     {
         var interfaceType = entityType.GetInterfaces()
             .FirstOrDefault(x => x.IsGenericType && x.GetGenericTypeDefinition() == genericInterfaceDefinition);
@@ -158,30 +155,27 @@ public class AuditableEntityInterceptor(IServiceProvider? serviceProvider = null
 
         var currentValue = property.GetValue(entry.Entity);
         var targetType = interfaceType.GetGenericArguments()[0];
-        
+
         // 检查是否已赋值
-        bool isSet = false;
+        var isSet = false;
         if (currentValue != null)
         {
-             if (targetType.IsValueType)
-             {
-                 var defaultValue = Activator.CreateInstance(targetType);
-                 isSet = !currentValue.Equals(defaultValue);
-             }
-             else
-             {
-                 // 引用类型不为 null 即视为已赋值
-                 isSet = true;
-             }
+            if (targetType.IsValueType)
+            {
+                var defaultValue = Activator.CreateInstance(targetType);
+                isSet = !currentValue.Equals(defaultValue);
+            }
+            else
+            {
+                // 引用类型不为 null 即视为已赋值
+                isSet = true;
+            }
         }
 
         if (!isSet)
         {
             var newValue = CreateUserKey(targetType, userId);
-            if (newValue != null)
-            {
-                property.SetValue(entry.Entity, newValue);
-            }
+            if (newValue != null) property.SetValue(entry.Entity, newValue);
         }
     }
 
@@ -193,9 +187,7 @@ public class AuditableEntityInterceptor(IServiceProvider? serviceProvider = null
             return userId.Value;
 
         if (typeof(IStrongId<Guid>).IsAssignableFrom(targetType))
-        {
             return Activator.CreateInstance(targetType, userId.Value);
-        }
 
         return null;
     }

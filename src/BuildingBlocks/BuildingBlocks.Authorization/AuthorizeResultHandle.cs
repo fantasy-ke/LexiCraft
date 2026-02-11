@@ -1,5 +1,4 @@
 using System.Net;
-using System.Text.Json;
 using BuildingBlocks.Extensions.System;
 using BuildingBlocks.Model;
 using Microsoft.AspNetCore.Authorization;

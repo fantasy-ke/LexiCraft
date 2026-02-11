@@ -1,7 +1,7 @@
 using BuildingBlocks.Authentication.Contract;
 using BuildingBlocks.Mediator;
-using LexiCraft.Shared.Models;
 using LexiCraft.Services.Identity.Shared.Contracts;
+using LexiCraft.Shared.Models;
 
 namespace LexiCraft.Services.Identity.Permissions.Features.GetUserPermissions;
 

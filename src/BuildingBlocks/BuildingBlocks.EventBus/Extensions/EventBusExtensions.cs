@@ -39,7 +39,7 @@ public static class EventBusExtensions
         if (string.IsNullOrEmpty(options.Redis.ConnectionString))
             throw new Exception("启用 Redis EventBus 时必须提供 ConnectionString");
 
-        builder.Services.AddSingleton<IConnectionMultiplexer>(sp => 
+        builder.Services.AddSingleton<IConnectionMultiplexer>(sp =>
             ConnectionMultiplexer.Connect(options.Redis.ConnectionString));
         builder.Services.AddHostedService<RedisEventConsumerService>();
 

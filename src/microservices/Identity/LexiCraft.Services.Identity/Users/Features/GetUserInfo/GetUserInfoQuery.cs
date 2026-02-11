@@ -1,6 +1,6 @@
 using BuildingBlocks.Mediator;
-using LexiCraft.Shared.Models;
 using LexiCraft.Services.Identity.Shared.Contracts;
+using LexiCraft.Shared.Models;
 using Microsoft.EntityFrameworkCore;
 
 namespace LexiCraft.Services.Identity.Users.Features.GetUserInfo;

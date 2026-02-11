@@ -78,7 +78,8 @@ public class RegisterCommandHandler(
             await userRepository.SaveChangesAsync();
 
             // 注册成功后自动登录逻辑
-            return await mediator.Send(new GenerateTokenResponseCommand(user, "Register", "注册成功并登录"), cancellationToken);
+            return await mediator.Send(new GenerateTokenResponseCommand(user, "Register", "注册成功并登录"),
+                cancellationToken);
         }
         catch (Exception e)
         {

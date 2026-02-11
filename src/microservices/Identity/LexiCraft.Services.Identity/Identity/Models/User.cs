@@ -1,30 +1,17 @@
 using BuildingBlocks.Domain.Internal;
-using LexiCraft.Shared.Models;
 using LexiCraft.Services.Identity.Identity.Models.Enum;
+using LexiCraft.Shared.Models;
 
 namespace LexiCraft.Services.Identity.Identity.Models;
 
 public class User : AuditAggregateRoot<UserId, UserId?>
 {
-    private User() { } // For EF Core
+    private User()
+    {
+    } // For EF Core
 
     /// <summary>
-    /// 登录失败次数
-    /// </summary>
-    public int AccessFailedCount { get; private set; }
-
-    /// <summary>
-    /// 锁定结束时间
-    /// </summary>
-    public DateTimeOffset? LockoutEnd { get; private set; }
-
-    /// <summary>
-    /// 是否启用锁定
-    /// </summary>
-    public bool LockoutEnabled { get; private set; } = true;
-
-    /// <summary>
-    /// 用户构造函数，初始化用户的基本信息。
+    ///     用户构造函数，初始化用户的基本信息。
     /// </summary>
     /// <param name="userAccount">用户名</param>
     /// <param name="email">电子邮件地址</param>
@@ -38,6 +25,21 @@ public class User : AuditAggregateRoot<UserId, UserId?>
         Source = source;
         Roles = [];
     }
+
+    /// <summary>
+    ///     登录失败次数
+    /// </summary>
+    public int AccessFailedCount { get; private set; }
+
+    /// <summary>
+    ///     锁定结束时间
+    /// </summary>
+    public DateTimeOffset? LockoutEnd { get; private set; }
+
+    /// <summary>
+    ///     是否启用锁定
+    /// </summary>
+    public bool LockoutEnabled { get; private set; } = true;
 
     public string Avatar { get; private set; } = string.Empty;
 
@@ -207,7 +209,7 @@ public class User : AuditAggregateRoot<UserId, UserId?>
     }
 
     /// <summary>
-    /// 记录登录失败
+    ///     记录登录失败
     /// </summary>
     public void AccessFailed()
     {
@@ -215,7 +217,7 @@ public class User : AuditAggregateRoot<UserId, UserId?>
     }
 
     /// <summary>
-    /// 重置登录失败次数
+    ///     重置登录失败次数
     /// </summary>
     public void ResetAccessFailedCount()
     {
@@ -224,14 +226,14 @@ public class User : AuditAggregateRoot<UserId, UserId?>
     }
 
     /// <summary>
-    /// 锁定用户
+    ///     锁定用户
     /// </summary>
     /// <param name="lockoutEnd">锁定结束时间</param>
     public void Lockout(DateTimeOffset lockoutEnd)
     {
         LockoutEnd = lockoutEnd;
     }
-    
+
     public void ClearPassword()
     {
         PasswordHash = null;

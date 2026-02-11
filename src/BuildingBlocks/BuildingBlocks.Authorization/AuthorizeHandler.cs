@@ -58,15 +58,15 @@ public sealed class AuthorizeHandler(
 
         // Redis白名单/黑名单校验：检查Token是否有效（是否在Redis中存在）
         if (!await CheckTokenValidityAsync(context)) return;
-        
+
         // 检查是否启用Redis权限验证
         var oauthOptions = _scope.ServiceProvider.GetRequiredService<IOptionsMonitor<OAuthOptions>>();
         var redisEnabled = oauthOptions.CurrentValue.OAuthRedis.Enable;
 
         // 如果未启用Redis权限验证，直接通过（降级策略）
         if (!redisEnabled)
-           goto next;
-        
+            goto next;
+
         var permissionCheck = _scope.ServiceProvider.GetRequiredService<IPermissionCheck>();
         // 检查所有需要的权限
         foreach (var permission in requirement.AuthorizeName)
@@ -90,13 +90,14 @@ public sealed class AuthorizeHandler(
     {
         var cacheService = _scope.ServiceProvider.GetRequiredService<ICacheService>();
         var userContext = _scope.ServiceProvider.GetRequiredService<IUserContext>();
-            
+
         if (userContext.UserId == Guid.Empty)
         {
             var failureReason = new AuthorizationFailureReason(this, "Token无效，缺少用户ID Claim");
             context.Fail(failureReason);
             return false;
         }
+
         // 检查Redis中是否存在该用户的Token记录
         var cacheKey = string.Format(UserInfoConst.RedisTokenKey, userContext.UserId.ToString("N"));
         var tokenExists = await cacheService.ExistsAsync(cacheKey);

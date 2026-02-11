@@ -5,9 +5,8 @@ using BuildingBlocks.Mediator;
 using FluentValidation;
 using LexiCraft.Services.Identity.Identity.Internal.Commands;
 using LexiCraft.Services.Identity.Shared.Contracts;
-using MediatR;
 using LexiCraft.Services.Identity.Shared.Dtos;
-using Microsoft.EntityFrameworkCore;
+using MediatR;
 
 namespace LexiCraft.Services.Identity.Identity.Features.Login;
 
@@ -31,7 +30,7 @@ public class LoginCommandValidator : AbstractValidator<LoginCommand>
 public partial class LoginCommandHandler(
     IUserRepository userRepository,
     IMediator mediator,
-    ICacheService cacheService) 
+    ICacheService cacheService)
     : ICommandHandler<LoginCommand, TokenResponse>
 {
     public async Task<TokenResponse> Handle(LoginCommand command, CancellationToken cancellationToken)
@@ -41,15 +40,14 @@ public partial class LoginCommandHandler(
         {
             var ipKey = $"Login:Ip:{command.IpAddress}";
             var ipCount = await cacheService.GetAsync<int>(ipKey, null, cancellationToken);
-            if (ipCount >= 10)
-            {
-                ThrowUserFriendlyException.ThrowException("尝试次数过多，请稍后再试");
-            }
+            if (ipCount >= 10) ThrowUserFriendlyException.ThrowException("尝试次数过多，请稍后再试");
             // 设置过期时间为1分钟
-            await cacheService.SetAsync(ipKey, ipCount + 1, options => options.Expiry = TimeSpan.FromMinutes(1), cancellationToken);
+            await cacheService.SetAsync(ipKey, ipCount + 1, options => options.Expiry = TimeSpan.FromMinutes(1),
+                cancellationToken);
         }
 
-        var user = await userRepository.FirstOrDefaultAsync(x => x.UserAccount == command.UserAccount || x.Email == command.UserAccount);
+        var user = await userRepository.FirstOrDefaultAsync(x =>
+            x.UserAccount == command.UserAccount || x.Email == command.UserAccount);
 
         if (user is null)
         {
@@ -59,18 +57,15 @@ public partial class LoginCommandHandler(
 
         // 检查账户锁定状态
         if (user is { LockoutEnabled: true, LockoutEnd: not null })
-        {
             if (user.LockoutEnd.Value > DateTimeOffset.UtcNow)
-            {
-                ThrowUserFriendlyException.ThrowException($"账号已锁定，请在 {user.LockoutEnd.Value.ToLocalTime():yyyy-MM-dd HH:mm:ss} 后重试");
-            }
-        }
+                ThrowUserFriendlyException.ThrowException(
+                    $"账号已锁定，请在 {user.LockoutEnd.Value.ToLocalTime():yyyy-MM-dd HH:mm:ss} 后重试");
 
         if (!user.VerifyPassword(command.Password))
         {
             // 记录登录失败
             user.AccessFailed();
-            
+
             // 如果失败次数达到阈值（例如5次），锁定账户
             if (user.LockoutEnabled && user.AccessFailedCount >= 5)
             {
@@ -82,7 +77,7 @@ public partial class LoginCommandHandler(
             await userRepository.UpdateAsync(user);
             await userRepository.SaveChangesAsync();
 
-            await mediator.Send(new PublishLoginLogCommand(command.UserAccount, "密码错误", user.Id), cancellationToken); 
+            await mediator.Send(new PublishLoginLogCommand(command.UserAccount, "密码错误", user.Id), cancellationToken);
             ThrowUserFriendlyException.ThrowException("密码错误");
         }
 

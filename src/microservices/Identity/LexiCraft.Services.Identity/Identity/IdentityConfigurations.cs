@@ -1,15 +1,12 @@
 using BuildingBlocks.Filters;
-using LexiCraft.Services.Identity.Identity.Events;
 using LexiCraft.Services.Identity.Identity.Features.Login;
 using LexiCraft.Services.Identity.Identity.Features.Logout;
 using LexiCraft.Services.Identity.Identity.Features.OAuthInitiate;
 using LexiCraft.Services.Identity.Identity.Features.OAuthToken;
 using LexiCraft.Services.Identity.Identity.Features.RefreshToken;
-using LexiCraft.Services.Identity.Shared.Dtos;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Routing;
-using Microsoft.Extensions.DependencyInjection;
 
 namespace LexiCraft.Services.Identity.Identity;
 
