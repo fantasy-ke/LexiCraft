@@ -1,4 +1,6 @@
 using BuildingBlocks.MassTransit.Abstractions;
+using BuildingBlocks.MassTransit.LocalEvents;
+using BuildingBlocks.Mediator;
 using MassTransit;
 using MediatR;
 
@@ -18,26 +20,26 @@ public interface IEventPublisher
     Task PublishAsync<T>(T @event, CancellationToken cancellationToken = default) where T : class;
 
     /// <summary>
-    /// 发布本地事件 (进程内)
+    /// 发布本地事件 (进程内，异步后台处理)
     /// </summary>
     /// <typeparam name="T">事件类型</typeparam>
     /// <param name="event">事件实例</param>
     /// <param name="cancellationToken">取消令牌</param>
-    Task PublishLocalAsync<T>(T @event, CancellationToken cancellationToken = default) where T : INotification;
+    Task PublishLocalAsync<T>(T @event, CancellationToken cancellationToken = default) where T : IDomainEvent;
 }
 
 /// <summary>
 /// 统一事件发布者实现
 /// </summary>
-public class EventPublisher(IPublishEndpoint publishEndpoint, IPublisher publisher) : IEventPublisher
+public class EventPublisher(IPublishEndpoint publishEndpoint, ILocalEventBus localEventBus) : IEventPublisher
 {
     public async Task PublishAsync<T>(T @event, CancellationToken cancellationToken = default) where T : class
     {
         await publishEndpoint.Publish(@event, cancellationToken);
     }
 
-    public async Task PublishLocalAsync<T>(T @event, CancellationToken cancellationToken = default) where T : INotification
+    public async Task PublishLocalAsync<T>(T @event, CancellationToken cancellationToken = default) where T : IDomainEvent
     {
-        await publisher.Publish(@event, cancellationToken);
+        await localEventBus.PublishAsync(@event, cancellationToken);
     }
 }

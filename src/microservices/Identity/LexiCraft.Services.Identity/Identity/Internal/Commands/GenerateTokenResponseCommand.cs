@@ -2,6 +2,7 @@ using System.Text.Json;
 using BuildingBlocks.Authentication;
 using BuildingBlocks.Authentication.Contract;
 using BuildingBlocks.Caching.Abstractions;
+using BuildingBlocks.Extensions.System;
 using LexiCraft.Services.Identity.Identity.Models;
 using LexiCraft.Services.Identity.Identity.Models.Enum;
 using LexiCraft.Services.Identity.Shared.Dtos;
@@ -22,14 +23,14 @@ public class GenerateTokenResponseCommandHandler(
         var userDict = new Dictionary<string, string>();
 
         // 我们不直接修改传入的对象，而是克隆一个用于序列化的版本
-        var userForClaims = JsonSerializer.Deserialize<User>(JsonSerializer.Serialize(user, JsonSerializerOptions.Web));
+        var userForClaims = user.ToJson(JsonSerializerOptions.Web).FromJson<User>(JsonSerializerOptions.Web);
         if (userForClaims != null)
         {
             userForClaims.ClearPassword();
             userDict.Add(UserInfoConst.UserId, user.Id.ToString());
             userDict.Add(UserInfoConst.UserName, user.Username);
             userDict.Add(UserInfoConst.UserAccount, user.UserAccount);
-            userDict.Add("UserInfo", JsonSerializer.Serialize(userForClaims, JsonSerializerOptions.Web));
+            userDict.Add("UserInfo", userForClaims.ToJson(JsonSerializerOptions.Web));
         }
 
         var accessToken = jwtTokenProvider.GenerateAccessToken(userDict, user.Id.Value, user.Roles.ToArray());

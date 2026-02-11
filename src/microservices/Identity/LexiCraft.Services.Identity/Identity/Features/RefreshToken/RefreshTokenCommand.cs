@@ -3,6 +3,7 @@ using BuildingBlocks.Authentication;
 using BuildingBlocks.Authentication.Contract;
 using BuildingBlocks.Caching.Abstractions;
 using BuildingBlocks.Exceptions;
+using BuildingBlocks.Extensions.System;
 using BuildingBlocks.Mediator;
 using FluentValidation;
 using LexiCraft.Services.Identity.Identity.Models;
@@ -44,14 +45,14 @@ public class RefreshTokenCommandHandler(
         await cacheService.RemoveAsync(key, cancellationToken: cancellationToken);
 
         var userDict = new Dictionary<string, string>();
-        var userForClaims = JsonSerializer.Deserialize<User>(JsonSerializer.Serialize(user, JsonSerializerOptions.Web));
+        var userForClaims = user.ToJson(JsonSerializerOptions.Web).FromJson<User>(JsonSerializerOptions.Web);
         if (userForClaims != null)
         {
             userForClaims.ClearPassword();
             userDict.Add(UserInfoConst.UserId, user.Id.ToString());
             userDict.Add(UserInfoConst.UserName, user.Username);
             userDict.Add(UserInfoConst.UserAccount, user.UserAccount);
-            userDict.Add("UserInfo", JsonSerializer.Serialize(userForClaims, JsonSerializerOptions.Web));
+            userDict.Add("UserInfo", userForClaims.ToJson(JsonSerializerOptions.Web));
         }
 
         var token = jwtTokenProvider.GenerateAccessToken(userDict, user.Id.Value, user.Roles.ToArray());

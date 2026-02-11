@@ -1,6 +1,6 @@
 using BuildingBlocks.MassTransit.EventSourcing.Abstractions;
 using MassTransit;
-using System.Text.Json;
+using BuildingBlocks.Extensions.System;
 
 namespace BuildingBlocks.MassTransit.EventSourcing.Services;
 
@@ -33,7 +33,7 @@ public class EventReplayer : IEventReplayer
             var eventType = Type.GetType(storedEvent.EventType);
             if (eventType == null) continue;
 
-            var @event = JsonSerializer.Deserialize(storedEvent.Data, eventType);
+            var @event = storedEvent.Data.FromJson(eventType);
             if (@event == null) continue;
 
             await _publishEndpoint.Publish(@event, context => 

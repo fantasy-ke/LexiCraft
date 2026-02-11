@@ -1,9 +1,12 @@
+using System.Globalization;
 using BuildingBlocks.MassTransit.Options;
 using Microsoft.Extensions.Options;
 using System.Text.Json;
+using BuildingBlocks.MassTransit.Abstractions;
 using BuildingBlocks.MassTransit.EventSourcing.Abstractions;
 using StackExchange.Redis;
 using Microsoft.Extensions.DependencyInjection;
+using BuildingBlocks.Extensions.System;
 
 namespace BuildingBlocks.MassTransit.EventSourcing.Store;
 
@@ -48,9 +51,10 @@ public class RedisEventStore(IConnectionMultiplexer redis, IOptionsMonitor<MassT
         {
             currentVersion++;
             var eventId = GetEventId(@event);
-            var eventData = JsonSerializer.Serialize(@event);
+            var eventData = @event.ToJson();
             var eventType = @event.GetType().AssemblyQualifiedName ?? @event.GetType().FullName!;
             var timestamp = DateTime.UtcNow;
+            var metaData = GetMetaData(@event);
 
             // 创建存储实体
             var storedEvent = new StoredEvent(
@@ -59,7 +63,8 @@ public class RedisEventStore(IConnectionMultiplexer redis, IOptionsMonitor<MassT
                 eventType,
                 eventData,
                 timestamp,
-                currentVersion
+                currentVersion,
+                metaData
             );
 
             // 转换为 Redis Stream Entry
@@ -114,7 +119,7 @@ public class RedisEventStore(IConnectionMultiplexer redis, IOptionsMonitor<MassT
             var eventType = Type.GetType(storedEvent.EventType);
             if (eventType != null)
             {
-                var @event = JsonSerializer.Deserialize(storedEvent.Data, eventType);
+                var @event = storedEvent.Data.FromJson(eventType);
                 if (@event != null)
                 {
                     events.Add(@event);
@@ -140,8 +145,10 @@ public class RedisEventStore(IConnectionMultiplexer redis, IOptionsMonitor<MassT
         var streamId = dict.TryGetValue(nameof(StoredEvent.StreamId), out var cacheStreamId) ? cacheStreamId : string.Empty;
         var eventType = dict.TryGetValue(nameof(StoredEvent.EventType), out var cacheEventType) ? cacheEventType : string.Empty;
         var data = dict.TryGetValue(nameof(StoredEvent.Data), out var cacheData) ? cacheData : string.Empty;
-        var timestamp = dict.TryGetValue(nameof(StoredEvent.Timestamp), out var cacheTimestamp) ? DateTime.Parse(cacheTimestamp) : DateTime.MinValue;
-        var version = dict.TryGetValue(nameof(StoredEvent.Version), out var cacheVersion) ? long.Parse(cacheVersion) : 0;
+        var timestamp = dict.TryGetValue(nameof(StoredEvent.Timestamp), out var cacheTimestamp) 
+            ? DateTime.Parse(cacheTimestamp, CultureInfo.InvariantCulture) : DateTime.MinValue;
+        var version = dict.TryGetValue(nameof(StoredEvent.Version), out var cacheVersion) 
+            ? long.Parse(cacheVersion, CultureInfo.InvariantCulture) : 0;
         var metaData = dict.TryGetValue(nameof(StoredEvent.MetaData), out var cacheMetaData) ? cacheMetaData : null;
 
         return new StoredEvent(id, streamId, eventType, data, timestamp, version, metaData);
@@ -149,11 +156,43 @@ public class RedisEventStore(IConnectionMultiplexer redis, IOptionsMonitor<MassT
 
     private Guid GetEventId(object @event)
     {
+        if (@event is IIntegrationEvent integrationEvent)
+        {
+            return integrationEvent.Id;
+        }
+
         var property = @event.GetType().GetProperty("Id");
         if (property != null && property.PropertyType == typeof(Guid))
         {
             return (Guid)property.GetValue(@event)!;
         }
         return Guid.NewGuid();
+    }
+
+    private string? GetMetaData(object @event)
+    {
+        IDictionary<string, object>? metaDataDict = null;
+
+        if (@event is IEventSourced eventSourced)
+        {
+            metaDataDict = eventSourced.GetMetaData();
+        }
+        else
+        {
+            var property = @event.GetType().GetProperty("MetaData");
+            if (property == null) return metaDataDict != null ? metaDataDict.ToJson() : null;
+            var value = property.GetValue(@event);
+            if (value is IDictionary<string, object> dict)
+            {
+                metaDataDict = dict;
+            }
+            else if (value != null)
+            {
+                // 如果不是字典但有值，尝试序列化它
+                return value.ToJson();
+            }
+        }
+
+        return metaDataDict != null ? metaDataDict.ToJson() : null;
     }
 }

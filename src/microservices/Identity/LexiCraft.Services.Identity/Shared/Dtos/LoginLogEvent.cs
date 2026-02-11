@@ -1,4 +1,5 @@
 using BuildingBlocks.MassTransit.Abstractions;
+using BuildingBlocks.MassTransit.EventSourcing.Abstractions;
 
 namespace LexiCraft.Services.Identity.Shared.Dtos;
 
@@ -13,7 +14,7 @@ namespace LexiCraft.Services.Identity.Shared.Dtos;
 /// <param name="UserAgent">登录设备信息</param>
 /// <param name="LoginType">登录类型</param>
 /// <param name="IsSuccess">登录是否成功</param>
-/// <param name="ErrorMessage">错误信息</param>
+/// <param name="Message">错误信息</param>
 public record LoginLogEvent(
     Guid? UserId,
     string? Username,
@@ -23,4 +24,13 @@ public record LoginLogEvent(
     string? UserAgent,
     string? LoginType,
     bool IsSuccess,
-    string? Message) : IntegrationEvent;
+    string? Message) : IntegrationEvent, IEventSourced
+{
+    public string GetStreamId() => $"identity-login-{(UserId.HasValue ? UserId.Value.ToString() : Username)}";
+
+    public IDictionary<string, object>? GetMetaData() => new Dictionary<string, object>
+    {
+        { "App", "IdentityService" },
+        { "Category", "Security" }
+    };
+}

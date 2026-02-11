@@ -2,6 +2,7 @@ using System.Reflection;
 using BuildingBlocks.MassTransit.EventSourcing.Abstractions;
 using BuildingBlocks.MassTransit.EventSourcing.Services;
 using BuildingBlocks.MassTransit.EventSourcing.Store;
+using BuildingBlocks.MassTransit.LocalEvents;
 using BuildingBlocks.MassTransit.Options;
 using BuildingBlocks.MassTransit.Services;
 using MassTransit;
@@ -36,6 +37,10 @@ public static class MassTransitExtensions
 
         // 注册统一事件发布者
         services.TryAddScoped<IEventPublisher, EventPublisher>();
+
+        // 注册本地事件后台处理服务
+        services.TryAddSingleton<ILocalEventBus, LocalEventBus>();
+        services.AddHostedService<LocalEventBackgroundService>();
 
         // 独立方法引入事件溯源服务
         services.AddEventSourcing(options);

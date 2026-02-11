@@ -7,6 +7,7 @@
 *   **开箱即用**：集成了 RabbitMQ 的连接、认证和重试机制。
 *   **灵活配置**：通过 `appsettings.json` 进行参数化配置。
 *   **统一发布**：提供 `IEventPublisher` 接口，统一处理集成事件（MQ）和本地事件（MediatR）。
+*   **本地异步处理**：本地事件（`PublishLocalAsync`）采用基于 `Channel` 的后台任务模式，不占用主线程，实现真正的异步非阻塞处理。
 *   **自动注册**：支持自动扫描指定程序集中的 Consumer、Saga 和 Saga State Machine。
 *   **事件溯源**：提供 `IEventStore` 和 `EventSourcedAggregate` 支持基于 Redis Stream 的事件存储。
 *   **Saga 持久化**：内置 MongoDB Saga Repository 支持，轻松实现分布式事务。
@@ -124,7 +125,7 @@ public record OrderCreatedEvent(Guid OrderId, decimal Amount) : IntegrationEvent
 使用 `IEventPublisher` 接口来发布事件。
 
 *   **发布到消息队列 (RabbitMQ)**：使用 `PublishAsync`
-*   **发布到本地 (MediatR)**：使用 `PublishLocalAsync`
+*   **发布到本地 (MediatR)**：使用 `PublishLocalAsync`（后台异步处理，非阻塞）
 
 ```csharp
 public class OrderService(IEventPublisher publisher)
