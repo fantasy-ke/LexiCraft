@@ -1,5 +1,5 @@
 using FluentValidation.Results;
-using Newtonsoft.Json;
+using BuildingBlocks.Extensions.System;
 
 namespace BuildingBlocks.Validation;
 
@@ -12,7 +12,7 @@ public class ValidationResultModel<TRequest>
             ?.Errors.Select(error => new ValidationError(error.PropertyName, error.ErrorMessage))
             .ToList();
 
-        Message = JsonConvert.SerializeObject(new { Message = validationError, Errors });
+        Message = new { Message = validationError, Errors }.ToJson();
     }
 
     public string Message { get; set; }

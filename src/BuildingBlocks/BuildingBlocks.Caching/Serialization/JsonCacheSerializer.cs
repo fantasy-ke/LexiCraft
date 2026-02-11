@@ -1,6 +1,7 @@
 using System.Text;
 using System.Text.Json;
 using System.Text.Json.Serialization;
+using BuildingBlocks.Extensions.System;
 
 namespace BuildingBlocks.Caching.Serialization;
 
@@ -29,8 +30,7 @@ public static class JsonCacheSerializer
 
         try
         {
-            var json = JsonSerializer.Serialize(value, DefaultOptions);
-            return Encoding.UTF8.GetBytes(json);
+            return value.ToJsonBytes(DefaultOptions);
         }
         catch (Exception ex)
         {
@@ -51,8 +51,7 @@ public static class JsonCacheSerializer
 
         try
         {
-            var json = Encoding.UTF8.GetString(data);
-            return JsonSerializer.Deserialize<T>(json, DefaultOptions);
+            return data.FromJson<T>(DefaultOptions);
         }
         catch (Exception ex)
         {

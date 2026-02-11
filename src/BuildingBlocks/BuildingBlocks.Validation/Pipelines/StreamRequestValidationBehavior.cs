@@ -1,5 +1,5 @@
-﻿using System.Runtime.CompilerServices;
-using System.Text.Json;
+using System.Runtime.CompilerServices;
+using BuildingBlocks.Extensions.System;
 using BuildingBlocks.Validation.Extensions;
 using FluentValidation;
 using MediatR;
@@ -44,7 +44,7 @@ public class StreamRequestValidationBehavior<TRequest, TResponse>(
         _logger.LogDebug(
             "Handling {FullName} with content {Request}",
             typeof(TRequest).FullName,
-            JsonSerializer.Serialize(message)
+            message.ToJson()
         );
 
         await validator.HandleValidationAsync(message, cancellationToken);

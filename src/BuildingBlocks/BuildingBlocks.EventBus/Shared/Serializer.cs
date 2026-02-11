@@ -1,5 +1,6 @@
 using System.Text.Encodings.Web;
 using System.Text.Json;
+using BuildingBlocks.Extensions.System;
 
 namespace BuildingBlocks.EventBus.Shared;
 
@@ -20,16 +21,16 @@ public class JsonHandlerSerializer : IHandlerSerializer
 
     public string SerializeJson<T>(T data)
     {
-        return JsonSerializer.Serialize(data, Options);
+        return data.ToJson(Options);
     }
 
     public T? Deserialize<T>(string data)
     {
-        return JsonSerializer.Deserialize<T>(data, Options);
+        return data.FromJson<T>(Options);
     }
 
     public object? Deserialize(string data, Type type)
     {
-        return JsonSerializer.Deserialize(data, type, Options);
+        return data.FromJson(type, Options);
     }
 }

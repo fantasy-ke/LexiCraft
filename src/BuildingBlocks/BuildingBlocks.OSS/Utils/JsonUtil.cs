@@ -1,4 +1,4 @@
-using Newtonsoft.Json;
+using BuildingBlocks.Extensions.System;
 
 namespace BuildingBlocks.OSS.Utils;
 
@@ -11,8 +11,7 @@ internal static class JsonUtil
     /// <returns>json字符串</returns>
     public static string SerializeObject(object o)
     {
-        var json = JsonConvert.SerializeObject(o);
-        return json;
+        return o.ToJson();
     }
 
     /// <summary>
@@ -23,10 +22,6 @@ internal static class JsonUtil
     /// <returns>对象实体</returns>
     public static T? DeserializeObject<T>(string json) where T : class
     {
-        var serializer = new JsonSerializer();
-        var sr = new StringReader(json);
-        var o = serializer.Deserialize(new JsonTextReader(sr), typeof(T));
-        var t = o as T;
-        return t;
+        return json.FromJson<T>();
     }
 }

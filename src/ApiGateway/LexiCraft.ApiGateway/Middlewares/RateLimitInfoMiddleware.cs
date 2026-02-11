@@ -1,5 +1,6 @@
 using LexiCraft.ApiGateway.Configuration;
 using Microsoft.Extensions.Options;
+using BuildingBlocks.Extensions.System;
 
 namespace LexiCraft.ApiGateway.Middlewares;
 
@@ -32,7 +33,7 @@ public class RateLimitInfoMiddleware(
             };
 
             // 将限流信息序列化为JSON并添加到请求头
-            var limitInfoJson = System.Text.Json.JsonSerializer.Serialize(limitInfo);
+            var limitInfoJson = limitInfo.ToJson();
             context.Request.Headers.Append(_rateLimitingOptions.LimitInfoHeaderName, limitInfoJson);
         }
 

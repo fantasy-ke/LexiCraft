@@ -1,4 +1,4 @@
-using System.Text.Json;
+using BuildingBlocks.Extensions.System;
 using BuildingBlocks.Validation.Extensions;
 using FluentValidation;
 using MediatR;
@@ -32,7 +32,7 @@ public class RequestValidationBehavior<TRequest, TResponse>(
         logger.LogDebug(
             "Handling {FullName} with content {Request}",
             typeof(TRequest).FullName,
-            JsonSerializer.Serialize(message)
+            message.ToJson()
         );
 
         await validator.HandleValidationAsync(message, cancellationToken);
