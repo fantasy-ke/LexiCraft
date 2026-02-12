@@ -28,7 +28,7 @@ public record LoginLogEvent(
 {
     public string GetStreamId()
     {
-        return $"identity-login-{(UserId.HasValue ? UserId.Value.ToString() : Username)}";
+        return $"identity:login:{(UserId.HasValue ? UserId.Value.ToString() : Username)}";
     }
 
     public IDictionary<string, object>? GetMetaData()

@@ -18,7 +18,7 @@ public interface IEventStore
     /// <summary>
     ///     读取原始存储事件 (包含元数据)
     /// </summary>
-    Task<IEnumerable<StoredEvent>> ReadStoredEventsAsync(string streamId, long fromVersion = 0,
+    Task<IEnumerable<StoredEvent>> ReadStoredEventsAsync(string streamId, long fromVersion = 0, long? toVersion = null,
         CancellationToken cancellationToken = default);
 
     /// <summary>
@@ -26,8 +26,9 @@ public interface IEventStore
     /// </summary>
     /// <param name="streamId">事件流ID</param>
     /// <param name="fromVersion">起始版本号</param>
+    /// <param name="toVersion">截止版本号 (可选)</param>
     /// <param name="cancellationToken">取消令牌</param>
     /// <returns>事件集合</returns>
-    Task<IEnumerable<object>> ReadEventsAsync(string streamId, long fromVersion = 0,
+    Task<IEnumerable<object>> ReadEventsAsync(string streamId, long fromVersion = 0, long? toVersion = null,
         CancellationToken cancellationToken = default);
 }

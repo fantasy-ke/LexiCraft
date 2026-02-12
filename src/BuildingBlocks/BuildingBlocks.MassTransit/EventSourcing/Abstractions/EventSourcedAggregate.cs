@@ -1,15 +1,12 @@
+using BuildingBlocks.Domain.Internal;
+
 namespace BuildingBlocks.MassTransit.EventSourcing.Abstractions;
 
 /// <summary>
 ///     支持事件溯源的聚合根接口
 /// </summary>
-public interface IEventSourcedAggregate
+public interface IEventSourcedAggregate : IAggregateRoot
 {
-    /// <summary>
-    ///     聚合根ID
-    /// </summary>
-    Guid Id { get; }
-
     /// <summary>
     ///     当前版本号
     /// </summary>
@@ -35,12 +32,13 @@ public interface IEventSourcedAggregate
 /// <summary>
 ///     事件溯源聚合根基类
 /// </summary>
-public abstract class EventSourcedAggregate : IEventSourcedAggregate
+/// <typeparam name="TKey">主键类型</typeparam>
+/// <typeparam name="TUserKey">审计用户主键类型</typeparam>
+public abstract class EventSourcedAggregate<TKey, TUserKey> : AuditAggregateRoot<TKey, TUserKey>, IEventSourcedAggregate
 {
     private readonly List<object> _uncommittedEvents = new();
 
-    public Guid Id { get; protected set; }
-    public long Version { get; private set; } = -1;
+    public long Version { get; private set; } = 0;
 
     public IEnumerable<object> GetUncommittedEvents()
     {
@@ -65,7 +63,14 @@ public abstract class EventSourcedAggregate : IEventSourcedAggregate
     {
         ApplyEvent(@event);
         _uncommittedEvents.Add(@event);
+        Version++;
     }
 
     protected abstract void ApplyEvent(object @event);
 }
+
+/// <summary>
+///     事件溯源聚合根基类 (默认用户主键为 Guid?)
+/// </summary>
+/// <typeparam name="TKey"></typeparam>
+public abstract class EventSourcedAggregate<TKey> : EventSourcedAggregate<TKey, Guid?>;

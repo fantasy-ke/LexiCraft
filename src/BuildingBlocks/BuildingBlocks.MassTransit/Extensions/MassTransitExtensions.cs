@@ -123,6 +123,7 @@ public static class MassTransitExtensions
         services.TryAddSingleton<IEventStore, RedisEventStore>();
 
         services.TryAddScoped<IEventReplayer, EventReplayer>();
+        services.TryAddScoped<IDomainEventReplayer, DomainEventReplayer>();
 
         return services;
     }

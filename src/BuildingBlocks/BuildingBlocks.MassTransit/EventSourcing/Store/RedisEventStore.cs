@@ -80,6 +80,7 @@ public class RedisEventStore(IConnectionMultiplexer redis, IOptionsMonitor<MassT
     }
 
     public async Task<IEnumerable<StoredEvent>> ReadStoredEventsAsync(string streamId, long fromVersion = 0,
+        long? toVersion = null,
         CancellationToken cancellationToken = default)
     {
         var db = redis.GetDatabase();
@@ -97,6 +98,7 @@ public class RedisEventStore(IConnectionMultiplexer redis, IOptionsMonitor<MassT
             var storedEvent = ParseStoredEvent(entry);
 
             if (storedEvent.Version < fromVersion) continue;
+            if (toVersion.HasValue && storedEvent.Version > toVersion.Value) continue;
 
             events.Add(storedEvent);
         }
@@ -105,9 +107,10 @@ public class RedisEventStore(IConnectionMultiplexer redis, IOptionsMonitor<MassT
     }
 
     public async Task<IEnumerable<object>> ReadEventsAsync(string streamId, long fromVersion = 0,
+        long? toVersion = null,
         CancellationToken cancellationToken = default)
     {
-        var storedEvents = await ReadStoredEventsAsync(streamId, fromVersion, cancellationToken);
+        var storedEvents = await ReadStoredEventsAsync(streamId, fromVersion, toVersion, cancellationToken);
         var events = new List<object>();
 
         foreach (var storedEvent in storedEvents)

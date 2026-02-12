@@ -1,9 +1,11 @@
 using System.Text.RegularExpressions;
 using BuildingBlocks.Caching.Abstractions;
 using BuildingBlocks.Exceptions;
+using BuildingBlocks.MassTransit.Services;
 using BuildingBlocks.Mediator;
 using FluentValidation;
 using LexiCraft.Services.Identity.Identity.Internal.Commands;
+using LexiCraft.Services.Identity.Identity.Models;
 using LexiCraft.Services.Identity.Shared.Contracts;
 using LexiCraft.Services.Identity.Shared.Dtos;
 using MediatR;
@@ -30,7 +32,8 @@ public class LoginCommandValidator : AbstractValidator<LoginCommand>
 public partial class LoginCommandHandler(
     IUserRepository userRepository,
     IMediator mediator,
-    ICacheService cacheService)
+    ICacheService cacheService,
+    IEventPublisher eventPublisher)
     : ICommandHandler<LoginCommand, TokenResponse>
 {
     public async Task<TokenResponse> Handle(LoginCommand command, CancellationToken cancellationToken)
@@ -63,32 +66,35 @@ public partial class LoginCommandHandler(
 
         if (!user.VerifyPassword(command.Password))
         {
-            // 记录登录失败
-            user.AccessFailed();
+            // 记录登录失败（内部处理失败计数和锁定）
+            user.LoginFailed();
 
-            // 如果失败次数达到阈值（例如5次），锁定账户
-            if (user.LockoutEnabled && user.AccessFailedCount >= 5)
-            {
-                user.Lockout(DateTimeOffset.UtcNow.AddMinutes(5));
-                user.ResetAccessFailedCount(); // 锁定后重置计数，或者保留计数直到解锁
-                // 这里选择锁定后重置计数，意味着5分钟后解锁，用户又有5次机会。
-            }
-
-            await userRepository.UpdateAsync(user);
-            await userRepository.SaveChangesAsync();
+            await SaveAndPublishEvents(user, cancellationToken);
 
             await mediator.Send(new PublishLoginLogCommand(command.UserAccount, "密码错误", user.Id), cancellationToken);
             ThrowUserFriendlyException.ThrowException("密码错误");
         }
 
-        // 登录成功，重置失败计数和锁定状态
-        if (user is { AccessFailedCount: <= 0, LockoutEnd: null })
-            return await mediator.Send(new GenerateTokenResponseCommand(user, "Password"), cancellationToken);
-        user.ResetAccessFailedCount();
-        await userRepository.UpdateAsync(user);
-        await userRepository.SaveChangesAsync();
+        // 登录成功（内部处理最后登录时间和状态重置）
+        user.LoginSuccess(DateTime.Now);
+
+        await SaveAndPublishEvents(user, cancellationToken);
 
         return await mediator.Send(new GenerateTokenResponseCommand(user, "Password"), cancellationToken);
+    }
+
+    private async Task SaveAndPublishEvents(User user, CancellationToken cancellationToken)
+    {
+        var events = user.GetUncommittedEvents().ToList();
+        if (events.Count == 0) return;
+        foreach (var @event in events)
+        {
+            if (@event is IDomainEvent domainEvent)
+            {
+                await eventPublisher.PublishLocalAsync(domainEvent, cancellationToken);
+            }
+        }
+        user.ClearUncommittedEvents();
     }
 
     [GeneratedRegex("^(?=.*[0-9])(?=.*[a-zA-Z]).*$")]

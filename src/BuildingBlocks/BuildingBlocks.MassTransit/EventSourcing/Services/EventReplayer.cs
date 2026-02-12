@@ -7,26 +7,17 @@ namespace BuildingBlocks.MassTransit.EventSourcing.Services;
 /// <summary>
 ///     事件回放服务实现
 /// </summary>
-public class EventReplayer : IEventReplayer
+public class EventReplayer(IEventStore eventStore, IPublishEndpoint publishEndpoint) : IEventReplayer
 {
-    private readonly IEventStore _eventStore;
-    private readonly IPublishEndpoint _publishEndpoint;
-
-    public EventReplayer(IEventStore eventStore, IPublishEndpoint publishEndpoint)
-    {
-        _eventStore = eventStore;
-        _publishEndpoint = publishEndpoint;
-    }
-
     public async Task ReplayAsync(string streamId, CancellationToken cancellationToken = default)
     {
-        await ReplayAsync(streamId, 0, cancellationToken);
+        await ReplayAsync(streamId, 0, null, cancellationToken);
     }
 
-    public async Task ReplayAsync(string streamId, long fromVersion, CancellationToken cancellationToken = default)
+    public async Task ReplayAsync(string streamId, long fromVersion, long? toVersion = null, CancellationToken cancellationToken = default)
     {
         // 使用 ReadStoredEventsAsync 获取包含元数据的事件
-        var storedEvents = await _eventStore.ReadStoredEventsAsync(streamId, fromVersion, cancellationToken);
+        var storedEvents = await eventStore.ReadStoredEventsAsync(streamId, fromVersion, toVersion, cancellationToken);
 
         foreach (var storedEvent in storedEvents)
         {
@@ -36,7 +27,7 @@ public class EventReplayer : IEventReplayer
             var @event = storedEvent.Data.FromJson(eventType);
             if (@event == null) continue;
 
-            await _publishEndpoint.Publish(@event, context =>
+            await publishEndpoint.Publish(@event, context =>
             {
                 // 标记为回放事件
                 context.Headers.Set("MT-Event-Replay", "true");

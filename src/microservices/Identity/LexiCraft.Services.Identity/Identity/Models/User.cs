@@ -1,10 +1,11 @@
 using BuildingBlocks.Domain.Internal;
+using BuildingBlocks.MassTransit.EventSourcing.Abstractions;
 using LexiCraft.Services.Identity.Identity.Models.Enum;
 using LexiCraft.Shared.Models;
 
 namespace LexiCraft.Services.Identity.Identity.Models;
 
-public class User : AuditAggregateRoot<UserId, UserId?>
+public class User : EventSourcedAggregate<UserId, UserId?>
 {
     private User()
     {
@@ -24,6 +25,50 @@ public class User : AuditAggregateRoot<UserId, UserId?>
         Email = email;
         Source = source;
         Roles = [];
+    }
+
+    protected override void ApplyEvent(object @event)
+    {
+        switch (@event)
+        {
+            case UserCreatedEvent e:
+                Id = e.UserId;
+                Username = e.Username;
+                UserAccount = e.UserAccount;
+                Email = e.Email;
+                Source = e.Source;
+                break;
+            case UserLoginSuccessEvent e:
+                LastLoginAt = e.LoginTime;
+                AccessFailedCount = 0;
+                LockoutEnd = null;
+                break;
+            case UserLoginFailedEvent e:
+                AccessFailedCount = e.AccessFailedCount;
+                LockoutEnd = e.LockoutEnd;
+                break;
+        }
+    }
+
+    public void LoginSuccess(DateTime loginTime)
+    {
+        AddEvent(new UserLoginSuccessEvent(Id, loginTime));
+    }
+
+    public void LoginFailed(int threshold = 5, int lockoutMinutes = 5)
+    {
+        var newCount = AccessFailedCount + 1;
+        DateTimeOffset? newLockoutEnd = LockoutEnd;
+
+        if (LockoutEnabled && newCount >= threshold)
+        {
+            newLockoutEnd = DateTimeOffset.UtcNow.AddMinutes(lockoutMinutes);
+            // 达到阈值锁定后，我们通常重置计数或者保持计数直到解锁。
+            // 这里选择重置计数，并记录锁定时间。
+            newCount = 0;
+        }
+
+        AddEvent(new UserLoginFailedEvent(Id, newCount, newLockoutEnd));
     }
 
     /// <summary>
@@ -208,31 +253,7 @@ public class User : AuditAggregateRoot<UserId, UserId?>
         Username = username;
     }
 
-    /// <summary>
-    ///     记录登录失败
-    /// </summary>
-    public void AccessFailed()
-    {
-        AccessFailedCount++;
-    }
 
-    /// <summary>
-    ///     重置登录失败次数
-    /// </summary>
-    public void ResetAccessFailedCount()
-    {
-        AccessFailedCount = 0;
-        LockoutEnd = null;
-    }
-
-    /// <summary>
-    ///     锁定用户
-    /// </summary>
-    /// <param name="lockoutEnd">锁定结束时间</param>
-    public void Lockout(DateTimeOffset lockoutEnd)
-    {
-        LockoutEnd = lockoutEnd;
-    }
 
     public void ClearPassword()
     {

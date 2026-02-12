@@ -4,6 +4,7 @@ using LexiCraft.Services.Identity.Identity.Features.Logout;
 using LexiCraft.Services.Identity.Identity.Features.OAuthInitiate;
 using LexiCraft.Services.Identity.Identity.Features.OAuthToken;
 using LexiCraft.Services.Identity.Identity.Features.RefreshToken;
+using LexiCraft.Services.Identity.Identity.Features.ReplayEvents;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Routing;
@@ -43,6 +44,7 @@ internal static class IdentityConfigurations
         identityGroupV1.MapLogoutEndpoint();
         identityGroupV1.MapLoginEndpoint();
         identityGroupV1.MapRefreshTokenEndpoint();
+        identityGroupV1.MapReplayEventsEndpoint();
 
         return endpoints;
     }
