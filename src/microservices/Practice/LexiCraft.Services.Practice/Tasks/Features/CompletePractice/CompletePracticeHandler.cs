@@ -1,4 +1,4 @@
-using BuildingBlocks.EventBus.Abstractions;
+using BuildingBlocks.MassTransit.Services;
 using FluentValidation;
 using LexiCraft.Services.Practice.Assessments.Models;
 using LexiCraft.Services.Practice.Shared.Contracts;
@@ -28,7 +28,7 @@ public class CompletePracticeValidator : AbstractValidator<CompletePracticeComma
             .NotEmpty()
             .WithMessage("任务ID不能为空。");
     }
-}
+} 
 
 /// <summary>
 ///     处理完成练习任务的命令处理器
@@ -36,18 +36,18 @@ public class CompletePracticeValidator : AbstractValidator<CompletePracticeComma
 /// </summary>
 public class CompletePracticeHandler : IRequestHandler<CompletePracticeCommand, bool>
 {
-    private readonly IEventBus<IntegrationEvent> _eventBus;
+    private readonly IEventPublisher _eventPublisher;
     private readonly IPracticeTaskRepository _repository;
 
     /// <summary>
     ///     构造函数，注入依赖项
     /// </summary>
     /// <param name="repository">练习任务仓库，用于数据访问</param>
-    /// <param name="eventBus">事件总线，用于发布集成事件</param>
-    public CompletePracticeHandler(IPracticeTaskRepository repository, IEventBus<IntegrationEvent> eventBus)
+    /// <param name="eventPublisher">事件发布者，用于发布集成事件</param>
+    public CompletePracticeHandler(IPracticeTaskRepository repository, IEventPublisher eventPublisher)
     {
         _repository = repository;
-        _eventBus = eventBus;
+        _eventPublisher = eventPublisher;
     }
 
     /// <summary>
@@ -93,35 +93,30 @@ public class CompletePracticeHandler : IRequestHandler<CompletePracticeCommand, 
             task.FinishedAt.Value
         );
 
-        // 通过事件总线发布“练习完成”事件
-        await _eventBus.PublishAsync(completedEvent);
+        // 通过事件发布者发布“练习完成”集成事件
+        await _eventPublisher.PublishAsync(completedEvent, cancellationToken);
 
         // 筛选出所有出错的答案项（错误、部分正确、未作答）
-        var mistakes = task.Answers.Where(x =>
-            x.Status == AnswerStatus.Wrong || x.Status == AnswerStatus.Partial || x.Status == AnswerStatus.NoAnswer);
+        var mistakes = task.Answers.Where(x => x.Status != AnswerStatus.Correct);
+
         foreach (var mistake in mistakes)
         {
             // 根据答案项找到对应的练习题目
             var item = task.Items.First(x => x.Id == mistake.PracticeTaskItemId);
-            // 判断错误类型：未作答或拼写错误
-            var mistakeType = mistake.Status == AnswerStatus.NoAnswer
-                ? MistakeType.NoAnswer
-                : MistakeType.SpellingError;
 
-            // 创建“单词出错”集成事件
-            var mistakeEvent = new WordMistakeOccurredIntegrationEvent(
+            var wordMistakeEvent = new WordMistakeOccurredIntegrationEvent(
                 task.UserId.Value,
                 item.WordId,
-                mistakeType.ToString(),
+                mistake.Status.ToString(),
                 mistake.UserInput ?? string.Empty,
                 item.SpellingSnapshot,
-                mistake.SubmittedAt
+                DateTime.UtcNow
             );
-            // 通过事件总线发布“单词出错”事件
-            await _eventBus.PublishAsync(mistakeEvent);
+
+            // 发布单词错误集成事件
+            await _eventPublisher.PublishAsync(wordMistakeEvent, cancellationToken);
         }
 
-        // 返回成功标志
         return true;
     }
 }

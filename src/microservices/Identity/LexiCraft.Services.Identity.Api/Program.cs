@@ -18,7 +18,8 @@ builder.Services
     .AddCaching(builder.Configuration);
 builder.Services.AddExceptionHandler<CustomExceptionHandler>();
 
-builder.Services.AddCustomMassTransit(builder.Configuration, [typeof(IdentityMetadata).Assembly]);
+builder.Services.AddCustomMassTransit(builder.Configuration, 
+    [typeof(IdentityMetadata).Assembly]);
 
 builder.AddApplicationServices();
 

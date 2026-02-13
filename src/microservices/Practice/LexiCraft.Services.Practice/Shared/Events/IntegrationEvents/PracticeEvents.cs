@@ -1,4 +1,6 @@
-using BuildingBlocks.EventBus.Abstractions;
+using BuildingBlocks.MassTransit.Abstractions;
+using BuildingBlocks.MassTransit.EventSourcing.Abstractions;
+using BuildingBlocks.Mediator;
 
 namespace LexiCraft.Services.Practice.Shared.Events.IntegrationEvents;
 
@@ -10,7 +12,10 @@ public record PracticeCompletedIntegrationEvent(
     int WrongCount,
     long DurationSeconds,
     DateTime CompletedAt
-) : IntegrationEvent;
+) : IntegrationEvent, IEventSourced
+{
+    public string GetStreamId() => $"practice:task:{TaskId}";
+}
 
 public record WordMistakeOccurredIntegrationEvent(
     Guid UserId,
@@ -19,4 +24,7 @@ public record WordMistakeOccurredIntegrationEvent(
     string UserInput,
     string CorrectAnswer,
     DateTime OccurredAt
-) : IntegrationEvent;
+) : IntegrationEvent, IEventSourced
+{
+    public string GetStreamId() => $"practice:word_mistake:{UserId}:{WordId}";
+}
