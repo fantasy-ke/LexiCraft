@@ -1,3 +1,4 @@
+using System.Globalization;
 using System.Text.Json;
 using BuildingBlocks.Authentication;
 using BuildingBlocks.Authentication.Contract;
@@ -44,7 +45,10 @@ public class GenerateTokenResponseCommandHandler(
             new PublishLoginLogCommand(user.UserAccount, logMessage, user.Id, true, request.LoginType),
             cancellationToken);
 
-        var cacheKey = string.Format(UserInfoConst.RedisTokenKey, user.Id.Value.ToString("N"));
+        var cacheKey = string.Format(
+            CultureInfo.InvariantCulture,
+            UserInfoConst.RedisTokenKey,
+            user.Id.Value.ToString("N"));
 
         // 检查Redis中是否存在该用户的Token记录，如果存在则先删除旧的Token
         var oldToken = await cacheService.GetAsync<TokenResponse>(cacheKey, cancellationToken: cancellationToken);
@@ -52,7 +56,8 @@ public class GenerateTokenResponseCommandHandler(
         {
             if (!string.IsNullOrEmpty(oldToken.RefreshToken))
             {
-                var oldRefreshTokenKey = string.Format(UserInfoConst.RedisRefreshTokenKey, oldToken.RefreshToken);
+                var oldRefreshTokenKey = string.Format(CultureInfo.InvariantCulture, UserInfoConst.RedisRefreshTokenKey,
+                    oldToken.RefreshToken);
                 await cacheService.RemoveAsync(oldRefreshTokenKey, cancellationToken: cancellationToken);
             }
 
@@ -60,9 +65,10 @@ public class GenerateTokenResponseCommandHandler(
         }
 
         await cacheService.SetAsync(cacheKey, response,
-            options => options.Expiry = TimeSpan.FromDays(7), cancellationToken);
-        await cacheService.SetAsync(string.Format(UserInfoConst.RedisRefreshTokenKey, refreshToken),
-            user.Id.Value.ToString("N"), options => options.Expiry = TimeSpan.FromDays(7), cancellationToken);
+            options => options.Expiry = TimeSpan.FromHours(2), cancellationToken);
+        await cacheService.SetAsync(
+            string.Format(CultureInfo.InvariantCulture, UserInfoConst.RedisRefreshTokenKey, refreshToken),
+            user.Id.Value.ToString("N"), options => options.Expiry = TimeSpan.FromDays(1), cancellationToken);
 
         return response;
     }

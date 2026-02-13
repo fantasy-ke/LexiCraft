@@ -41,7 +41,9 @@ public partial class LoginCommandHandler(
         // IP限制检查
         if (!string.IsNullOrEmpty(command.IpAddress))
         {
-            var ipKey = $"Login:Ip:{command.IpAddress}";
+            // 处理 IPv6 地址中的冒号，防止在 Redis GUI 中产生多级文件夹
+            var sanitizedIp = command.IpAddress.Replace(":", "-");
+            var ipKey = $"Login:Ip:{sanitizedIp}";
             var ipCount = await cacheService.GetAsync<int>(ipKey, null, cancellationToken);
             if (ipCount >= 10) ThrowUserFriendlyException.ThrowException("尝试次数过多，请稍后再试");
             // 设置过期时间为1分钟

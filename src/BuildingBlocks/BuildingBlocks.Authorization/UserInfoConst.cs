@@ -22,9 +22,9 @@ public class UserInfoConst
     /// </summary>
     public const string UserAccount = "USER_ACCOUNT";
 
-    public const string RedisTokenKey = "RedisToken_{0}";
+    public const string RedisTokenKey = "user:login:token:{0}";
 
-    public const string RedisRefreshTokenKey = "RedisRefreshToken_{0}";
+    public const string RedisRefreshTokenKey = "user:login:refreshtoken:{0}";
 
     /// <summary>
     ///     获取权限请求头

@@ -1,3 +1,4 @@
+using System.Globalization;
 using System.Text.Json;
 using BuildingBlocks.Authentication;
 using BuildingBlocks.Authentication.Contract;
@@ -31,7 +32,7 @@ public class RefreshTokenCommandHandler(
 {
     public async Task<TokenResponse> Handle(RefreshTokenCommand command, CancellationToken cancellationToken)
     {
-        var key = string.Format(UserInfoConst.RedisRefreshTokenKey, command.RefreshToken);
+        var key = string.Format(CultureInfo.InvariantCulture, UserInfoConst.RedisRefreshTokenKey, command.RefreshToken);
         var userIdValue = await cacheService.GetAsync<string>(key, cancellationToken: cancellationToken);
         if (string.IsNullOrWhiteSpace(userIdValue)) ThrowUserFriendlyException.ThrowException("刷新令牌无效或已过期");
 
@@ -59,9 +60,12 @@ public class RefreshTokenCommandHandler(
         var newRefreshToken = jwtTokenProvider.GenerateRefreshToken();
         var response = new TokenResponse(token, newRefreshToken);
 
-        await cacheService.SetAsync(string.Format(UserInfoConst.RedisTokenKey, user.Id.Value.ToString("N")), response,
+        await cacheService.SetAsync(
+            string.Format(CultureInfo.InvariantCulture, UserInfoConst.RedisTokenKey, user.Id.Value.ToString("N")),
+            response,
             options => options.Expiry = TimeSpan.FromDays(7), cancellationToken);
-        await cacheService.SetAsync(string.Format(UserInfoConst.RedisRefreshTokenKey, newRefreshToken),
+        await cacheService.SetAsync(
+            string.Format(CultureInfo.InvariantCulture, UserInfoConst.RedisRefreshTokenKey, newRefreshToken),
             user.Id.Value.ToString("N"), options => options.Expiry = TimeSpan.FromDays(7), cancellationToken);
 
         return response;
