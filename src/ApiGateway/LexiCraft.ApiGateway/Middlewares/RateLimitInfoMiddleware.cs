@@ -1,3 +1,4 @@
+using System.Globalization;
 using BuildingBlocks.Extensions.System;
 using LexiCraft.ApiGateway.Configuration;
 using Microsoft.Extensions.Options;
@@ -27,9 +28,9 @@ public class RateLimitInfoMiddleware(
             var limitInfo = new Dictionary<string, string?>
             {
                 ["client-ip"] = clientIp,
-                ["gateway-permit-limit"] = _rateLimitingOptions.PermitLimit.ToString(),
-                ["gateway-window"] = _rateLimitingOptions.Window.ToString(),
-                ["gateway-queue-limit"] = _rateLimitingOptions.QueueLimit.ToString()
+                ["gateway-permit-limit"] = _rateLimitingOptions.PermitLimit.ToString(CultureInfo.InvariantCulture),
+                ["gateway-window"] = _rateLimitingOptions.Window.ToString(CultureInfo.InvariantCulture),
+                ["gateway-queue-limit"] = _rateLimitingOptions.QueueLimit.ToString(CultureInfo.InvariantCulture)
             };
 
             // 将限流信息序列化为JSON并添加到请求头

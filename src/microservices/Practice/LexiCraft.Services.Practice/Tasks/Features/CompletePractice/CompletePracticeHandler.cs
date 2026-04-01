@@ -1,4 +1,5 @@
 using BuildingBlocks.MassTransit.Services;
+using BuildingBlocks.MongoDB;
 using FluentValidation;
 using LexiCraft.Services.Practice.Assessments.Models;
 using LexiCraft.Services.Practice.Shared.Contracts;
@@ -27,6 +28,11 @@ public class CompletePracticeValidator : AbstractValidator<CompletePracticeComma
         RuleFor(x => x.TaskId)
             .NotEmpty()
             .WithMessage("任务ID不能为空。");
+
+        RuleFor(x => x.TaskId)
+            .Must(taskId => taskId.IsValidMongoId())
+            .WithMessage("任务ID必须是有效的ObjectId。")
+            .When(x => !string.IsNullOrWhiteSpace(x.TaskId));
     }
 } 
 
@@ -59,7 +65,7 @@ public class CompletePracticeHandler : IRequestHandler<CompletePracticeCommand, 
     public async Task<bool> Handle(CompletePracticeCommand request, CancellationToken cancellationToken)
     {
         // 根据任务ID从仓库中查找对应的练习任务
-        var task = await _repository.FirstOrDefaultAsync(x => x.Id == request.TaskId);
+        var task = await _repository.FirstOrDefaultByIdAsync(request.TaskId);
 
         // 如果任务不存在，抛出异常
         if (task == null)
@@ -85,7 +91,7 @@ public class CompletePracticeHandler : IRequestHandler<CompletePracticeCommand, 
         // 创建“练习完成”集成事件
         var completedEvent = new PracticeCompletedIntegrationEvent(
             task.UserId.Value,
-            task.Id,
+            task.Id.ToString(),
             task.Items.Count,
             correctCount,
             wrongCount,

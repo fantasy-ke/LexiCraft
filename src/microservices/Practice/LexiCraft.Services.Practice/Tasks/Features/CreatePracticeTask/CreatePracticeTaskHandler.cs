@@ -144,6 +144,6 @@ public class CreatePracticeTaskHandler(IPracticeTaskRepository repository)
         await repository.InsertAsync(task);
 
         // 返回包含新任务 ID 的结果
-        return new CreatePracticeTaskResult(task.Id);
+        return new CreatePracticeTaskResult(task.Id.ToString());
     }
 }

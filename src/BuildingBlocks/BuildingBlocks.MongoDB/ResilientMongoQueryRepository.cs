@@ -118,11 +118,17 @@ public class ResilientMongoQueryRepository<TEntity> : IQueryRepository<TEntity> 
 
     public async Task<TEntity?> FindByIdAsync(string id, CancellationToken cancellationToken = default)
     {
+        if (string.IsNullOrWhiteSpace(id))
+            throw new ArgumentException("Id cannot be null or whitespace.", nameof(id));
+
+        if (!global::MongoDB.Bson.ObjectId.TryParse(id, out var objectId))
+            throw new ArgumentException("Id is not a valid ObjectId.", nameof(id));
+
         using var _ = PerformanceMonitor.StartOperation("FindById", CollectionName);
         return await ResilienceService.ExecuteWithRetryAsync(
             async () =>
             {
-                var filter = Builders<TEntity>.Filter.Eq(x => x.Id, id);
+                var filter = Builders<TEntity>.Filter.Eq(x => x.Id, objectId);
                 return await Collection.Find(filter).FirstOrDefaultAsync(cancellationToken);
             },
             $"FindById_{CollectionName}",

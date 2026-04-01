@@ -77,7 +77,7 @@ public class PracticeTask : MongoAggregateRoot
         var record = new AnswerRecord(itemId, input, status, score, 0, assessmentType);
         Answers.Add(record);
 
-        return new AssessmentResult(record.Id, status, score, correctSpelling);
+        return new AssessmentResult(record.Id.ToString(), status, score, correctSpelling);
     }
 
     public void Complete()

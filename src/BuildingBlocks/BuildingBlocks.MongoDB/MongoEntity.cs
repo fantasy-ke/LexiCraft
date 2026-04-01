@@ -6,10 +6,9 @@ namespace BuildingBlocks.MongoDB;
 public abstract class MongoEntity
 {
     [BsonId]
-    [BsonRepresentation(BsonType.ObjectId)]
-    public string Id { get; set; } = ObjectId.GenerateNewId().ToString();
+    public ObjectId Id { get; set; } = ObjectId.GenerateNewId();
 
-    public DateTime CreationTime { get; set; } = DateTime.Now;
+    public DateTime CreationTime { get; set; } = DateTime.UtcNow;
 
     public long? CreatorId { get; set; }
 }

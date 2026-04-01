@@ -1,3 +1,4 @@
+using BuildingBlocks.MongoDB;
 using FluentValidation;
 using LexiCraft.Services.Practice.Assessments.Models;
 using LexiCraft.Services.Practice.Shared.Contracts;
@@ -34,6 +35,11 @@ public class SubmitAnswerValidator : AbstractValidator<SubmitAnswerCommand>
             .NotEmpty()
             .WithMessage("任务ID不能为空。");
 
+        RuleFor(x => x.TaskId)
+            .Must(taskId => taskId.IsValidMongoId())
+            .WithMessage("任务ID必须是有效的ObjectId。")
+            .When(x => !string.IsNullOrWhiteSpace(x.TaskId));
+
         RuleFor(x => x.ItemId)
             .NotEmpty()
             .WithMessage("项目ID不能为空。");
@@ -65,7 +71,7 @@ public class SubmitAnswerHandler(IPracticeTaskRepository repository)
     public async Task<AssessmentResult> Handle(SubmitAnswerCommand request, CancellationToken cancellationToken)
     {
         // 从仓库获取练习任务
-        var task = await repository.FirstOrDefaultAsync(x => x.Id == request.TaskId);
+        var task = await repository.FirstOrDefaultByIdAsync(request.TaskId);
 
         // 验证任务是否存在
         if (task == null) throw new ArgumentException($"找不到ID为 {request.TaskId} 的练习任务。");

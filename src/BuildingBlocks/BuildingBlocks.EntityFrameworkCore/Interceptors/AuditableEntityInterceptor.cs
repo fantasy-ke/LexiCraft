@@ -93,7 +93,7 @@ public class AuditableEntityInterceptor(IServiceProvider? serviceProvider = null
         if (idType == typeof(Guid) || idType == typeof(Guid?))
         {
             if (idValue == null || (Guid)idValue == Guid.Empty)
-                idProperty.SetValue(entry.Entity, Guid.NewGuid());
+                idProperty.SetValue(entry.Entity, CreateSequentialGuid());
         }
         else if (idType == typeof(long) || idType == typeof(long?))
         {
@@ -103,7 +103,7 @@ public class AuditableEntityInterceptor(IServiceProvider? serviceProvider = null
         else if (typeof(IStrongId<Guid>).IsAssignableFrom(idType))
         {
             if (idValue == null || ((IStrongId<Guid>)idValue).Value == Guid.Empty)
-                idProperty.SetValue(entry.Entity, Activator.CreateInstance(idType, Guid.NewGuid()));
+                idProperty.SetValue(entry.Entity, Activator.CreateInstance(idType, CreateSequentialGuid()));
         }
         else if (typeof(IStrongId<long>).IsAssignableFrom(idType))
         {
@@ -190,6 +190,12 @@ public class AuditableEntityInterceptor(IServiceProvider? serviceProvider = null
             return Activator.CreateInstance(targetType, userId.Value);
 
         return null;
+    }
+
+    private static Guid CreateSequentialGuid()
+    {
+        // Guid v7 基于时间戳，具备更好的索引局部性，适合作为主键。
+        return Guid.CreateVersion7();
     }
 
 
