@@ -50,6 +50,7 @@
         <File Path="../.gitignore" />
         <File Path="../LICENSE" />
         <File Path="../README.md" />
+        <File Path="AGENTS.md" />
         <File Path="compose.yaml" />
         <File Path="Directory.Build.props" />
         <File Path="Directory.Packages.props" />

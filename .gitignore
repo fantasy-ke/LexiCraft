@@ -12,4 +12,5 @@ uploads/
 /src/LexiCraft.Aspire.Host/.aspire/settings.json
 .codebuddy
 .kiro
+.golutra/
 *.agileconfig.client.configs.cache

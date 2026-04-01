@@ -1,3 +1,4 @@
+using System.Globalization;
 using BuildingBlocks.Extensions;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.Extensions.DependencyInjection;
@@ -46,7 +47,8 @@ public static class SerilogExtensions
             }
 
             // Sinks
-            if (options.EnableConsole) ConfigureSink(a => a.Console(outputTemplate: options.LogTemplate));
+            if (options.EnableConsole) ConfigureSink(a => a.Console(outputTemplate: options.LogTemplate,
+                formatProvider: CultureInfo.InvariantCulture));
 
             if (options.EnableFileLogging)
             {
@@ -67,7 +69,8 @@ public static class SerilogExtensions
                             rollOnFileSizeLimit: true,
                             fileSizeLimitBytes: options.FileSizeLimitBytes,
                             retainedFileCountLimit: options.RetainedFileCountLimit,
-                            outputTemplate: options.LogTemplate
+                            outputTemplate: options.LogTemplate,
+                            formatProvider: CultureInfo.InvariantCulture
                         )));
             }
 
@@ -75,7 +78,8 @@ public static class SerilogExtensions
             if (options.Seq.Enabled)
                 ConfigureSink(a => a.Seq(
                     options.Seq.ServerUrl,
-                    apiKey: options.Seq.ApiKey
+                    apiKey: options.Seq.ApiKey,
+                    formatProvider: CultureInfo.InvariantCulture
                 ));
         });
 
