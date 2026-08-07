@@ -3,14 +3,9 @@
  * 与后端 ResultDto 格式保持一致
  */
 
-// 标准化响应格式 - 与后端 ResultDto 一致
-export interface ResultDto<T = any> {
-    status: boolean
-    data: T
-    message: string
-    statusCode: number
-    extensions?: Record<string, any>
-}
+import type {ResultDto} from './api'
+
+export type {ResultDto} from './api'
 
 // 登录请求
 export interface LoginRequest {

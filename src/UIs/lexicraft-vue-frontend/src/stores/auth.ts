@@ -15,7 +15,7 @@ import {
     UpdateProfileRequest,
     UserProfile
 } from '@/types/auth'
-import {authAPI} from '@/apis/auth'
+import {authAPI} from '@/apis/identity'
 import {tokenManager} from '@/utils/tokenManager'
 import Toast from '@/components/base/toast/Toast'
 

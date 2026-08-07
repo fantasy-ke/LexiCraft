@@ -18,7 +18,7 @@ import Toast from '@/components/base/toast/Toast.ts'
 import Code from '@/components/user/Code.vue'
 import {MessageBox} from '@/utils/MessageBox.tsx'
 import {CodeType} from '@/types/enum.ts'
-import {authAPI} from '@/apis/auth'
+import {authAPI} from '@/apis/identity'
 import {getDefaultAvatarUrl, getUserAvatarUrl} from '@/utils/authHelpers'
 
 const userStore = useUserStore()

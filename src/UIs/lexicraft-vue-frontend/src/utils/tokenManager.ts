@@ -178,7 +178,7 @@ class TokenManager implements ITokenManager {
 
         try {
             // 动态导入避免循环依赖
-            const {authAPI} = await import('@/apis/auth')
+            const {authAPI} = await import('@/apis/identity')
             const response = await authAPI.refreshToken(refreshToken)
 
             if (response.status && response.data) {

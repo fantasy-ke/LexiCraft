@@ -110,7 +110,7 @@ router.beforeEach(async (to, from, next) => {
 ### 认证 API 客户端
 
 ```typescript
-import { authAPI } from '@/apis/auth'
+import { authAPI } from '@/apis/identity'
 
 // 登录
 const loginResponse = await authAPI.login({

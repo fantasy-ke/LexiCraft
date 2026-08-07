@@ -4,7 +4,8 @@
  */
 
 import axios, {AxiosInstance, AxiosRequestConfig, AxiosResponse} from 'axios'
-import {AuthErrorCode, ResultDto} from '@/types/auth'
+import {AuthErrorCode} from '@/types/auth'
+import type {ApiErrorDomain, ResultDto} from '@/types/api'
 import {tokenManager} from './tokenManager'
 import {ENV} from '@/config/env'
 
@@ -24,25 +25,30 @@ const AUTH_API_CONFIG = {
 }
 
 type JsonObject = Record<string, any>
+type ApiRequestConfig = AxiosRequestConfig & {
+    _errorDomain?: ApiErrorDomain
+    _retry?: boolean
+}
+
+function normalizeJsonKeys(value: unknown): unknown {
+    if (Array.isArray(value)) {
+        return value.map(normalizeJsonKeys)
+    }
+
+    if (!value || typeof value !== 'object' || (typeof Blob !== 'undefined' && value instanceof Blob)) {
+        return value
+    }
+
+    return Object.fromEntries(
+        Object.entries(value as JsonObject).map(([key, entry]) => [
+            key.length > 0 ? key.charAt(0).toLowerCase() + key.slice(1) : key,
+            normalizeJsonKeys(entry)
+        ])
+    )
+}
 
 function normalizeTokenData<T>(data: unknown): T {
-    if (!data || typeof data !== 'object' || Array.isArray(data)) {
-        return data as T
-    }
-
-    const source = data as JsonObject
-    const token = source.token ?? source.Token ?? source.accessToken ?? source.AccessToken
-    const refreshToken = source.refreshToken ?? source.RefreshToken
-
-    if (!token && !refreshToken) {
-        return data as T
-    }
-
-    return {
-        ...source,
-        ...(token ? {token} : {}),
-        ...(refreshToken ? {refreshToken} : {})
-    } as T
+    return normalizeJsonKeys(data) as T
 }
 
 export function normalizeResultDto<T>(data: unknown): ResultDto<T> | null {
@@ -129,20 +135,20 @@ authHttpClient.interceptors.response.use(
         return response
     },
     async (error) => {
-        const originalRequest = error.config
+        const originalRequest = error.config as ApiRequestConfig | undefined
 
-        // 检查是否是登录相关的接口，这些接口的 401 错误不应该触发 Token 刷新
-        const isAuthEndpoint = originalRequest.url && (
+        // 401 from public auth endpoints must not start a refresh loop.
+        const isAuthEndpoint = Boolean(originalRequest?.url && (
             originalRequest.url.includes('/login') ||
             originalRequest.url.includes('/register') ||
             originalRequest.url.includes('/refresh-token') ||
             originalRequest.url.includes('/oauth') ||
             originalRequest.url.includes('/forgot-password') ||
             originalRequest.url.includes('/reset-password')
-        )
+        ))
 
-        // 处理 401 未授权错误
-        if (error.response?.status === 401 && !originalRequest._retry && !isAuthEndpoint) {
+        // Retry one protected request after a forced token refresh.
+        if (error.response?.status === 401 && originalRequest && !originalRequest._retry && !isAuthEndpoint) {
             originalRequest._retry = true
 
             try {
@@ -168,17 +174,19 @@ authHttpClient.interceptors.response.use(
         }
 
         // 处理其他 HTTP 错误
-        return Promise.reject(handleHttpError(error))
+        return Promise.reject(handleHttpError(error, originalRequest?._errorDomain))
     }
 )
 
 /**
  * 处理 HTTP 错误，转换为标准格式
  */
-function handleHttpError(error: any): ResultDto {
+function handleHttpError(error: any, domain: ApiErrorDomain = 'identity'): ResultDto {
     if (!error.response) {
-        // 网络错误
-        return createAuthError(AuthErrorCode.NETWORK_ERROR, '网络连接失败，请检查网络设置')
+        // Network error
+        return domain === 'service'
+            ? createServiceError(0, {message: 'Network request failed'})
+            : createAuthError(AuthErrorCode.NETWORK_ERROR, '网络连接失败，请检查网络设置')
     }
 
     const {status, data} = error.response
@@ -187,6 +195,10 @@ function handleHttpError(error: any): ResultDto {
     const normalized = normalizeResultDto(data)
     if (normalized && !normalized.status) {
         return normalized
+    }
+
+    if (domain === 'service') {
+        return createServiceError(status, data)
     }
 
     switch (status) {
@@ -234,8 +246,23 @@ function createAuthError(code: AuthErrorCode, message: string, details?: any): R
 }
 
 /**
- * 根据错误代码获取对应的 HTTP 状态码
+ * Create a normalized business-service error response
  */
+function createServiceError(status: number, data: any): ResultDto {
+    const message = data?.message ?? data?.Message ?? data?.error ?? data?.Error ?? 'Request failed'
+
+    return {
+        status: false,
+        data: null,
+        message,
+        statusCode: status,
+        extensions: {
+            errorCode: `HTTP_${status}`,
+            details: data
+        }
+    }
+}
+
 function getStatusCodeFromErrorCode(code: AuthErrorCode): number {
     switch (code) {
         case AuthErrorCode.INVALID_CREDENTIALS:
@@ -263,11 +290,16 @@ function getStatusCodeFromErrorCode(code: AuthErrorCode): number {
 /**
  * 通用请求方法，返回标准化的 ResultDto 格式
  */
-export async function authRequest<T = any>(
-    config: AxiosRequestConfig
+async function requestWithDomain<T = any>(
+    config: ApiRequestConfig,
+    domain: ApiErrorDomain
 ): Promise<ResultDto<T>> {
     try {
-        const response = await authHttpClient(config)
+        const requestConfig: ApiRequestConfig = {
+            ...config,
+            _errorDomain: domain
+        }
+        const response = await authHttpClient(requestConfig)
 
         // Normalize the backend response casing at the HTTP boundary
         const normalized = normalizeResultDto<T>(response.data)
@@ -275,7 +307,7 @@ export async function authRequest<T = any>(
             return normalized
         }
 
-        // 否则包装成 ResultDto 格式
+        // Wrap a successful non-envelope response in ResultDto.
         return {
             status: true,
             data: response.data,
@@ -283,19 +315,31 @@ export async function authRequest<T = any>(
             statusCode: response.status
         }
     } catch (error: any) {
-        // 如果错误已经是 ResultDto 格式，直接返回
+        // Return an already normalized ResultDto without wrapping it again.
         if (error && typeof error === 'object' && 'status' in error) {
             return error as ResultDto<T>
         }
 
-        // 否则处理为标准错误格式
-        return handleHttpError(error)
+        // Convert unexpected errors to the selected domain error contract.
+        return handleHttpError(error, domain)
     }
 }
 
+export function authRequest<T = any>(config: AxiosRequestConfig): Promise<ResultDto<T>> {
+    return requestWithDomain<T>(config, 'identity')
+}
+
 /**
- * GET 请求
+ * Access a protected business service through the shared gateway client.
+ * Use gateway paths such as `/vocabulary/v1/words`.
  */
+export function serviceRequest<T = any>(config: AxiosRequestConfig): Promise<ResultDto<T>> {
+    return requestWithDomain<T>({
+        ...config,
+        baseURL: ENV.API
+    }, 'service')
+}
+
 export function authGet<T = any>(url: string, params?: any): Promise<ResultDto<T>> {
     return authRequest<T>({
         method: 'GET',
@@ -334,6 +378,29 @@ export function authDelete<T = any>(url: string): Promise<ResultDto<T>> {
         method: 'DELETE',
         url
     })
+}
+
+export function serviceGet<T = any>(url: string, params?: any): Promise<ResultDto<T>> {
+    return serviceRequest<T>({method: 'GET', url, params})
+}
+
+export function servicePost<T = any>(url: string, data?: any): Promise<ResultDto<T>> {
+    return serviceRequest<T>({method: 'POST', url, data})
+}
+
+export function servicePut<T = any>(url: string, data?: any): Promise<ResultDto<T>> {
+    return serviceRequest<T>({method: 'PUT', url, data})
+}
+
+export function serviceFileGet(url: string, params?: any): Promise<AxiosResponse<Blob>> {
+    return authHttpClient<Blob>({
+        baseURL: ENV.API,
+        method: 'GET',
+        url,
+        params,
+        responseType: 'blob',
+        _errorDomain: 'service'
+    } as ApiRequestConfig)
 }
 
 // 导出默认实例

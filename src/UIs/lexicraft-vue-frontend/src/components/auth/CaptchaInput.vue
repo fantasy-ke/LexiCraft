@@ -38,7 +38,7 @@
 <script lang="ts" setup>
 import {onMounted, ref, watch} from 'vue'
 import BaseInput from '@/components/base/BaseInput.vue'
-import {getCaptcha} from '@/apis/auth'
+import {getCaptcha} from '@/apis/identity'
 import Toast from '@/components/base/toast/Toast'
 
 // Props 和 Emits
