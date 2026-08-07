@@ -1,148 +1,81 @@
 <template>
   <main class="main-content">
-    <div class="content-card">
-      <div class="content-header">
-        <button :title="sidebarExpanded ? '收起菜单' : '展开菜单'" class="sidebar-toggle-btn"
-                @click="$emit('toggleSidebar')">
-          <IconFluentAlignSpaceFitVertical20Regular :class="{ rotated: !sidebarExpanded }" class="toggle-icon"/>
-        </button>
-        <div class="page-title">
-          <span class="title-text">{{ currentRouteName }}</span>
-        </div>
-      </div>
-
-      <div class="content-wrapper" ref="contentWrapperRef">
-        <router-view></router-view>
-      </div>
+    <div class="page-caption" aria-live="polite">
+      <span class="caption-line" aria-hidden="true"></span>
+      <span>{{ currentRouteName }}</span>
+    </div>
+    <div ref="contentWrapperRef" class="content-wrapper">
+      <router-view></router-view>
     </div>
   </main>
 </template>
 
 <script lang="ts" setup>
-import { ref, watch, nextTick } from 'vue'
-import { useRoute } from 'vue-router'
+import {nextTick, ref, watch} from 'vue'
+import {useRoute} from 'vue-router'
 
-defineProps<{
-  sidebarExpanded: boolean;
-  currentRouteName: string;
-}>()
-
-defineEmits<{
-  (e: 'toggleSidebar'): void;
-}>()
+defineProps<{currentRouteName: string}>()
 
 const route = useRoute()
 const contentWrapperRef = ref<HTMLElement | null>(null)
 
-// 监听路由变化，切换页面时自动滚动到顶部
-watch(
-  () => route.path,
-  () => {
-    nextTick(() => {
-      if (contentWrapperRef.value) {
-        contentWrapperRef.value.scrollTop = 0
-      }
-    })
-  }
-)
+watch(() => route.path, () => {
+  nextTick(() => contentWrapperRef.value?.scrollTo({top: 0, behavior: 'smooth'}))
+})
 </script>
 
 <style lang="scss" scoped>
-/* Main Content Styles */
 .main-content {
-  flex: 1;
-  display: flex;
-  flex-direction: column;
-  padding: 1rem; /* More padding around the card */
-  overflow: hidden;
   position: relative;
+  z-index: 1;
+  height: 100%;
+  padding: 86px clamp(20px, 4vw, 62px) 112px;
+  box-sizing: border-box;
 }
 
-.content-card {
-  flex: 1;
-  background: var(--header-bg);
-  border-radius: 1rem; /* Much softer radius */
-  /* border: 1px solid var(--border-color); Removed */
-  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -1px rgba(0, 0, 0, 0.03); /* Soft shadow */
-  display: flex;
-  flex-direction: column;
-  overflow: hidden;
-  position: relative;
-}
-
-.content-header {
-  height: 60px; /* Taller header */
+.page-caption {
+  position: absolute;
+  z-index: 4;
+  top: 90px;
+  left: clamp(20px, 4vw, 62px);
   display: flex;
   align-items: center;
-  padding: 0 1.5rem;
-  /* border-bottom: 1px solid var(--hover-bg); Removed */
-  background: var(--header-bg);
-  gap: 1rem;
+  gap: 8px;
+  color: var(--text-secondary);
+  font-family: var(--font-hand);
+  font-size: 12px;
+  font-weight: 800;
+  letter-spacing: .08em;
+  pointer-events: none;
+  transform: rotate(-2deg);
 }
 
-.sidebar-toggle-btn {
-  width: 36px;
-  height: 36px;
-  border: none; /* No border */
-  background: transparent;
-  border-radius: 8px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  cursor: pointer;
-  color: var(--text-tertiary);
-  transition: all 0.2s;
-
-  &:hover {
-    background: var(--hover-bg);
-    color: var(--text-active);
-  }
-
-  .toggle-icon {
-    font-size: 1.25rem;
-    transition: transform 0.3s;
-
-    &.rotated {
-      transform: rotate(180deg);
-    }
-  }
-}
-
-.page-title {
-  font-size: 1.125rem;
-  font-weight: 700;
-  color: var(--text-primary);
-  /* border-left: 3px solid var(--text-active); Removed */
-  padding-left: 0;
-  height: auto;
-  display: flex;
-  align-items: center;
-
+.caption-line {
+  width: 28px;
+  height: 8px;
+  border-top: 2px solid var(--pencil-red);
+  border-radius: 50%;
 }
 
 .content-wrapper {
-  flex: 1;
+  height: 100%;
+  overflow-x: hidden;
   overflow-y: auto;
-  padding: 1.5rem;
+  padding: 34px 6px 16px;
+  scrollbar-color: var(--ink-soft) transparent;
+  scrollbar-width: thin;
 }
 
+.content-wrapper::-webkit-scrollbar { width: 7px; }
+.content-wrapper::-webkit-scrollbar-thumb { border-radius: 10px; background: color-mix(in srgb, var(--ink-soft) 50%, transparent); }
+
 @media (max-width: 768px) {
-  .main-content {
-    padding: 0;
-  }
+  .main-content { padding: 76px 12px 94px; }
+  .page-caption { top: 77px; left: 18px; }
+  .content-wrapper { padding-top: 31px; }
+}
 
-  .content-card {
-    border-radius: 0;
-    box-shadow: none;
-  }
-
-  .sidebar-toggle-btn {
-    display: none;
-  }
-
-  .content-wrapper {
-    padding: 1rem;
-    padding-bottom: 5rem;
-  }
+@media (prefers-reduced-motion: reduce) {
+  .content-wrapper { scroll-behavior: auto; }
 }
 </style>

@@ -1,122 +1,49 @@
 <template>
-  <header class="top-header">
-    <div class="header-left">
-      <button class="logo-section" @click="goHome">
-        <div class="logo-icon">
-          <span class="text-white font-bold text-sm">LC</span>
-        </div>
-        <span class="logo-text">LexionCraft</span>
+  <header class="floating-header">
+    <button class="corner-brand" type="button" @click="goHome">
+      <span class="brand-mark">L</span>
+      <span class="brand-copy"><strong>LexiCraft</strong><small>learning notebook</small></span>
+    </button>
+
+    <div ref="userMenuRef" class="desk-status">
+      <div class="today-note" aria-label="今日学习数据">
+        <span><strong>{{ todayStats.words }}</strong> 今日词数</span>
+        <i aria-hidden="true"></i>
+        <span><strong>{{ todayStats.days }}</strong> 连续天数</span>
+      </div>
+      <button class="avatar-button" title="打开个人菜单" type="button" @click.stop="toggleUserMenu">
+        <img :src="avatarUrl" alt="用户头像" @error="handleAvatarError"/>
       </button>
-    </div>
 
-    <div class="header-center">
-      <div class="search-box">
-        <i class="search-icon">🔍</i>
-        <input class="search-input" placeholder="搜索单词或文章..." type="text">
-      </div>
-    </div>
-
-    <div class="header-right">
-      <div class="header-stats">
-        <div class="stat-item">
-          <span class="stat-label">今日学习</span>
-          <span class="stat-value">{{ todayStats.words }}</span>
-        </div>
-        <div class="stat-item">
-          <span class="stat-label">连续天数</span>
-          <span class="stat-value">{{ todayStats.days }}</span>
-        </div>
-      </div>
-
-      <div ref="userMenuRef" class="user-menu">
-        <!-- 移动端遮罩层 -->
-        <div
-            v-if="showUserMenu"
-            class="menu-overlay"
-            @click="emit('update:showUserMenu', false)"
-        ></div>
-
-        <button class="user-avatar" title="个人中心" @click.stop="toggleUserMenu">
-          <img :src="avatarUrl" alt="avatar" class="avatar-img" @error="handleAvatarError"/>
-        </button>
-
-        <transition name="dropdown">
-          <div v-if="showUserMenu" class="user-dropdown" @click.stop>
-            <!-- User Info Header -->
-            <div class="user-header">
-              <div class="user-info">
-                <div class="user-name">{{ userStore.user?.username || '未登录' }}</div>
-                <div class="user-handle">{{ userStore.user?.email || '' }}</div>
-              </div>
-            </div>
-
-            <!-- Menu Items -->
-            <div class="menu-list">
-              <div class="menu-item" @click="navigateTo('/app/user')">
-                <IconFluentPerson20Regular class="menu-icon"/>
-                <span>个人主页</span>
-              </div>
-              <div class="menu-item" @click="navigateTo('/app/setting')">
-                <IconFluentSettings20Regular class="menu-icon"/>
-                <span>设置</span>
-              </div>
-              <div class="menu-item">
-                <IconFluentNote20Regular class="menu-icon"/>
-                <span>更新日志</span>
-              </div>
-              <div class="menu-item" @click="navigateTo('/app/doc')">
-                <IconFluentBookQuestionMark20Regular class="menu-icon"/>
-                <span>帮助文档</span>
-                <IconFluentArrowUpRight16Regular class="external-icon"/>
-              </div>
-            </div>
-
-            <div class="dropdown-divider"></div>
-
-            <!-- Preferences -->
-            <div class="preference-section">
-              <div class="pref-label">偏好设置</div>
-              <div class="pref-row">
-                <span class="pref-name">主题</span>
-                <div class="theme-switch">
-                  <div
-                      :class="{ active: getThemeSetting() === 'light' }"
-                      class="theme-option"
-                      title="浅色模式"
-                      @click="setTheme('light')"
-                  >
-                    <IconFluentWeatherSunny16Regular/>
-                  </div>
-                  <div
-                      :class="{ active: getThemeSetting() === 'dark' }"
-                      class="theme-option"
-                      title="深色模式"
-                      @click="setTheme('dark')"
-                  >
-                    <IconFluentWeatherMoon16Regular/>
-                  </div>
-                  <div
-                      :class="{ active: getThemeSetting() === 'auto' }"
-                      class="theme-option"
-                      title="跟随系统"
-                      @click="setTheme('auto')"
-                  >
-                    <IconFluentLaptop16Regular/>
-                  </div>
-                </div>
-              </div>
-            </div>
-
-            <div class="dropdown-divider"></div>
-
-            <!-- Logout -->
-            <div class="logout-item" @click="handleLogout">
-              <IconFluentSignOut20Regular class="menu-icon"/>
-              <span>退出登录</span>
+      <transition name="paper-drop">
+        <section v-if="showUserMenu" class="user-note" aria-label="个人菜单" @click.stop>
+          <span class="note-tape" aria-hidden="true"></span>
+          <div class="user-heading">
+            <img :src="avatarUrl" alt="" @error="handleAvatarError"/>
+            <div>
+              <strong>{{ userStore.user?.username || '学习者' }}</strong>
+              <small>{{ userStore.user?.email || '继续写下今天的一页' }}</small>
             </div>
           </div>
-        </transition>
-      </div>
+
+          <div class="note-links">
+            <button type="button" @click="navigateTo('/app/user')"><DoodleIcon name="user" :size="20"/>个人手账</button>
+            <button type="button" @click="navigateTo('/app/setting')"><DoodleIcon name="settings" :size="20"/>偏好设置</button>
+            <button type="button" @click="navigateTo('/app/doc')"><DoodleIcon name="note" :size="20"/>帮助文档</button>
+          </div>
+
+          <div class="theme-row">
+            <span>纸张颜色</span>
+            <div>
+              <button :class="{active: getThemeSetting() === 'light'}" title="浅色纸张" type="button" @click="setTheme('light')"><DoodleIcon name="sun" :size="18"/></button>
+              <button :class="{active: getThemeSetting() === 'dark'}" title="黑板模式" type="button" @click="setTheme('dark')"><DoodleIcon name="moon" :size="18"/></button>
+              <button :class="{active: getThemeSetting() === 'auto'}" title="跟随系统" type="button" @click="setTheme('auto')">A</button>
+            </div>
+          </div>
+
+          <button class="logout-button" type="button" @click="handleLogout"><DoodleIcon name="logout" :size="20"/>退出登录</button>
+        </section>
+      </transition>
     </div>
   </header>
 </template>
@@ -127,520 +54,93 @@ import {useRouter} from 'vue-router'
 import useTheme from '@/hooks/theme'
 import {useUserStore} from '@/stores/user'
 import {getDefaultAvatarUrl, getUserAvatarUrl} from '@/utils/authHelpers'
+import DoodleIcon from '@/components/doodle/DoodleIcon.vue'
 
 const props = defineProps<{
-  todayStats: { words: number; days: number };
-  showUserMenu: boolean;
+  todayStats: {words: number; days: number}
+  showUserMenu: boolean
 }>()
 
-const emit = defineEmits<{
-  (e: 'toggleUserMenu'): void;
-  (e: 'update:showUserMenu', val: boolean): void;
-}>()
-
+const emit = defineEmits<{(e: 'update:showUserMenu', value: boolean): void}>()
 const router = useRouter()
-const {setTheme, getThemeSetting} = useTheme()
 const userStore = useUserStore()
+const {setTheme, getThemeSetting} = useTheme()
 const userMenuRef = ref<HTMLElement | null>(null)
 
 const avatarUrl = computed(() => {
   const user = userStore.user
-  if (!user) {
-    return getDefaultAvatarUrl({username: 'User'})
-  }
-  return getUserAvatarUrl({
-    avatar: user.avatar,
-    email: user.email,
-    username: user.username
-  })
+  return user
+      ? getUserAvatarUrl({avatar: user.avatar, email: user.email, username: user.username})
+      : getDefaultAvatarUrl({username: 'User'})
 })
 
-const toggleUserMenu = () => {
-  emit('toggleUserMenu')
-}
-
-const goHome = () => {
-  router.push('/')
-}
-
+const toggleUserMenu = () => emit('update:showUserMenu', !props.showUserMenu)
+const goHome = () => router.push('/')
 const navigateTo = (path: string) => {
   router.push(path)
   emit('update:showUserMenu', false)
 }
-
 const handleLogout = async () => {
   await userStore.logout()
-  router.push('/login')
   emit('update:showUserMenu', false)
+  router.push('/login')
 }
-
 const handleAvatarError = (event: Event) => {
   const img = event.target as HTMLImageElement | null
-  if (!img) return
-  const user = userStore.user
-  img.src = getDefaultAvatarUrl({
-    email: user?.email,
-    username: user?.username
-  })
+  if (img) img.src = getDefaultAvatarUrl({email: userStore.user?.email, username: userStore.user?.username})
 }
-
-// 点击外部区域关闭菜单
 const handleClickOutside = (event: MouseEvent) => {
-  if (userMenuRef.value && !userMenuRef.value.contains(event.target as Node)) {
-    if (props.showUserMenu) {
-      emit('update:showUserMenu', false)
-    }
+  if (props.showUserMenu && userMenuRef.value && !userMenuRef.value.contains(event.target as Node)) {
+    emit('update:showUserMenu', false)
   }
 }
 
-onMounted(() => {
-  document.addEventListener('click', handleClickOutside)
-})
-
-onUnmounted(() => {
-  document.removeEventListener('click', handleClickOutside)
-})
+onMounted(() => document.addEventListener('click', handleClickOutside))
+onUnmounted(() => document.removeEventListener('click', handleClickOutside))
 </script>
 
 <style lang="scss" scoped>
-/* Header Styles */
-.top-header {
-  height: 64px; /* Slightly taller */
-  background: var(--header-bg);
-  /* border-bottom: 1px solid var(--border-color); Removed for cleaner look */
-  /* box-shadow: var(--shadow-premium);  Optional: subtle shadow */
-  display: flex;
-  align-items: center;
-  padding: 0 2rem; /* More padding */
-  gap: 2rem;
-  flex-shrink: 0;
-  z-index: 200;
-
-  .header-left {
-    display: flex;
-    align-items: center;
-
-    .logo-section {
-      display: flex;
-      align-items: center;
-      gap: 1rem;
-      cursor: pointer;
-      background: none;
-      border: none;
-      padding: 0;
-      transition: opacity 0.2s;
-
-      &:hover {
-        opacity: 0.8;
-      }
-
-      .logo-icon {
-        width: 32px;
-        height: 32px;
-        background: linear-gradient(135deg, #0ea5e9, #3b82f6); /* Fresher blue */
-        border-radius: 10px; /* Softer rect */
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        flex-shrink: 0;
-        box-shadow: 0 4px 6px -1px rgba(59, 130, 246, 0.2);
-      }
-
-      .logo-text {
-        font-size: 1.25rem;
-        font-weight: 600; /* Lighter weight */
-        color: var(--text-primary);
-        letter-spacing: -0.02em;
-      }
-    }
-  }
-
-  .header-center {
-    flex: 1;
-    max-width: 480px;
-    margin: 0 auto;
-
-    .search-box {
-      position: relative;
-      width: 100%;
-
-      .search-icon {
-        position: absolute;
-        left: 1.2rem;
-        top: 50%;
-        transform: translateY(-50%);
-        color: var(--text-tertiary);
-        font-size: 0.9rem;
-      }
-
-      .search-input {
-        width: 100%;
-        height: 42px; /* Taller input */
-        padding: 0 1rem 0 2.8rem;
-        border: 1px solid transparent; /* No border initially */
-        border-radius: 9999px; /* Pill shape */
-        background: var(--layout-bg); /* Use layout bg */
-        font-size: 0.9rem;
-        transition: all 0.2s;
-        color: var(--text-primary);
-
-        &:focus {
-          outline: none;
-          background: #ffffff;
-          border-color: var(--text-active);
-          box-shadow: 0 0 0 4px rgba(14, 165, 233, 0.1);
-        }
-
-        &::placeholder {
-          color: var(--text-tertiary);
-        }
-      }
-    }
-  }
-
-  .header-right {
-    display: flex;
-    align-items: center;
-    gap: 1.5rem;
-
-    .header-stats {
-      display: flex;
-      gap: 1.5rem;
-
-      .stat-item {
-        text-align: center;
-
-        .stat-label {
-          display: block;
-          font-size: 0.75rem;
-          color: var(--text-tertiary);
-        }
-
-        .stat-value {
-          display: block;
-          font-size: 1rem;
-          font-weight: 700;
-          color: var(--text-active);
-        }
-      }
-    }
-
-    .user-menu {
-      position: relative;
-
-      .menu-overlay {
-        display: none;
-      }
-
-      .user-avatar {
-        width: 36px;
-        height: 36px;
-        border: none;
-        background: var(--layout-bg);
-        border-radius: 50%;
-        cursor: pointer;
-        transition: all 0.2s;
-        padding: 0;
-        overflow: hidden;
-
-        .avatar-img {
-          width: 100%;
-          height: 100%;
-          object-fit: cover;
-        }
-
-        &:hover {
-          box-shadow: 0 0 0 2px var(--border-color);
-        }
-      }
-
-      .user-dropdown {
-        position: absolute;
-        top: calc(100% + 10px);
-        right: 0;
-        width: 260px;
-        background: var(--header-bg);
-        border: 1px solid var(--border-color);
-        border-radius: 12px;
-        box-shadow: 0 10px 30px var(--shadow-color);
-        z-index: 1001;
-        overflow: hidden;
-        padding-bottom: 0.5rem;
-
-        .user-header {
-          padding: 1.25rem 1rem;
-          display: flex;
-          justify-content: space-between;
-          align-items: flex-start;
-
-          .user-info {
-            .user-name {
-              font-size: 1rem;
-              font-weight: 600;
-              color: var(--text-primary);
-              margin-bottom: 0.25rem;
-            }
-
-            .user-handle {
-              font-size: 0.8rem;
-              color: var(--text-tertiary);
-            }
-          }
-        }
-
-        .dropdown-divider {
-          height: 1px;
-          background: var(--border-color);
-          margin: 0.5rem 0;
-        }
-
-        .menu-list {
-          padding: 0 0.5rem;
-
-          .menu-item {
-            display: flex;
-            align-items: center;
-            gap: 0.75rem;
-            padding: 0.6rem 0.75rem;
-            border-radius: 8px;
-            cursor: pointer;
-            transition: all 0.2s;
-            color: var(--text-secondary);
-
-            &:hover {
-              background: var(--hover-bg);
-              color: var(--text-primary);
-            }
-
-            .menu-icon {
-              font-size: 1.1rem;
-              color: var(--text-tertiary);
-            }
-
-            span {
-              font-size: 0.9rem;
-              flex: 1;
-            }
-
-            .external-icon {
-              font-size: 0.8rem;
-              color: var(--text-tertiary);
-            }
-          }
-        }
-
-        .preference-section {
-          padding: 0.5rem 1.25rem;
-
-          .pref-label {
-            font-size: 0.75rem;
-            color: var(--text-tertiary);
-            margin-bottom: 0.75rem;
-          }
-
-          .pref-row {
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-
-            .pref-name {
-              font-size: 0.9rem;
-              color: var(--text-secondary);
-            }
-
-            .theme-switch {
-              display: flex;
-              background: var(--hover-bg);
-              padding: 2px;
-              border-radius: 6px;
-
-              .theme-option {
-                width: 28px;
-                height: 28px;
-                display: flex;
-                align-items: center;
-                justify-content: center;
-                border-radius: 4px;
-                cursor: pointer;
-                color: var(--text-tertiary);
-                transition: all 0.2s;
-
-                &:hover {
-                  color: var(--text-primary);
-                }
-
-                &.active {
-                  background: var(--header-bg);
-                  color: var(--text-active);
-                  box-shadow: 0 1px 2px var(--shadow-color);
-                }
-
-                font-size: 0.9rem;
-              }
-            }
-          }
-        }
-
-        .logout-item {
-          margin: 0 0.5rem;
-          display: flex;
-          align-items: center;
-          gap: 0.75rem;
-          padding: 0.6rem 0.75rem;
-          border-radius: 8px;
-          cursor: pointer;
-          transition: all 0.2s;
-          color: #ef4444;
-
-          &:hover {
-            background: #fef2f2;
-          }
-
-          .menu-icon {
-            font-size: 1.1rem;
-          }
-
-          span {
-            font-size: 0.9rem;
-          }
-        }
-      }
-    }
-  }
-}
-
-// 下拉动画
-.dropdown-enter-active,
-.dropdown-leave-active {
-  transition: all 0.2s ease;
-}
-
-.dropdown-enter-from,
-.dropdown-leave-to {
-  opacity: 0;
-  transform: translateY(-10px);
-}
-
-@media (max-width: 768px) {
-  .top-header {
-    padding: 0 1rem;
-    gap: 1rem;
-
-    .header-left {
-      .logo-section {
-        gap: 0.5rem;
-
-        .logo-icon {
-          width: 32px;
-          height: 32px;
-        }
-
-        .logo-text {
-          font-size: 1.1rem;
-        }
-      }
-    }
-
-    .header-stats {
-      display: none !important;
-    }
-
-    .header-center {
-      display: none !important;
-    }
-
-    .header-right {
-      gap: 0.75rem;
-      margin-left: auto;
-
-      .user-menu {
-        // 移动端遮罩层
-        .menu-overlay {
-          display: block;
-          position: fixed;
-          inset: 0;
-          background: rgba(0, 0, 0, 0.3);
-          z-index: 999;
-          animation: fadeIn 0.2s ease;
-        }
-
-        .user-avatar {
-          width: 32px;
-          height: 32px;
-        }
-
-        .user-dropdown {
-          width: 280px;
-          max-width: calc(100vw - 2rem);
-          right: -0.5rem;
-          top: calc(100% + 8px);
-          z-index: 1001;
-          max-height: calc(100vh - 80px);
-          overflow-y: auto;
-          -webkit-overflow-scrolling: touch;
-
-          .user-header {
-            padding: 1rem;
-          }
-
-          .menu-list {
-            .menu-item {
-              padding: 0.75rem;
-
-              &:active {
-                background: var(--active-bg);
-              }
-            }
-          }
-
-          .preference-section {
-            padding: 0.5rem 1rem;
-          }
-
-          .logout-item {
-            padding: 0.75rem;
-
-            &:active {
-              background: #fee2e2;
-            }
-          }
-        }
-      }
-    }
-  }
-}
-
-@keyframes fadeIn {
-  from {
-    opacity: 0;
-  }
-  to {
-    opacity: 1;
-  }
-}
-
-/* 超小屏幕优化 */
-@media (max-width: 375px) {
-  .top-header {
-    padding: 0 0.75rem;
-    gap: 0.5rem;
-
-    .header-left {
-      .logo-section {
-        .logo-text {
-          font-size: 1rem;
-        }
-      }
-    }
-
-    .header-right {
-      .user-menu {
-        .user-dropdown {
-          width: calc(100vw - 1.5rem); /* 超小屏幕下拉菜单几乎占满屏幕 */
-          right: -0.75rem; /* 调整位置 */
-        }
-      }
-    }
-  }
+.floating-header { position: fixed; inset: 0 0 auto; z-index: 90; pointer-events: none; }
+.corner-brand,
+.desk-status { position: absolute; top: 18px; pointer-events: auto; }
+.corner-brand { left: clamp(18px, 3vw, 46px); display: flex; align-items: center; gap: 10px; padding: 5px; border: 0; color: var(--ink); background: transparent; cursor: pointer; text-align: left; transform: rotate(-1deg); }
+.brand-mark { display: grid; width: 41px; height: 41px; place-items: center; border: 2px solid var(--ink); border-radius: 52% 44% 48% 42%; color: var(--paper-card); background: var(--ink); box-shadow: 3px 3px 0 var(--pencil-red); font-family: var(--font-display); font-size: 25px; font-style: italic; }
+.brand-copy strong { display: block; font-family: var(--font-display); font-size: 18px; }
+.brand-copy small { display: block; color: var(--text-secondary); font-size: 10px; letter-spacing: .08em; }
+.desk-status { right: clamp(18px, 3vw, 46px); display: flex; align-items: center; gap: 12px; }
+.today-note { display: flex; align-items: center; gap: 12px; padding: 8px 13px; border: 1.6px solid var(--ink); border-radius: 12px 9px 13px 10px; background: color-mix(in srgb, var(--paper-card) 88%, transparent); box-shadow: 3px 4px 0 color-mix(in srgb, var(--ink) 13%, transparent); font-family: var(--font-hand); font-size: 11px; transform: rotate(.8deg); }
+.today-note span { display: flex; align-items: baseline; gap: 4px; white-space: nowrap; }
+.today-note strong { color: var(--pencil-red); font-size: 17px; }
+.today-note i { width: 1px; height: 22px; background: var(--border-color); }
+.avatar-button { width: 44px; height: 44px; padding: 3px; overflow: hidden; border: 2px solid var(--ink); border-radius: 47% 53% 45% 55%; background: var(--paper-card); box-shadow: 3px 4px 0 var(--chalk-yellow); cursor: pointer; transform: rotate(2deg); }
+.avatar-button img { width: 100%; height: 100%; border-radius: inherit; object-fit: cover; }
+.user-note { position: absolute; top: 58px; right: 0; width: min(330px, calc(100vw - 30px)); padding: 28px 24px 20px; border: 2px solid var(--ink); background: var(--paper-card); box-shadow: 9px 11px 0 color-mix(in srgb, var(--ink) 18%, transparent); transform: rotate(.4deg); }
+.note-tape { position: absolute; top: -10px; left: 105px; width: 95px; height: 24px; border: 1px solid color-mix(in srgb, var(--ink) 18%, transparent); background: color-mix(in srgb, var(--chalk-yellow) 72%, transparent); transform: rotate(-3deg); }
+.user-heading { display: flex; align-items: center; gap: 12px; padding-bottom: 18px; border-bottom: 1px dashed var(--ink); }
+.user-heading img { width: 43px; height: 43px; border: 1.5px solid var(--ink); border-radius: 50%; object-fit: cover; }
+.user-heading strong, .user-heading small { display: block; }
+.user-heading strong { font-family: var(--font-display); font-size: 19px; }
+.user-heading small { max-width: 210px; margin-top: 3px; overflow: hidden; color: var(--text-secondary); font-size: 11px; text-overflow: ellipsis; white-space: nowrap; }
+.note-links { display: grid; gap: 4px; padding-block: 12px; }
+.note-links button,
+.logout-button { display: flex; width: 100%; align-items: center; gap: 10px; padding: 10px; border: 0; border-radius: 9px; color: var(--ink); background: transparent; cursor: pointer; font: inherit; font-weight: 700; text-align: left; }
+.note-links button:hover { background: var(--hover-bg); transform: rotate(-.5deg); }
+.theme-row { display: flex; align-items: center; justify-content: space-between; padding: 12px 4px; border-block: 1px dashed var(--border-color); color: var(--text-secondary); font-size: 12px; font-weight: 700; }
+.theme-row > div { display: flex; gap: 5px; }
+.theme-row button { display: grid; width: 31px; height: 31px; place-items: center; border: 1.5px solid var(--ink); border-radius: 8px; color: var(--ink); background: transparent; cursor: pointer; font-weight: 800; }
+.theme-row button.active { color: var(--paper-card); background: var(--ink); }
+.logout-button { margin-top: 8px; color: var(--pencil-red); }
+.logout-button:hover { background: color-mix(in srgb, var(--pencil-red) 12%, transparent); }
+.corner-brand:focus-visible,
+.avatar-button:focus-visible,
+.user-note button:focus-visible { outline: 3px solid var(--pencil-red); outline-offset: 3px; }
+.paper-drop-enter-active, .paper-drop-leave-active { transition: opacity .18s ease, transform .18s ease; }
+.paper-drop-enter-from, .paper-drop-leave-to { opacity: 0; transform: translateY(-10px) rotate(2deg); }
+
+@media (max-width: 700px) {
+  .brand-copy small, .today-note { display: none; }
+  .corner-brand, .desk-status { top: 13px; }
+  .corner-brand { left: 13px; }
+  .desk-status { right: 13px; }
 }
 </style>

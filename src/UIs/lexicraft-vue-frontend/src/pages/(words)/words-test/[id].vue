@@ -10,6 +10,7 @@ import {_getDictDataByUrl, shuffle} from '@/utils'
 import {useRuntimeStore} from '@/stores/runtime.ts'
 import {usePlayBeep, usePlayCorrect, usePlayWordAudio} from '@/hooks/sound.ts'
 import Toast from '@/components/base/toast/Toast.ts'
+import DoodleIcon from '@/components/doodle/DoodleIcon.vue'
 
 type Candidate = { word: string, wordObj?: Word }
 type Question = {
@@ -33,6 +34,7 @@ let loading = $ref(false)
 let dict = $ref<Dict>()
 let questions = $ref<Question[]>([])
 let index = $ref(0)
+let feedbackMessage = $ref('')
 
 function getWordByText(val: string, list: Word[]): Word | undefined {
   let r = list.find(v => v.word.toLowerCase() === val.toLowerCase())
@@ -173,14 +175,19 @@ async function init() {
   index = 0
 }
 
+const successMessages = ['Nice!', '太强了！', '这一笔记得很牢！', '漂亮，继续写下去！']
+const retryMessages = ['红笔圈一下，下次就记住了。', '差一点，正确答案已经浮出来啦。', '没关系，这个词值得再看一眼。']
+
 function select(i: number) {
   let q = questions[index]
   if (!q || q.submitted) return
   q.selectedIndex = i
   q.submitted = true
   if (i === q.correctIndex) {
+    feedbackMessage = successMessages[Math.floor(Math.random() * successMessages.length)]
     playCorrect()
   } else {
+    feedbackMessage = retryMessages[Math.floor(Math.random() * retryMessages.length)]
     playBeep()
     let temp = q.stem.word.toLowerCase()
     if (!base.wrong.words.find((v: Word) => v.word.toLowerCase() === temp)) {
@@ -191,7 +198,10 @@ function select(i: number) {
 }
 
 function next() {
-  if (index < questions.length - 1) index++
+  if (index < questions.length - 1) {
+    index++
+    feedbackMessage = ''
+  }
 }
 
 function end() {
@@ -203,54 +213,124 @@ onMounted(init)
 
 <template>
   <BasePage>
-    <div class="card flex flex-col">
-      <div class="flex items-center justify-between">
-        <div class="page-title">测试：{{ dict?.name }}</div>
-        <div class="text-base">{{ index + 1 }} / {{ questions.length }}</div>
-      </div>
-      <div class="line my-2"></div>
-
-      <div v-if="questions.length" class="flex flex-col gap-4">
-        <div class="text-2xl en-article-family flex items-center gap-2">
-          <span>题目：{{ questions[index].stem.word }}</span>
-          <VolumeIcon :cb="() => playWordAudio(questions[index].stem.word)" :simple="true" :title="'发音'"/>
+    <div v-if="questions.length" class="test-sheet">
+      <span class="sheet-tape" aria-hidden="true"></span>
+      <header class="test-heading">
+        <div>
+          <span class="hand-label">WORD CHECK · {{ index + 1 }} / {{ questions.length }}</span>
+          <h1>测试：{{ dict?.name }}</h1>
         </div>
-        <div class="grid gap-2">
-          <div
-              v-for="(opt,i) in questions[index].optionTexts"
+        <div class="progress-doodle" aria-hidden="true">
+          <span :style="{width: `${((index + 1) / questions.length) * 100}%`}"></span>
+        </div>
+      </header>
+
+      <section class="question-block">
+        <div class="question-word">
+          <span class="question-label">这一个词是——</span>
+          <div>
+            <strong>{{ questions[index].stem.word }}</strong>
+            <VolumeIcon :cb="() => playWordAudio(questions[index].stem.word)" :simple="true" title="播放发音"/>
+          </div>
+        </div>
+
+        <div class="option-list">
+          <button
+              v-for="(opt, i) in questions[index].optionTexts"
               :key="i"
               :class="{
-              'text-green-600': questions[index].submitted && i === questions[index].correctIndex,
-              'text-red-600': questions[index].submitted && i === questions[index].selectedIndex && i !== questions[index].correctIndex
-            }"
-              class="option border rounded p-2 cursor-pointer"
+                'is-correct': questions[index].submitted && i === questions[index].correctIndex,
+                'is-wrong': questions[index].submitted && i === questions[index].selectedIndex && i !== questions[index].correctIndex
+              }"
+              :disabled="questions[index].submitted"
+              class="option-note"
+              type="button"
               @click="select(i)"
           >
-            <span>(<span class="italic">{{ ['A','B','C'][i] }}</span>) {{ opt }}</span>
+            <span class="option-letter">{{ ['A', 'B', 'C'][i] }}</span>
+            <span>{{ opt }}</span>
+            <DoodleIcon v-if="questions[index].submitted && i === questions[index].correctIndex" name="check" :size="25"/>
+          </button>
+        </div>
+
+        <div
+            v-if="questions[index].submitted"
+            :class="questions[index].selectedIndex === questions[index].correctIndex ? 'feedback-note--success' : 'feedback-note--wrong'"
+            class="feedback-note"
+            role="status"
+        >
+          <DoodleIcon :name="questions[index].selectedIndex === questions[index].correctIndex ? 'spark' : 'note'" :size="34"/>
+          <div>
+            <h2>{{ feedbackMessage }}</h2>
+            <p v-if="questions[index].selectedIndex !== questions[index].correctIndex">
+              正确答案：<strong>{{ questions[index].stem.word }}</strong>
+              <span>{{ questions[index].optionTexts[questions[index].correctIndex] }}</span>
+            </p>
+            <p v-else>声音、拼写和释义已经对上了，继续保持这份手感。</p>
           </div>
         </div>
 
-        <div v-if="questions[index].submitted" class="mt-4">
-          <div class="mb-2 text-base">选项解析：</div>
-          <div class="grid gap-2 grid-cols-1 md:grid-cols-3">
-            <div v-for="(c,i) in questions[index].candidates" :key="i" class="p-2 rounded bg-[--bg-card-secend]">
-              <div class="en-article-family text-lg">{{ c.word }}</div>
-              <div class="mt-1 text-sm">{{ c.wordObj?.trans?.map(v => v.cn).join('；') || '当前词典未收录释义' }}</div>
-            </div>
+        <div v-if="questions[index].submitted" class="answer-notes">
+          <div v-for="candidate in questions[index].candidates" :key="candidate.word" class="answer-note">
+            <strong>{{ candidate.word }}</strong>
+            <span>{{ candidate.wordObj?.trans?.map(v => v.cn).join('；') || '当前词典未收录释义' }}</span>
           </div>
         </div>
 
-        <div class="mt-6 flex">
+        <footer class="test-actions">
           <BaseButton type="primary" @click="next">继续测试</BaseButton>
           <BaseButton type="info" @click="end">结束</BaseButton>
-        </div>
-      </div>
+        </footer>
+      </section>
     </div>
   </BasePage>
 </template>
 
-<style scoped>
-.option:hover {
-  background: var(--color-second);
+<style lang="scss" scoped>
+.test-sheet { position: relative; margin: 16px 0 80px; padding: clamp(25px, 5vw, 55px); border: 2px solid var(--ink); border-radius: 24px 16px 27px 18px; background: var(--paper-card); box-shadow: 10px 12px 0 color-mix(in srgb, var(--ink) 14%, transparent); }
+.test-sheet::before { position: absolute; inset: 12px; border: 1px dashed color-mix(in srgb, var(--ink) 22%, transparent); border-radius: inherit; content: ''; pointer-events: none; }
+.sheet-tape { position: absolute; z-index: 2; top: -11px; left: 50%; width: 110px; height: 26px; border: 1px solid color-mix(in srgb, var(--ink) 16%, transparent); background: color-mix(in srgb, var(--chalk-yellow) 72%, transparent); transform: translateX(-50%) rotate(-3deg); }
+.test-heading, .question-block { position: relative; z-index: 1; }
+.test-heading { display: flex; align-items: flex-end; justify-content: space-between; gap: 25px; padding-bottom: 22px; border-bottom: 2px solid var(--ink); }
+.hand-label { color: var(--pencil-red); font-family: var(--font-hand); font-size: 12px; font-weight: 800; letter-spacing: .12em; }
+h1 { margin: 8px 0 0; font-family: var(--font-display); font-size: clamp(30px, 4vw, 50px); font-weight: 500; }
+.progress-doodle { width: min(260px, 32vw); height: 12px; padding: 2px; border: 2px solid var(--ink); border-radius: 10px 7px 12px 8px; transform: rotate(-1deg); }
+.progress-doodle span { display: block; height: 100%; border-radius: inherit; background: var(--moss-green); transition: width .25s ease; }
+.question-block { padding-top: 35px; }
+.question-label { display: block; margin-bottom: 8px; color: var(--text-secondary); font-family: var(--font-hand); font-size: 14px; transform: rotate(-1deg); transform-origin: left; }
+.question-word > div { display: flex; align-items: center; gap: 12px; }
+.question-word strong { font-family: var(--font-display); font-size: clamp(42px, 6vw, 72px); font-weight: 500; letter-spacing: -.04em; }
+.option-list { display: grid; margin-top: 32px; gap: 13px; }
+.option-note { position: relative; display: grid; min-height: 72px; align-items: center; padding: 13px 18px; border: 2px solid var(--ink); border-radius: 13px 9px 15px 10px; color: var(--ink); background: transparent; cursor: pointer; font: inherit; grid-template-columns: 42px 1fr 30px; gap: 14px; text-align: left; transition: transform .18s ease, background .18s ease, box-shadow .18s ease; }
+.option-note:nth-child(2) { transform: rotate(.3deg); }
+.option-note:nth-child(3) { transform: rotate(-.4deg); }
+.option-note:not(:disabled):hover { background: var(--hover-bg); box-shadow: 4px 5px 0 color-mix(in srgb, var(--ink) 13%, transparent); transform: translateY(-2px) rotate(-.5deg); }
+.option-letter { display: grid; width: 32px; height: 32px; place-items: center; border: 1.7px solid var(--ink); border-radius: 50% 44% 52% 46%; font-family: var(--font-hand); font-weight: 800; }
+.option-note.is-correct { color: var(--paper-card); background: var(--moss-green); }
+.option-note.is-wrong { color: var(--pencil-red); background: color-mix(in srgb, var(--pencil-red) 9%, transparent); }
+.option-note.is-wrong::after { position: absolute; inset: -6px -8px; border: 3px solid var(--pencil-red); border-radius: 48% 53% 47% 55%; content: ''; pointer-events: none; transform: rotate(-1.2deg); }
+.feedback-note { display: flex; align-items: flex-start; gap: 15px; margin-top: 24px; padding: 22px; border: 2px solid var(--ink); box-shadow: 5px 6px 0 color-mix(in srgb, var(--ink) 12%, transparent); transform: rotate(-.4deg); }
+.feedback-note--success { background: color-mix(in srgb, var(--moss-green) 25%, var(--paper-card)); }
+.feedback-note--wrong { background: color-mix(in srgb, var(--pencil-red) 24%, var(--paper-card)); }
+.feedback-note h2 { margin: 0; font-family: var(--font-hand); font-size: 29px; }
+.feedback-note p { margin: 7px 0 0; color: var(--text-secondary); line-height: 1.55; }
+.feedback-note p strong { margin-right: 7px; color: var(--pencil-red); font-family: var(--word-font-family); font-size: 18px; }
+.feedback-note p span { display: block; margin-top: 4px; }
+.answer-notes { display: grid; margin-top: 22px; grid-template-columns: repeat(3, 1fr); gap: 12px; }
+.answer-note { padding: 16px; border: 1.5px dashed var(--ink); background: var(--bg-card-secend); transform: rotate(-.5deg); }
+.answer-note:nth-child(2) { transform: rotate(.8deg); }
+.answer-note strong, .answer-note span { display: block; }
+.answer-note strong { font-family: var(--font-display); font-size: 22px; }
+.answer-note span { margin-top: 6px; color: var(--text-secondary); font-size: 13px; line-height: 1.5; }
+.test-actions { display: flex; gap: 10px; margin-top: 30px; }
+.option-note:focus-visible { outline: 3px solid var(--pencil-red); outline-offset: 4px; }
+
+@media (max-width: 720px) {
+  .test-sheet { margin-top: 8px; padding: 28px 18px; }
+  .test-heading { display: block; }
+  .progress-doodle { width: 100%; margin-top: 18px; }
+  .option-note { grid-template-columns: 38px 1fr 25px; padding-inline: 12px; }
+  .answer-notes { grid-template-columns: 1fr; }
+  .test-actions { flex-wrap: wrap; }
 }
 </style>

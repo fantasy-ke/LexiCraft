@@ -1,4 +1,4 @@
-﻿# LexiCraft 项目长期记忆
+# LexiCraft 项目长期记忆
 
 ## 记录范围
 
@@ -16,6 +16,7 @@
 - 业务端点通常经过 `ResultEndPointFilter` 包装为 `ResultDto`；文件流端点不使用相同包络。
 - 认证采用 JWT Bearer 和权限声明；前端应使用 `Authorization: Bearer`，并统一令牌字段和刷新策略。
 - 前端是独立的 Vue 3/Vite 工程，使用 TypeScript、Pinia、Vue Router、Axios、UnoCSS、Vue Macros 和自动组件/图标导入；前端同时存在新认证客户端与旧业务 API 封装。
+- 前端核心视觉采用“趣味手绘墨”主题：`main.scss` 维护纸张/黑板、墨色、红笔、苔绿和粉笔色语义变量，核心布局使用角落信息岛、全画布内容和底部墨迹 Dock；新核心表面优先复用 `DoodleIcon.vue`，但不为统一图标而批量改写历史业务页面。
 
 ## 已确认的长期协作约定
 

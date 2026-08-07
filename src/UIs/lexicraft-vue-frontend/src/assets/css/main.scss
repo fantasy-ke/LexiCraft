@@ -39,58 +39,65 @@
 
   --aside-width: 14rem;
 
-  --font-family: 'Inter', -apple-system, system-ui, sans-serif;
-  --word-font-family: 'JetBrains Mono', ui-monospace, monospace;
-  --en-article-family: 'Publico', Georgia, serif;
-  --zh-article-family: 'PingFang SC', 'STHeiti', 'Microsoft YaHei', sans-serif;
+  --font-family: 'LXGW WenKai', 'Kaiti SC', 'STKaiti', 'Microsoft YaHei', sans-serif;
+  --font-display: 'Iowan Old Style', 'Baskerville', 'Songti SC', 'STSong', Georgia, serif;
+  --font-hand: 'Segoe Print', 'Bradley Hand', 'Kaiti SC', 'STKaiti', cursive;
+  --word-font-family: 'Cascadia Code', 'JetBrains Mono', ui-monospace, monospace;
+  --en-article-family: 'Iowan Old Style', 'Baskerville', Georgia, serif;
+  --zh-article-family: 'Songti SC', 'STSong', 'Noto Serif CJK SC', serif;
 
-  --color-primary: #f1f5f9;
-  --color-second: #ffffff;
-  --color-third: #e2e8f0;
-  --color-fourth: #cbd5e1;
-  --color-fifth: #fefce8;
+  /* Fun Ink visual system */
+  --paper: #f3efdf;
+  --paper-deep: #e8dfc7;
+  --paper-card: #fffaf0;
+  --ink: #202723;
+  --ink-soft: #596159;
+  --pencil-red: #d95745;
+  --moss-green: #55745d;
+  --chalk-yellow: #e7c75f;
+  --chalk-blue: #7c9eaa;
+  --color-primary: var(--paper);
+  --color-second: var(--paper-card);
+  --color-third: var(--paper-deep);
+  --color-fourth: #d5c9ad;
+  --color-fifth: #f6e6a8;
 
-  --color-card-active: #f1f5f9;
-  --color-icon-hightlight: #3b82f6;
-  --color-sub-text: #64748b;
-  --color-main-text: #334155;
-  --color-select-bg: #3b82f6;
+  --color-card-active: #eee5cf;
+  --color-icon-hightlight: var(--pencil-red);
+  --color-sub-text: var(--ink-soft);
+  --color-main-text: var(--ink);
+  --color-select-bg: var(--pencil-red);
 
   --color-progress-bar: #e2e8f0;
 
-  --color-label-bg: #f1f5f9;
-  --color-link: #2563eb;
+  --color-label-bg: #eae1ca;
+  --color-link: #9d4337;
 
-  --color-card-bg: #ffffff;
+  --color-card-bg: var(--paper-card);
 
-  --bg-card-primary: #ffffff;
-  --bg-card-secend: #f8fafc;
+  --bg-card-primary: var(--paper-card);
+  --bg-card-secend: #f7f0df;
 
-  --bg-book: #f1f5f9;
+  --bg-book: #ebe2cd;
 
-  --color-line: #f1f5f9;
+  --color-line: #d8cdb4;
 
-  /* Premium Gradients */
-  --grad-premium: linear-gradient(135deg, #6366f1 0%, #a855f7 100%);
-  --grad-gold: linear-gradient(135deg, #fbbf24 0%, #f59e0b 100%);
-  --grad-surface: linear-gradient(180deg, rgba(255, 255, 255, 0) 0%, rgba(255, 255, 255, 0.05) 100%);
+  --grad-premium: linear-gradient(135deg, #202723 0%, #4f5e53 100%);
+  --grad-gold: linear-gradient(135deg, #e7c75f 0%, #d9a946 100%);
+  --grad-surface: linear-gradient(180deg, rgba(255, 250, 240, 0) 0%, rgba(32, 39, 35, 0.04) 100%);
 
-  /* Logic Colors */
-  --layout-bg: #f9fafb; /* Lighter, cleaner background */
-  --header-bg: #ffffff;
-  --sidebar-bg: #ffffff;
-  --border-color: rgba(226, 232, 240, 0.6); /* Softer border */
-
-  --text-primary: #1e293b; /* Slate 800 */
-  --text-secondary: #64748b; /* Slate 500 */
-  --text-tertiary: #94a3b8; /* Slate 400 */
-  --text-active: #0ea5e9; /* Sky 500 - fresher blue */
-
-  --hover-bg: #f1f5f9;
-  --active-bg: #e0f2fe; /* Very light sky blue */
-
-  --shadow-premium: 0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -1px rgba(0, 0, 0, 0.03); /* Softer shadow */
-  --shadow-color: rgba(0, 0, 0, 0.03);
+  --layout-bg: var(--paper);
+  --header-bg: var(--paper-card);
+  --sidebar-bg: var(--paper-card);
+  --border-color: rgba(32, 39, 35, 0.2);
+  --text-primary: var(--ink);
+  --text-secondary: var(--ink-soft);
+  --text-tertiary: #7b7b70;
+  --text-active: #9d4337;
+  --hover-bg: #ebe2ce;
+  --active-bg: #f2d8c8;
+  --shadow-premium: 5px 7px 0 rgba(32, 39, 35, 0.12);
+  --shadow-color: rgba(32, 39, 35, 0.12);
 }
 
 html.dark {
@@ -148,29 +155,42 @@ html.dark {
 
   --color-line: rgb(66, 66, 66);
 
-  /* Logic Colors Dark Mode Overrides */
-  --layout-bg: #292A2D;
-  --header-bg: #292A2D;
-  --sidebar-bg: #292A2D;
-  --border-color: #334155;
-  /* Slate 700 */
-
-  --text-primary: #f1f5f9;
-  /* Slate 100 */
-  --text-secondary: #94a3b8;
-  /* Slate 400 */
-  --text-tertiary: #64748b;
-  /* Slate 500 */
-  --text-active: #60a5fa;
-  /* Blue 400 */
-
-  --hover-bg: #334155;
-  /* Slate 700 */
-  // --active-bg: #1e293b; /* Slate 800 - distinct from hover? maybe darker blue */
-  --active-bg: rgba(59, 130, 246, 0.15);
-  /* Translucent Blue */
-
-  --shadow-color: rgba(0, 0, 0, 0.3);
+  /* Chalkboard variant of the Fun Ink system */
+  --paper: #1f2925;
+  --paper-deep: #17201d;
+  --paper-card: #27342f;
+  --ink: #f2ead8;
+  --ink-soft: #c8c2b4;
+  --pencil-red: #ef806d;
+  --moss-green: #9fbe96;
+  --chalk-yellow: #efd779;
+  --chalk-blue: #9dc5d0;
+  --color-primary: var(--paper);
+  --color-second: var(--paper-card);
+  --color-third: var(--paper-deep);
+  --color-card-active: #34443d;
+  --color-icon-hightlight: var(--chalk-yellow);
+  --color-sub-text: var(--ink-soft);
+  --color-main-text: var(--ink);
+  --color-select-bg: var(--chalk-yellow);
+  --color-label-bg: #17201d;
+  --color-link: var(--chalk-yellow);
+  --color-card-bg: var(--paper-card);
+  --bg-card-primary: var(--paper-card);
+  --bg-card-secend: #202b27;
+  --bg-book: #34443d;
+  --color-line: rgba(242, 234, 216, 0.15);
+  --layout-bg: var(--paper);
+  --header-bg: var(--paper-card);
+  --sidebar-bg: var(--paper-card);
+  --border-color: rgba(242, 234, 216, 0.22);
+  --text-primary: var(--ink);
+  --text-secondary: var(--ink-soft);
+  --text-tertiary: #9f9e94;
+  --text-active: var(--chalk-yellow);
+  --hover-bg: #34443d;
+  --active-bg: rgba(239, 215, 121, 0.13);
+  --shadow-color: rgba(0, 0, 0, 0.32);
 }
 
 @media (max-width: 1720px) {
@@ -259,6 +279,10 @@ body {
   color: var(--color-main-text);
   font-family: var(--font-family);
   background: var(--color-primary);
+  background-image:
+    radial-gradient(circle at 18% 20%, rgba(32, 39, 35, 0.035) 0 1px, transparent 1.5px),
+    radial-gradient(circle at 82% 72%, rgba(32, 39, 35, 0.025) 0 1px, transparent 1.5px);
+  background-size: 22px 22px, 29px 29px;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 }

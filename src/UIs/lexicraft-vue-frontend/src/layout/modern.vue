@@ -1,22 +1,12 @@
 <template>
   <div class="modern-layout">
+    <div class="paper-grain" aria-hidden="true"></div>
     <LayoutHeader
-        v-model:showUserMenu="showUserMenu"
+        v-model:show-user-menu="showUserMenu"
         :today-stats="todayStats"
-        @toggleUserMenu="toggleUserMenu"
     />
-
-    <div class="layout-body">
-      <LayoutSidebar
-          :sidebar-expanded="sidebarExpanded"
-      />
-
-      <LayoutContent
-          :current-route-name="currentRouteName"
-          :sidebar-expanded="sidebarExpanded"
-          @toggleSidebar="toggleSidebar"
-      />
-    </div>
+    <LayoutContent :current-route-name="currentRouteName"/>
+    <LayoutSidebar/>
   </div>
 </template>
 
@@ -30,58 +20,52 @@ import LayoutContent from './modern/LayoutContent.vue'
 
 const route = useRoute()
 const runtimeStore = useRuntimeStore()
-
-// 响应式状态
-const sidebarExpanded = ref(true)
 const showUserMenu = ref(false)
 
-// 今日统计数据
-const todayStats = ref({
-  words: 25,
-  days: 7
-})
+// 现有统计尚未接入服务端接口，保持原有展示值，避免本次视觉重构改变数据契约。
+const todayStats = ref({words: 25, days: 7})
 
-// 计算当前页面名称
 const currentRouteName = computed(() => {
   const nameMap: Record<string, string> = {
-    '/app/dashboard': '我的主页',
+    '/app/dashboard': '我的学习桌',
     '/app/words': '单词练习',
     '/app/articles': '文章背诵',
-    '/app/setting': '设置',
-    '/app/feedback': '反馈建议',
+    '/app/setting': '偏好设置',
+    '/app/feedback': '写张反馈便签',
     '/app/doc': '学习资料',
     '/app/qa': '帮助中心',
-    '/app/user': '个人中心'
+    '/app/user': '个人手账'
   }
-  const path = route.path
   if (runtimeStore.pageTitle) return runtimeStore.pageTitle
-  return nameMap[path] || ''
+  return nameMap[route.path] || route.meta.title?.toString() || ''
 })
-
-const toggleSidebar = () => {
-  sidebarExpanded.value = !sidebarExpanded.value
-}
-
-const toggleUserMenu = () => {
-  showUserMenu.value = !showUserMenu.value
-}
 </script>
 
 <style lang="scss" scoped>
 .modern-layout {
-  display: flex;
-  flex-direction: column;
-  height: 100vh;
-  background: var(--layout-bg);
-  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  position: relative;
+  height: 100dvh;
   overflow: hidden;
   color: var(--text-primary);
+  background: var(--layout-bg);
+  font-family: var(--font-family);
 }
 
-.layout-body {
-  flex: 1;
-  display: flex;
-  overflow: hidden;
-  position: relative;
+.paper-grain {
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+  opacity: .38;
+  pointer-events: none;
+  background-image:
+      radial-gradient(circle at 13% 19%, rgba(32, 39, 35, .08) 0 1px, transparent 1.4px),
+      radial-gradient(circle at 78% 71%, rgba(32, 39, 35, .055) 0 1px, transparent 1.5px),
+      linear-gradient(rgba(32, 39, 35, .025) 1px, transparent 1px);
+  background-size: 23px 23px, 31px 31px, 100% 38px;
+}
+
+:global(.dark) .paper-grain {
+  opacity: .28;
+  filter: invert(1);
 }
 </style>
