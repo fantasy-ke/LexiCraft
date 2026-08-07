@@ -1,0 +1,637 @@
+using BuildingBlocks.OSS.Models;
+using BuildingBlocks.OSS.Models.Dto;
+using BuildingBlocks.OSS.Models.Policy;
+using BuildingBlocks.OSS.Providers;
+using BuildingBlocks.OSS.Utils;
+using Minio;
+using Minio.ApiEndpoints;
+using Minio.DataModel.Args;
+using Minio.Exceptions;
+using Item = BuildingBlocks.OSS.Models.Item;
+
+namespace BuildingBlocks.OSS.Services;
+
+public partial class MinioOssService
+{
+    #region Object
+
+    public async Task<bool> ObjectsExistsAsync(string bucketName, string objectName)
+    {
+        if (string.IsNullOrEmpty(bucketName)) throw new ArgumentNullException(nameof(bucketName));
+
+        objectName = FormatObjectName(objectName);
+        try
+        {
+            await GetObjectMetadataAsync(bucketName, objectName);
+            return true;
+        }
+        catch (ObjectNotFoundException)
+        {
+            return false;
+        }
+    }
+
+    [Obsolete("Obsolete")]
+    public Task<List<Item>> ListObjectsAsync(string bucketName, string? prefix = null)
+    {
+        if (string.IsNullOrEmpty(bucketName)) throw new ArgumentNullException(nameof(bucketName));
+
+        IObservable<Minio.DataModel.Item> observable = Context.ListObjectsAsync(
+            new ListObjectsArgs()
+                .WithBucket(bucketName)
+                .WithPrefix(prefix)
+                .WithRecursive(true));
+        List<Item> result = [];
+        var isFinish = false;
+
+        observable.Subscribe(
+            item =>
+            {
+                result.Add(new Item
+                {
+                    Key = item.Key,
+                    LastModified = item.LastModified,
+                    ETag = item.ETag,
+                    Size = item.Size,
+                    BucketName = bucketName,
+                    IsDir = item.IsDir,
+                    LastModifiedDateTime = item.LastModifiedDateTime
+                });
+            },
+            _ => { isFinish = true; },
+            () => { isFinish = true; });
+
+        while (!isFinish) Thread.Sleep(0);
+
+        return Task.FromResult(result);
+    }
+
+    public async Task GetObjectAsync(string bucketName, string objectName, Action<Stream> callback,
+        CancellationToken cancellationToken = default)
+    {
+        if (string.IsNullOrEmpty(bucketName)) throw new ArgumentNullException(nameof(bucketName));
+
+        objectName = FormatObjectName(objectName);
+        var args = new GetObjectArgs()
+            .WithBucket(bucketName)
+            .WithObject(objectName)
+            .WithCallbackStream(callback);
+        _ = await Context.GetObjectAsync(args, cancellationToken);
+    }
+
+    public async Task GetObjectAsync(string bucketName, string objectName, string fileName,
+        CancellationToken cancellationToken = default)
+    {
+        if (string.IsNullOrEmpty(bucketName)) throw new ArgumentNullException(nameof(bucketName));
+
+        var fullPath = Path.GetFullPath(fileName);
+        var parentPath = Path.GetDirectoryName(fullPath);
+        if (!string.IsNullOrEmpty(parentPath) && !Directory.Exists(parentPath)) Directory.CreateDirectory(parentPath);
+
+        objectName = FormatObjectName(objectName);
+        var args = new GetObjectArgs()
+            .WithBucket(bucketName)
+            .WithObject(objectName)
+            .WithCallbackStream(stream =>
+            {
+                using var fs = new FileStream(fullPath, FileMode.Create, FileAccess.Write);
+                stream.CopyTo(fs);
+                stream.Dispose();
+                fs.Close();
+            });
+        _ = await Context.GetObjectAsync(args, cancellationToken);
+    }
+
+    public async Task<ObjectOutPut> GetObjectAsync(GetObjectInput input)
+    {
+        if (string.IsNullOrEmpty(input.BucketName)) throw new ArgumentNullException(nameof(input.BucketName));
+
+        input.ObjectName = FormatObjectName(input.ObjectName);
+        var statObjectArgs = new StatObjectArgs()
+            .WithBucket(input.BucketName)
+            .WithObject(input.ObjectName);
+
+        await Context.StatObjectAsync(statObjectArgs);
+
+        var objStream = new MemoryStream();
+
+        var getObjectArgs = new GetObjectArgs()
+            .WithBucket(input.BucketName)
+            .WithObject(input.ObjectName)
+            .WithCallbackStream(stream =>
+            {
+                //stream.CopyTo(Console.OpenStandardOutput());
+                if (stream is not null)
+                {
+                    stream.CopyTo(objStream);
+                    objStream.Position = 0;
+                }
+                else
+                {
+                    throw new ArgumentNullException($"Minio文件对象流为空{JsonUtil.SerializeObject(input)}");
+                }
+
+                //stream.CopyTo(objStream);
+            });
+        objStream.Position = 0;
+
+        var statObj = await Context.GetObjectAsync(getObjectArgs, input.CancellationToken);
+
+        return new ObjectOutPut(statObj.ObjectName
+            , objStream
+            , statObj.ContentType);
+    }
+
+    public async Task<bool> PutObjectAsync(string bucketName, string objectName, Stream data,
+        CancellationToken cancellationToken = default)
+    {
+        if (string.IsNullOrEmpty(bucketName)) throw new ArgumentNullException(nameof(bucketName));
+
+        objectName = FormatObjectName(objectName);
+        var contentType = "application/octet-stream";
+        if (data is FileStream fileStream)
+        {
+            var fileName = fileStream.Name;
+            if (!string.IsNullOrEmpty(fileName))
+                new FileExtensionContentTypeProvider().TryGetContentType(fileName, out contentType);
+        }
+        else
+        {
+            new FileExtensionContentTypeProvider().TryGetContentType(objectName, out contentType);
+        }
+
+        if (string.IsNullOrEmpty(contentType)) contentType = "application/octet-stream";
+
+        var args = new PutObjectArgs()
+            .WithBucket(bucketName)
+            .WithObject(objectName)
+            .WithStreamData(data)
+            .WithObjectSize(data.Length)
+            .WithContentType(contentType);
+        await Context.PutObjectAsync(args, cancellationToken);
+        return true;
+    }
+
+    public async Task<bool> PutObjectAsync(string bucketName, string objectName, string filePath,
+        CancellationToken cancellationToken = default)
+    {
+        if (string.IsNullOrEmpty(bucketName)) throw new ArgumentNullException(nameof(bucketName));
+
+        objectName = FormatObjectName(objectName);
+        if (!File.Exists(filePath)) throw new Exception("File not exist.");
+
+        var fileName = Path.GetFileName(filePath);
+        if (!new FileExtensionContentTypeProvider().TryGetContentType(fileName, out var contentType))
+            contentType = "application/octet-stream";
+
+        var args = new PutObjectArgs()
+            .WithBucket(bucketName)
+            .WithObject(objectName)
+            .WithFileName(filePath)
+            .WithContentType(contentType);
+        await Context.PutObjectAsync(args, cancellationToken);
+        return true;
+    }
+
+    public async Task<bool> UploadObjectAsync(UploadObjectInput input)
+    {
+        if (string.IsNullOrEmpty(input.BucketName)) throw new ArgumentNullException(nameof(input.BucketName));
+
+        var found = await BucketExistsAsync(input.BucketName);
+        //如果桶不存在则创建桶
+        if (!found)
+            await CreateBucketAsync(input.BucketName);
+        input.ObjectName = FormatObjectName(input.ObjectName);
+
+        var args = new PutObjectArgs()
+            .WithBucket(input.BucketName)
+            .WithObject(input.ObjectName)
+            .WithStreamData(input.Stream)
+            .WithContentType(input.ContentType)
+            .WithObjectSize(input.Stream.Length);
+        await Context.PutObjectAsync(args);
+        return true;
+    }
+
+    public async Task<ItemMeta> GetObjectMetadataAsync(string bucketName
+        , string objectName
+        , string? versionId = null
+        , string? matchEtag = null
+        , DateTime? modifiedSince = null)
+    {
+        if (string.IsNullOrEmpty(bucketName)) throw new ArgumentNullException(nameof(bucketName));
+
+        objectName = FormatObjectName(objectName);
+        var args = new StatObjectArgs()
+            .WithBucket(bucketName)
+            .WithObject(objectName)
+            .WithVersionId(versionId)
+            .WithMatchETag(matchEtag);
+        if (modifiedSince.HasValue) args = args.WithModifiedSince(modifiedSince.Value);
+
+        var statObject = await Context.StatObjectAsync(args);
+
+        return new ItemMeta
+        {
+            ObjectName = statObject.ObjectName,
+            Size = statObject.Size,
+            LastModified = statObject.LastModified,
+            ETag = statObject.ETag,
+            ContentType = statObject.ContentType,
+            IsEnableHttps = Options.IsEnableHttps,
+            MetaData = statObject.MetaData
+        };
+    }
+
+    public async Task<bool> CopyObjectAsync(string bucketName, string objectName, string? destBucketName = null,
+        string? destObjectName = null)
+    {
+        if (string.IsNullOrEmpty(bucketName)) throw new ArgumentNullException(nameof(bucketName));
+
+        objectName = FormatObjectName(objectName);
+        if (string.IsNullOrEmpty(destBucketName)) destBucketName = bucketName;
+
+        if (destObjectName != null)
+        {
+            destObjectName = FormatObjectName(destObjectName);
+            var cpSrcArgs = new CopySourceObjectArgs()
+                .WithBucket(bucketName)
+                .WithObject(objectName);
+            var args = new CopyObjectArgs()
+                .WithBucket(destBucketName)
+                .WithObject(destObjectName)
+                .WithCopyObjectSource(cpSrcArgs);
+            await Context.CopyObjectAsync(args);
+        }
+
+        return true;
+    }
+
+    public async Task<bool> RemoveObjectAsync(OperateObjectInput input)
+    {
+        if (string.IsNullOrEmpty(input.BucketName)) throw new ArgumentNullException(nameof(input.BucketName));
+
+        input.ObjectName = FormatObjectName(input.ObjectName);
+        var args = new RemoveObjectArgs()
+            .WithBucket(input.BucketName)
+            .WithObject(input.ObjectName);
+        await Context.RemoveObjectAsync(args);
+        return true;
+    }
+
+    public async Task<bool> RemoveObjectAsync(string bucketName, List<string> objectNames)
+    {
+        if (string.IsNullOrEmpty(bucketName)) throw new ArgumentNullException(nameof(bucketName));
+
+        if (objectNames == null || objectNames.Count == 0) throw new ArgumentNullException(nameof(objectNames));
+
+        List<string> delObjects = [];
+        foreach (var item in objectNames) delObjects.Add(FormatObjectName(item));
+
+        var args = new RemoveObjectsArgs()
+            .WithBucket(bucketName)
+            .WithObjects(delObjects);
+        var deleteErrors = await Context.RemoveObjectsAsync(args);
+        List<string> removeFailed = [];
+        foreach (var err in deleteErrors) removeFailed.Add(err.Key);
+
+        if (removeFailed.Count > 0)
+        {
+            if (removeFailed.Count == delObjects.Count) throw new Exception("Remove all object failed.");
+
+            throw new Exception($"Remove objects '{string.Join(",", removeFailed)}' from {bucketName} failed.");
+        }
+
+        return true;
+    }
+
+    /// <summary>
+    ///     生成一个临时连接
+    /// </summary>
+    /// <param name="bucketName"></param>
+    /// <param name="objectName"></param>
+    /// <param name="expiresInt"></param>
+    /// <returns></returns>
+    public Task<string> PresignedGetObjectAsync(string bucketName, string objectName, int expiresInt)
+    {
+        return PresignedObjectAsync(bucketName
+            , objectName
+            , expiresInt
+            , PresignedObjectType.Get
+            , async (bucketName, objectName, expiresInt) =>
+            {
+                objectName = FormatObjectName(objectName);
+                //生成URL
+                var accessMode = await GetObjectAclAsync(new OperateObjectInput
+                {
+                    ObjectName = objectName,
+                    BucketName = bucketName
+                });
+                if (accessMode == AccessMode.PublicRead || accessMode == AccessMode.PublicReadWrite)
+                    return
+                        $"{(Options.IsEnableHttps ? "https" : "http")}://{Options.Endpoint}/{bucketName}{(objectName.StartsWith("/") ? objectName : $"/{objectName}")}";
+
+                var args = new PresignedGetObjectArgs()
+                    .WithBucket(bucketName)
+                    .WithObject(objectName)
+                    .WithExpiry(expiresInt);
+                return await Context.PresignedGetObjectAsync(args);
+            });
+    }
+
+    public Task<string> PresignedPutObjectAsync(string bucketName, string objectName, int expiresInt)
+    {
+        return PresignedObjectAsync(bucketName
+            , objectName
+            , expiresInt
+            , PresignedObjectType.Put
+            , async (bucket, objectName, expiresInt) =>
+            {
+                objectName = FormatObjectName(objectName);
+                //生成URL
+                var args = new PresignedPutObjectArgs()
+                    .WithBucket(bucket)
+                    .WithObject(objectName)
+                    .WithExpiry(expiresInt);
+                return await Context.PresignedPutObjectAsync(args);
+            });
+    }
+
+    /// <summary>
+    ///     将应用程序详细信息添加到User-Agent。
+    /// </summary>
+    /// <param name="appName">执行API请求的应用程序的名称</param>
+    /// <param name="appVersion">执行API请求的应用程序的版本</param>
+    /// <returns></returns>
+    public Task SetAppInfo(string appName, string appVersion)
+    {
+        if (string.IsNullOrEmpty(appName)) throw new ArgumentNullException(nameof(appName));
+
+        if (string.IsNullOrEmpty(appVersion)) throw new ArgumentNullException(nameof(appVersion));
+
+        Context.SetAppInfo(appName, appVersion);
+        return Task.FromResult(true);
+    }
+
+    public Task<bool> SetObjectAclAsync(string bucketName, string objectName, AccessMode mode)
+    {
+        if (string.IsNullOrEmpty(bucketName)) throw new ArgumentNullException(nameof(bucketName));
+
+        objectName = FormatObjectName(objectName);
+        if (!objectName.StartsWith(bucketName)) objectName = $"{bucketName}/{objectName}";
+
+        List<StatementItem> statementItems = [];
+        switch (mode)
+        {
+            case AccessMode.Private:
+            {
+                statementItems.Add(new StatementItem
+                {
+                    Effect = "Deny",
+                    Principal = new Principal
+                    {
+                        AWS = ["*"]
+                    },
+                    Action =
+                    [
+                        "s3:DeleteObject",
+                        "s3:GetObject",
+                        "s3:PutObject"
+                    ],
+                    Resource =
+                    [
+                        $"arn:aws:s3:::{objectName}"
+                    ],
+                    IsDelete = false
+                });
+                return SetPolicyAsync(bucketName, statementItems);
+            }
+            case AccessMode.PublicRead:
+            {
+                //允许列出和下载
+                statementItems.Add(new StatementItem
+                {
+                    Effect = "Allow",
+                    Principal = new Principal
+                    {
+                        AWS = ["*"]
+                    },
+                    Action = ["s3:GetObject"],
+                    Resource =
+                    [
+                        $"arn:aws:s3:::{objectName}"
+                    ],
+                    IsDelete = false
+                });
+                //禁止删除和修改
+                statementItems.Add(new StatementItem
+                {
+                    Effect = "Deny",
+                    Principal = new Principal
+                    {
+                        AWS = ["*"]
+                    },
+                    Action =
+                    [
+                        "s3:DeleteObject",
+                        "s3:PutObject"
+                    ],
+                    Resource =
+                    [
+                        $"arn:aws:s3:::{objectName}"
+                    ],
+                    IsDelete = false
+                });
+                return SetPolicyAsync(bucketName, statementItems);
+            }
+            case AccessMode.PublicReadWrite:
+            {
+                statementItems.Add(new StatementItem
+                {
+                    Effect = "Allow",
+                    Principal = new Principal
+                    {
+                        AWS = ["*"]
+                    },
+                    Action =
+                    [
+                        "s3:DeleteObject",
+                        "s3:GetObject",
+                        "s3:PutObject"
+                    ],
+                    Resource =
+                    [
+                        $"arn:aws:s3:::{objectName}"
+                    ],
+                    IsDelete = false
+                });
+                return SetPolicyAsync(bucketName, statementItems);
+            }
+            case AccessMode.Default:
+            default:
+            {
+                throw new ArgumentNullException($"Unsupport access mode '{mode}'");
+            }
+        }
+    }
+
+    public async Task<AccessMode> GetObjectAclAsync(OperateObjectInput input)
+    {
+        bool FindAction(List<string>? actions, string input)
+        {
+            if (actions is { Count: > 0 } &&
+                actions.Exists(p => p.Equals(input, StringComparison.OrdinalIgnoreCase)))
+                return true;
+
+            return false;
+        }
+
+        if (string.IsNullOrEmpty(input.BucketName)) throw new ArgumentNullException(nameof(input.BucketName));
+
+        input.ObjectName = FormatObjectName(input.ObjectName);
+        if (!input.ObjectName.StartsWith(input.BucketName)) input.ObjectName = $"{input.BucketName}/{input.ObjectName}";
+
+        //获取存储桶默认权限
+        var bucketMode = await GetBucketAclAsync(input.BucketName);
+        var info = await GetPolicyAsync(input.BucketName);
+        if (info.Statement.Count == 0) return bucketMode;
+
+        var statements = UnpackResource(info.Statement);
+
+        bool isPublicRead;
+        bool isPublicWrite;
+        switch (bucketMode)
+        {
+            case AccessMode.PublicRead:
+            {
+                isPublicRead = true;
+                isPublicWrite = false;
+                break;
+            }
+            case AccessMode.PublicReadWrite:
+            {
+                isPublicRead = true;
+                isPublicWrite = true;
+                break;
+            }
+            case AccessMode.Default:
+            case AccessMode.Private:
+            default:
+            {
+                isPublicRead = false;
+                isPublicWrite = false;
+                break;
+            }
+        }
+
+        foreach (var item in statements)
+        {
+            if (!item.Resource[0].Equals($"arn:aws:s3:::{input.ObjectName}")
+                && !item.Resource[0].Equals($"{input.ObjectName}"))
+                continue;
+
+            if (item.Action.Count == 0) continue;
+
+            if (item.Effect.Equals("Allow", StringComparison.OrdinalIgnoreCase))
+            {
+                if (FindAction(item.Action, "*")) return AccessMode.PublicReadWrite;
+
+                if (FindAction(item.Action, "s3:GetObject")) isPublicRead = true;
+
+                if (FindAction(item.Action, "s3:PutObject")) isPublicWrite = true;
+            }
+            else if (item.Effect.Equals("Deny", StringComparison.OrdinalIgnoreCase))
+            {
+                if (FindAction(item.Action, "*")) return AccessMode.Private;
+
+                if (FindAction(item.Action, "s3:GetObject")) isPublicRead = false;
+
+                if (FindAction(item.Action, "s3:PutObject")) isPublicWrite = false;
+            }
+        }
+
+        //结果
+        if (isPublicRead && !isPublicWrite) return AccessMode.PublicRead;
+
+        if (isPublicRead && isPublicWrite) return AccessMode.PublicReadWrite;
+
+        if (!isPublicRead && isPublicWrite) return AccessMode.Private;
+
+        return AccessMode.Private;
+    }
+
+    public async Task<AccessMode> RemoveObjectAclAsync(OperateObjectInput input)
+    {
+        if (string.IsNullOrEmpty(input.BucketName)) throw new ArgumentNullException(nameof(input.BucketName));
+
+        input.ObjectName = FormatObjectName(input.ObjectName);
+        if (!input.ObjectName.StartsWith(input.BucketName)) input.ObjectName = $"{input.BucketName}/{input.ObjectName}";
+
+        var info = await GetPolicyAsync(input.BucketName);
+        if (info.Statement.Count == 0) return await GetObjectAclAsync(input);
+
+        var statements = UnpackResource(info.Statement);
+        var hasUpdate = false;
+        foreach (var item in statements)
+            if (item.Resource[0].Equals($"arn:aws:s3:::{input.ObjectName}")
+                || item.Resource[0].Equals($"{input.ObjectName}"))
+            {
+                hasUpdate = true;
+                item.IsDelete = true;
+            }
+
+        if (hasUpdate)
+            if (!await SetPolicyAsync(input.BucketName, statements))
+                throw new Exception("Save new policy info failed when remove object acl.");
+
+        return await GetObjectAclAsync(input);
+    }
+
+    #region private
+
+    private List<StatementItem> UnpackResource(List<StatementItem>? source)
+    {
+        List<StatementItem> dest = [];
+        if (source == null || source.Count == 0) return dest;
+
+        foreach (var item in source)
+            switch (item.Resource.Count)
+            {
+                case 0:
+                    break;
+                case > 0:
+                {
+                    dest.AddRange(item.Resource.Select(resourceItem => new StatementItem
+                    {
+                        Effect = item.Effect,
+                        Principal = item.Principal,
+                        Action = item.Action,
+                        Resource = [resourceItem],
+                        IsDelete = item.IsDelete
+                    }));
+
+                    break;
+                }
+                default:
+                    dest.Add(item);
+                    break;
+            }
+
+        return dest;
+    }
+
+    private bool IsRootResource(string bucketName, string resource)
+    {
+        if (resource.StartsWith("*", StringComparison.OrdinalIgnoreCase)
+            || resource.StartsWith("arn:aws:s3:::*", StringComparison.OrdinalIgnoreCase)
+            || resource.StartsWith($"arn:aws:s3:::{bucketName}*", StringComparison.OrdinalIgnoreCase)
+            || resource.StartsWith($"arn:aws:s3:::{bucketName}/*", StringComparison.OrdinalIgnoreCase))
+            return true;
+
+        return false;
+    }
+
+    #endregion
+
+    #endregion
+}

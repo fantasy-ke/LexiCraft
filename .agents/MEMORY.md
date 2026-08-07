@@ -35,7 +35,7 @@
 5. 迁移旧业务 API：核对前端仍使用的 `user/*`、`word/*`、`dict/*` 等路径，逐一映射到当前 Identity/Vocabulary/Practice API，确认后再删除或隔离旧封装。
 6. 清理解决方案漂移：统一根 `.sln` 与 `src/LexiCraft.slnx` 的职责，处理旧项目清单和活动项目清单不一致的问题。
 7. 收敛配置与凭据：连接字符串、AgileConfig 参数、OAuth 和 OSS 凭据不再提交到仓库；部署文档使用占位符，并安排已暴露凭据轮换。
-8. 分拆超大活跃文件：后端 `CacheService.cs`（813 行）、`MinioOSSService.cs`（949 行），前端 `EditArticle.vue`（834 行）、`TypingArticle.vue`（963 行）、`TypeWord.vue`（803 行）、`practice-words/[id].vue`（902 行）和 `dict-detail.vue`（1187 行）已超过 800 行，后续按真实职责拆分；不为满足行数规则进行无关重构。
+8. 分拆超大活跃文件：`MinioOssService` 已按客户端初始化、Minio 管理与策略、Bucket、Object 拆为同一 `partial` 类型，公开契约和实现逻辑保持不变；当前仍需处理后端 `CacheService.cs`（923 行）、`DistributedCacheService.cs`（841 行）及 6 个超过 800 行的前端 Vue 文件。缓存拆分前先补锁、降级、TTL、Hash 和序列化测试，前端拆分必须配合真实页面核验；不为满足行数规则进行无关重构。
 9. 评估生产探针与可观测性：当前默认健康检查端点主要在 Development 映射，生产暴露策略需要结合部署平台明确配置。
 
 ## 构建与契约陷阱
