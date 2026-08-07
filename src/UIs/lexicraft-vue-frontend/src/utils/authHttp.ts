@@ -15,11 +15,53 @@ if (import.meta.env.DEV) {
 
 // 认证 HTTP 客户端配置
 const AUTH_API_CONFIG = {
-    baseURL: ENV.IDENTITY_API || 'http://localhost:5001', // Identity 服务地址
+    baseURL: ENV.IDENTITY_API,
     timeout: 15000,
     headers: {
         'Content-Type': 'application/json',
         'Accept': 'application/json'
+    }
+}
+
+type JsonObject = Record<string, any>
+
+function normalizeTokenData<T>(data: unknown): T {
+    if (!data || typeof data !== 'object' || Array.isArray(data)) {
+        return data as T
+    }
+
+    const source = data as JsonObject
+    const token = source.token ?? source.Token ?? source.accessToken ?? source.AccessToken
+    const refreshToken = source.refreshToken ?? source.RefreshToken
+
+    if (!token && !refreshToken) {
+        return data as T
+    }
+
+    return {
+        ...source,
+        ...(token ? {token} : {}),
+        ...(refreshToken ? {refreshToken} : {})
+    } as T
+}
+
+export function normalizeResultDto<T>(data: unknown): ResultDto<T> | null {
+    if (!data || typeof data !== 'object' || Array.isArray(data)) {
+        return null
+    }
+
+    const source = data as JsonObject
+    const status = source.status ?? source.Status
+    if (typeof status !== 'boolean') {
+        return null
+    }
+
+    return {
+        status,
+        data: normalizeTokenData<T>(source.data ?? source.Data),
+        message: source.message ?? source.Message ?? '',
+        statusCode: source.statusCode ?? source.StatusCode ?? 200,
+        extensions: source.extensions ?? source.Extensions
     }
 }
 
@@ -94,7 +136,9 @@ authHttpClient.interceptors.response.use(
             originalRequest.url.includes('/login') ||
             originalRequest.url.includes('/register') ||
             originalRequest.url.includes('/refresh-token') ||
-            originalRequest.url.includes('/oauth')
+            originalRequest.url.includes('/oauth') ||
+            originalRequest.url.includes('/forgot-password') ||
+            originalRequest.url.includes('/reset-password')
         )
 
         // 处理 401 未授权错误
@@ -103,7 +147,7 @@ authHttpClient.interceptors.response.use(
 
             try {
                 // 尝试刷新 Token
-                const refreshed = await tokenManager.refreshTokenIfNeeded()
+                const refreshed = await tokenManager.refreshTokenIfNeeded(true)
 
                 if (refreshed) {
                     // 重新发送原始请求
@@ -139,9 +183,10 @@ function handleHttpError(error: any): ResultDto {
 
     const {status, data} = error.response
 
-    // 如果响应已经是 ResultDto 格式，直接返回
-    if (data && typeof data === 'object' && 'status' in data && data.status === false) {
-        return data as ResultDto
+    // Normalize the backend response casing at the HTTP boundary
+    const normalized = normalizeResultDto(data)
+    if (normalized && !normalized.status) {
+        return normalized
     }
 
     switch (status) {
@@ -159,6 +204,8 @@ function handleHttpError(error: any): ResultDto {
             return createAuthError(AuthErrorCode.FORBIDDEN, '权限不足，无法访问')
         case 404:
             return createAuthError(AuthErrorCode.USER_NOT_FOUND, '用户不存在')
+        case 429:
+            return createAuthError(AuthErrorCode.RATE_LIMITED, '请求过于频繁，请稍后重试')
         case 409:
             return createAuthError(AuthErrorCode.EMAIL_ALREADY_EXISTS, '邮箱已被注册')
         case 500:
@@ -205,6 +252,8 @@ function getStatusCodeFromErrorCode(code: AuthErrorCode): number {
             return 403
         case AuthErrorCode.NETWORK_ERROR:
             return 0
+        case AuthErrorCode.RATE_LIMITED:
+            return 429
         case AuthErrorCode.SERVER_ERROR:
         default:
             return 500
@@ -220,9 +269,10 @@ export async function authRequest<T = any>(
     try {
         const response = await authHttpClient(config)
 
-        // 如果响应已经是 ResultDto 格式，直接返回
-        if (response.data && typeof response.data === 'object' && 'status' in response.data) {
-            return response.data as ResultDto<T>
+        // Normalize the backend response casing at the HTTP boundary
+        const normalized = normalizeResultDto<T>(response.data)
+        if (normalized) {
+            return normalized
         }
 
         // 否则包装成 ResultDto 格式

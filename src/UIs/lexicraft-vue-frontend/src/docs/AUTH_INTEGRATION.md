@@ -181,9 +181,10 @@ const refreshed = await tokenManager.refreshTokenIfNeeded()
 在 `src/config/env.ts` 中配置 Identity 服务地址：
 
 ```typescript
+const gatewayBaseUrl = import.meta.env.VITE_API_BASE_URL || 'http://localhost:5000'
 const map = {
   DEV: {
-    IDENTITY_API: 'http://localhost:5001',
+    IDENTITY_API: `${gatewayBaseUrl}/identity`,
     // 其他配置...
   }
 }

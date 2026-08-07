@@ -136,17 +136,17 @@ class TokenManager implements ITokenManager {
     /**
      * 如果需要则刷新 Token
      */
-    async refreshTokenIfNeeded(): Promise<boolean> {
+    async refreshTokenIfNeeded(force = false): Promise<boolean> {
         const accessToken = this.getAccessToken()
         const refreshToken = this.getRefreshToken()
 
-        // 如果没有 refresh token，直接返回 false
+        // If no refresh token is available, refresh cannot proceed.
         if (!refreshToken) {
             return false
         }
 
-        // 如果 access token 仍然有效，返回 true
-        if (accessToken && !this.isTokenExpired(accessToken)) {
+        // A 401 response forces a refresh; normal requests refresh only when needed.
+        if (!force && accessToken && !this.isTokenExpired(accessToken)) {
             return true
         }
 
@@ -231,7 +231,7 @@ class TokenManager implements ITokenManager {
 
 // 默认配置
 const defaultAuthConfig: AuthConfig = {
-    identityApiUrl: ENV.IDENTITY_API || 'http://localhost:5001', // Identity 服务地址
+    identityApiUrl: ENV.IDENTITY_API, // Identity gateway endpoint
     tokenStorageKey: 'lexicraft_access_token',
     refreshTokenStorageKey: 'lexicraft_refresh_token',
     autoRefreshThreshold: 300 // 提前 5 分钟刷新

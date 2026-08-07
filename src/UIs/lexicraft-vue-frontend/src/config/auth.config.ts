@@ -81,6 +81,7 @@ export const AUTH_ERROR_MESSAGES = {
     UNAUTHORIZED: '未授权访问',
     FORBIDDEN: '权限不足',
     SERVER_ERROR: '服务器错误，请稍后重试',
+    RATE_LIMITED: '请求过于频繁，请稍后重试',
     PASSWORD_TOO_WEAK: '密码强度不够，请包含大小写字母和数字',
     EMAIL_INVALID: '邮箱格式不正确',
     USERNAME_INVALID: '用户名只能包含字母、数字、下划线和连字符',

@@ -114,7 +114,8 @@ export enum AuthErrorCode {
     VALIDATION_ERROR = 'VALIDATION_ERROR',
     UNAUTHORIZED = 'UNAUTHORIZED',
     FORBIDDEN = 'FORBIDDEN',
-    SERVER_ERROR = 'SERVER_ERROR'
+    SERVER_ERROR = 'SERVER_ERROR',
+    RATE_LIMITED = 'RATE_LIMITED'
 }
 
 // 认证 API 接口
@@ -190,7 +191,7 @@ export interface ITokenManager {
     isTokenExpired(token: string): boolean
 
     // 自动刷新
-    refreshTokenIfNeeded(): Promise<boolean>
+    refreshTokenIfNeeded(force?: boolean): Promise<boolean>
 }
 
 // 更新用户资料请求
