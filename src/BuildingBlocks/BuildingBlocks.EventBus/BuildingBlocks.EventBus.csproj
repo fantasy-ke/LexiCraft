@@ -6,6 +6,7 @@
         <Nullable>enable</Nullable>
         <AssemblyName>BuildingBlocks.EventBus</AssemblyName>
         <RootNamespace>BuildingBlocks.EventBus</RootNamespace>
+        <DefaultItemExcludes>$(DefaultItemExcludes);**/bin/**;**/obj/**</DefaultItemExcludes>
     </PropertyGroup>
 
     <ItemGroup>

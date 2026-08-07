@@ -37,3 +37,8 @@
 7. 收敛配置与凭据：连接字符串、AgileConfig 参数、OAuth 和 OSS 凭据不再提交到仓库；部署文档使用占位符，并安排已暴露凭据轮换。
 8. 分拆超大活跃文件：后端 `CacheService.cs`（813 行）、`MinioOSSService.cs`（949 行），前端 `EditArticle.vue`（834 行）、`TypingArticle.vue`（963 行）、`TypeWord.vue`（803 行）、`practice-words/[id].vue`（902 行）和 `dict-detail.vue`（1187 行）已超过 800 行，后续按真实职责拆分；不为满足行数规则进行无关重构。
 9. 评估生产探针与可观测性：当前默认健康检查端点主要在 Development 映射，生产暴露策略需要结合部署平台明确配置。
+
+## 构建与契约陷阱
+
+- `BuildingBlocks.EventBus` 项目目录可能残留已删除子项目的 `Tests/obj` 等生成文件；父项目必须排除任意层级的 `bin/obj`，否则 SDK 默认源码通配符会编译嵌套生成的程序集属性并触发 `CS0579`。
+- Identity 前端客户端只暴露当前后端端点能够证明的能力；邮箱验证、密码重置、OAuth 绑定和会话管理等功能必须先有后端契约和测试，不能先在前端添加猜测式方法。

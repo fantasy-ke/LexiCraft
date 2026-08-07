@@ -116,96 +116,6 @@ class AuthAPI implements IAuthAPI {
     }
 
     /**
-     * 验证邮箱
-     */
-    async verifyEmail(token: string): Promise<ResultDto<void>> {
-        return authPost<void>('/v1/verify-email', {token})
-    }
-
-    /**
-     * 发送密码重置邮件
-     */
-    async sendPasswordResetEmail(email: string): Promise<ResultDto<void>> {
-        return authPost<void>('/v1/forgot-password', {email})
-    }
-
-    /**
-     * 重置密码
-     */
-    async resetPassword(token: string, newPassword: string): Promise<ResultDto<void>> {
-        return authPost<void>('/v1/reset-password', {token, newPassword})
-    }
-
-    /**
-     * 修改密码
-     */
-    async changePassword(currentPassword: string, newPassword: string): Promise<ResultDto<void>> {
-        return authPost<void>('/v1/change-password', {currentPassword, newPassword})
-    }
-
-    /**
-     * 获取 OAuth 提供商列表
-     */
-    async getOAuthProviders(): Promise<ResultDto<OAuthProvider[]>> {
-        return authGet<OAuthProvider[]>('/v1/oauth/providers')
-    }
-
-    /**
-     * 绑定 OAuth 账户
-     */
-    async linkOAuthAccount(provider: OAuthProvider, code: string, state: string): Promise<ResultDto<void>> {
-        return authPost<void>(`/v1/oauth/${provider}/link`, {code, state})
-    }
-
-    /**
-     * 解绑 OAuth 账户
-     */
-    async unlinkOAuthAccount(provider: OAuthProvider): Promise<ResultDto<void>> {
-        return authPost<void>(`/v1/oauth/${provider}/unlink`)
-    }
-
-    /**
-     * 获取用户的 OAuth 绑定状态
-     */
-    async getOAuthBindings(): Promise<ResultDto<Record<OAuthProvider, boolean>>> {
-        return authGet<Record<OAuthProvider, boolean>>('/v1/oauth/bindings')
-    }
-
-    /**
-     * 检查邮箱是否已注册
-     */
-    async checkEmailExists(email: string): Promise<ResultDto<boolean>> {
-        return authGet<boolean>('/v1/check-email', {email})
-    }
-
-    /**
-     * 检查用户名是否可用
-     */
-    async checkUsernameAvailable(username: string): Promise<ResultDto<boolean>> {
-        return authGet<boolean>('/v1/check-username', {username})
-    }
-
-    /**
-     * 获取当前用户的会话信息
-     */
-    async getSessionInfo(): Promise<ResultDto<{
-        sessionId: string
-        createdAt: string
-        expiresAt: string
-        ipAddress: string
-        userAgent: string
-    }>> {
-        return authGet('/v1/session')
-    }
-
-    /**
-     * 撤销所有会话（强制登出所有设备）
-     */
-    async revokeAllSessions(): Promise<ResultDto<void>> {
-        return authPost<void>('/v1/revoke-sessions')
-    }
-
-    /**
      * 查询用户权限列表
      */
     async getUserPermissions(userId: string): Promise<ResultDto<UserPermissionsResponse>> {
@@ -232,18 +142,6 @@ export const {
     initiateOAuth,
     handleOAuthCallback,
     refreshToken,
-    verifyEmail,
-    sendPasswordResetEmail,
-    resetPassword,
-    changePassword,
-    getOAuthProviders,
-    linkOAuthAccount,
-    unlinkOAuthAccount,
-    getOAuthBindings,
-    checkEmailExists,
-    checkUsernameAvailable,
-    getSessionInfo,
-    revokeAllSessions,
     getUserPermissions,
     uploadAvatar
 } = authAPI

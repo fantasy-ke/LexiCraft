@@ -30,6 +30,12 @@ type ApiRequestConfig = AxiosRequestConfig & {
     _retry?: boolean
 }
 
+const PUBLIC_AUTH_PATHS = ['/login', '/register', '/refresh-token', '/oauth/'] as const
+
+function isPublicAuthEndpoint(url?: string): boolean {
+    return Boolean(url && PUBLIC_AUTH_PATHS.some(path => url.includes(path)))
+}
+
 function normalizeJsonKeys(value: unknown): unknown {
     if (Array.isArray(value)) {
         return value.map(normalizeJsonKeys)
@@ -81,18 +87,8 @@ export const authHttpClient: AxiosInstance = axios.create(AUTH_API_CONFIG)
  */
 authHttpClient.interceptors.request.use(
     async (config) => {
-        // 检查是否是不需要 Token 的接口
-        const isPublicEndpoint = config.url && (
-            config.url.includes('/login') ||
-            config.url.includes('/register') ||
-            config.url.includes('/refresh-token') ||
-            config.url.includes('/oauth') ||
-            config.url.includes('/forgot-password') ||
-            config.url.includes('/reset-password')
-        )
-
-        // 如果是公开接口，不添加 Token
-        if (isPublicEndpoint) {
+        // 公开认证请求不携带已有访问令牌。
+        if (isPublicAuthEndpoint(config.url)) {
             return config
         }
 
@@ -137,18 +133,13 @@ authHttpClient.interceptors.response.use(
     async (error) => {
         const originalRequest = error.config as ApiRequestConfig | undefined
 
-        // 401 from public auth endpoints must not start a refresh loop.
-        const isAuthEndpoint = Boolean(originalRequest?.url && (
-            originalRequest.url.includes('/login') ||
-            originalRequest.url.includes('/register') ||
-            originalRequest.url.includes('/refresh-token') ||
-            originalRequest.url.includes('/oauth') ||
-            originalRequest.url.includes('/forgot-password') ||
-            originalRequest.url.includes('/reset-password')
-        ))
-
-        // Retry one protected request after a forced token refresh.
-        if (error.response?.status === 401 && originalRequest && !originalRequest._retry && !isAuthEndpoint) {
+        // 受保护请求在强制刷新令牌后最多重试一次。
+        if (
+            error.response?.status === 401 &&
+            originalRequest &&
+            !originalRequest._retry &&
+            !isPublicAuthEndpoint(originalRequest.url)
+        ) {
             originalRequest._retry = true
 
             try {
