@@ -1,9 +1,8 @@
 <template>
   <div class="public-editorial editorial-home">
     <header class="reading-header" aria-label="LexiCraft 阅读首页">
-      <button class="wordmark" type="button" @click="scrollToSection('opening')">
-        <span class="wordmark-seal">L</span>
-        <span><strong>LexiCraft</strong><small>Language, carefully made.</small></span>
+      <button aria-label="??????" class="wordmark" type="button" @click="scrollToSection('opening')">
+        <BrandLogo tagline="Language, carefully made."/>
       </button>
       <nav class="header-links" aria-label="主导航">
         <button type="button" @click="scrollToSection('method')">学习方法</button>
@@ -126,6 +125,7 @@
 <script lang="ts" setup>
 import {computed, ref} from 'vue'
 import {useRouter} from 'vue-router'
+import BrandLogo from '@/components/BrandLogo.vue'
 
 const router = useRouter()
 const lang = ref<'zh' | 'en'>('zh')
@@ -176,10 +176,9 @@ const scrollToSection = (id: string) => document.getElementById(id)?.scrollIntoV
 button { font: inherit; }
 .reading-header { position: absolute; z-index: 20; top: 0; right: 0; left: 0; display: grid; grid-template-columns: 1fr auto 1fr; align-items: center; gap: 2rem; padding: 24px clamp(20px, 5vw, 76px); }
 .wordmark { display: flex; align-items: center; justify-self: start; gap: 11px; padding: 0; border: 0; color: var(--text-primary); background: transparent; cursor: pointer; text-align: left; }
-.wordmark-seal { display: grid; width: 37px; height: 37px; place-items: center; border: 1px solid var(--text-primary); border-radius: 50%; color: var(--accent); font-size: 22px; font-style: italic; }
-.wordmark strong, .wordmark small { display: block; }
-.wordmark strong { font-size: 17px; }
-.wordmark small { color: var(--text-tertiary); font-family: var(--font-sans); font-size: 9px; letter-spacing: .12em; text-transform: uppercase; }
+.wordmark :deep(.brand-logo__mark) { width: 39px; height: 39px; }
+.wordmark :deep(.brand-logo__copy strong) { font-size: 17px; }
+.wordmark :deep(.brand-logo__copy small) { font-family: var(--font-sans); }
 .header-links { display: flex; gap: 28px; }
 .header-links button, .text-button, .language-button { padding: 5px 0; border: 0; color: var(--text-secondary); background: transparent; cursor: pointer; font-family: var(--font-sans); font-size: 12px; }
 .header-links button:hover, .text-button:hover { color: var(--accent); }

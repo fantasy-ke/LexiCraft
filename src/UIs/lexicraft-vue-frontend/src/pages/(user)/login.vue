@@ -11,6 +11,7 @@ import {FormInstance} from '@/components/base/form/types'
 import {useAuth} from '@/hooks/useAuth'
 import {REGISTER_PATH} from '@/config/auth.config'
 import LoadingScreen from '@/components/LoadingScreen.vue'
+import BrandLogo from '@/components/BrandLogo.vue'
 
 const router = useRouter()
 const {signInWithAccount, signInWithOAuth, isLoading} = useAuth()
@@ -64,9 +65,8 @@ const goToForgot = () => {
     <LoadingScreen v-if="isRedirecting" :progress="100" loading-text="正在整理你的学习书页..."/>
 
     <header class="login-header">
-      <button class="login-brand" type="button" @click="goHome">
-        <span>L</span>
-        <strong>LexiCraft</strong>
+      <button aria-label="?? LexiCraft ??" class="login-brand" type="button" @click="goHome">
+        <BrandLogo tagline="language journal"/>
       </button>
       <button class="back-home" type="button" @click="goHome">返回首页 <span>→</span></button>
     </header>
@@ -159,8 +159,8 @@ const goToForgot = () => {
 .login-page::before { content: ''; position: absolute; top: 0; bottom: 0; left: 13%; width: 1px; background: color-mix(in srgb, var(--accent) 28%, transparent); pointer-events: none; }
 .login-header { position: relative; z-index: 3; display: flex; align-items: center; justify-content: space-between; padding: 24px clamp(20px, 5vw, 74px); }
 .login-brand { display: flex; align-items: center; gap: 10px; padding: 0; border: 0; color: var(--text-primary); background: transparent; cursor: pointer; }
-.login-brand > span { display: grid; width: 36px; height: 36px; place-items: center; border: 1px solid var(--text-primary); border-radius: 50%; color: var(--accent); font-size: 21px; font-style: italic; }
-.login-brand strong { font-size: 17px; }
+.login-brand :deep(.brand-logo__mark) { width: 38px; height: 38px; }
+.login-brand :deep(.brand-logo__copy strong) { font-size: 17px; }
 .back-home { padding: 7px 0; border: 0; border-bottom: 1px solid currentColor; color: var(--text-secondary); background: transparent; cursor: pointer; font-family: var(--font-sans); font-size: 11px; }
 .login-manuscript { position: relative; z-index: 2; display: grid; width: min(1220px, calc(100% - 44px)); flex: 1; grid-template-columns: minmax(0, 1.08fr) minmax(380px, .72fr); align-items: center; gap: clamp(50px, 8vw, 130px); margin: 0 auto; padding: 44px 0 64px; }
 .welcome-copy { position: relative; align-self: stretch; display: flex; flex-direction: column; justify-content: center; padding: 60px 0 80px; }

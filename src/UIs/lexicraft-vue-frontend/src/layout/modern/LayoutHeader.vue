@@ -1,8 +1,7 @@
 <template>
   <header class="floating-header">
-    <button class="corner-brand" type="button" @click="goHome">
-      <span class="brand-mark">L</span>
-      <span class="brand-copy"><strong>LexiCraft</strong><small>learning room</small></span>
+    <button aria-label="?? LexiCraft ??" class="corner-brand" type="button" @click="goHome">
+      <BrandLogo tagline="learning room"/>
     </button>
 
     <div ref="userMenuRef" class="desk-status">
@@ -69,6 +68,7 @@ import useTheme, {type ThemeStyle} from '@/hooks/theme'
 import {useUserStore} from '@/stores/user'
 import {getDefaultAvatarUrl, getUserAvatarUrl} from '@/utils/authHelpers'
 import DoodleIcon from '@/components/doodle/DoodleIcon.vue'
+import BrandLogo from '@/components/BrandLogo.vue'
 
 const props = defineProps<{
   todayStats: {words: number; days: number}
@@ -122,10 +122,9 @@ onUnmounted(() => document.removeEventListener('click', handleClickOutside))
 .floating-header { position: fixed; inset: 0 0 auto; z-index: 90; pointer-events: none; }
 .corner-brand, .desk-status { position: absolute; top: 18px; pointer-events: auto; }
 .corner-brand { left: clamp(16px, 3vw, 46px); display: flex; align-items: center; gap: 10px; padding: 4px; border: 0; color: var(--text-primary); background: transparent; cursor: pointer; text-align: left; }
-.brand-mark { display: grid; width: 40px; height: 40px; place-items: center; border: 1px solid var(--border-strong); border-radius: var(--radius-control); color: var(--accent-contrast); background: var(--accent); font-family: var(--font-display); font-size: 24px; box-shadow: var(--control-shadow); }
-.brand-copy strong, .brand-copy small { display: block; }
-.brand-copy strong { font-family: var(--font-heading); font-size: 17px; }
-.brand-copy small { margin-top: 1px; color: var(--text-tertiary); font-family: var(--font-mono); font-size: 9px; letter-spacing: .12em; text-transform: uppercase; }
+.corner-brand :deep(.brand-logo__mark) { width: 42px; height: 42px; }
+.corner-brand :deep(.brand-logo__copy strong) { font-size: 17px; }
+.corner-brand :deep(.brand-logo__copy small) { font-size: 9px; }
 .desk-status { right: clamp(16px, 3vw, 46px); display: flex; align-items: center; gap: 12px; }
 .today-note { display: flex; align-items: center; gap: 11px; padding: 8px 13px; border: 1px solid var(--border-color); border-radius: var(--radius-control); color: var(--text-secondary); background: var(--surface-overlay); box-shadow: var(--control-shadow); backdrop-filter: blur(12px); font-size: 11px; }
 .today-note strong { color: var(--text-primary); font-family: var(--font-heading); font-size: 15px; }
@@ -152,19 +151,19 @@ onUnmounted(() => document.removeEventListener('click', handleClickOutside))
 .paper-drop-enter-active, .paper-drop-leave-active { transition: opacity .18s ease, transform .18s ease; }
 .paper-drop-enter-from, .paper-drop-leave-to { opacity: 0; transform: translateY(-8px); }
 
-:global(html[data-theme-style='editorial'] .brand-mark) { border-radius: 50% 50% 45% 45%; }
+:global(html[data-theme-style='editorial'] .corner-brand) { transform: rotate(-.6deg); }
 :global(html[data-theme-style='editorial'] .user-note) { border-top-width: 4px; }
-:global(html[data-theme-style='zen'] .brand-mark) { width: 34px; height: 34px; border: 0; color: var(--text-primary); background: transparent; box-shadow: none; font-family: var(--font-mono); font-size: 16px; }
-:global(html[data-theme-style='zen'] .brand-copy small), :global(html[data-theme-style='zen'] .today-note) { display: none; }
+:global(html[data-theme-style='zen'] .corner-brand) { transform: scale(.92); transform-origin: left center; }
+:global(html[data-theme-style='zen']) .corner-brand :deep(.brand-logo__copy small), :global(html[data-theme-style='zen'] .today-note) { display: none; }
 :global(html[data-theme-style='zen'] .avatar-button) { border-radius: 0; box-shadow: none; }
 :global(html[data-theme-style='zen'] .user-note) { border-width: 1px 0; box-shadow: none; }
-:global(html[data-theme-style='zen'] .note-links :deep(svg)) { display: none; }
+:global(html[data-theme-style='zen']) .note-links :deep(svg) { display: none; }
 :global(html[data-theme-style='ink'] .corner-brand) { transform: rotate(-1deg); }
-:global(html[data-theme-style='ink'] .brand-mark) { border: 2px solid var(--border-strong); border-radius: 51% 45% 48% 43%; box-shadow: 3px 3px 0 var(--danger); }
+:global(html[data-theme-style='ink']) .corner-brand :deep(.brand-logo__mark) { filter: drop-shadow(3px 3px 0 var(--danger)); transform: rotate(-2deg); }
 :global(html[data-theme-style='ink'] .today-note), :global(html[data-theme-style='ink'] .user-note) { border-width: 2px; transform: rotate(.35deg); }
 
 @media (max-width: 700px) {
-  .brand-copy small, .today-note { display: none; }
+  .corner-brand :deep(.brand-logo__copy small), .today-note { display: none; }
   .corner-brand, .desk-status { top: 12px; }
   .corner-brand { left: 12px; }
   .desk-status { right: 12px; }

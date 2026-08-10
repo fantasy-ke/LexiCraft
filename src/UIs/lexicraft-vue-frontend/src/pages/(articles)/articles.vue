@@ -214,9 +214,9 @@ let isNewHost = $ref(window.location.host === Host)
 </script>
 
 <template>
-  <BasePage>
+  <BasePage class="learning-page reading-page">
     <!-- Study Record Header Card -->
-    <div class="card-white p-8 relative group mb-6">
+    <div class="card-white learning-hero p-8 relative group mb-6">
       <div class="absolute inset-0 overflow-hidden rounded-xl pointer-events-none">
         <div class="absolute -right-20 -top-20 w-64 h-64 bg-indigo-500/10 rounded-full blur-3xl group-hover:bg-indigo-500/20 transition-colors duration-700"></div>
       </div>
@@ -305,7 +305,7 @@ let isNewHost = $ref(window.location.host === Host)
           </div>
 
           <!-- Progress and Action -->
-          <div class="flex flex-col sm:flex-row gap-6 items-center bg-slate-50 dark:bg-slate-800/40 p-6 rounded-3xl border border-slate-100 dark:border-slate-800">
+          <div class="reading-progress flex flex-col sm:flex-row gap-6 items-center p-6">
             <div class="flex-1 w-full space-y-2">
                <div class="flex justify-between items-end">
                   <span class="text-sm font-black text-indigo-600 dark:text-indigo-400 uppercase tracking-widest">{{ base.currentBookProgress }}% 完成</span>
@@ -337,8 +337,8 @@ let isNewHost = $ref(window.location.host === Host)
     </div>
 
     <!-- My Books Section -->
-    <div class="card-white p-8 mb-6">
-      <div class="flex justify-between items-center mb-10">
+    <div class="card-white learning-section p-8 mb-6">
+      <div class="learning-section__head flex justify-between items-center mb-10">
         <div>
           <h2 class="text-2xl font-black m-0 grad-text">我的书读</h2>
           <p class="text-sm font-bold text-slate-400 mt-1 uppercase tracking-widest">PERSONAL LIBRARY</p>
@@ -360,7 +360,7 @@ let isNewHost = $ref(window.location.host === Host)
         </div>
       </div>
       
-      <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-6">
+      <div class="learning-grid grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-6">
         <Book
           v-for="(item, j) in base.article.bookList"
           :checked="selectIds.includes(item.id)"
@@ -378,8 +378,8 @@ let isNewHost = $ref(window.location.host === Host)
     </div>
 
     <!-- Recommendations Section -->
-    <div v-loading="isFetching" class="card-white p-8">
-      <div class="flex justify-between items-center mb-10 border-b border-slate-50 dark:border-slate-800 pb-6">
+    <div v-loading="isFetching" class="card-white learning-section p-8">
+      <div class="learning-section__head flex justify-between items-center mb-10 pb-6">
         <div>
           <h2 class="text-2xl font-black m-0">精选书籍</h2>
           <p class="text-sm font-bold text-slate-400 mt-1 uppercase tracking-widest">HAND-PICKED FOR YOU</p>
@@ -389,7 +389,7 @@ let isNewHost = $ref(window.location.host === Host)
         </BaseButton>
       </div>
 
-      <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-6">
+      <div class="learning-grid grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-6">
         <Book
           v-for="(item, j) in recommendBookList"
           :is-add="false"
@@ -423,4 +423,21 @@ let isNewHost = $ref(window.location.host === Host)
     @apply -translate-y-1 shadow-lg shadow-slate-200/50 dark:shadow-none bg-white dark:bg-slate-800;
   }
 }
+
+.learning-page :deep(.card-white) { padding: clamp(1.1rem, 2.7vw, 2rem) !important; overflow: visible; }
+.learning-hero { border-top: 4px solid var(--accent) !important; }
+.reading-progress { border: 1px solid var(--border-color); border-radius: max(12px, var(--radius-card)); color: var(--text-primary); background: var(--surface-muted); }
+.learning-section__head { gap: 1rem; border-bottom: 1px solid var(--border-color); }
+.learning-grid { grid-template-columns: repeat(auto-fill, minmax(148px, 1fr)) !important; align-items: stretch; gap: clamp(.8rem, 2vw, 1.25rem) !important; }
+.learning-grid :deep(.book-card) { height: 100%; }
+.reading-page :deep(.base-button) { min-height: 2.5rem; }
+.reading-progress :deep(.base-button) { min-height: 3.2rem; border-radius: 14px !important; background: var(--accent) !important; box-shadow: var(--control-shadow) !important; }
+:global(html[data-theme-style='ink']) .learning-hero, :global(html[data-theme-style='ink']) .learning-section { transform: none; }
+@media (max-width: 760px) {
+  .learning-page :deep(.card-white) { padding: 1rem !important; }
+  .learning-section__head { align-items: flex-start !important; flex-direction: column; margin-bottom: 1rem !important; padding-bottom: 1rem !important; }
+  .learning-section__head > div:last-child { width: 100%; flex-wrap: wrap; gap: .6rem; }
+  .learning-grid { grid-template-columns: repeat(2, minmax(0, 1fr)) !important; }
+}
+
 </style>

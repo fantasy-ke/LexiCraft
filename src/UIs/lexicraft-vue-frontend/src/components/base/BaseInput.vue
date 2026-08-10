@@ -172,6 +172,7 @@ const vFocus = {
 
   .pre-icon { display: flex; align-items: center; justify-content: center; z-index: 1; margin-right: .25rem; color: var(--color-input-icon); pointer-events: none; }
   .inner { flex: 1; width: 100%; height: 1.6rem; border: 0; outline: 0; color: var(--color-input-color); background: transparent; font-family: inherit; }
+  .inner:-webkit-autofill { -webkit-text-fill-color: var(--color-input-color); box-shadow: 0 0 0 1000px var(--color-input-bg) inset; caret-color: var(--color-input-color); }
   .inner:disabled { cursor: not-allowed; }
   .password-toggle { display: grid; width: 24px; height: 24px; margin-left: 4px; place-items: center; color: var(--color-input-icon); cursor: pointer; transition: color .2s ease; }
   .password-toggle:hover { color: var(--accent); }
@@ -181,6 +182,9 @@ const vFocus = {
 :global(html[data-theme-style='zen'] .base-input) { border-width: 0 0 1px; border-radius: 0; padding-inline: 0; background: transparent; }
 :global(html[data-theme-style='zen'] .base-input.focus) { border-bottom-color: var(--text-primary); box-shadow: none; }
 :global(html[data-theme-style='zen'] .inner) { font-family: var(--font-mono); }
-:global(html[data-theme-style='ink'] .base-input) { border-width: 2px; transform: rotate(-.15deg); }
-:global(html[data-theme-style='ink'] .base-input.focus) { box-shadow: 3px 4px 0 var(--focus-ring); transform: rotate(.15deg); }
+:global(html[data-theme-style='ink'] .base-input) { border-width: 1px; border-color: color-mix(in srgb, var(--border-strong) 48%, transparent); background: var(--surface-raised); transform: none; }
+:global(html[data-theme-style='ink'] .base-input.focus) { border-color: var(--accent); box-shadow: 0 0 0 3px var(--focus-ring); transform: none; }
+:global(.public-editorial .base-input) { border: 1px solid rgba(67, 53, 43, .2); border-radius: 3px; background: #fffdf8; box-shadow: none; transform: none; }
+:global(.public-editorial .base-input.focus) { border-color: #9b4a3c; box-shadow: 0 0 0 3px rgba(155, 74, 60, .12); transform: none; }
+:global(.public-editorial .base-input .inner:-webkit-autofill) { -webkit-text-fill-color: #28231f; box-shadow: 0 0 0 1000px #fffdf8 inset; }
 </style>

@@ -276,9 +276,9 @@ const systemPracticeText = $computed(() => {
 </script>
 
 <template>
-  <BasePage>
+  <BasePage class="learning-page vocabulary-page">
     <!-- Current Dictionary Progress Card -->
-    <div class="card-white p-8 relative group mb-6">
+    <div class="card-white learning-hero p-8 relative group mb-6">
       <div class="absolute inset-0 overflow-hidden rounded-xl pointer-events-none">
         <div class="absolute -right-20 -top-20 w-64 h-64 bg-blue-500/10 rounded-full blur-3xl group-hover:bg-blue-500/20 transition-colors duration-700"></div>
       </div>
@@ -286,7 +286,7 @@ const systemPracticeText = $computed(() => {
       <div class="flex flex-col lg:flex-row gap-8 relative z-10 items-stretch">
         <div class="flex-1 space-y-6">
           <div class="flex items-center gap-4">
-            <div class="w-14 h-14 rounded-2xl bg-gradient-to-br from-blue-500 to-indigo-600 center shadow-xl text-white shadow-blue-500/20">
+            <div class="learning-hero__icon w-14 h-14 rounded-2xl center">
               <IconFluentBookNumber24Filled class="text-3xl"/>
             </div>
             <div class="flex-1">
@@ -300,7 +300,7 @@ const systemPracticeText = $computed(() => {
           </div>
 
           <template v-if="store.sdict.id">
-            <div class="bg-slate-50 dark:bg-slate-800/40 p-6 rounded-3xl border border-slate-100 dark:border-slate-800">
+            <div class="learning-progress p-6">
               <div class="flex justify-between items-end mb-4">
                 <div class="space-y-1">
                   <div class="text-sm font-bold text-slate-400 uppercase tracking-wider">预期完成</div>
@@ -322,7 +322,7 @@ const systemPracticeText = $computed(() => {
               </div>
             </div>
 
-            <div class="flex gap-4">
+            <div class="learning-actions flex gap-4">
               <BaseButton size="small" type="info" class="rounded-xl px-6 h-11 bg-slate-50 border-slate-100 hover:bg-blue-50 hover:border-blue-200 hover:text-blue-600 transition-all duration-300" @click="router.push('/app/dict-list')">
                 <div class="flex items-center gap-2">
                   <IconFluentArrowSwap24Regular class="text-lg"/>
@@ -340,7 +340,7 @@ const systemPracticeText = $computed(() => {
             </div>
           </template>
 
-          <div v-else class="py-10 text-center lg:text-left bg-slate-50/50 dark:bg-slate-800/20 rounded-3xl border-2 border-dashed border-slate-200 dark:border-slate-800 p-8">
+          <div v-else class="learning-empty py-10 text-center lg:text-left p-8">
             <h3 class="text-xl font-bold text-slate-400 mb-6">您当前还没有正在学习的词库</h3>
             <BaseButton id="step1" size="large" class="h-14 px-10 text-lg shadow-2xl" @click="router.push('/app/dict-list')">
               <div class="flex items-center gap-3">
@@ -353,7 +353,7 @@ const systemPracticeText = $computed(() => {
 
         <!-- Daily Task Area -->
         <div class="flex-1 min-w-[340px] flex flex-col" :class="!store.sdict.id && 'opacity-20 grayscale pointer-events-none'">
-          <div class="bg-gradient-to-br from-slate-900 to-slate-800 dark:from-slate-800 dark:to-slate-900 rounded-[2.5rem] p-8 text-white shadow-2xl shadow-slate-900/20 flex flex-col justify-between flex-1">
+          <div class="practice-panel p-8 flex flex-col justify-between flex-1">
             <div class="flex justify-between items-start mb-8">
               <div class="space-y-1">
                 <div class="flex items-center gap-2">
@@ -391,7 +391,7 @@ const systemPracticeText = $computed(() => {
               </div>
             </div>
 
-            <div class="flex gap-4">
+            <div class="practice-actions flex gap-4">
               <BaseButton
                 class="flex-[2] h-14 rounded-2xl font-black text-lg shadow-xl shadow-indigo-600/30 transition-all duration-300 hover:scale-[1.02] hover:shadow-indigo-600/40 active:scale-[0.98]"
                 :class="settingStore.wordPracticeMode !== WordPracticeMode.Free ? 'bg-gradient-to-r from-indigo-600 to-blue-600 border-none' : 'bg-white/10 border-white/20 hover:bg-white/15'"
@@ -420,8 +420,8 @@ const systemPracticeText = $computed(() => {
     </div>
 
     <!-- My Dicts Section -->
-    <div class="card-white p-8 mb-6">
-      <div class="flex justify-between items-center mb-10">
+    <div class="card-white learning-section p-8 mb-6">
+      <div class="learning-section__head flex justify-between items-center mb-10">
         <div>
           <h2 class="text-2xl font-black m-0 grad-text">我的学习库</h2>
           <p class="text-sm font-bold text-slate-400 mt-1 uppercase tracking-widest">PERSONAL DICTIONARIES</p>
@@ -443,7 +443,7 @@ const systemPracticeText = $computed(() => {
         </div>
       </div>
       
-      <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-6">
+      <div class="learning-grid grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-6">
         <Book
           v-for="(item, j) in store.word.bookList"
           :checked="selectIds.includes(item.id)"
@@ -460,8 +460,8 @@ const systemPracticeText = $computed(() => {
     </div>
 
     <!-- Recommendations Section -->
-    <div v-loading="isFetching" class="card-white p-8 relative overflow-hidden">
-      <div class="flex justify-between items-center mb-10 border-b border-slate-50 dark:border-slate-800 pb-6">
+    <div v-loading="isFetching" class="card-white learning-section p-8 relative overflow-hidden">
+      <div class="learning-section__head flex justify-between items-center mb-10 pb-6">
         <div>
           <h2 class="text-2xl font-black m-0">热门推荐</h2>
           <p class="text-sm font-bold text-slate-400 mt-1 uppercase tracking-widest">BEST SELECTION FOR YOU</p>
@@ -471,7 +471,7 @@ const systemPracticeText = $computed(() => {
         </BaseButton>
       </div>
 
-      <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-6">
+      <div class="learning-grid grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-6">
         <Book
           v-for="(item, j) in recommendDictList"
           :is-add="false"
@@ -508,6 +508,27 @@ const systemPracticeText = $computed(() => {
   &:hover {
     @apply bg-white/10 -translate-y-1;
   }
+}
+
+.learning-page :deep(.card-white) { padding: clamp(1.1rem, 2.7vw, 2rem) !important; overflow: visible; }
+.learning-hero { border-top: 4px solid var(--accent) !important; }
+.learning-hero__icon { flex: 0 0 auto; color: var(--accent-contrast); background: var(--accent); box-shadow: var(--control-shadow); }
+.learning-progress, .learning-empty { border: 1px solid var(--border-color); border-radius: max(12px, var(--radius-card)); color: var(--text-primary); background: var(--surface-muted); }
+.learning-empty { border-style: dashed; }
+.practice-panel { border: 1px solid var(--border-strong); border-radius: max(18px, var(--radius-card)); color: var(--text-primary); background: linear-gradient(145deg, var(--surface-muted), var(--surface-card)); box-shadow: var(--card-shadow); }
+.practice-panel :deep(.base-button) { min-height: 3rem; }
+.learning-actions { flex-wrap: wrap; }
+.learning-section__head { gap: 1rem; border-bottom: 1px solid var(--border-color); }
+.learning-grid { grid-template-columns: repeat(auto-fill, minmax(148px, 1fr)) !important; align-items: stretch; gap: clamp(.8rem, 2vw, 1.25rem) !important; }
+.learning-grid :deep(.book-card) { height: 100%; }
+:global(html[data-theme-style='ink']) .learning-hero, :global(html[data-theme-style='ink']) .learning-section { transform: none; }
+@media (max-width: 760px) {
+  .learning-page :deep(.card-white) { padding: 1rem !important; }
+  .learning-section__head { align-items: flex-start !important; flex-direction: column; margin-bottom: 1rem !important; padding-bottom: 1rem !important; }
+  .learning-section__head > div:last-child { width: 100%; flex-wrap: wrap; gap: .6rem; }
+  .learning-actions, .practice-actions { flex-direction: column; }
+  .learning-actions :deep(.base-button), .practice-actions :deep(.base-button) { width: 100%; margin-left: 0; }
+  .learning-grid { grid-template-columns: repeat(2, minmax(0, 1fr)) !important; }
 }
 
 .fade-item-enter-active, .fade-item-leave-active {

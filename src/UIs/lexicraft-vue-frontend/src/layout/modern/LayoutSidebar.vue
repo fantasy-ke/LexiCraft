@@ -51,7 +51,7 @@ const isActiveRoute = (path: string) => {
 .active-mark { position: absolute; background: var(--accent); }
 .dock-item:focus-visible { outline: 3px solid var(--focus-ring); outline-offset: 3px; }
 
-/* A ? Warm Editorial: a slim book index, not a conventional sidebar. */
+/* A ? Warm Editorial: a slim book index beside the reading flow. */
 :global(html[data-theme-style='editorial'] .theme-dock) { top: 50%; left: 18px; max-height: calc(100vh - 150px); flex-direction: column; gap: 0; border-block: 1px solid var(--border-color); background: var(--surface-overlay); box-shadow: var(--control-shadow); transform: translateY(-50%); backdrop-filter: blur(12px); }
 :global(html[data-theme-style='editorial'] .dock-item) { min-width: 88px; justify-content: flex-start; gap: 8px; padding: 11px 12px; border-bottom: 1px solid var(--border-color); font-family: var(--font-heading); font-size: 12px; }
 :global(html[data-theme-style='editorial'] .dock-item:last-child) { border-bottom: 0; }
@@ -60,15 +60,15 @@ const isActiveRoute = (path: string) => {
 :global(html[data-theme-style='editorial'] .icon-wrap) { opacity: .7; }
 :global(html[data-theme-style='editorial'] .active-mark) { top: 0; bottom: 0; left: -1px; width: 3px; }
 
-/* B ? Zen Focus: a quiet command line made of words only. */
-:global(html[data-theme-style='zen'] .theme-dock) { right: 28px; bottom: 22px; left: 28px; justify-content: center; gap: clamp(12px, 3vw, 38px); background: color-mix(in srgb, var(--surface-page) 88%, transparent); backdrop-filter: blur(10px); }
+/* B ? Zen Focus: a compact command line near the top. */
+:global(html[data-theme-style='zen'] .theme-dock) { top: 20px; left: 50%; max-width: min(690px, calc(100vw - 390px)); justify-content: center; gap: clamp(12px, 2vw, 30px); padding: 5px 18px; border-bottom: 1px solid var(--border-color); background: color-mix(in srgb, var(--surface-page) 88%, transparent); transform: translateX(-50%); backdrop-filter: blur(10px); }
 :global(html[data-theme-style='zen'] .dock-item) { gap: 7px; padding: 7px 0; font-family: var(--font-mono); font-size: 11px; letter-spacing: .05em; }
 :global(html[data-theme-style='zen'] .dock-index) { display: inline; color: var(--text-tertiary); font-size: 9px; }
 :global(html[data-theme-style='zen'] .icon-wrap) { display: none; }
 :global(html[data-theme-style='zen'] .dock-item:hover), :global(html[data-theme-style='zen'] .dock-item.active) { color: var(--text-primary); }
-:global(html[data-theme-style='zen'] .active-mark) { right: 0; bottom: 0; left: 0; height: 1px; }
+:global(html[data-theme-style='zen'] .active-mark) { right: 0; bottom: -6px; left: 0; height: 2px; }
 
-/* C ? Playful Ink: a doodled floating tray. */
+/* C ? Playful Ink: the only bottom floating menu. */
 :global(html[data-theme-style='ink'] .theme-dock) { right: 50%; bottom: 18px; max-width: min(760px, calc(100vw - 30px)); gap: 2px; padding: 8px 10px; border: 2px solid var(--border-strong); border-radius: 20px 15px 23px 17px; background: var(--surface-overlay); box-shadow: var(--card-shadow); transform: translateX(50%) rotate(-.25deg); backdrop-filter: blur(14px); }
 :global(html[data-theme-style='ink'] .dock-item) { min-width: 70px; flex-direction: column; gap: 3px; padding: 7px 11px 6px; border-radius: 13px 10px 14px 11px; }
 :global(html[data-theme-style='ink'] .dock-item:hover) { color: var(--text-primary); background: var(--hover-bg); transform: translateY(-3px) rotate(-1deg); }
@@ -76,14 +76,19 @@ const isActiveRoute = (path: string) => {
 :global(html[data-theme-style='ink'] .dock-label) { font-size: 11px; font-weight: 800; }
 :global(html[data-theme-style='ink'] .active-mark) { top: 5px; right: 8px; width: 7px; height: 7px; border-radius: 50%; background: var(--chalk-yellow); }
 
+@media (max-width: 980px) {
+  :global(html[data-theme-style='zen'] .theme-dock) { top: 70px; max-width: calc(100vw - 28px); }
+}
+
 @media (max-width: 760px) {
-  :global(html[data-theme-style='editorial'] .theme-dock) { top: auto; right: 10px; bottom: 9px; left: 10px; max-height: none; flex-direction: row; transform: none; }
-  :global(html[data-theme-style='editorial'] .dock-item) { min-width: 64px; flex: 1; justify-content: center; padding: 10px 7px; border-right: 1px solid var(--border-color); border-bottom: 0; }
-  :global(html[data-theme-style='editorial'] .dock-item:last-child) { border-right: 0; }
-  :global(html[data-theme-style='editorial'] .icon-wrap) { display: none; }
-  :global(html[data-theme-style='editorial'] .active-mark) { top: auto; right: 0; bottom: -1px; left: 0; width: auto; height: 3px; }
-  :global(html[data-theme-style='zen'] .theme-dock) { right: 12px; bottom: 8px; left: 12px; justify-content: flex-start; overflow-x: auto; }
-  :global(html[data-theme-style='zen'] .dock-item) { min-width: 62px; justify-content: center; }
+  :global(html[data-theme-style='editorial'] .theme-dock),
+  :global(html[data-theme-style='zen'] .theme-dock) { top: 68px; right: 12px; bottom: auto; left: 12px; max-width: none; max-height: none; flex-direction: row; justify-content: flex-start; overflow-x: auto; border: 0; border-bottom: 1px solid var(--border-color); background: var(--surface-overlay); box-shadow: none; transform: none; }
+  :global(html[data-theme-style='editorial'] .dock-item),
+  :global(html[data-theme-style='zen'] .dock-item) { min-width: 66px; justify-content: center; padding: 9px 7px; border: 0; font-family: var(--font-mono); }
+  :global(html[data-theme-style='editorial'] .icon-wrap),
+  :global(html[data-theme-style='zen'] .dock-index) { display: none; }
+  :global(html[data-theme-style='editorial'] .active-mark),
+  :global(html[data-theme-style='zen'] .active-mark) { top: auto; right: 7px; bottom: 0; left: 7px; width: auto; height: 2px; }
   :global(html[data-theme-style='ink'] .theme-dock) { right: 12px; left: 12px; bottom: 9px; max-width: none; transform: none; }
   :global(html[data-theme-style='ink'] .dock-item) { min-width: 62px; padding-inline: 8px; }
 }

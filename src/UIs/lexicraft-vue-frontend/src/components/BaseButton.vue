@@ -39,11 +39,11 @@ defineEmits(['click'])
 .base-button {
   position: relative;
   display: inline-flex;
-  height: 2.25rem;
+  min-height: 2.5rem;
   align-items: center;
   justify-content: center;
   box-sizing: border-box;
-  padding: 0 .95rem;
+  padding: .55rem 1rem;
   border: 1px solid transparent;
   border-radius: var(--radius-control);
   outline: none;
@@ -57,12 +57,14 @@ defineEmits(['click'])
   white-space: nowrap;
 
   & + .base-button { margin-left: 1rem; }
-  &.small { height: 1.8rem; padding-inline: .65rem; font-size: .76rem; }
-  &.large { height: 2.75rem; padding-inline: 1.35rem; font-size: .92rem; }
+  &.small { min-height: 2.15rem; padding: .42rem .78rem; font-size: .78rem; }
+  &.large { min-height: 3rem; padding: .7rem 1.4rem; font-size: .95rem; }
   &.disabled { opacity: .55; cursor: not-allowed; }
   &:focus-visible { outline: 3px solid var(--focus-ring); outline-offset: 2px; }
   .loading { position: absolute; }
-  & > span { line-height: 1; }
+  & > span { display: inline-flex; align-items: center; justify-content: center; min-width: 0; line-height: 1.15; }
+  & > span :deep(svg) { width: 1.15em; height: 1.15em; flex: 0 0 auto; }
+  & > span :deep(.center), & > span :deep(.flex) { align-items: center; }
   & > span :deep(a) { color: inherit; }
 
   &.primary { background: var(--btn-primary); box-shadow: var(--control-shadow); }
@@ -78,8 +80,8 @@ defineEmits(['click'])
 }
 
 :global(html[data-theme-style='editorial'] .base-button) { font-family: var(--font-sans); letter-spacing: .02em; }
-:global(html[data-theme-style='zen'] .base-button) { border-radius: 0; box-shadow: none; font-family: var(--font-mono); text-transform: lowercase; }
+:global(html[data-theme-style='zen'] .base-button) { border-radius: 6px; box-shadow: none; font-family: var(--font-mono); text-transform: lowercase; }
 :global(html[data-theme-style='zen'] .base-button:hover:not(.disabled)) { transform: none; }
-:global(html[data-theme-style='ink'] .base-button) { border-width: 2px; border-color: var(--border-strong); box-shadow: var(--control-shadow); font-weight: 800; transform: rotate(-.3deg); }
+:global(html[data-theme-style='ink'] .base-button) { border-width: 1.5px; border-color: var(--border-strong); border-radius: 14px 11px 15px 12px; box-shadow: var(--control-shadow); font-weight: 800; transform: rotate(-.2deg); }
 :global(html[data-theme-style='ink'] .base-button:hover:not(.disabled)) { transform: translateY(-2px) rotate(.5deg); }
 </style>
