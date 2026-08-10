@@ -12,7 +12,7 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace LexiCraft.Services.Identity.Shared.Data.Migrations
 {
     [DbContext(typeof(IdentityDbContext))]
-    [Migration("20260125062949_Initial")]
+    [Migration("20260810080530_Initial")]
     partial class Initial
     {
         /// <inheritdoc />
@@ -34,10 +34,6 @@ namespace LexiCraft.Services.Identity.Shared.Data.Migrations
 
                     NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<long>("Id"));
 
-                    b.Property<string>("ErrorMessage")
-                        .HasColumnType("text")
-                        .HasColumnName("error_message");
-
                     b.Property<string>("Ip")
                         .HasColumnType("text")
                         .HasColumnName("ip");
@@ -54,6 +50,10 @@ namespace LexiCraft.Services.Identity.Shared.Data.Migrations
                         .IsRequired()
                         .HasColumnType("text")
                         .HasColumnName("login_type");
+
+                    b.Property<string>("Message")
+                        .HasColumnType("text")
+                        .HasColumnName("message");
 
                     b.Property<string>("Origin")
                         .HasColumnType("text")
@@ -78,20 +78,31 @@ namespace LexiCraft.Services.Identity.Shared.Data.Migrations
                     b.HasKey("Id")
                         .HasName("pk_login_logs");
 
+                    b.HasIndex("UserId")
+                        .HasDatabaseName("ix_login_logs_user_id");
+
                     b.ToTable("login_logs", (string)null);
                 });
 
             modelBuilder.Entity("LexiCraft.Services.Identity.Identity.Models.User", b =>
                 {
                     b.Property<Guid>("Id")
-                        .ValueGeneratedOnAdd()
                         .HasColumnType("uuid")
                         .HasColumnName("id");
 
+                    b.Property<int>("AccessFailedCount")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer")
+                        .HasDefaultValue(0)
+                        .HasColumnName("access_failed_count")
+                        .HasComment("登录失败次数");
+
                     b.Property<string>("Avatar")
                         .IsRequired()
-                        .HasColumnType("text")
-                        .HasColumnName("avatar");
+                        .HasMaxLength(256)
+                        .HasColumnType("character varying(256)")
+                        .HasColumnName("avatar")
+                        .HasComment("头像");
 
                     b.Property<DateTime>("CreateAt")
                         .HasColumnType("timestamp with time zone")
@@ -119,8 +130,10 @@ namespace LexiCraft.Services.Identity.Shared.Data.Migrations
 
                     b.Property<string>("Email")
                         .IsRequired()
-                        .HasColumnType("text")
-                        .HasColumnName("email");
+                        .HasMaxLength(64)
+                        .HasColumnType("character varying(64)")
+                        .HasColumnName("email")
+                        .HasComment("邮箱");
 
                     b.Property<bool>("IsDeleted")
                         .HasColumnType("boolean")
@@ -130,21 +143,39 @@ namespace LexiCraft.Services.Identity.Shared.Data.Migrations
                         .HasColumnType("timestamp with time zone")
                         .HasColumnName("last_login_at");
 
+                    b.Property<bool>("LockoutEnabled")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("boolean")
+                        .HasDefaultValue(true)
+                        .HasColumnName("lockout_enabled")
+                        .HasComment("是否启用锁定");
+
+                    b.Property<DateTimeOffset?>("LockoutEnd")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("lockout_end")
+                        .HasComment("锁定结束时间");
+
                     b.Property<string>("PasswordHash")
-                        .HasColumnType("text")
-                        .HasColumnName("password_hash");
+                        .IsRequired()
+                        .HasMaxLength(64)
+                        .HasColumnType("character varying(64)")
+                        .HasColumnName("password_hash")
+                        .HasComment("密码哈希值");
 
                     b.Property<string>("Phone")
                         .HasColumnType("text")
                         .HasColumnName("phone");
 
                     b.Property<string>("Signature")
-                        .HasColumnType("text")
-                        .HasColumnName("signature");
+                        .HasMaxLength(500)
+                        .HasColumnType("character varying(500)")
+                        .HasColumnName("signature")
+                        .HasComment("个性签名");
 
                     b.Property<int>("Source")
                         .HasColumnType("integer")
-                        .HasColumnName("source");
+                        .HasColumnName("source")
+                        .HasComment("注册来源");
 
                     b.Property<DateTime?>("UpdateAt")
                         .HasColumnType("timestamp with time zone")
@@ -160,16 +191,32 @@ namespace LexiCraft.Services.Identity.Shared.Data.Migrations
 
                     b.Property<string>("UserAccount")
                         .IsRequired()
-                        .HasColumnType("text")
-                        .HasColumnName("user_account");
+                        .HasMaxLength(32)
+                        .HasColumnType("character varying(32)")
+                        .HasColumnName("user_account")
+                        .HasComment("用户名");
 
                     b.Property<string>("Username")
                         .IsRequired()
-                        .HasColumnType("text")
-                        .HasColumnName("username");
+                        .HasMaxLength(32)
+                        .HasColumnType("character varying(32)")
+                        .HasColumnName("username")
+                        .HasComment("昵称");
+
+                    b.Property<long>("Version")
+                        .HasColumnType("bigint")
+                        .HasColumnName("version");
 
                     b.HasKey("Id")
                         .HasName("pk_users");
+
+                    b.HasIndex("Email")
+                        .IsUnique()
+                        .HasDatabaseName("ix_users_email");
+
+                    b.HasIndex("Username")
+                        .IsUnique()
+                        .HasDatabaseName("ix_users_username");
 
                     b.ToTable("users", (string)null);
                 });
@@ -205,12 +252,14 @@ namespace LexiCraft.Services.Identity.Shared.Data.Migrations
                     b.Property<string>("Provider")
                         .IsRequired()
                         .HasColumnType("text")
-                        .HasColumnName("provider");
+                        .HasColumnName("provider")
+                        .HasComment("OAuth 提供者");
 
                     b.Property<string>("ProviderUserId")
                         .IsRequired()
                         .HasColumnType("text")
-                        .HasColumnName("provider_user_id");
+                        .HasColumnName("provider_user_id")
+                        .HasComment("OAuth 提供者用户 ID");
 
                     b.Property<string>("RefreshToken")
                         .IsRequired()
@@ -238,6 +287,13 @@ namespace LexiCraft.Services.Identity.Shared.Data.Migrations
 
                     b.HasIndex("UserId")
                         .HasDatabaseName("ix_user_o_auths_user_id");
+
+                    b.HasIndex("Provider", "ProviderUserId")
+                        .IsUnique()
+                        .HasDatabaseName("ix_user_o_auths_provider_provider_user_id");
+
+                    b.HasIndex("Provider", "ProviderUserId", "UserId")
+                        .HasDatabaseName("ix_user_o_auths_provider_provider_user_id_user_id");
 
                     b.ToTable("user_o_auths", (string)null);
                 });
@@ -301,12 +357,18 @@ namespace LexiCraft.Services.Identity.Shared.Data.Migrations
                         .HasColumnName("id");
 
                     b.Property<bool>("AccountActive")
+                        .ValueGeneratedOnAdd()
                         .HasColumnType("boolean")
-                        .HasColumnName("account_active");
+                        .HasDefaultValue(false)
+                        .HasColumnName("account_active")
+                        .HasComment("账户是否激活");
 
                     b.Property<bool>("AllowMessages")
+                        .ValueGeneratedOnAdd()
                         .HasColumnType("boolean")
-                        .HasColumnName("allow_messages");
+                        .HasDefaultValue(false)
+                        .HasColumnName("allow_messages")
+                        .HasComment("允许消息");
 
                     b.Property<string>("Bio")
                         .IsRequired()
@@ -335,24 +397,39 @@ namespace LexiCraft.Services.Identity.Shared.Data.Migrations
                         .HasColumnName("gender");
 
                     b.Property<bool>("IsProfilePublic")
+                        .ValueGeneratedOnAdd()
                         .HasColumnType("boolean")
-                        .HasColumnName("is_profile_public");
+                        .HasDefaultValue(false)
+                        .HasColumnName("is_profile_public")
+                        .HasComment("个人资料是否公开");
 
                     b.Property<bool>("ReceiveEmailUpdates")
+                        .ValueGeneratedOnAdd()
                         .HasColumnType("boolean")
-                        .HasColumnName("receive_email_updates");
+                        .HasDefaultValue(false)
+                        .HasColumnName("receive_email_updates")
+                        .HasComment("接收邮件更新");
 
                     b.Property<bool>("ReceiveNotifications")
+                        .ValueGeneratedOnAdd()
                         .HasColumnType("boolean")
-                        .HasColumnName("receive_notifications");
+                        .HasDefaultValue(false)
+                        .HasColumnName("receive_notifications")
+                        .HasComment("接收通知");
 
                     b.Property<bool>("ReceivePushNotifications")
+                        .ValueGeneratedOnAdd()
                         .HasColumnType("boolean")
-                        .HasColumnName("receive_push_notifications");
+                        .HasDefaultValue(false)
+                        .HasColumnName("receive_push_notifications")
+                        .HasComment("接收推送通知");
 
                     b.Property<bool>("ShowLearningProgress")
+                        .ValueGeneratedOnAdd()
                         .HasColumnType("boolean")
-                        .HasColumnName("show_learning_progress");
+                        .HasDefaultValue(false)
+                        .HasColumnName("show_learning_progress")
+                        .HasComment("显示学习进度");
 
                     b.Property<DateTime?>("UpdateAt")
                         .HasColumnType("timestamp with time zone")
