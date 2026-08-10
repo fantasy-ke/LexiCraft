@@ -34,7 +34,7 @@ public static class UpdateUserInfoEndpoint
             var result = await mediator.Send(command, cancellationToken);
 
             return new GetUserInfoResponse(
-                result.UserId,
+                result.UserId.Value,
                 result.UserName,
                 result.Email,
                 result.Phone,

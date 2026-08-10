@@ -26,7 +26,7 @@ public static class GetUserPermissionsEndpoint
             var (queryProcessor, userId, cancellationToken) = requestParameters;
             var result = await queryProcessor.Send(new GetUserPermissionsQuery(new UserId(userId)), cancellationToken);
 
-            return new GetUserPermissionsResponse(result.UserId, result.Permissions);
+            return new GetUserPermissionsResponse(result.UserId.Value, result.Permissions);
         }
     }
 }
@@ -49,6 +49,6 @@ internal record GetUserPermissionsRequestParameters(
 /// <param name="UserId">用户ID</param>
 /// <param name="Permissions">权限列表</param>
 internal record GetUserPermissionsResponse(
-    UserId UserId,
+    Guid UserId,
     List<string> Permissions
 );

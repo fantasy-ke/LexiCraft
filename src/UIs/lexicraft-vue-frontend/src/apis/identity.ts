@@ -22,6 +22,22 @@ import {
 } from '@/types/auth'
 import {authGet, authPost, authPut, authRequest} from '@/utils/authHttp'
 
+export function normalizeUserId(userId: unknown): string {
+    if (typeof userId === 'string' && userId.trim()) {
+        return userId.trim()
+    }
+
+    if (userId && typeof userId === 'object') {
+        const source = userId as Record<string, unknown>
+        const value = source.value ?? source.Value
+        if (typeof value === 'string' && value.trim()) {
+            return value.trim()
+        }
+    }
+
+    throw new TypeError('Invalid user id returned by Identity service')
+}
+
 /**
  * 认证 API 实现类
  */
@@ -119,7 +135,8 @@ class AuthAPI implements IAuthAPI {
      * 查询用户权限列表
      */
     async getUserPermissions(userId: string): Promise<ResultDto<UserPermissionsResponse>> {
-        return authGet<UserPermissionsResponse>(`/v1/permissions/${userId}`)
+        const normalizedUserId = normalizeUserId(userId)
+        return authGet<UserPermissionsResponse>(`/v1/permissions/${encodeURIComponent(normalizedUserId)}`)
     }
 }
 

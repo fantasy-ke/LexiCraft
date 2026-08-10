@@ -15,7 +15,7 @@ import {
     UpdateProfileRequest,
     UserProfile
 } from '@/types/auth'
-import {authAPI} from '@/apis/identity'
+import {authAPI, normalizeUserId} from '@/apis/identity'
 import {tokenManager} from '@/utils/tokenManager'
 import Toast from '@/components/base/toast/Toast'
 
@@ -253,17 +253,17 @@ export const useAuthStore = defineStore('auth', () => {
                 if (response.status && response.data) {
                     // 进行字段映射，兼顾后端 PascalCase 转换为 camelCase 后的新字段以及前端旧字段
                     const userData = response.data
+                    const userId = normalizeUserId(userData.userId)
                     user.value = {
                         ...userData,
-                        id: userData.userId, // 别名兼容
-                        username: userData.userName // 别名兼容
+                        userId,
+                        id: userId,
+                        username: userData.userName
                     }
                     isAuthenticated.value = true
 
                     // 获取用户信息后，继续获取用户权限
-                    if (user.value?.id) {
-                        await fetchUserPermissions(user.value.id)
-                    }
+                    await fetchUserPermissions(userId)
                 } else {
                     throw new Error(response.message || '获取用户信息失败')
                 }

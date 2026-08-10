@@ -29,7 +29,7 @@ public static class GetUserInfoEndpoint
             var result = await queryProcessor.Send(new GetUserInfoQuery(userId), cancellationToken);
 
             return new GetUserInfoResponse(
-                result.UserId,
+                result.UserId.Value,
                 result.UserName,
                 result.Email,
                 result.Phone,
@@ -60,7 +60,7 @@ internal record GetUserInfoRequestParameters(
 /// <param name="Phone">手机号</param>
 /// <param name="Avatar">头像</param>
 internal record GetUserInfoResponse(
-    UserId UserId,
+    Guid UserId,
     string UserName,
     string Email,
     string? Phone,
