@@ -1,5 +1,4 @@
 using BuildingBlocks.Caching.Extensions;
-using BuildingBlocks.MassTransit.Extensions;
 using BuildingBlocks.Exceptions.Handler;
 using BuildingBlocks.Extensions;
 using BuildingBlocks.OpenApi.AspnetOpenApi.Extensions;
@@ -16,9 +15,6 @@ builder.Services
     .ConfigureJson()
     .AddCaching(builder.Configuration);
 builder.Services.AddExceptionHandler<CustomExceptionHandler>();
-
-builder.Services.AddCustomMassTransit(builder.Configuration, 
-    [typeof(VocabularyMetadata).Assembly]);
 
 builder.AddApplicationServices();
 

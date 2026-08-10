@@ -35,6 +35,8 @@ public static class MassTransitExtensions
         configuration.GetSection(MassTransitOptions.SectionName).Bind(options);
         services.Configure<MassTransitOptions>(configuration.GetSection(MassTransitOptions.SectionName));
 
+        if (!options.Enabled) return services;
+
         // 注册统一事件发布者
         services.TryAddScoped<IEventPublisher, EventPublisher>();
 

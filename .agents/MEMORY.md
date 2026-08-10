@@ -18,6 +18,8 @@
 - 前端是独立的 Vue 3/Vite 工程，使用 TypeScript、Pinia、Vue Router、Axios、UnoCSS、Vue Macros 和自动组件/图标导入；前端同时存在新认证客户端与旧业务 API 封装。
 - 前端核心视觉采用“趣味手绘墨”主题：`main.scss` 维护纸张/黑板、墨色、红笔、苔绿和粉笔色语义变量，核心布局使用角落信息岛、全画布内容和底部墨迹 Dock；新核心表面优先复用 `DoodleIcon.vue`，但不为统一图标而批量改写历史业务页面。
 
+- MassTransit 采用显式启用策略：未配置 `MassTransit` 节或 `Enabled=false` 时，`AddCustomMassTransit` 不注册消息总线、事件发布器和本地事件后台服务；Practice 因完成练习流程会发布集成事件而显式启用，Vocabulary 当前无发布/消费行为，不注册 MassTransit。
+
 ## 已确认的长期协作约定
 
 - 新任务开始前读取本文件和最新每日记忆，记录 `git status --short`，保留用户已有修改。

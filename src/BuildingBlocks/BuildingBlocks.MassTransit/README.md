@@ -7,6 +7,9 @@ Sourcing）支持和 Saga 状态机持久化（基于 MongoDB）。
 
 * **开箱即用**：集成了 RabbitMQ 的连接、认证和重试机制。
 * **灵活配置**：通过 `appsettings.json` 进行参数化配置。
+
+MassTransit 采用显式启用策略：未配置该节或 `Enabled` 为 `false` 时，不会注册消息总线、事件发布器或本地事件后台服务。
+
 * **统一发布**：提供 `IEventPublisher` 接口，统一处理集成事件（MQ）和本地事件（MediatR）。
 * **本地异步处理**：本地事件（`PublishLocalAsync`）采用基于 `Channel` 的后台任务模式，不占用主线程，实现真正的异步非阻塞处理。
 * **自动注册**：支持自动扫描指定程序集中的 Consumer、Saga 和 Saga State Machine。
@@ -31,6 +34,7 @@ Sourcing）支持和 Saga 状态机持久化（基于 MongoDB）。
 ```json
 {
   "MassTransit": {
+    "Enabled": true,
     "Host": "localhost",
     "Port": 5672,
     "VirtualHost": "/",
@@ -48,6 +52,7 @@ Sourcing）支持和 Saga 状态机持久化（基于 MongoDB）。
 ```json
 {
   "MassTransit": {
+    "Enabled": true,
     "Host": "localhost",
     "Port": 5672,
     "VirtualHost": "/",
