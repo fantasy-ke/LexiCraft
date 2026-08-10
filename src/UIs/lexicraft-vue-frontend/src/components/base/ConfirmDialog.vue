@@ -70,172 +70,29 @@ const handleCancel = () => {
 </script>
 
 <style lang="scss" scoped>
-.confirm-dialog-overlay {
-  position: fixed;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  background: rgba(0, 0, 0, 0.5);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  z-index: 9999;
-  padding: 1rem;
-  box-sizing: border-box;
-}
-
-.confirm-dialog {
-  background: white;
-  border-radius: 12px;
-  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
-  max-width: 400px;
-  width: 100%;
-  overflow: hidden;
-  animation: dialogSlideIn 0.3s ease-out;
-}
-
-.dialog-header {
-  padding: 1.5rem 1.5rem 0 1.5rem;
-
-  .dialog-title {
-    font-size: 1.25rem;
-    font-weight: 600;
-    color: #1f2937;
-    margin: 0;
-  }
-}
-
-.dialog-content {
-  padding: 1rem 1.5rem;
-
-  .dialog-message {
-    color: #6b7280;
-    line-height: 1.6;
-    margin: 0;
-  }
-}
-
-.dialog-actions {
-  padding: 0 1.5rem 1.5rem 1.5rem;
-  display: flex;
-  gap: 0.75rem;
-  justify-content: flex-end;
-}
-
-.btn {
-  padding: 0.75rem 1.5rem;
-  border-radius: 8px;
-  font-weight: 500;
-  cursor: pointer;
-  transition: all 0.2s;
-  border: none;
-  font-size: 0.875rem;
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-
-  &:disabled {
-    opacity: 0.6;
-    cursor: not-allowed;
-  }
-}
-
-.btn-cancel {
-  background: #f3f4f6;
-  color: #6b7280;
-
-  &:hover:not(:disabled) {
-    background: #e5e7eb;
-  }
-}
-
-.btn-confirm {
-  background: #3b82f6;
-  color: white;
-
-  &:hover:not(:disabled) {
-    background: #2563eb;
-  }
-}
-
-.loading-spinner {
-  width: 14px;
-  height: 14px;
-  border: 2px solid rgba(255, 255, 255, 0.3);
-  border-top: 2px solid white;
-  border-radius: 50%;
-  animation: spin 1s linear infinite;
-}
-
-@keyframes dialogSlideIn {
-  from {
-    opacity: 0;
-    transform: translateY(-20px) scale(0.95);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0) scale(1);
-  }
-}
-
-@keyframes spin {
-  to {
-    transform: rotate(360deg);
-  }
-}
-
-/* 响应式设计 */
-@media (max-width: 480px) {
-  .confirm-dialog {
-    margin: 0 1rem;
-    max-width: none;
-  }
-
-  .dialog-header {
-    padding: 1rem 1rem 0 1rem;
-
-    .dialog-title {
-      font-size: 1.125rem;
-    }
-  }
-
-  .dialog-content {
-    padding: 0.75rem 1rem;
-  }
-
-  .dialog-actions {
-    padding: 0 1rem 1rem 1rem;
-    flex-direction: column-reverse;
-
-    .btn {
-      width: 100%;
-      justify-content: center;
-    }
-  }
-}
-
-/* 暗色主题支持 */
-@media (prefers-color-scheme: dark) {
-  .confirm-dialog {
-    background: #1f2937;
-
-    .dialog-title {
-      color: #f9fafb;
-    }
-
-    .dialog-message {
-      color: #d1d5db;
-    }
-  }
-
-  .btn-cancel {
-    background: #374151;
-    color: #d1d5db;
-
-    &:hover:not(:disabled) {
-      background: #4b5563;
-    }
-  }
-}
+.confirm-dialog-overlay { position: fixed; inset: 0; z-index: 9999; display: flex; align-items: center; justify-content: center; padding: 1rem; box-sizing: border-box; background: color-mix(in srgb, #000 55%, transparent); backdrop-filter: blur(6px); }
+.confirm-dialog { width: min(100%, 420px); overflow: hidden; border: 1px solid var(--border-strong); border-radius: var(--radius-card); color: var(--text-primary); background: var(--surface-card); box-shadow: var(--card-shadow); animation: dialog-in .24s ease-out; }
+.dialog-header { padding: 1.6rem 1.6rem 0; }
+.dialog-title { margin: 0; font-family: var(--font-heading); font-size: 1.35rem; font-weight: 500; }
+.dialog-content { padding: 1rem 1.6rem 1.5rem; }
+.dialog-message { margin: 0; color: var(--text-secondary); line-height: 1.7; }
+.dialog-actions { display: flex; justify-content: flex-end; gap: .7rem; padding: 1rem 1.6rem 1.5rem; border-top: 1px solid var(--border-color); }
+.btn { display: inline-flex; min-width: 78px; align-items: center; justify-content: center; gap: .5rem; padding: .7rem 1.2rem; border: 1px solid var(--border-color); border-radius: var(--radius-control); cursor: pointer; font: inherit; font-size: .85rem; transition: background .2s ease, border-color .2s ease, transform .2s ease; }
+.btn:disabled { opacity: .55; cursor: not-allowed; }
+.btn:focus-visible { outline: 3px solid var(--focus-ring); outline-offset: 2px; }
+.btn-cancel { color: var(--text-secondary); background: var(--surface-raised); }
+.btn-cancel:hover:not(:disabled) { border-color: var(--accent); color: var(--text-primary); background: var(--surface-muted); }
+.btn-confirm { border-color: var(--accent); color: var(--accent-contrast); background: var(--accent); }
+.btn-confirm:hover:not(:disabled) { background: var(--accent-hover); transform: translateY(-1px); }
+.loading-spinner { width: 14px; height: 14px; border: 2px solid color-mix(in srgb, var(--accent-contrast) 30%, transparent); border-top-color: var(--accent-contrast); border-radius: 50%; animation: spin 1s linear infinite; }
+:global(html[data-theme-style='editorial'] .confirm-dialog) { border-top-width: 5px; }
+:global(html[data-theme-style='editorial'] .btn) { font-family: var(--font-sans); }
+:global(html[data-theme-style='zen'] .confirm-dialog) { border-inline: 0; box-shadow: none; }
+:global(html[data-theme-style='zen'] .btn) { border-radius: 0; font-family: var(--font-mono); }
+:global(html[data-theme-style='ink'] .confirm-dialog) { border-width: 2px; transform: rotate(-.35deg); }
+:global(html[data-theme-style='ink'] .dialog-title) { font-family: var(--font-hand); }
+:global(html[data-theme-style='ink'] .btn) { border-width: 2px; font-weight: 800; }
+@keyframes dialog-in { from { opacity: 0; transform: translateY(12px) scale(.98); } }
+@keyframes spin { to { transform: rotate(360deg); } }
+@media (max-width: 480px) { .dialog-actions { flex-direction: column-reverse; } .btn { width: 100%; } }
 </style>

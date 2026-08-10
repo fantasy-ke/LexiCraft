@@ -9,10 +9,24 @@ import Slider from '@/components/base/Slider.vue'
 import SettingItem from '@/components/setting/SettingItem.vue'
 import {useSettingStore} from '@/stores/setting.ts'
 import {useBaseStore} from '@/stores/base.ts'
-import {ShortcutKey} from "@/types/enum.ts";
+import {ShortcutKey} from '@/types/enum.ts'
+import useTheme, {type ThemeMode, type ThemeStyle} from '@/hooks/theme'
 
 const settingStore = useSettingStore()
 const store = useBaseStore()
+const {setTheme, setThemeStyle} = useTheme()
+
+const themeStyles: Array<{value: ThemeStyle; label: string; caption: string; mark: string}> = [
+  {value: 'editorial', label: '暖调书卷', caption: '像一本值得翻阅的书', mark: 'Aa'},
+  {value: 'zen', label: '极简专注', caption: '安静、克制的写作空间', mark: '_'},
+  {value: 'ink', label: '趣味手绘', caption: '像翻开一本涂鸦笔记', mark: '✎'}
+]
+
+const colorModes: Array<{value: ThemeMode; label: string}> = [
+  {value: 'light', label: '明亮'},
+  {value: 'dark', label: '暗色'},
+  {value: 'auto', label: '跟随系统'}
+]
 
 const simpleWords = $computed({
   get: () => store.simpleWords.join(','),
@@ -27,6 +41,48 @@ const simpleWords = $computed({
 
 <template>
   <div>
+    <section class="appearance-setting" aria-labelledby="appearance-title">
+      <div class="appearance-heading">
+        <div>
+          <span class="appearance-kicker">VISUAL READING ROOM</span>
+          <h3 id="appearance-title">学习空间的气质</h3>
+        </div>
+        <p>选择内部学习空间的视觉风格。入口首页和登录页始终保持暖调书卷气。</p>
+      </div>
+
+      <div class="theme-style-list">
+        <button
+            v-for="item in themeStyles"
+            :key="item.value"
+            :aria-pressed="settingStore.themeStyle === item.value"
+            :class="['theme-style-card', `theme-style-card--${item.value}`, {active: settingStore.themeStyle === item.value}]"
+            type="button"
+            @click="setThemeStyle(item.value)"
+        >
+          <span class="style-mark">{{ item.mark }}</span>
+          <strong>{{ item.label }}</strong>
+          <small>{{ item.caption }}</small>
+        </button>
+      </div>
+
+      <div class="color-mode-row">
+        <span>明暗模式</span>
+        <div class="segmented-control">
+          <button
+              v-for="mode in colorModes"
+              :key="mode.value"
+              :aria-pressed="settingStore.theme === mode.value"
+              :class="{active: settingStore.theme === mode.value}"
+              type="button"
+              @click="setTheme(mode.value)"
+          >
+            {{ mode.label }}
+          </button>
+        </div>
+      </div>
+    </section>
+
+    <div class="line"></div>
     <SettingItem
         desc="开启后，输入时不区分大小写，如输入“hello”和“Hello”都会被认为是正确的"
         title="忽略大小写"
@@ -94,4 +150,103 @@ const simpleWords = $computed({
   </div>
 </template>
 
-<style lang="scss" scoped></style>
+<style lang="scss" scoped>
+.appearance-setting {
+  margin-bottom: 1.5rem;
+  padding: clamp(1rem, 2.5vw, 1.6rem);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-card);
+  color: var(--text-primary);
+  background: var(--surface-card);
+  box-shadow: var(--card-shadow);
+}
+
+.appearance-heading {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 1.5rem;
+  margin-bottom: 1.25rem;
+
+  h3 { margin: .2rem 0 0; font-family: var(--font-heading); font-size: 1.35rem; }
+  p { max-width: 33rem; margin: 0; color: var(--text-secondary); font-size: .83rem; line-height: 1.6; }
+}
+
+.appearance-kicker {
+  color: var(--accent);
+  font-family: var(--font-mono);
+  font-size: .68rem;
+  font-weight: 800;
+  letter-spacing: .14em;
+}
+
+.theme-style-list {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: .75rem;
+}
+
+.theme-style-card {
+  display: grid;
+  min-height: 8.5rem;
+  align-content: end;
+  justify-items: start;
+  padding: 1rem;
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-control);
+  color: var(--text-primary);
+  background: var(--surface-raised);
+  cursor: pointer;
+  text-align: left;
+  transition: border-color .2s ease, box-shadow .2s ease, transform .2s ease;
+
+  &:hover { transform: translateY(-2px); }
+  &.active { border-color: var(--accent); box-shadow: 0 0 0 3px var(--focus-ring); }
+  strong { margin-top: .75rem; font-size: .95rem; }
+  small { margin-top: .25rem; color: var(--text-secondary); }
+}
+
+.style-mark { font-size: 1.8rem; line-height: 1; }
+.theme-style-card--editorial { font-family: var(--font-editorial); background: #f4ead8; color: #2b241f; }
+.theme-style-card--zen { border-radius: 0; font-family: var(--font-mono); background: #f8f8f6; color: #111; }
+.theme-style-card--ink { border: 2px solid #242b27; border-radius: 15px 10px 17px 12px; font-family: var(--font-hand); background: #f4efde; color: #242b27; transform: rotate(.5deg); }
+.theme-style-card--ink:hover { transform: translateY(-2px) rotate(-.5deg); }
+
+.color-mode-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  margin-top: 1rem;
+  color: var(--text-secondary);
+  font-size: .82rem;
+}
+
+.segmented-control {
+  display: inline-flex;
+  padding: 3px;
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-control);
+  background: var(--surface-muted);
+
+  button {
+    padding: .48rem .75rem;
+    border: 0;
+    border-radius: max(0px, calc(var(--radius-control) - 2px));
+    color: var(--text-secondary);
+    background: transparent;
+    cursor: pointer;
+    font: inherit;
+  }
+
+  button.active { color: var(--accent-contrast); background: var(--accent); }
+}
+
+@media (max-width: 760px) {
+  .appearance-heading { align-items: flex-start; flex-direction: column; gap: .5rem; }
+  .theme-style-list { grid-template-columns: 1fr; }
+  .theme-style-card { min-height: 6.5rem; }
+  .color-mode-row { align-items: stretch; flex-direction: column; }
+  .segmented-control { display: grid; grid-template-columns: repeat(3, 1fr); }
+}
+</style>

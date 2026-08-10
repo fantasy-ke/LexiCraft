@@ -33,130 +33,53 @@ defineEmits(['click'])
   </Tooltip>
 </template>
 
-<style>
-:root {
-  --btn-primary: rgb(75, 85, 99);
-  --btn-primary-disabled: #90969e;
-  --btn-primary-hover: rgb(105, 121, 143);
-  --btn-info: white;
-  --btn-info-hover: #eaeaea;
-  --btn-orange: #facc15;
-  --btn-orange-hover: #bfac61;
-}
 
-html.dark {
-  --btn-info: #1b1b1b;
-  --btn-info-hover: #3a3a3a;
-}
-</style>
 
 <style lang="scss" scoped>
 .base-button {
-  cursor: pointer;
-  box-sizing: border-box;
+  position: relative;
   display: inline-flex;
+  height: 2.25rem;
   align-items: center;
   justify-content: center;
+  box-sizing: border-box;
+  padding: 0 .95rem;
+  border: 1px solid transparent;
+  border-radius: var(--radius-control);
   outline: none;
+  color: var(--accent-contrast);
+  cursor: pointer;
+  font-family: var(--font-family);
+  font-size: .88rem;
   text-align: center;
-  transition: all 0.3s;
+  transition: color .2s ease, background .2s ease, border-color .2s ease, box-shadow .2s ease, transform .2s ease;
   user-select: none;
-  vertical-align: middle;
   white-space: nowrap;
-  border-radius: 0.3rem;
-  padding: 0 0.9rem;
-  font-size: 0.9rem;
-  height: 2rem;
-  color: white;
 
-  & + .base-button {
-    margin-left: 1rem;
-  }
+  & + .base-button { margin-left: 1rem; }
+  &.small { height: 1.8rem; padding-inline: .65rem; font-size: .76rem; }
+  &.large { height: 2.75rem; padding-inline: 1.35rem; font-size: .92rem; }
+  &.disabled { opacity: .55; cursor: not-allowed; }
+  &:focus-visible { outline: 3px solid var(--focus-ring); outline-offset: 2px; }
+  .loading { position: absolute; }
+  & > span { line-height: 1; }
+  & > span :deep(a) { color: inherit; }
 
-  &.disabled {
-    opacity: 0.6;
-    cursor: not-allowed;
-    user-select: none;
-    color: rgba(#fff, 0.4);
-  }
-
-  .loading {
-    position: absolute;
-  }
-
-  &.small {
-    border-radius: 0.3rem;
-    padding: 0 0.6rem;
-    height: 1.6rem;
-    font-size: 0.8rem;
-  }
-
-  &.large {
-    padding: 0 1.3rem;
-    height: 2.4rem;
-    font-size: 0.9rem;
-    border-radius: 0.5rem;
-  }
-
-  & > span {
-    line-height: 1;
-    transform: translateY(-5%);
-
-    :deep(a) {
-      color: white;
-    }
-  }
-
-  &.primary {
-    background: var(--btn-primary);
-
-    &.disabled {
-      opacity: 1;
-      background: var(--btn-primary-disabled);
-    }
-
-    &:hover:not(.disabled) {
-      background: var(--btn-primary-hover);
-    }
-  }
-
-  &.info {
-    background: var(--btn-info);
-    border: 1px solid var(--color-main-text);
-    color: var(--color-main-text);
-
-    &:hover:not(.disabled) {
-      background: var(--btn-info-hover);
-    }
-  }
-
-  &.orange {
-    background: var(--btn-orange);
-    color: black;
-
-    &:hover:not(.disabled) {
-      background: var(--btn-orange-hover);
-      color: rgba(0, 0, 0, 0.6);
-    }
-  }
-
-  &.text {
-    background: transparent;
-    color: var(--color-main-text);
-    padding: 0 0.5rem;
-
-    &:hover:not(.disabled) {
-      opacity: 0.8;
-      text-decoration: underline;
-    }
-
-    & > span :deep(a) {
-      color: var(--color-main-text);
-    }
-  }
-
-  &.active {
-    opacity: 0.4;
-  }
+  &.primary { background: var(--btn-primary); box-shadow: var(--control-shadow); }
+  &.primary:hover:not(.disabled) { background: var(--btn-primary-hover); transform: translateY(-1px); }
+  &.primary.disabled { background: var(--btn-primary-disabled); }
+  &.info { border-color: var(--border-color); color: var(--text-primary); background: var(--btn-info); }
+  &.info:hover:not(.disabled) { border-color: var(--accent); background: var(--btn-info-hover); }
+  &.orange { color: #241d12; background: var(--btn-orange); }
+  &.orange:hover:not(.disabled) { background: var(--btn-orange-hover); }
+  &.text { padding-inline: .5rem; color: var(--text-primary); background: transparent; }
+  &.text:hover:not(.disabled) { color: var(--accent); text-decoration: underline; text-underline-offset: 3px; }
+  &.active { box-shadow: inset 0 0 0 2px var(--accent-contrast); }
 }
+
+:global(html[data-theme-style='editorial'] .base-button) { font-family: var(--font-sans); letter-spacing: .02em; }
+:global(html[data-theme-style='zen'] .base-button) { border-radius: 0; box-shadow: none; font-family: var(--font-mono); text-transform: lowercase; }
+:global(html[data-theme-style='zen'] .base-button:hover:not(.disabled)) { transform: none; }
+:global(html[data-theme-style='ink'] .base-button) { border-width: 2px; border-color: var(--border-strong); box-shadow: var(--control-shadow); font-weight: 800; transform: rotate(-.3deg); }
+:global(html[data-theme-style='ink'] .base-button:hover:not(.disabled)) { transform: translateY(-2px) rotate(.5deg); }
 </style>

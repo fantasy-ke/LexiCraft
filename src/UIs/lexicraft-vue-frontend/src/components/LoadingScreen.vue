@@ -1,28 +1,16 @@
 <template>
-  <div :class="settingStore.theme" class="loading-screen">
-    <!-- Logo 居中显示 -->
-    <div class="center-logo">
-      <div class="logo-box">
-        <div class="logo-icon">
-          <span class="text-white font-bold text-lg">LC</span>
-        </div>
-        <span class="logo-text">LexionCraft</span>
-      </div>
+  <div class="loading-screen">
+    <div class="loading-center">
+      <div class="loading-mark" aria-hidden="true"><span>L</span><i></i></div>
+      <div class="loading-title"><strong>LexiCraft</strong><small>YOUR LANGUAGE JOURNAL</small></div>
     </div>
 
     <div class="loading-bottom-section">
-      <!-- 提示句子 -->
-      <div v-if="loadingText" class="loading-tip">
-        <span class="quote">“</span>
-        {{ loadingText }}
-        <span class="quote">”</span>
-      </div>
-
-      <!-- 进度条区域 -->
+      <p v-if="loadingText" class="loading-tip">{{ loadingText }}</p>
       <div class="progress-area">
         <span class="loading-label">LOADING</span>
-        <div class="progress-bar-container">
-          <div :style="{ width: progress + '%' }" class="progress-bar-fill"></div>
+        <div class="progress-track" role="progressbar" :aria-valuenow="Math.round(progress)" aria-valuemin="0" aria-valuemax="100">
+          <div :style="{width: `${progress}%`}" class="progress-fill"></div>
         </div>
         <span class="percentage-label">{{ Math.round(progress) }}%</span>
       </div>
@@ -31,196 +19,49 @@
 </template>
 
 <script lang="ts" setup>
-import {useSettingStore} from '@/stores/setting.ts'
-
 interface Props {
   progress: number
   loadingText?: string
 }
 
-const settingStore = useSettingStore()
-
 withDefaults(defineProps<Props>(), {
-  loadingText: '正在加载学习内容...'
+  loadingText: '正在整理学习书页...'
 })
 </script>
 
 <style lang="scss" scoped>
-.loading-screen {
-  position: fixed;
-  inset: 0;
-  background: var(--color-primary);
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  z-index: 9999;
-  overflow: hidden;
-  transition: background 0.5s ease;
+.loading-screen { position: fixed; inset: 0; z-index: 9999; display: flex; align-items: center; justify-content: center; overflow: hidden; color: var(--text-primary); background-color: var(--surface-page); background-image: var(--texture-image); background-size: var(--texture-size); transition: color .3s ease, background .3s ease; }
+.loading-center { display: flex; align-items: center; gap: 17px; animation: breathe 2.8s ease-in-out infinite; }
+.loading-mark { position: relative; display: grid; width: 58px; height: 58px; place-items: center; border: 1px solid var(--border-strong); border-radius: var(--radius-control); color: var(--accent); background: var(--surface-card); box-shadow: var(--control-shadow); font-family: var(--font-heading); font-size: 32px; font-style: italic; }
+.loading-mark i { position: absolute; right: -8px; bottom: -7px; width: 22px; height: 22px; border: 1px solid var(--accent); border-radius: 50%; }
+.loading-title strong, .loading-title small { display: block; }
+.loading-title strong { font-family: var(--font-heading); font-size: 2rem; font-weight: 500; }
+.loading-title small { margin-top: 4px; color: var(--text-tertiary); font-family: var(--font-mono); font-size: .58rem; letter-spacing: .18em; }
+.loading-bottom-section { position: absolute; right: 50%; bottom: 11%; display: flex; width: min(620px, calc(100% - 42px)); flex-direction: column; align-items: center; gap: 1.2rem; transform: translateX(50%); }
+.loading-tip { margin: 0; color: var(--text-secondary); font-size: .85rem; text-align: center; }
+.progress-area { display: grid; width: 100%; grid-template-columns: 68px 1fr 48px; align-items: center; gap: 1rem; }
+.loading-label, .percentage-label { color: var(--text-tertiary); font-family: var(--font-mono); font-size: .65rem; font-weight: 800; letter-spacing: .13em; }
+.percentage-label { text-align: right; }
+.progress-track { position: relative; height: 4px; overflow: hidden; background: var(--surface-muted); }
+.progress-fill { position: relative; height: 100%; background: var(--accent); transition: width .35s ease; }
+.progress-fill::after { content: ''; position: absolute; inset: 0; background: linear-gradient(90deg, transparent, color-mix(in srgb, var(--accent-contrast) 42%, transparent), transparent); animation: shimmer 1.8s infinite; }
 
-  &.dark {
-    background: #000000;
-  }
-}
+:global(html[data-theme-style='editorial'] .loading-screen) { background-image: repeating-linear-gradient(0deg, transparent 0 6px, color-mix(in srgb, var(--text-primary) 2%, transparent) 7px); }
+:global(html[data-theme-style='editorial'] .loading-mark) { border-radius: 50%; }
+:global(html[data-theme-style='editorial'] .progress-track::after) { content: ''; position: absolute; inset: -5px 50% -5px auto; width: 1px; background: var(--surface-page); box-shadow: 1px 0 0 var(--border-color); }
+:global(html[data-theme-style='zen'] .loading-center) { align-items: baseline; gap: 10px; animation: none; }
+:global(html[data-theme-style='zen'] .loading-mark) { width: auto; height: auto; border: 0; border-radius: 0; background: transparent; box-shadow: none; font-family: var(--font-mono); font-size: 1rem; font-style: normal; }
+:global(html[data-theme-style='zen'] .loading-mark i), :global(html[data-theme-style='zen'] .loading-title small) { display: none; }
+:global(html[data-theme-style='zen'] .loading-title strong) { font-family: var(--font-mono); font-size: 1rem; font-weight: 400; }
+:global(html[data-theme-style='zen'] .loading-tip) { font-family: var(--font-mono); font-size: .72rem; }
+:global(html[data-theme-style='zen'] .progress-track) { height: 1px; }
+:global(html[data-theme-style='ink'] .loading-mark) { border-width: 2px; border-radius: 50% 43% 48% 45%; box-shadow: 5px 6px 0 var(--shadow-color); font-family: var(--font-hand); transform: rotate(-3deg); }
+:global(html[data-theme-style='ink'] .loading-title strong) { font-family: var(--font-hand); font-weight: 800; transform: rotate(1deg); }
+:global(html[data-theme-style='ink'] .loading-tip) { color: var(--accent); font-family: var(--font-hand); font-size: 1rem; font-weight: 800; transform: rotate(-1deg); }
+:global(html[data-theme-style='ink'] .progress-track) { height: 8px; border: 2px solid var(--border-strong); border-radius: 8px 5px 9px 6px; background: transparent; }
 
-.center-logo {
-  margin-bottom: 8vh; // 向上移动一些
-
-  .logo-box {
-    display: flex;
-    align-items: center;
-    gap: 1rem;
-    animation: breathing 3s ease-in-out infinite;
-
-    .logo-icon {
-      width: 48px;
-      height: 48px;
-      background: linear-gradient(135deg, #3b82f6, #1d4ed8);
-      border-radius: 8px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      box-shadow: 0 4px 15px rgba(59, 130, 246, 0.3);
-    }
-
-    .logo-text {
-      font-size: 2.2rem;
-      font-weight: 800;
-      color: var(--text-primary, #ffffff);
-      letter-spacing: -0.02em;
-    }
-  }
-}
-
-.loading-bottom-section {
-  position: absolute;
-  bottom: 12%;
-  left: 50%;
-  transform: translateX(-50%);
-  width: 80%;
-  max-width: 600px;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 1.5rem;
-}
-
-.loading-tip {
-  color: var(--text-secondary, #e5e7eb);
-  font-size: 0.9rem;
-  font-weight: 500;
-  letter-spacing: 0.02rem;
-  opacity: 0.9;
-  text-align: center;
-  max-width: 90%;
-
-  .quote {
-    color: #3b82f6; // 蓝色引号
-    font-weight: bold;
-    font-size: 1.2rem;
-    padding: 0 0.4rem;
-  }
-}
-
-.progress-area {
-  display: flex;
-  align-items: center;
-  gap: 1.2rem;
-  width: 100%;
-
-  .loading-label, .percentage-label {
-    font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
-    font-size: 0.75rem;
-    font-weight: 800;
-    color: var(--text-tertiary, #9ca3af);
-    letter-spacing: 0.15rem;
-    min-width: 4rem;
-  }
-
-  .percentage-label {
-    text-align: right;
-  }
-
-  .progress-bar-container {
-    flex: 1;
-    height: 8px;
-    background: rgba(255, 255, 255, 0.05);
-    border: 1px solid rgba(255, 255, 255, 0.1);
-    border-radius: 2px; // 硬朗风格
-    overflow: hidden;
-    position: relative;
-
-    .progress-bar-fill {
-      height: 100%;
-      background: linear-gradient(90deg, #3b82f6, #1d4ed8); // 蓝色渐变
-      transition: width 0.4s cubic-bezier(0.4, 0, 0.2, 1);
-      position: relative;
-
-      &::after {
-        content: '';
-        position: absolute;
-        inset: 0;
-        background: linear-gradient(
-                90deg,
-                rgba(255, 255, 255, 0) 0%,
-                rgba(255, 255, 255, 0.2) 50%,
-                rgba(255, 255, 255, 0) 100%
-        );
-        animation: shimmer 2s infinite;
-      }
-    }
-  }
-}
-
-@keyframes breathing {
-  0%, 100% {
-    transform: scale(1);
-    opacity: 1;
-  }
-  50% {
-    transform: scale(1.03);
-    opacity: 0.9;
-  }
-}
-
-@keyframes shimmer {
-  0% {
-    transform: translateX(-100%);
-  }
-  100% {
-    transform: translateX(100%);
-  }
-}
-
-/* 响应式设计 */
-@media (max-width: 768px) {
-  .center-logo {
-    margin-bottom: 4vh; // 移动端减少向上移动的幅度
-
-    .logo-box {
-      .logo-icon {
-        width: 40px;
-        height: 40px;
-      }
-
-      .logo-text {
-        font-size: 1.8rem;
-      }
-    }
-  }
-
-  .loading-bottom-section {
-    width: 90%;
-    bottom: 15%;
-  }
-
-  .progress-area {
-    gap: 0.5rem;
-
-    .loading-label, .percentage-label {
-      font-size: 0.65rem;
-      min-width: 2.5rem;
-    }
-  }
-}
+@keyframes breathe { 50% { opacity: .82; transform: translateY(-3px); } }
+@keyframes shimmer { from { transform: translateX(-100%); } to { transform: translateX(100%); } }
+@media (max-width: 620px) { .loading-center { transform: scale(.9); } .progress-area { grid-template-columns: 50px 1fr 38px; gap: .6rem; } .loading-label, .percentage-label { font-size: .55rem; } }
+@media (prefers-reduced-motion: reduce) { .loading-center, .progress-fill::after { animation: none; } }
 </style>

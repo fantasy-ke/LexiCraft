@@ -87,112 +87,17 @@ defineExpose({
 </script>
 
 <style lang="scss" scoped>
-.message {
-  position: relative;
-  min-width: 16rem;
-  padding: 0.8rem 1rem;
-  border-radius: 0.2rem;
-  box-shadow: 0 0.2rem 0.9rem rgba(0, 0, 0, 0.15);
-  background: white;
-  border: 1px solid #ebeef5;
-  transition: all 0.3s ease;
-  pointer-events: auto;
-
-  &.success {
-    background: #f0f9ff;
-    border-color: #67c23a;
-    color: #67c23a;
-  }
-
-  &.warning {
-    background: #fdf6ec;
-    border-color: #e6a23c;
-    color: #e6a23c;
-  }
-
-  &.info {
-    background: #f4f4f5;
-    border-color: #909399;
-    color: #909399;
-  }
-
-  &.error {
-    background: #fef0f0;
-    border-color: #f56c6c;
-    color: #f56c6c;
-  }
-}
-
-// 深色模式支持
-html.dark {
-  .message {
-    background: var(--color-second);
-    border-color: var(--color-item-border);
-    color: var(--color-main-text);
-
-    &.success {
-      background: rgba(103, 194, 58, 0.1);
-      border-color: #67c23a;
-      color: #67c23a;
-    }
-
-    &.warning {
-      background: rgba(230, 162, 60, 0.1);
-      border-color: #e6a23c;
-      color: #e6a23c;
-    }
-
-    &.info {
-      background: rgba(144, 147, 153, 0.1);
-      border-color: #909399;
-      color: #909399;
-    }
-
-    &.error {
-      background: rgba(245, 108, 108, 0.1);
-      border-color: #f56c6c;
-      color: #f56c6c;
-    }
-  }
-}
-
-.message-content {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-}
-
-.message-icon {
-  font-size: 1.2rem;
-}
-
-.message-text {
-  flex: 1;
-  font-size: 14px;
-}
-
-.message-close {
-  cursor: pointer;
-  font-size: 1.2rem;
-  opacity: 0.7;
-
-  &:hover {
-    opacity: 1;
-  }
-}
-
-.message-fade-enter-active,
-.message-fade-leave-active {
-  transition: all 0.3s ease;
-}
-
-.message-fade-enter-from {
-  opacity: 0;
-  transform: translateY(-40px);
-}
-
-.message-fade-leave-to {
-  opacity: 0;
-  transform: translateY(-40px);
-}
+.message { position: relative; min-width: 16rem; padding: .8rem 1rem; border: 1px solid var(--border-color); border-left: 4px solid currentColor; border-radius: var(--radius-control); color: var(--text-primary); background: var(--surface-overlay); box-shadow: var(--control-shadow); backdrop-filter: blur(12px); pointer-events: auto; transition: opacity .25s ease, transform .25s ease; }
+.message.success { color: var(--success); background: color-mix(in srgb, var(--success) 10%, var(--surface-card)); }
+.message.warning { color: var(--warning); background: color-mix(in srgb, var(--warning) 10%, var(--surface-card)); }
+.message.info { color: var(--text-secondary); background: var(--surface-card); }
+.message.error { color: var(--danger); background: color-mix(in srgb, var(--danger) 10%, var(--surface-card)); }
+.message-content { display: flex; align-items: center; gap: 8px; }
+.message-icon { flex: 0 0 auto; font-size: 1.2rem; }
+.message-text { flex: 1; color: var(--text-primary); font-size: 14px; }
+.message-close { color: var(--text-secondary); cursor: pointer; font-size: 1.2rem; }
+:global(html[data-theme-style='zen'] .message) { border-inline: 0; border-radius: 0; box-shadow: none; font-family: var(--font-mono); }
+:global(html[data-theme-style='ink'] .message) { border-width: 2px 2px 2px 5px; font-family: var(--font-hand); font-weight: 700; transform: rotate(-.4deg); }
+.message-fade-enter-active, .message-fade-leave-active { transition: opacity .25s ease, transform .25s ease; }
+.message-fade-enter-from, .message-fade-leave-to { opacity: 0; transform: translateY(-20px); }
 </style>

@@ -42,30 +42,9 @@ const currentRouteName = computed(() => {
 </script>
 
 <style lang="scss" scoped>
-.modern-layout {
-  position: relative;
-  height: 100dvh;
-  overflow: hidden;
-  color: var(--text-primary);
-  background: var(--layout-bg);
-  font-family: var(--font-family);
-}
-
-.paper-grain {
-  position: fixed;
-  inset: 0;
-  z-index: 0;
-  opacity: .38;
-  pointer-events: none;
-  background-image:
-      radial-gradient(circle at 13% 19%, rgba(32, 39, 35, .08) 0 1px, transparent 1.4px),
-      radial-gradient(circle at 78% 71%, rgba(32, 39, 35, .055) 0 1px, transparent 1.5px),
-      linear-gradient(rgba(32, 39, 35, .025) 1px, transparent 1px);
-  background-size: 23px 23px, 31px 31px, 100% 38px;
-}
-
-:global(.dark) .paper-grain {
-  opacity: .28;
-  filter: invert(1);
-}
+.modern-layout { position: relative; min-height: 100vh; overflow: hidden; color: var(--text-primary); background-color: var(--layout-bg); background-image: var(--texture-image); background-size: var(--texture-size); font-family: var(--font-family); transition: color .25s ease, background-color .25s ease; }
+.paper-grain { position: fixed; inset: 0; z-index: 0; pointer-events: none; opacity: .3; background-image: radial-gradient(circle at 20% 16%, color-mix(in srgb, var(--text-primary) 8%, transparent) 0 .6px, transparent .8px); background-size: 25px 25px; mix-blend-mode: multiply; }
+:global(html[data-theme='dark'] .paper-grain) { mix-blend-mode: screen; opacity: .14; }
+:global(html[data-theme-style='zen'] .paper-grain) { display: none; }
+:global(html[data-theme-style='editorial'] .paper-grain) { background-image: repeating-linear-gradient(0deg, transparent 0 5px, color-mix(in srgb, var(--text-primary) 2.5%, transparent) 6px); background-size: auto; }
 </style>

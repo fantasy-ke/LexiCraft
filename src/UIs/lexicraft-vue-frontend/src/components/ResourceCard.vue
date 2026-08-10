@@ -39,22 +39,22 @@ const getDifficultyClass = (difficulty: string) => {
 </script>
 
 <template>
-  <div class="card-white min-h-45 mb-0 flex flex-col justify-between">
+  <div class="resource-card card-white min-h-45 mb-0 flex flex-col justify-between">
     <div>
-      <div class="text-xl font-semibold mb-3 text-gray-800 dark:text-gray-100">
+      <div class="resource-title text-xl font-semibold mb-3">
         {{ resource.name }}
       </div>
       <div class="space-y-2 mb-4">
-        <div v-if="resource.author" class="text-sm text-gray-600 dark:text-gray-300">
+        <div v-if="resource.author" class="resource-meta text-sm">
           <span class="font-medium">作者：</span>{{ resource.author }}
         </div>
-        <div v-if="resource.features" class="text-sm text-gray-600 dark:text-gray-300">
+        <div v-if="resource.features" class="resource-meta text-sm">
           <span class="font-medium">🌟 特点：</span>{{ resource.features }}
         </div>
-        <div v-if="resource.suitable" class="text-sm text-gray-600 dark:text-gray-300">
+        <div v-if="resource.suitable" class="resource-meta text-sm">
           <span class="font-medium">📌 适合：</span>{{ resource.suitable }}
         </div>
-        <div v-if="resource.description" class="text-sm text-gray-600 dark:text-gray-300">
+        <div v-if="resource.description" class="resource-meta text-sm">
           {{ resource.description }}
         </div>
         <span
@@ -73,3 +73,12 @@ const getDifficultyClass = (difficulty: string) => {
     </div>
   </div>
 </template>
+
+
+<style lang="scss" scoped>
+.resource-card { padding: 1.25rem; color: var(--text-primary); background: var(--surface-card); }
+.resource-title { color: var(--text-primary); font-family: var(--font-heading); }
+.resource-meta { color: var(--text-secondary); line-height: 1.6; }
+:global(html[data-theme-style='zen'] .resource-card) { border-inline: 0; box-shadow: none; }
+:global(html[data-theme-style='ink'] .resource-card) { border-width: 2px; transform: rotate(-.2deg); }
+</style>

@@ -1,163 +1,123 @@
 <template>
-  <div class="ink-home">
-    <header class="floating-brand" aria-label="LexiCraft 首页导航">
-      <button class="brand-stamp" type="button" @click="scrollToSection('hero')">
-        <span class="brand-mark" aria-hidden="true">L</span>
-        <span>
-          <strong>LexiCraft</strong>
-          <small>把词写进记忆里</small>
-        </span>
+  <div class="public-editorial editorial-home">
+    <header class="reading-header" aria-label="LexiCraft 阅读首页">
+      <button class="wordmark" type="button" @click="scrollToSection('opening')">
+        <span class="wordmark-seal">L</span>
+        <span><strong>LexiCraft</strong><small>Language, carefully made.</small></span>
       </button>
-
-      <div class="corner-actions">
-        <button class="language-pin" type="button" @click="toggleLang">
-          {{ lang === 'zh' ? 'EN' : '中' }}
-        </button>
-        <button class="ink-link" type="button" @click="handleLogin">{{ copy.nav.login }}</button>
-        <button class="ink-button ink-button--small" type="button" @click="startLearning">
-          {{ copy.nav.start }}
-          <DoodleIcon name="arrow" :size="18"/>
-        </button>
+      <nav class="header-links" aria-label="主导航">
+        <button type="button" @click="scrollToSection('method')">学习方法</button>
+        <button type="button" @click="scrollToSection('experience')">阅读体验</button>
+      </nav>
+      <div class="header-actions">
+        <button class="language-button" type="button" @click="toggleLang">{{ lang === 'zh' ? 'EN' : '中' }}</button>
+        <button class="text-button" type="button" @click="handleLogin">{{ copy.nav.login }}</button>
+        <button class="solid-button solid-button--small" type="button" @click="startLearning">{{ copy.nav.start }} <span>→</span></button>
       </div>
     </header>
 
     <main>
-      <section id="hero" class="hero-section" aria-labelledby="hero-title">
-        <div class="hero-doodle hero-doodle--left" aria-hidden="true">word<br><span>by word</span></div>
-        <div class="hero-doodle hero-doodle--right" aria-hidden="true">记住它！</div>
-
-        <div class="hero-copy">
-          <p class="eyebrow"><DoodleIcon name="spark" :size="18"/> {{ copy.hero.eyebrow }}</p>
-          <h1 id="hero-title">
-            <span>{{ copy.hero.line1 }}</span>
-            <span>{{ copy.hero.line2Prefix }} <em>{{ copy.hero.highlight }}</em></span>
-          </h1>
-          <p class="hero-description">{{ copy.hero.description }}</p>
-          <div class="hero-actions">
-            <button class="ink-button" type="button" @click="startLearning">
-              {{ copy.hero.primary }}
-              <DoodleIcon name="arrow" :size="21"/>
-            </button>
-            <button class="paper-button" type="button" @click="scrollToSection('method')">
-              {{ copy.hero.secondary }}
-            </button>
-          </div>
+      <section id="opening" class="opening" aria-labelledby="home-title">
+        <p class="edition-line"><span>ISSUE 01</span>{{ copy.hero.eyebrow }}<span>{{ currentDate }}</span></p>
+        <h1 id="home-title">
+          <span>{{ copy.hero.line1 }}</span>
+          <span>{{ copy.hero.line2Prefix }} <em>{{ copy.hero.highlight }}</em></span>
+        </h1>
+        <p class="opening-deck">{{ copy.hero.description }}</p>
+        <div class="opening-actions">
+          <button class="solid-button" type="button" @click="startLearning">{{ copy.hero.primary }} <span>→</span></button>
+          <button class="underlined-button" type="button" @click="scrollToSection('method')">{{ copy.hero.secondary }}</button>
         </div>
 
-        <div class="learning-scene" aria-label="手绘学习桌插画">
-          <div class="scene-tape scene-tape--left"></div>
-          <div class="scene-tape scene-tape--right"></div>
-          <svg class="scene-art" viewBox="0 0 1160 500" role="img" aria-label="一本打开的词汇笔记、铅笔和学习进度涂鸦">
-            <path class="sketch-fill sketch-paper" d="M82 76C261 47 417 63 572 98c162-39 331-44 508-10l-22 333c-164-27-324-20-479 29-151-48-312-55-478-22Z"/>
-            <path class="sketch-line" d="M82 76C261 47 417 63 572 98c162-39 331-44 508-10l-22 333c-164-27-324-20-479 29-151-48-312-55-478-22Z"/>
-            <path class="sketch-line sketch-light" d="M574 101c-10 107-8 225 5 348M122 122c126-16 250-7 404 23M630 137c128-22 251-23 402-5"/>
-            <path class="sketch-line" d="M146 183c69-13 131-10 218 5M146 221c98-14 202-8 334 12M146 261c111-11 231-3 348 15"/>
-            <path class="sketch-line sketch-green" d="m153 320 31 29 57-68"/>
-            <path class="sketch-line sketch-red" d="M301 326c51-34 152-19 168 25 16 45-44 76-109 67-63-9-96-53-59-92Z"/>
-            <text class="scene-word" x="322" y="365">remember</text>
-            <path class="sketch-line" d="M657 183h263M657 224h315M657 265h218"/>
-            <text class="scene-note" x="668" y="345">Nice!</text>
-            <path class="sketch-line sketch-yellow" d="m897 301 16 37 39 5-31 25 9 39-34-21-34 21 10-38-31-26 39-5z"/>
-            <path class="sketch-line pencil" d="M1001 410 810 270l24-31 191 143 14 47Z"/>
-            <path class="sketch-line" d="m1015 398 24 31-39-12"/>
-            <path class="sketch-line sketch-light" d="M106 441c236-20 426-5 474 9 127-27 292-35 475-27"/>
-          </svg>
-          <div class="scene-caption">
-            <span class="caption-dot"></span>
-            {{ copy.hero.caption }}
+        <figure class="reading-preview">
+          <div class="preview-topline">
+            <span>LEXICRAFT / TODAY'S READING</span>
+            <span>VOL. 07</span>
           </div>
+          <div class="book-spread">
+            <article class="book-page book-page--left">
+              <p class="page-folio">12</p>
+              <p class="page-kicker">A WORD IN CONTEXT</p>
+              <h2>serendipity</h2>
+              <p class="phonetic">/ˌser.ənˈdɪp.ə.ti/</p>
+              <p class="definition">意外发现美好事物的幸运与惊喜。</p>
+              <blockquote>“Learning a word is not collecting a label. It is meeting a new way to notice the world.”</blockquote>
+              <div class="margin-rule"><span></span><span></span><span></span></div>
+            </article>
+            <article class="book-page book-page--right">
+              <p class="page-folio">13</p>
+              <p class="page-kicker">YOUR NOTE</p>
+              <p class="hand-note">把今天学会的词，<br/>写进自己的生活。</p>
+              <div class="sentence-lines">
+                <span>We found the little bookshop by pure</span>
+                <strong>serendipity.</strong>
+              </div>
+              <div class="editorial-stamp"><span>DAY</span><strong>07</strong><small>KEEP READING</small></div>
+            </article>
+          </div>
+          <figcaption>{{ copy.hero.caption }}</figcaption>
+        </figure>
+      </section>
+
+      <section id="method" class="reading-chapter" aria-labelledby="method-title">
+        <aside class="chapter-aside">
+          <span>CHAPTER</span><strong>01</strong><small>Daily rhythm</small>
+        </aside>
+        <div class="chapter-body">
+          <p class="chapter-kicker">{{ copy.notes.quoteLabel }}</p>
+          <blockquote class="daily-quote">“{{ dailyQuote.text }}”</blockquote>
+          <p class="quote-author">— {{ dailyQuote.author }}</p>
+          <h2 id="method-title">{{ copy.notes.title }}</h2>
+          <p class="chapter-intro">{{ copy.notes.description }}</p>
+
+          <ol class="learning-flow">
+            <li>
+              <span class="flow-number">I</span>
+              <div><strong>先读语境</strong><p>不急着背释义，先看它如何在一句话里生长。</p></div>
+              <em>read</em>
+            </li>
+            <li>
+              <span class="flow-number">II</span>
+              <div><strong>再做练习</strong><p>用输入和判断完成一次简短、有节奏的回忆。</p></div>
+              <em>review</em>
+            </li>
+            <li>
+              <span class="flow-number">III</span>
+              <div><strong>留下痕迹</strong><p>让错题、笔记和连续学习天数成为你的阅读记录。</p></div>
+              <em>notice</em>
+            </li>
+          </ol>
         </div>
       </section>
 
-      <section id="method" class="notes-section" aria-labelledby="notes-title">
-        <div class="section-heading">
-          <span class="section-index">01 / DAILY RHYTHM</span>
-          <h2 id="notes-title">{{ copy.notes.title }}</h2>
-          <p>{{ copy.notes.description }}</p>
-        </div>
-
-        <div class="notes-board">
-          <article class="quote-note">
-            <span class="pin" aria-hidden="true"></span>
-            <DoodleIcon name="note" :size="32"/>
-            <p class="quote-label">{{ copy.notes.quoteLabel }}</p>
-            <blockquote>“{{ dailyQuote.text }}”</blockquote>
-            <cite>— {{ dailyQuote.author }}</cite>
-            <span class="pencil-underline" aria-hidden="true"></span>
-          </article>
-
-          <article class="streak-note">
-            <div class="note-header">
-              <div>
-                <span class="hand-label">{{ copy.notes.streakLabel }}</span>
-                <strong>7 DAYS</strong>
-              </div>
-              <DoodleIcon name="calendar" :size="38"/>
-            </div>
-            <div class="doodle-calendar" aria-label="七天连续学习示意">
-              <div v-for="(day, index) in weekDays" :key="day" :class="{done: index < 5, today: index === 5}" class="doodle-day">
-                <span>{{ day }}</span>
-                <DoodleIcon v-if="index < 5" name="check" :size="25"/>
-                <span v-else-if="index === 5" class="today-dot"></span>
-              </div>
-            </div>
-            <p>{{ copy.notes.streakTip }}</p>
-          </article>
-
-          <article class="mistake-note">
-            <div class="mistake-demo">
-              <span class="wrong-word">memmory</span>
-              <span class="correction-arrow">↗</span>
-              <span class="right-word">memory</span>
-            </div>
-            <h3>{{ copy.notes.mistakeTitle }}</h3>
-            <p>{{ copy.notes.mistakeDescription }}</p>
-          </article>
-        </div>
-      </section>
-
-      <section id="features" class="features-section" aria-labelledby="features-title">
-        <div class="section-heading section-heading--center">
-          <span class="section-index">02 / LEARNING KIT</span>
-          <h2 id="features-title">{{ copy.features.title }}</h2>
+      <section id="experience" class="editorial-feature" aria-labelledby="experience-title">
+        <div class="feature-copy">
+          <p class="chapter-kicker">A QUIETER LEARNING TOOL</p>
+          <h2 id="experience-title">{{ copy.features.title }}</h2>
           <p>{{ copy.features.description }}</p>
+          <button class="underlined-button" type="button" @click="startLearning">开始今天的学习 <span>→</span></button>
         </div>
-
-        <div class="feature-path">
-          <article v-for="(feature, index) in copy.features.items" :key="feature.title" class="feature-row">
-            <span class="feature-number">0{{ index + 1 }}</span>
-            <div class="feature-icon" :class="`feature-icon--${index + 1}`">
-              <DoodleIcon :name="feature.icon" :size="42"/>
-            </div>
-            <div class="feature-copy">
-              <h3>{{ feature.title }}</h3>
-              <p>{{ feature.description }}</p>
-            </div>
-            <span class="feature-scribble" aria-hidden="true">{{ feature.scribble }}</span>
+        <div class="feature-manuscript">
+          <article v-for="(item, index) in copy.features.items" :key="item.title">
+            <span>{{ String(index + 1).padStart(2, '0') }}</span>
+            <div><h3>{{ item.title }}</h3><p>{{ item.description }}</p></div>
+            <em>{{ item.scribble }}</em>
           </article>
         </div>
       </section>
 
-      <section class="final-note" aria-labelledby="final-title">
-        <DoodleIcon name="spark" :size="35"/>
-        <p class="hand-label">{{ copy.final.label }}</p>
-        <h2 id="final-title">{{ copy.final.title }}</h2>
-        <p>{{ copy.final.description }}</p>
-        <button class="ink-button" type="button" @click="startLearning">
-          {{ copy.final.action }}
-          <DoodleIcon name="arrow" :size="21"/>
-        </button>
+      <section class="closing-page" aria-labelledby="closing-title">
+        <span class="closing-mark">L</span>
+        <p>{{ copy.final.label }}</p>
+        <h2 id="closing-title">{{ copy.final.title }}</h2>
+        <div class="closing-rule"></div>
+        <p class="closing-description">{{ copy.final.description }}</p>
+        <button class="solid-button" type="button" @click="startLearning">{{ copy.final.action }} <span>→</span></button>
       </section>
     </main>
 
-    <nav class="floating-index" aria-label="页面章节">
-      <button type="button" @click="scrollToSection('hero')"><DoodleIcon name="home" :size="20"/> <span>{{ copy.nav.home }}</span></button>
-      <button type="button" @click="scrollToSection('method')"><DoodleIcon name="calendar" :size="20"/> <span>{{ copy.nav.rhythm }}</span></button>
-      <button type="button" @click="scrollToSection('features')"><DoodleIcon name="spark" :size="20"/> <span>{{ copy.nav.features }}</span></button>
-    </nav>
-
-    <footer class="ink-footer">
-      <span>LexiCraft · {{ new Date().getFullYear() }}</span>
+    <footer class="reading-footer">
+      <span>LexiCraft © {{ new Date().getFullYear() }}</span>
       <span>{{ copy.footer }}</span>
     </footer>
   </div>
@@ -166,384 +126,162 @@
 <script lang="ts" setup>
 import {computed, ref} from 'vue'
 import {useRouter} from 'vue-router'
-import DoodleIcon from '@/components/doodle/DoodleIcon.vue'
 
 const router = useRouter()
 const lang = ref<'zh' | 'en'>('zh')
-const weekDays = ['一', '二', '三', '四', '五', '六', '日']
-
 const quotes = [
   {text: 'A different language is a different vision of life.', author: 'Federico Fellini'},
   {text: 'The limits of my language mean the limits of my world.', author: 'Ludwig Wittgenstein'},
   {text: 'Small steps every day make a language feel like home.', author: 'LexiCraft'},
-  {text: 'Words are, in my not-so-humble opinion, our most inexhaustible source of magic.', author: 'J. K. Rowling'},
   {text: 'Language is the road map of a culture.', author: 'Rita Mae Brown'}
 ]
-
 const translations = {
   zh: {
-    nav: {home: '首页', rhythm: '每日节奏', features: '学习工具', login: '登录', start: '开始学习'},
-    hero: {
-      eyebrow: '一间有纸张温度的英语学习室',
-      line1: '把陌生的单词，',
-      line2Prefix: '慢慢写成',
-      highlight: '你的语言',
-      description: '用语境阅读、科学复习和一笔一画的即时反馈，让每次练习都像翻开一本真正属于你的学习手账。',
-      primary: '写下今天的第一个词',
-      secondary: '看看学习方法',
-      caption: '不是冷冰冰的答题器，是会陪你变强的词汇笔记。'
-    },
-    notes: {
-      title: '每天留下一点学习痕迹',
-      description: '奖励、错题和连续学习都应该看得见。它们不是统计数字，而是你亲手写下的成长证据。',
-      quoteLabel: '今日一句 · TODAY’S NOTE',
-      streakLabel: '连续打卡',
-      streakTip: '涂满一格就向前一步，不追求完美，只保持手感。',
-      mistakeTitle: '错字也值得被认真对待',
-      mistakeDescription: '用红笔圈出问题，再让正确答案自然浮现；不羞辱错误，只把它变成下一次的线索。'
-    },
-    features: {
-      title: '把学习工具装进一张纸里',
-      description: '减少层层菜单，把最重要的动作放到眼前：读、记、练、回看。',
-      items: [
-        {title: '在语境里遇见单词', description: '从文章和例句进入词义，而不是孤立地背诵列表。', scribble: 'read it', icon: 'book' as const},
-        {title: '按记忆节奏回来复习', description: '让需要复习的内容主动出现，把精力留给真正容易遗忘的词。', scribble: 'again!', icon: 'target' as const},
-        {title: '获得有人情味的反馈', description: '答对时给你一句真诚鼓励，答错时清楚标注正确答案。', scribble: 'Nice!', icon: 'spark' as const}
-      ]
-    },
-    final: {label: 'READY WHEN YOU ARE', title: '今天，先认真记住一个词。', description: '不用等完整计划，也不用一次学很多。打开你的词汇本，从下一笔开始。', action: '进入我的学习桌'},
-    footer: 'Made with paper, ink and a little courage.'
+    nav: {login: '登录', start: '开始学习'},
+    hero: {eyebrow: '一本值得每天翻阅的语言手记', line1: '让每一个词', line2Prefix: '都成为', highlight: '你的语言', description: '温暖的纸张、有意义的语境和恰到好处的复习，让学习从待办清单变成每日阅读仪式。', primary: '翻开今日书页', secondary: '阅读学习方法', caption: '词汇、阅读与练习被收进同一本随你成长的语言书。'},
+    notes: {quoteLabel: '每日一句 · TODAY’S PASSAGE', title: '学习可以很安静，也可以留下痕迹。', description: 'LexiCraft 把学习编排成阅读流：遇见一个词，在语境里理解它，然后在恰当的时刻重新相遇。进度不会喧哗，只会轻轻告诉你已经读了多远。'},
+    features: {title: '像使用一本好书那样使用学习工具。', description: '少一些卡片网格和嵌套菜单，让内容、行动与反馈自然地向下流动。', items: [
+      {title: '先有语境，再记忆', description: '先看见一个词如何生活在句子里，再决定如何记住它。', scribble: 'Context'},
+      {title: '用节奏带回记忆', description: '需要关注的内容会自然返回，少一些选择，也少一些噪音。', scribble: 'Rhythm'},
+      {title: '让反馈保有温度', description: '认真回应每一次完成，也清楚标记每一个需要重新理解的错误。', scribble: 'Care'}
+    ]},
+    final: {label: 'THE NEXT PAGE IS YOURS', title: '今天，从认真读好一个词开始。', description: '不需要完美计划。走进你的学习空间，让下一页现在开始。', action: '进入 LexiCraft'},
+    footer: 'A quiet place for words, reading and memory.'
   },
   en: {
-    nav: {home: 'Home', rhythm: 'Daily rhythm', features: 'Learning kit', login: 'Sign in', start: 'Start'},
-    hero: {
-      eyebrow: 'A warmer place to build your English',
-      line1: 'Turn unfamiliar words',
-      line2Prefix: 'into',
-      highlight: 'your language',
-      description: 'Learn through context, thoughtful review and human feedback — like keeping a notebook that grows with you.',
-      primary: 'Write down your first word',
-      secondary: 'See the method',
-      caption: 'Not a cold quiz machine. A vocabulary notebook that roots for you.'
-    },
-    notes: {
-      title: 'Leave a visible learning trace',
-      description: 'Rewards, mistakes and streaks should feel tangible — proof of growth written by your own hand.',
-      quoteLabel: 'TODAY’S NOTE',
-      streakLabel: 'Learning streak',
-      streakTip: 'Fill one square and move forward. Keep the rhythm, not perfection.',
-      mistakeTitle: 'Mistakes deserve careful attention',
-      mistakeDescription: 'Circle the problem in red, then reveal the right answer without turning an error into punishment.'
-    },
-    features: {
-      title: 'A learning kit on one sheet of paper',
-      description: 'Fewer layers, clearer actions: read, remember, practise and look back.',
-      items: [
-        {title: 'Meet words in context', description: 'Begin with stories and examples instead of isolated vocabulary lists.', scribble: 'read it', icon: 'book' as const},
-        {title: 'Return at the right moment', description: 'Spend your attention on the words most likely to fade.', scribble: 'again!', icon: 'target' as const},
-        {title: 'Get feedback with a pulse', description: 'A real cheer when you are right and a clear correction when you miss.', scribble: 'Nice!', icon: 'spark' as const}
-      ]
-    },
-    final: {label: 'READY WHEN YOU ARE', title: 'Today, remember one word well.', description: 'No perfect plan required. Open your notebook and begin with the next mark.', action: 'Enter my learning desk'},
-    footer: 'Made with paper, ink and a little courage.'
+    nav: {login: 'Sign in', start: 'Start learning'},
+    hero: {eyebrow: 'A language journal worth returning to', line1: 'Let every word', line2Prefix: 'become part of', highlight: 'your language', description: 'Warm paper, meaningful context and thoughtful review turn study from a checklist into a daily reading ritual.', primary: 'Open today’s page', secondary: 'Read the method', caption: 'Vocabulary, reading and practice gathered into one language book that keeps growing with you.'},
+    notes: {quoteLabel: 'TODAY’S PASSAGE', title: 'Learning can be quiet and still leave a trace.', description: 'LexiCraft arranges study as a reading flow: meet a word, understand it in context, then return at the right moment. Progress never shouts. It simply shows how far you have read.'},
+    features: {title: 'Use a learning tool like a well-made book.', description: 'Fewer card grids and nested menus. Content, action and feedback follow a natural reading order.', items: [
+      {title: 'Context before memory', description: 'See how a word lives in a sentence before deciding how to remember it.', scribble: 'Context'},
+      {title: 'Review with rhythm', description: 'What needs attention returns naturally, with less choosing and less noise.', scribble: 'Rhythm'},
+      {title: 'Feedback with warmth', description: 'Success is acknowledged and mistakes are annotated with clarity.', scribble: 'Care'}
+    ]},
+    final: {label: 'THE NEXT PAGE IS YOURS', title: 'Begin today by reading one word well.', description: 'No perfect plan required. Enter your learning room and let the next page begin now.', action: 'Enter LexiCraft'},
+    footer: 'A quiet place for words, reading and memory.'
   }
 }
 
 const copy = computed(() => translations[lang.value])
 const dailyQuote = computed(() => quotes[Math.floor(Date.now() / 86400000) % quotes.length])
-
-const toggleLang = () => {
-  lang.value = lang.value === 'zh' ? 'en' : 'zh'
-}
-
+const currentDate = computed(() => new Intl.DateTimeFormat(lang.value === 'zh' ? 'zh-CN' : 'en-US', {month: 'short', day: '2-digit'}).format(new Date()))
+const toggleLang = () => { lang.value = lang.value === 'zh' ? 'en' : 'zh' }
 const startLearning = () => router.push('/app/dashboard')
 const handleLogin = () => router.push('/login')
-
-const scrollToSection = (id: string) => {
-  document.getElementById(id)?.scrollIntoView({behavior: 'smooth'})
-}
+const scrollToSection = (id: string) => document.getElementById(id)?.scrollIntoView({behavior: 'smooth'})
 </script>
 
 <style lang="scss" scoped>
-.ink-home {
-  min-height: 100vh;
-  overflow: hidden;
-  color: var(--ink);
-  background:
-      linear-gradient(rgba(32, 39, 35, 0.024) 1px, transparent 1px),
-      linear-gradient(90deg, rgba(32, 39, 35, 0.018) 1px, transparent 1px),
-      var(--paper);
-  background-size: 34px 34px;
-  font-family: var(--font-family);
-}
-
+.editorial-home { min-height: 100vh; overflow: hidden; color: var(--text-primary); background-color: var(--surface-page); background-image: radial-gradient(circle at 16% 20%, color-mix(in srgb, var(--text-primary) 4%, transparent) 0 .7px, transparent .9px), radial-gradient(circle at 80% 70%, color-mix(in srgb, var(--text-primary) 3%, transparent) 0 .7px, transparent .9px); background-size: 22px 22px, 31px 31px; font-family: var(--font-editorial); }
 button { font: inherit; }
-
-.floating-brand {
-  position: absolute;
-  inset: 0 0 auto;
-  z-index: 20;
-  pointer-events: none;
-}
-
-.brand-stamp,
-.corner-actions {
-  position: absolute;
-  top: 26px;
-  pointer-events: auto;
-}
-
-.brand-stamp {
-  left: clamp(20px, 4vw, 64px);
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  padding: 0;
-  color: var(--ink);
-  background: transparent;
-  border: 0;
-  cursor: pointer;
-  text-align: left;
-  transform: rotate(-1deg);
-}
-
-.brand-mark {
-  display: grid;
-  width: 42px;
-  height: 42px;
-  place-items: center;
-  color: var(--paper-card);
-  background: var(--ink);
-  border: 2px solid var(--ink);
-  border-radius: 51% 45% 48% 43%;
-  font-family: var(--font-display);
-  font-size: 27px;
-  font-style: italic;
-  box-shadow: 3px 3px 0 var(--pencil-red);
-}
-
-.brand-stamp strong { display: block; font-family: var(--font-display); font-size: 19px; }
-.brand-stamp small { display: block; margin-top: 1px; color: var(--ink-soft); font-size: 11px; letter-spacing: .08em; }
-
-.corner-actions {
-  right: clamp(20px, 4vw, 64px);
-  display: flex;
-  align-items: center;
-  gap: 10px;
-}
-
-.language-pin,
-.ink-link {
-  border: 0;
-  color: var(--ink);
-  background: transparent;
-  cursor: pointer;
-}
-
-.language-pin {
-  width: 40px;
-  height: 40px;
-  border: 1.8px solid var(--ink);
-  border-radius: 48% 52% 44% 56%;
-  font-family: var(--font-hand);
-  font-weight: 700;
-  transform: rotate(3deg);
-}
-
-.ink-link { padding: 10px 12px; font-weight: 700; }
-.ink-link:hover { color: var(--pencil-red); }
-
-.ink-button,
-.paper-button {
-  display: inline-flex;
-  min-height: 52px;
-  align-items: center;
-  justify-content: center;
-  gap: 10px;
-  padding: 0 24px;
-  border: 2px solid var(--ink);
-  border-radius: 16px 13px 18px 12px;
-  cursor: pointer;
-  font-weight: 800;
-  transition: transform .2s ease, box-shadow .2s ease, background .2s ease;
-}
-
-.ink-button {
-  color: var(--paper-card);
-  background: var(--ink);
-  box-shadow: 5px 6px 0 rgba(217, 87, 69, .72);
-}
-
-.ink-button:hover { transform: translate(-2px, -2px) rotate(-1deg); box-shadow: 8px 9px 0 rgba(217, 87, 69, .72); }
-.ink-button--small { min-height: 44px; padding: 0 18px; box-shadow: 3px 4px 0 rgba(217, 87, 69, .72); }
-.paper-button { color: var(--ink); background: color-mix(in srgb, var(--paper-card) 45%, transparent); box-shadow: 4px 5px 0 rgba(32, 39, 35, .12); }
-.paper-button:hover { transform: translateY(-2px) rotate(1deg); background: var(--paper-card); }
-
-.hero-section {
-  position: relative;
-  display: flex;
-  min-height: 100vh;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  padding: 132px clamp(20px, 6vw, 96px) 80px;
-}
-
-.hero-copy { position: relative; z-index: 2; width: min(1050px, 100%); text-align: center; }
-.eyebrow { display: inline-flex; align-items: center; gap: 8px; margin: 0 0 22px; color: var(--ink-soft); font-size: 13px; font-weight: 800; letter-spacing: .13em; text-transform: uppercase; }
-
-h1 {
-  margin: 0;
-  font-family: var(--font-display);
-  font-size: clamp(56px, 8.7vw, 132px);
-  font-weight: 500;
-  letter-spacing: -.055em;
-  line-height: .92;
-}
-
+.reading-header { position: absolute; z-index: 20; top: 0; right: 0; left: 0; display: grid; grid-template-columns: 1fr auto 1fr; align-items: center; gap: 2rem; padding: 24px clamp(20px, 5vw, 76px); }
+.wordmark { display: flex; align-items: center; justify-self: start; gap: 11px; padding: 0; border: 0; color: var(--text-primary); background: transparent; cursor: pointer; text-align: left; }
+.wordmark-seal { display: grid; width: 37px; height: 37px; place-items: center; border: 1px solid var(--text-primary); border-radius: 50%; color: var(--accent); font-size: 22px; font-style: italic; }
+.wordmark strong, .wordmark small { display: block; }
+.wordmark strong { font-size: 17px; }
+.wordmark small { color: var(--text-tertiary); font-family: var(--font-sans); font-size: 9px; letter-spacing: .12em; text-transform: uppercase; }
+.header-links { display: flex; gap: 28px; }
+.header-links button, .text-button, .language-button { padding: 5px 0; border: 0; color: var(--text-secondary); background: transparent; cursor: pointer; font-family: var(--font-sans); font-size: 12px; }
+.header-links button:hover, .text-button:hover { color: var(--accent); }
+.header-actions { display: flex; align-items: center; justify-self: end; gap: 16px; }
+.language-button { width: 34px; height: 34px; padding: 0; border: 1px solid var(--border-color); border-radius: 50%; color: var(--text-primary); }
+.solid-button { display: inline-flex; align-items: center; justify-content: center; gap: 18px; min-height: 50px; padding: 0 24px; border: 1px solid var(--text-primary); border-radius: 2px; color: var(--accent-contrast); background: var(--text-primary); box-shadow: var(--control-shadow); cursor: pointer; font-family: var(--font-sans); font-size: 13px; font-weight: 700; transition: transform .2s ease, background .2s ease; }
+.solid-button:hover { background: var(--accent); transform: translateY(-2px); }
+.solid-button--small { min-height: 42px; padding-inline: 18px; }
+.underlined-button { padding: 8px 0; border: 0; border-bottom: 1px solid currentColor; color: var(--text-primary); background: transparent; cursor: pointer; font-family: var(--font-sans); font-size: 13px; }
+.opening { min-height: 100vh; padding: 150px clamp(22px, 7vw, 112px) 110px; text-align: center; }
+.edition-line { display: flex; max-width: 820px; align-items: center; justify-content: center; gap: 14px; margin: 0 auto 26px; color: var(--text-tertiary); font-family: var(--font-sans); font-size: 10px; letter-spacing: .15em; text-transform: uppercase; }
+.edition-line span { display: flex; align-items: center; gap: 14px; }
+.edition-line span:first-child::after, .edition-line span:last-child::before { content: ''; width: 42px; height: 1px; background: var(--border-color); }
+h1 { max-width: 1060px; margin: 0 auto; font-size: clamp(62px, 8vw, 132px); font-weight: 400; letter-spacing: -.055em; line-height: .86; }
 h1 span { display: block; }
-h1 em { position: relative; color: var(--pencil-red); font-family: var(--font-hand); font-size: 1.02em; font-weight: 600; letter-spacing: -.04em; }
-h1 em::after { position: absolute; right: -2%; bottom: -9px; left: 0; height: 11px; border-top: 3px solid currentColor; border-radius: 50%; content: ''; transform: rotate(-2deg); opacity: .7; }
+h1 em { color: var(--accent); font-weight: 400; }
+.opening-deck { max-width: 650px; margin: 35px auto 0; color: var(--text-secondary); font-family: var(--font-sans); font-size: clamp(15px, 1.5vw, 18px); line-height: 1.8; }
+.opening-actions { display: flex; align-items: center; justify-content: center; gap: 28px; margin-top: 30px; }
+.reading-preview { max-width: 1180px; margin: 88px auto 0; border: 1px solid var(--border-strong); background: var(--surface-muted); box-shadow: 0 34px 75px rgba(70, 50, 36, .16); text-align: left; }
+.preview-topline { display: flex; justify-content: space-between; padding: 12px 18px; border-bottom: 1px solid var(--border-strong); color: var(--text-secondary); font-family: var(--font-sans); font-size: 9px; letter-spacing: .14em; }
+.book-spread { display: grid; grid-template-columns: 1fr 1fr; padding: clamp(22px, 5vw, 70px); }
+.book-page { position: relative; min-height: 430px; padding: clamp(28px, 5vw, 64px); color: #2b241f; background: #fffaf0; box-shadow: 0 20px 45px rgba(70, 50, 36, .13); }
+.book-page--left { border-right: 1px solid #ded1bd; }
+.book-page--right { background: #fbf2e4; }
+.page-folio { position: absolute; top: 22px; right: 28px; margin: 0; color: #9a8d7d; font-size: 11px; }
+.page-kicker { margin: 0 0 20px; color: #9b4a3c; font-family: var(--font-sans); font-size: 9px; font-weight: 800; letter-spacing: .16em; }
+.book-page h2 { margin: 0; font-size: clamp(38px, 5vw, 70px); font-weight: 400; letter-spacing: -.04em; }
+.phonetic { color: #75685c; font-family: var(--font-mono); font-size: 12px; }
+.definition { max-width: 33rem; margin-top: 28px; color: #4f463e; font-size: 17px; line-height: 1.8; }
+.book-page blockquote { margin: 34px 0 0; padding-left: 20px; border-left: 2px solid #9b4a3c; color: #75685c; font-style: italic; line-height: 1.7; }
+.margin-rule { display: grid; gap: 12px; margin-top: 34px; }
+.margin-rule span { height: 1px; background: #ded4c5; }
+.hand-note { margin: 55px 0 0; color: #9b4a3c; font-size: clamp(28px, 4vw, 52px); font-style: italic; line-height: 1.25; transform: rotate(-2deg); }
+.sentence-lines { display: grid; gap: 8px; margin-top: 58px; padding-block: 16px; border-block: 1px solid #d8cbb8; font-size: 17px; }
+.editorial-stamp { position: absolute; right: 42px; bottom: 42px; display: grid; width: 92px; height: 92px; place-content: center; border: 2px double #9b4a3c; border-radius: 50%; color: #9b4a3c; text-align: center; transform: rotate(-8deg); }
+.editorial-stamp span, .editorial-stamp small { font-family: var(--font-sans); font-size: 7px; letter-spacing: .12em; }
+.editorial-stamp strong { font-size: 27px; line-height: 1; }
+.reading-preview figcaption { padding: 14px 20px; border-top: 1px solid var(--border-strong); color: var(--text-secondary); font-family: var(--font-sans); font-size: 11px; text-align: center; }
+.reading-chapter { display: grid; max-width: 1180px; grid-template-columns: 150px 1fr; gap: clamp(36px, 8vw, 110px); margin: 0 auto; padding: 145px clamp(22px, 4vw, 50px); }
+.chapter-aside { display: flex; flex-direction: column; align-items: center; align-self: start; padding-block: 24px; border-block: 1px solid var(--border-strong); }
+.chapter-aside span, .chapter-aside small { color: var(--text-tertiary); font-family: var(--font-sans); font-size: 9px; letter-spacing: .15em; text-transform: uppercase; }
+.chapter-aside strong { font-size: 66px; font-weight: 400; }
+.chapter-kicker { color: var(--accent); font-family: var(--font-sans); font-size: 10px; font-weight: 800; letter-spacing: .15em; text-transform: uppercase; }
+.daily-quote { max-width: 900px; margin: 28px 0 0; font-size: clamp(34px, 5vw, 64px); line-height: 1.12; }
+.quote-author { color: var(--text-tertiary); font-family: var(--font-sans); font-size: 12px; }
+.chapter-body > h2, .feature-copy h2, .closing-page h2 { max-width: 780px; margin: 100px 0 0; font-size: clamp(42px, 6vw, 76px); font-weight: 400; letter-spacing: -.04em; line-height: 1.02; }
+.chapter-intro { max-width: 760px; color: var(--text-secondary); font-family: var(--font-sans); font-size: 17px; line-height: 1.9; }
+.learning-flow { margin: 70px 0 0; padding: 0; border-top: 1px solid var(--border-strong); list-style: none; }
+.learning-flow li { display: grid; grid-template-columns: 50px 1fr auto; align-items: start; gap: 22px; padding: 30px 0; border-bottom: 1px solid var(--border-color); }
+.flow-number { color: var(--accent); font-style: italic; }
+.learning-flow strong { font-size: 24px; font-weight: 400; }
+.learning-flow p { max-width: 620px; margin: 8px 0 0; color: var(--text-secondary); font-family: var(--font-sans); font-size: 14px; line-height: 1.7; }
+.learning-flow em { color: var(--text-tertiary); font-size: 24px; }
+.editorial-feature { display: grid; grid-template-columns: .85fr 1.15fr; gap: clamp(50px, 9vw, 130px); padding: 140px clamp(24px, 8vw, 130px); color: var(--accent-contrast); background: var(--text-primary); }
+.feature-copy { align-self: start; }
+.feature-copy .chapter-kicker { color: color-mix(in srgb, var(--accent) 85%, white); }
+.feature-copy h2 { margin-top: 20px; }
+.feature-copy > p:not(.chapter-kicker) { color: color-mix(in srgb, var(--accent-contrast) 68%, transparent); font-family: var(--font-sans); line-height: 1.8; }
+.feature-copy .underlined-button { margin-top: 20px; color: var(--accent-contrast); }
+.feature-manuscript { border-top: 1px solid color-mix(in srgb, var(--accent-contrast) 40%, transparent); }
+.feature-manuscript article { display: grid; grid-template-columns: 42px 1fr auto; gap: 20px; padding: 30px 0; border-bottom: 1px solid color-mix(in srgb, var(--accent-contrast) 24%, transparent); }
+.feature-manuscript > article > span { color: var(--accent); font-family: var(--font-sans); font-size: 11px; }
+.feature-manuscript h3 { margin: 0; font-size: 25px; font-weight: 400; }
+.feature-manuscript p { margin: 8px 0 0; color: color-mix(in srgb, var(--accent-contrast) 64%, transparent); font-family: var(--font-sans); font-size: 13px; line-height: 1.7; }
+.feature-manuscript em { color: var(--accent); font-size: 20px; }
+.closing-page { max-width: 900px; margin: 0 auto; padding: 150px 24px; text-align: center; }
+.closing-mark { display: grid; width: 54px; height: 54px; place-items: center; margin: 0 auto 25px; border: 1px solid var(--accent); border-radius: 50%; color: var(--accent); font-size: 30px; font-style: italic; }
+.closing-page > p:first-of-type { color: var(--accent); font-family: var(--font-sans); font-size: 10px; font-weight: 800; letter-spacing: .16em; }
+.closing-page h2 { margin: 25px auto 0; }
+.closing-rule { width: 70px; height: 1px; margin: 34px auto; background: var(--border-strong); }
+.closing-description { max-width: 600px; margin: 0 auto 28px; color: var(--text-secondary); font-family: var(--font-sans); line-height: 1.8; }
+.reading-footer { display: flex; justify-content: space-between; gap: 20px; padding: 28px clamp(20px, 6vw, 96px); border-top: 1px solid var(--border-color); color: var(--text-tertiary); font-family: var(--font-sans); font-size: 10px; letter-spacing: .08em; text-transform: uppercase; }
+button:focus-visible { outline: 3px solid var(--focus-ring); outline-offset: 4px; }
 
-.hero-description { max-width: 680px; margin: 28px auto 0; color: var(--ink-soft); font-size: clamp(16px, 1.4vw, 20px); line-height: 1.75; }
-.hero-actions { display: flex; flex-wrap: wrap; justify-content: center; gap: 18px; margin-top: 32px; }
-
-.hero-doodle { position: absolute; color: var(--pencil-red); font-family: var(--font-hand); font-weight: 700; opacity: .8; pointer-events: none; }
-.hero-doodle--left { top: 28%; left: 5%; font-size: clamp(18px, 2.2vw, 31px); transform: rotate(-10deg); }
-.hero-doodle--left span { margin-left: 25px; }
-.hero-doodle--right { top: 36%; right: 6%; font-size: clamp(18px, 2vw, 28px); transform: rotate(8deg); }
-.hero-doodle--right::after { display: block; width: 70px; height: 28px; margin-left: -20px; border-bottom: 3px solid currentColor; border-radius: 50%; content: ''; transform: rotate(-12deg); }
-
-.learning-scene {
-  position: relative;
-  width: min(1160px, 92vw);
-  margin-top: 62px;
-  padding: 22px 24px 15px;
-  border: 2px solid var(--ink);
-  border-radius: 26px 17px 31px 19px;
-  background: color-mix(in srgb, var(--paper-deep) 82%, var(--chalk-yellow));
-  box-shadow: 13px 15px 0 rgba(32, 39, 35, .14);
-  transform: rotate(-.5deg);
+@media (max-width: 900px) {
+  .reading-header { grid-template-columns: 1fr auto; }
+  .header-links { display: none; }
+  .book-spread { grid-template-columns: 1fr; }
+  .book-page--left { border-right: 0; border-bottom: 1px solid #ded1bd; }
+  .reading-chapter { grid-template-columns: 1fr; }
+  .chapter-aside { width: 120px; }
+  .editorial-feature { grid-template-columns: 1fr; }
 }
-
-.learning-scene::before { position: absolute; inset: 10px; border: 1px dashed rgba(32, 39, 35, .28); border-radius: inherit; content: ''; pointer-events: none; }
-.scene-art { position: relative; display: block; width: 100%; filter: drop-shadow(0 12px 10px rgba(32, 39, 35, .12)); }
-.scene-tape { position: absolute; z-index: 3; width: 105px; height: 28px; background: rgba(246, 230, 168, .72); border: 1px solid rgba(32, 39, 35, .16); }
-.scene-tape--left { top: -12px; left: 10%; transform: rotate(-5deg); }
-.scene-tape--right { top: -10px; right: 9%; transform: rotate(6deg); }
-.sketch-fill { stroke: none; }
-.sketch-paper { fill: var(--paper-card); }
-.sketch-line { fill: none; stroke: var(--ink); stroke-width: 5; stroke-linecap: round; stroke-linejoin: round; }
-.sketch-light { opacity: .45; stroke-width: 3; }
-.sketch-green { stroke: var(--moss-green); stroke-width: 9; }
-.sketch-red { stroke: var(--pencil-red); stroke-width: 7; }
-.sketch-yellow { fill: rgba(231, 199, 95, .5); stroke: #b28b2f; }
-.pencil { fill: rgba(217, 87, 69, .15); stroke: var(--pencil-red); }
-.scene-word { fill: var(--ink); font-family: var(--font-display); font-size: 44px; }
-.scene-note { fill: var(--moss-green); font-family: var(--font-hand); font-size: 58px; font-weight: 700; transform: rotate(-5deg); transform-origin: center; }
-.scene-caption { position: absolute; right: 34px; bottom: 18px; display: flex; align-items: center; gap: 9px; padding: 10px 14px; border: 1.5px solid var(--ink); background: var(--chalk-yellow); font-family: var(--font-hand); font-size: 13px; font-weight: 700; transform: rotate(-1.5deg); }
-.caption-dot { width: 8px; height: 8px; border-radius: 50%; background: var(--pencil-red); }
-
-.notes-section,
-.features-section { padding: 120px clamp(20px, 6vw, 96px); }
-.notes-section { background: var(--paper-deep); border-block: 2px solid var(--ink); }
-.section-heading { max-width: 740px; }
-.section-heading--center { margin-inline: auto; text-align: center; }
-.section-index { display: block; margin-bottom: 12px; color: var(--pencil-red); font-family: var(--font-hand); font-size: 13px; font-weight: 800; letter-spacing: .16em; }
-.section-heading h2,
-.final-note h2 { margin: 0; font-family: var(--font-display); font-size: clamp(42px, 6vw, 82px); font-weight: 500; letter-spacing: -.045em; line-height: 1.02; }
-.section-heading p { max-width: 650px; margin: 20px 0 0; color: var(--ink-soft); font-size: 18px; line-height: 1.75; }
-.section-heading--center p { margin-inline: auto; }
-
-.notes-board { display: grid; max-width: 1220px; margin: 68px auto 0; grid-template-columns: 1.05fr 1.4fr .95fr; gap: 26px; align-items: stretch; }
-.quote-note,
-.streak-note,
-.mistake-note { position: relative; min-height: 300px; padding: 32px; border: 2px solid var(--ink); color: var(--ink); box-shadow: 8px 9px 0 rgba(32, 39, 35, .13); }
-.quote-note { background: color-mix(in srgb, var(--chalk-yellow) 42%, var(--paper-card)); transform: rotate(-1.5deg); }
-.streak-note { background: var(--paper-card); transform: rotate(.6deg); }
-.mistake-note { background: color-mix(in srgb, var(--pencil-red) 24%, var(--paper-card)); transform: rotate(1.5deg); }
-.pin { position: absolute; top: -9px; left: 50%; width: 16px; height: 16px; border: 2px solid var(--ink); border-radius: 50%; background: var(--pencil-red); box-shadow: 2px 3px 0 rgba(32, 39, 35, .25); }
-.quote-label,
-.hand-label { margin: 15px 0 11px; font-family: var(--font-hand); font-size: 13px; font-weight: 800; letter-spacing: .08em; }
-.quote-note blockquote { margin: 0; font-family: var(--font-display); font-size: clamp(25px, 2.3vw, 34px); line-height: 1.22; }
-.quote-note cite { display: block; margin-top: 20px; color: var(--ink-soft); font-style: normal; }
-.pencil-underline { position: absolute; right: 28px; bottom: 32px; width: 90px; height: 18px; border-bottom: 4px solid var(--pencil-red); border-radius: 50%; transform: rotate(-5deg); }
-.note-header { display: flex; align-items: flex-start; justify-content: space-between; }
-.note-header strong { display: block; margin-top: 5px; font-family: var(--font-display); font-size: 38px; }
-.doodle-calendar { display: grid; margin-top: 30px; grid-template-columns: repeat(7, 1fr); gap: 9px; }
-.doodle-day { display: flex; aspect-ratio: .82; flex-direction: column; align-items: center; justify-content: space-around; padding: 7px 2px; border: 1.7px solid var(--ink); border-radius: 8px 5px 9px 6px; background: transparent; font-family: var(--font-hand); font-size: 12px; transform: rotate(-1deg); }
-.doodle-day:nth-child(2n) { transform: rotate(2deg); }
-.doodle-day.done { color: var(--paper-card); background: var(--moss-green); }
-.doodle-day.today { border: 3px solid var(--pencil-red); }
-.today-dot { width: 12px; height: 12px; border-radius: 50%; background: var(--pencil-red); }
-.streak-note > p { margin: 22px 0 0; color: var(--ink-soft); line-height: 1.6; }
-.mistake-demo { display: flex; min-height: 132px; align-items: center; justify-content: center; gap: 8px; font-family: var(--word-font-family); font-size: clamp(20px, 2.2vw, 30px); }
-.wrong-word { position: relative; color: var(--pencil-red); }
-.wrong-word::after { position: absolute; inset: -13px -11px; border: 3px solid var(--pencil-red); border-radius: 48% 54% 51% 45%; content: ''; transform: rotate(-5deg); }
-.correction-arrow { color: var(--pencil-red); font-family: var(--font-hand); font-size: 35px; transform: translateY(-25px) rotate(-12deg); }
-.right-word { color: var(--moss-green); font-family: var(--font-hand); font-weight: 800; transform: rotate(-5deg); }
-.mistake-note h3 { margin: 14px 0 8px; font-family: var(--font-display); font-size: 28px; }
-.mistake-note p { margin: 0; color: var(--ink-soft); line-height: 1.65; }
-
-.features-section { background: var(--paper); }
-.feature-path { max-width: 1040px; margin: 70px auto 0; border-top: 2px solid var(--ink); }
-.feature-row { position: relative; display: grid; min-height: 180px; align-items: center; grid-template-columns: 70px 100px 1fr 150px; gap: 26px; border-bottom: 2px solid var(--ink); }
-.feature-number { color: var(--pencil-red); font-family: var(--font-hand); font-size: 17px; font-weight: 800; }
-.feature-icon { display: grid; width: 82px; height: 82px; place-items: center; border: 2px solid var(--ink); border-radius: 43% 57% 48% 52%; box-shadow: 5px 5px 0 rgba(32, 39, 35, .15); transform: rotate(-3deg); }
-.feature-icon--1 { background: color-mix(in srgb, var(--pencil-red) 22%, var(--paper-card)); }
-.feature-icon--2 { background: color-mix(in srgb, var(--moss-green) 28%, var(--paper-card)); transform: rotate(2deg); }
-.feature-icon--3 { background: color-mix(in srgb, var(--chalk-yellow) 38%, var(--paper-card)); }
-.feature-copy h3 { margin: 0; font-family: var(--font-display); font-size: clamp(27px, 3vw, 40px); font-weight: 500; }
-.feature-copy p { margin: 8px 0 0; color: var(--ink-soft); line-height: 1.65; }
-.feature-scribble { color: var(--pencil-red); font-family: var(--font-hand); font-size: 27px; font-weight: 800; text-align: center; transform: rotate(-7deg); }
-
-.final-note { max-width: 1000px; margin: 10px auto 130px; padding: 85px clamp(28px, 7vw, 90px); border: 2px solid var(--ink); background: var(--paper-card); box-shadow: 13px 15px 0 rgba(32, 39, 35, .14); text-align: center; transform: rotate(-.5deg); }
-.final-note > p:not(.hand-label) { max-width: 650px; margin: 20px auto 30px; color: var(--ink-soft); font-size: 18px; line-height: 1.7; }
-.final-note .ink-button { margin-inline: auto; }
-
-.floating-index { position: fixed; z-index: 30; right: 50%; bottom: 20px; display: flex; padding: 8px; border: 2px solid var(--ink); border-radius: 18px 14px 20px 16px; background: color-mix(in srgb, var(--paper-card) 91%, transparent); box-shadow: 6px 7px 0 rgba(32, 39, 35, .18); backdrop-filter: blur(12px); transform: translateX(50%); }
-.floating-index button { display: flex; align-items: center; gap: 7px; padding: 10px 15px; border: 0; border-radius: 11px; color: var(--ink); background: transparent; cursor: pointer; font-size: 13px; font-weight: 800; }
-.floating-index button:hover { color: var(--paper-card); background: var(--ink); }
-.ink-footer { display: flex; justify-content: space-between; gap: 20px; padding: 28px clamp(20px, 6vw, 96px) 92px; border-top: 1px dashed var(--ink); color: var(--ink-soft); font-size: 13px; }
-
-button:focus-visible,
-a:focus-visible { outline: 3px solid var(--pencil-red); outline-offset: 4px; }
-
-@media (max-width: 980px) {
-  .notes-board { grid-template-columns: 1fr 1fr; }
-  .mistake-note { grid-column: 1 / -1; }
-  .feature-row { grid-template-columns: 55px 90px 1fr; padding-block: 24px; }
-  .feature-scribble { display: none; }
-  .hero-doodle { display: none; }
+@media (max-width: 640px) {
+  .reading-header { padding: 16px; }
+  .wordmark small, .text-button, .header-actions .solid-button { display: none; }
+  .header-actions { gap: 8px; }
+  .opening { padding: 125px 16px 80px; }
+  h1 { font-size: clamp(50px, 17vw, 78px); line-height: .92; }
+  .edition-line span:first-child::after, .edition-line span:last-child::before { display: none; }
+  .opening-actions { align-items: stretch; flex-direction: column; gap: 12px; }
+  .reading-preview { margin-top: 58px; }
+  .book-spread { padding: 12px; }
+  .book-page { min-height: 390px; padding: 45px 24px 28px; }
+  .reading-chapter { padding-block: 90px; }
+  .chapter-body > h2 { margin-top: 70px; }
+  .learning-flow li { grid-template-columns: 32px 1fr; }
+  .learning-flow em { display: none; }
+  .feature-manuscript article { grid-template-columns: 30px 1fr; }
+  .feature-manuscript em { display: none; }
+  .editorial-feature { padding: 90px 22px; }
+  .reading-footer { align-items: flex-start; flex-direction: column; }
 }
-
-@media (max-width: 720px) {
-  .brand-stamp small,
-  .ink-link,
-  .corner-actions .ink-button { display: none; }
-  .brand-stamp, .corner-actions { top: 18px; }
-  .hero-section { min-height: auto; padding-top: 125px; }
-  h1 { font-size: clamp(42px, 11vw, 68px); line-height: .98; }
-  h1 span { white-space: nowrap; }
-  .hero-description { font-size: 16px; }
-  .hero-actions { flex-direction: column; align-items: stretch; }
-  .learning-scene { width: 100%; margin-top: 45px; padding: 10px; border-radius: 18px; }
-  .scene-caption { position: relative; right: auto; bottom: auto; margin: -5px 8px 5px; }
-  .notes-section, .features-section { padding: 82px 18px; }
-  .notes-board { grid-template-columns: 1fr; }
-  .mistake-note { grid-column: auto; }
-  .quote-note, .streak-note, .mistake-note { min-height: 0; }
-  .doodle-calendar { gap: 5px; }
-  .doodle-day { min-width: 0; }
-  .feature-row { grid-template-columns: 46px 70px 1fr; gap: 14px; }
-  .feature-icon { width: 60px; height: 60px; }
-  .floating-index { bottom: 10px; width: calc(100% - 24px); justify-content: space-around; }
-  .floating-index button { flex-direction: column; gap: 2px; padding: 6px 12px; font-size: 10px; }
-  .ink-footer { flex-direction: column; padding-bottom: 100px; }
-  .final-note { margin: 0 18px 110px; padding-block: 60px; }
-}
-
-@media (prefers-reduced-motion: reduce) {
-  *, *::before, *::after { scroll-behavior: auto !important; transition-duration: .01ms !important; }
-}
+@media (prefers-reduced-motion: reduce) { *, *::before, *::after { scroll-behavior: auto !important; transition-duration: .01ms !important; } }
 </style>

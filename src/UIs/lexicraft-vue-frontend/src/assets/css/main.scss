@@ -1,196 +1,21 @@
 @use 'anim' as *;
 @use 'shepherd.css';
 
+@use 'themes';
+
 :root {
-  --color-reverse-white: #ffffff;
-  --color-reverse-black: #0f172a;
-  --bg-history: #ffffff;
-  --color-item-border: rgba(0, 0, 0, 0.05);
-
-  --color-tooltip-bg: rgba(255, 255, 255, 0.8);
-  --color-font-2: #1e293b;
-  --color-font-3: #64748b;
-  --color-font-active-1: #ffffff;
-  --color-scrollbar: #e2e8f0;
-
-  --color-sub-gray: #94a3b8;
-
   --article-width: 60vw;
   --article-toolbar-width: 60vw;
   --article-panel-width: 18rem;
   --article-panel-margin-left: calc(50% + var(--article-width) / 2 + 1rem);
-
   --toolbar-width: 50vw;
   --panel-width: 20rem;
-
   --modal-padding: 1.5rem;
   --space: 1rem;
   --stat-gap: 1.2rem;
   --word-panel-margin-left: calc(50% + var(--toolbar-width) / 2 + 1rem);
   --anim-time: 0.4s;
-
-  --color-input-color: #1e293b;
-  --color-input-bg: #f8fafc;
-  --color-input-border: #e2e8f0;
-  --color-input-icon: #94a3b8;
-
-  --color-textarea-bg: #f8fafc;
-  --color-article: #0f172a;
-
   --aside-width: 14rem;
-
-  --font-family: 'LXGW WenKai', 'Kaiti SC', 'STKaiti', 'Microsoft YaHei', sans-serif;
-  --font-display: 'Iowan Old Style', 'Baskerville', 'Songti SC', 'STSong', Georgia, serif;
-  --font-hand: 'Segoe Print', 'Bradley Hand', 'Kaiti SC', 'STKaiti', cursive;
-  --word-font-family: 'Cascadia Code', 'JetBrains Mono', ui-monospace, monospace;
-  --en-article-family: 'Iowan Old Style', 'Baskerville', Georgia, serif;
-  --zh-article-family: 'Songti SC', 'STSong', 'Noto Serif CJK SC', serif;
-
-  /* Fun Ink visual system */
-  --paper: #f3efdf;
-  --paper-deep: #e8dfc7;
-  --paper-card: #fffaf0;
-  --ink: #202723;
-  --ink-soft: #596159;
-  --pencil-red: #d95745;
-  --moss-green: #55745d;
-  --chalk-yellow: #e7c75f;
-  --chalk-blue: #7c9eaa;
-  --color-primary: var(--paper);
-  --color-second: var(--paper-card);
-  --color-third: var(--paper-deep);
-  --color-fourth: #d5c9ad;
-  --color-fifth: #f6e6a8;
-
-  --color-card-active: #eee5cf;
-  --color-icon-hightlight: var(--pencil-red);
-  --color-sub-text: var(--ink-soft);
-  --color-main-text: var(--ink);
-  --color-select-bg: var(--pencil-red);
-
-  --color-progress-bar: #e2e8f0;
-
-  --color-label-bg: #eae1ca;
-  --color-link: #9d4337;
-
-  --color-card-bg: var(--paper-card);
-
-  --bg-card-primary: var(--paper-card);
-  --bg-card-secend: #f7f0df;
-
-  --bg-book: #ebe2cd;
-
-  --color-line: #d8cdb4;
-
-  --grad-premium: linear-gradient(135deg, #202723 0%, #4f5e53 100%);
-  --grad-gold: linear-gradient(135deg, #e7c75f 0%, #d9a946 100%);
-  --grad-surface: linear-gradient(180deg, rgba(255, 250, 240, 0) 0%, rgba(32, 39, 35, 0.04) 100%);
-
-  --layout-bg: var(--paper);
-  --header-bg: var(--paper-card);
-  --sidebar-bg: var(--paper-card);
-  --border-color: rgba(32, 39, 35, 0.2);
-  --text-primary: var(--ink);
-  --text-secondary: var(--ink-soft);
-  --text-tertiary: #7b7b70;
-  --text-active: #9d4337;
-  --hover-bg: #ebe2ce;
-  --active-bg: #f2d8c8;
-  --shadow-premium: 5px 7px 0 rgba(32, 39, 35, 0.12);
-  --shadow-color: rgba(32, 39, 35, 0.12);
-}
-
-html.dark {
-  --color-reverse-white: #0f172a;
-  --color-reverse-black: #f8fafc;
-
-  --color-primary: #1e293b;
-  --layout-bg: #0f172a;
-  --header-bg: #1e293b;
-  --sidebar-bg: #1e293b;
-  --border-color: #334155;
-  --text-primary: #f1f5f9;
-  --text-secondary: #94a3b8;
-  --text-active: #38bdf8;
-  --active-bg: rgba(56, 189, 248, 0.1);
-  --hover-bg: #334155;
-
-  --color-second: #292a2d;
-  --color-third: #35373a;
-  --color-fourth: rgb(70, 70, 70);
-  --color-fifth: rgb(84, 84, 84);
-
-  --color-card-active: rgb(84, 84, 84);
-  --color-icon-hightlight: rgb(147, 173, 227);
-  --color-sub-text: #b8b8b8;
-  --color-main-text: rgba(249, 250, 251, 0.8);
-  --color-select-bg: rgb(147, 173, 227);
-
-  --bg-history: rgb(43, 45, 48);
-  --color-item-border: rgb(41, 41, 41);
-
-  --color-tooltip-bg: #35373a;
-  --color-font-2: rgba(255, 255, 255, 0.5);
-  --color-font-3: rgba(255, 255, 255, 0.3);
-
-  --color-sub-gray: #383737;
-  --color-scrollbar: rgb(92, 93, 94);
-
-  --color-input-color: white;
-  --color-input-bg: var(--color-third);
-
-  --color-textarea-bg: rgb(43, 45, 48);
-  --color-article: white;
-
-  --color-progress-bar: rgb(73, 77, 82) !important;
-
-  --color-label-bg: rgb(10, 10, 10);
-
-  --color-card-bg: var(--color-second);
-
-  --bg-card-primary: rgb(30, 31, 34);
-  --bg-card-secend: rgb(43, 45, 48);
-
-  --bg-book: #35373a;
-
-  --color-line: rgb(66, 66, 66);
-
-  /* Chalkboard variant of the Fun Ink system */
-  --paper: #1f2925;
-  --paper-deep: #17201d;
-  --paper-card: #27342f;
-  --ink: #f2ead8;
-  --ink-soft: #c8c2b4;
-  --pencil-red: #ef806d;
-  --moss-green: #9fbe96;
-  --chalk-yellow: #efd779;
-  --chalk-blue: #9dc5d0;
-  --color-primary: var(--paper);
-  --color-second: var(--paper-card);
-  --color-third: var(--paper-deep);
-  --color-card-active: #34443d;
-  --color-icon-hightlight: var(--chalk-yellow);
-  --color-sub-text: var(--ink-soft);
-  --color-main-text: var(--ink);
-  --color-select-bg: var(--chalk-yellow);
-  --color-label-bg: #17201d;
-  --color-link: var(--chalk-yellow);
-  --color-card-bg: var(--paper-card);
-  --bg-card-primary: var(--paper-card);
-  --bg-card-secend: #202b27;
-  --bg-book: #34443d;
-  --color-line: rgba(242, 234, 216, 0.15);
-  --layout-bg: var(--paper);
-  --header-bg: var(--paper-card);
-  --sidebar-bg: var(--paper-card);
-  --border-color: rgba(242, 234, 216, 0.22);
-  --text-primary: var(--ink);
-  --text-secondary: var(--ink-soft);
-  --text-tertiary: #9f9e94;
-  --text-active: var(--chalk-yellow);
-  --hover-bg: #34443d;
-  --active-bg: rgba(239, 215, 121, 0.13);
-  --shadow-color: rgba(0, 0, 0, 0.32);
 }
 
 @media (max-width: 1720px) {
@@ -278,11 +103,9 @@ body {
   @apply p-0 m-0 overflow-x-hidden;
   color: var(--color-main-text);
   font-family: var(--font-family);
-  background: var(--color-primary);
-  background-image:
-    radial-gradient(circle at 18% 20%, rgba(32, 39, 35, 0.035) 0 1px, transparent 1.5px),
-    radial-gradient(circle at 82% 72%, rgba(32, 39, 35, 0.025) 0 1px, transparent 1.5px);
-  background-size: 22px 22px, 29px 29px;
+  background-color: var(--surface-page);
+  background-image: var(--texture-image);
+  background-size: var(--texture-size);
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 }
@@ -477,25 +300,21 @@ a {
   @apply card;
   background: var(--color-card-bg);
   border: 1px solid var(--color-item-border);
-  box-shadow: var(--shadow-premium);
+  border-radius: var(--radius-card);
+  box-shadow: var(--card-shadow);
   transition: transform 0.3s ease, box-shadow 0.3s ease;
 
   &:hover {
-    transform: translateY(-4px);
-    box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+    transform: translateY(-3px);
+    box-shadow: var(--card-shadow);
   }
 }
 
 .glass {
-  background: rgba(255, 255, 255, 0.7);
+  background: var(--surface-overlay);
   backdrop-filter: blur(12px);
   -webkit-backdrop-filter: blur(12px);
-  border: 1px solid rgba(255, 255, 255, 0.3);
-}
-
-.dark .glass {
-  background: rgba(15, 23, 42, 0.7);
-  border: 1px solid rgba(255, 255, 255, 0.1);
+  border: 1px solid var(--border-color);
 }
 
 .grad-text {
@@ -574,4 +393,27 @@ a {
 .target-number {
   @apply text-3xl !;
   color: rgb(176, 116, 211) !important;
+}
+
+html[data-theme-style='zen'] .card-white {
+  border-inline: 0;
+  box-shadow: none;
+}
+
+html[data-theme-style='zen'] .card-white:hover {
+  transform: none;
+}
+
+html[data-theme-style='ink'] .card-white {
+  border-width: 2px;
+  transform: rotate(-0.15deg);
+}
+
+html[data-theme-style='ink'] .card-white:hover {
+  transform: translateY(-3px) rotate(0.2deg);
+}
+
+::selection {
+  color: var(--accent-contrast);
+  background: var(--accent);
 }

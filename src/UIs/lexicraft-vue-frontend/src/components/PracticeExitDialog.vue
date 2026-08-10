@@ -1,6 +1,4 @@
 <script lang="ts" setup>
-import {useSettingStore} from '@/stores/setting'
-
 interface Props {
   visible: boolean
   listLabel: string
@@ -9,7 +7,6 @@ interface Props {
 const props = defineProps<Props>()
 const emit = defineEmits(['update:visible', 'exit-home', 'exit-list', 'continue'])
 
-const settingStore = useSettingStore()
 
 const handleClose = () => {
   emit('update:visible', false)
@@ -28,7 +25,7 @@ const exitList = () => {
 
 <template>
   <div v-if="visible" class="exit-dialog-overlay" @click.self="handleClose">
-    <div :class="settingStore.theme" class="exit-dialog">
+    <div class="exit-dialog">
       <div class="dialog-header">
         <h3 class="title">退出练习</h3>
         <button class="close-icon-btn" @click="handleClose">✕</button>
@@ -71,190 +68,28 @@ const exitList = () => {
 </template>
 
 <style lang="scss" scoped>
-.exit-dialog-overlay {
-  position: fixed;
-  inset: 0;
-  background: rgba(0, 0, 0, 0.6);
-  backdrop-filter: blur(4px);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  z-index: 10000;
-  padding: 1.5rem;
-}
-
-.exit-dialog {
-  background: var(--bg-card-primary, #ffffff);
-  border-radius: 4px; // 菱角分明
-  width: 100%;
-  max-width: 400px;
-  box-shadow: 0 15px 40px rgba(0, 0, 0, 0.2);
-  overflow: hidden;
-  animation: slideUp 0.3s ease-out;
-
-  &.dark {
-    --bg-card-primary: #1e1f22;
-    --color-border: #2b2d31;
-    --color-text-main: #f2f3f5;
-    --color-text-sub: #b5bac1;
-    --color-hover: #35373c;
-    --notice-bg: rgba(59, 130, 246, 0.1);
-    --color-brand: #3b82f6;
-  }
-
-  --color-text-main: #111827;
-  --color-text-sub: #6b7280;
-  --color-border: #f3f4f6;
-  --color-hover: #f9fafb;
-  --notice-bg: #eff6ff;
-  --color-brand: #3b82f6;
-}
-
-.dialog-header {
-  padding: 1rem 1.2rem;
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  border-bottom: 1px solid var(--color-border);
-
-  .title {
-    font-size: 1.1rem;
-    font-weight: 700;
-    color: var(--color-text-main);
-    margin: 0;
-  }
-
-  .close-icon-btn {
-    background: none;
-    border: none;
-    color: var(--color-text-sub);
-    font-size: 1.1rem;
-    cursor: pointer;
-    padding: 0.3rem;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    transition: all 0.2s;
-
-    &:hover {
-      color: var(--color-text-main);
-    }
-  }
-}
-
-.dialog-body {
-  padding: 1.2rem;
-  display: flex;
-  flex-direction: column;
-  gap: 1rem;
-}
-
-.notice-card {
-  background: var(--notice-bg);
-  color: var(--color-brand);
-  padding: 0.8rem 1rem;
-  border-radius: 2px; // 菱角分明
-  font-size: 0.85rem;
-  font-weight: 500;
-  line-height: 1.4;
-  text-align: center;
-  border-left: 3px solid var(--color-brand);
-}
-
-.options-list {
-  display: flex;
-  flex-direction: column;
-  gap: 0.6rem;
-}
-
-.option-item {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  padding: 0.7rem 1rem; // 高度减小
-  border: 1px solid var(--color-border);
-  border-radius: 2px; // 菱角分明
-  cursor: pointer;
-  transition: all 0.2s;
-
-  &:hover {
-    border-color: var(--color-brand);
-    background: var(--color-hover);
-  }
-
-  .option-left {
-    display: flex;
-    align-items: center;
-    gap: 0.8rem;
-
-    .icon {
-      font-size: 1.1rem;
-      color: var(--color-brand);
-    }
-
-    .label {
-      font-size: 0.9rem;
-      font-weight: 600;
-      color: var(--text-secondary);
-    }
-  }
-
-  .arrow {
-    color: var(--text-tertiary);
-    font-size: 0.9rem;
-    transition: transform 0.2s;
-  }
-
-  &:hover .arrow {
-    transform: translateX(3px);
-    color: var(--color-brand);
-  }
-}
-
-.continue-btn {
-  margin-top: 0.4rem;
-  background: var(--color-brand);
-  color: white;
-  border: none;
-  border-radius: 2px; // 菱角分明
-  padding: 0.8rem; // 高度减小
-  font-size: 0.95rem;
-  font-weight: 600;
-  cursor: pointer;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 0.5rem;
-  transition: all 0.2s;
-
-  &:hover {
-    background: #2563eb;
-    opacity: 0.9;
-  }
-
-  &:active {
-    transform: scale(0.98);
-  }
-
-  .play-icon {
-    font-size: 1.1rem;
-  }
-}
-
-@keyframes slideUp {
-  from {
-    opacity: 0;
-    transform: translateY(20px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
-}
-
-@media (max-width: 480px) {
-  .exit-dialog {
-    max-width: 100%;
-  }
-}
+.exit-dialog-overlay { position: fixed; inset: 0; z-index: 10000; display: flex; align-items: center; justify-content: center; padding: 1.5rem; background: color-mix(in srgb, #000 58%, transparent); backdrop-filter: blur(6px); }
+.exit-dialog { width: min(100%, 420px); overflow: hidden; border: 1px solid var(--border-strong); border-radius: var(--radius-card); color: var(--text-primary); background: var(--surface-card); box-shadow: var(--card-shadow); animation: slide-up .26s ease-out; }
+.dialog-header { display: flex; align-items: center; justify-content: space-between; padding: 1.2rem 1.3rem; border-bottom: 1px solid var(--border-color); }
+.dialog-header .title { margin: 0; color: var(--text-primary); font-family: var(--font-heading); font-size: 1.2rem; font-weight: 500; }
+.close-icon-btn { display: grid; width: 30px; height: 30px; place-items: center; border: 0; color: var(--text-secondary); background: transparent; cursor: pointer; }
+.close-icon-btn:hover { color: var(--danger); }
+.dialog-body { display: flex; flex-direction: column; gap: 1rem; padding: 1.25rem; }
+.notice-card { padding: .9rem 1rem; border-left: 3px solid var(--accent); color: var(--text-secondary); background: var(--accent-soft); font-size: .85rem; line-height: 1.5; }
+.options-list { display: grid; gap: .6rem; }
+.option-item { display: flex; align-items: center; justify-content: space-between; padding: .8rem 1rem; border: 1px solid var(--border-color); border-radius: var(--radius-control); cursor: pointer; transition: border-color .2s ease, background .2s ease; }
+.option-item:hover { border-color: var(--accent); background: var(--hover-bg); }
+.option-left { display: flex; align-items: center; gap: .8rem; }
+.option-left .icon { color: var(--accent); }
+.option-left .label { color: var(--text-primary); font-size: .9rem; font-weight: 600; }
+.arrow { color: var(--text-tertiary); transition: transform .2s ease; }
+.option-item:hover .arrow { color: var(--accent); transform: translateX(3px); }
+.continue-btn { display: flex; align-items: center; justify-content: center; gap: .5rem; margin-top: .25rem; padding: .85rem; border: 1px solid var(--accent); border-radius: var(--radius-control); color: var(--accent-contrast); background: var(--accent); cursor: pointer; font: inherit; font-weight: 700; }
+.continue-btn:hover { background: var(--accent-hover); }
+:global(html[data-theme-style='editorial'] .exit-dialog) { border-top-width: 5px; }
+:global(html[data-theme-style='zen'] .exit-dialog) { border-inline: 0; box-shadow: none; }
+:global(html[data-theme-style='zen'] .option-item), :global(html[data-theme-style='zen'] .continue-btn) { border-radius: 0; font-family: var(--font-mono); }
+:global(html[data-theme-style='ink'] .exit-dialog) { border-width: 2px; transform: rotate(-.35deg); }
+:global(html[data-theme-style='ink'] .notice-card), :global(html[data-theme-style='ink'] .option-item), :global(html[data-theme-style='ink'] .continue-btn) { border-width: 2px; font-family: var(--font-hand); }
+@keyframes slide-up { from { opacity: 0; transform: translateY(16px); } }
 </style>

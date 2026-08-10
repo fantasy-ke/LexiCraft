@@ -42,7 +42,8 @@ export interface SettingState {
     showToolbar: boolean //收起/展开工具栏
     showPanel: boolean // 收起/展开面板
     sideExpand: boolean //收起/展开左侧侧边栏
-    theme: string
+    theme: 'light' | 'dark' | 'auto'
+    themeStyle: 'editorial' | 'zen' | 'ink'
     shortcutKeyMap: Record<string, string>
     first: boolean
     firstTime: number
@@ -96,6 +97,7 @@ export const getDefaultSettingState = (): SettingState => ({
     showPanel: true,
     sideExpand: false,
     theme: 'auto',
+    themeStyle: 'editorial',
     shortcutKeyMap: cloneDeep(DefaultShortcutKeyMap),
     first: true,
     firstTime: Date.now(),

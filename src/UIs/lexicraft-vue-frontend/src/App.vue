@@ -18,7 +18,7 @@ const store = useBaseStore()
 const runtimeStore = useRuntimeStore()
 const settingStore = useSettingStore()
 const userStore = useUserStore()
-const {setTheme} = useTheme()
+const {applyTheme} = useTheme()
 
 let lastAudioFileIdList = []
 let isInitializing = true // 标记是否正在初始化
@@ -86,7 +86,7 @@ async function init() {
   store.load = true
   isInitializing = false // 初始化完成，允许保存数据
 
-  setTheme(settingStore.theme)
+  applyTheme()
 
   if (settingStore.first) {
     set(APP_VERSION.key, APP_VERSION.version)
