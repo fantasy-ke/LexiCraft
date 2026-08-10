@@ -1,3 +1,4 @@
+using System.Security.Cryptography;
 using BuildingBlocks.Mediator;
 using LexiCraft.Services.Identity.Identity.Models;
 using LexiCraft.Services.Identity.Identity.Models.Enum;
@@ -41,7 +42,10 @@ public class CreateUserCommandHandler(
 
         // 创建用户
         var user = new User(command.UserAccount, command.Email, command.Source);
-        if (!string.IsNullOrEmpty(command.Password)) user.SetPassword(command.Password);
+        var password = string.IsNullOrEmpty(command.Password)
+            ? Convert.ToHexString(RandomNumberGenerator.GetBytes(32))
+            : command.Password;
+        user.SetPassword(password);
         user.UpdateAvatar(command.Avatar ?? "🦜");
         user.AddRole(PermissionConstant.User);
         user.UpdateLastLoginTime();
