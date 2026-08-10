@@ -69,7 +69,7 @@ Sourcing）支持和 Saga 状态机持久化（基于 MongoDB）。
       "Enabled": true,
       "RepositoryType": "MongoDb",
       "MongoDb": {
-        "ConnectionString": "mongodb://localhost:27017",
+        "ConnectionString": "mongodb://localhost:17017",
         "DatabaseName": "lexicraft_sagas",
         "CollectionName": "order_sagas" // 可选，指定集合名称
       }

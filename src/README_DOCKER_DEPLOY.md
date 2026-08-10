@@ -220,7 +220,7 @@ docker swarm init
       dockerfile: microservices/Identity/Dockerfile
     environment:
       ASPNETCORE_ENVIRONMENT: "Docker"
-      AgileConfig__Nodes: "http://172.144.21.1:8500"
+      AgileConfig__Nodes: "http://172.31.21.1:8500"
       AgileConfig__AppId: "identity-api"
       AgileConfig__Secret: "bb123456"
       AgileConfig__ENV: "TEST"
@@ -317,7 +317,7 @@ spec:
             - name: ASPNETCORE_ENVIRONMENT
               value: "Docker"
             - name: AgileConfig__Nodes
-              value: "http://172.144.21.1:8500"
+              value: "http://172.31.21.1:8500"
             - name: AgileConfig__AppId
               value: "api-gateway"
             - name: AgileConfig__Secret

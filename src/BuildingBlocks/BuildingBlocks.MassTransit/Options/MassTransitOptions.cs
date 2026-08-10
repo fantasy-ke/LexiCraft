@@ -85,7 +85,7 @@ public class SagaOptions
 
 public class MongoDbSagaOptions
 {
-    public string ConnectionString { get; set; } = "mongodb://localhost:27017";
+    public string ConnectionString { get; set; } = "mongodb://localhost:17017";
     public string DatabaseName { get; set; } = "sagas";
     public string? CollectionName { get; set; }
 }

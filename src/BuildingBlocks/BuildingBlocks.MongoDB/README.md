@@ -31,7 +31,7 @@ Add to your `appsettings.json`:
 ```json
 {
   "MongoOptions": {
-    "ConnectionString": "mongodb://localhost:27017/your-database",
+    "ConnectionString": "mongodb://localhost:17017/your-database",
     "MaxConnectionPoolSize": 100,
     "MinConnectionPoolSize": 10,
     "ConnectTimeout": "00:00:30",
