@@ -2,68 +2,150 @@ using BuildingBlocks.Extensions;
 using BuildingBlocks.OSS.Interface;
 using BuildingBlocks.OSS.Interface.Service;
 using BuildingBlocks.OSS.Providers;
+using BuildingBlocks.OSS.Services;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
 using Microsoft.Extensions.Hosting;
+using Microsoft.Extensions.Options;
 
 namespace BuildingBlocks.OSS;
 
 public static class OssServiceExtensions
 {
     /// <summary>
-    ///     添加对象存储服务 (支持多种提供商与配置文件绑定)
+    ///     添加对象存储服务。支持旧的单提供商配置和新的命名多提供商配置。
     /// </summary>
-    public static IHostApplicationBuilder AddOssService(this IHostApplicationBuilder builder,
+    public static IHostApplicationBuilder AddOssService(
+        this IHostApplicationBuilder builder,
         Action<OSSOptions>? configure = null)
     {
-        // 使用 BuildingBlocks 扩展方法绑定配置
-        var options = builder.Configuration.BindOptions(nameof(OSSOptions), configure);
+        var configuredOptions = builder.Configuration.BindOptions(nameof(OSSOptions), configure);
 
-        // 注册 Options 以供后续注入
-        builder.Services.AddConfigurationOptions(nameof(OSSOptions), configure);
+        var optionsBuilder = builder.Services
+            .AddOptions<OSSOptions>()
+            .BindConfiguration(nameof(OSSOptions));
+        if (configure != null) optionsBuilder.Configure(configure);
+        optionsBuilder.ValidateOnStart();
 
-        if (!options.Enable)
-            return builder;
+        builder.Services.TryAddEnumerable(
+            ServiceDescriptor.Singleton<IValidateOptions<OSSOptions>, OSSOptionsValidator>());
 
-        // 注册基础服务
         RegisterBaseServices(builder.Services);
+        RegisterBuiltInProviders(builder.Services);
+        RegisterProviderSpecificAliases(builder.Services, configuredOptions);
 
-        builder.Services.TryAddSingleton<IOSSService>(sp =>
-            sp.GetRequiredService<IOSSServiceFactory>().Create());
-
-        switch (options.Provider)
-        {
-            case OSSProvider.Aliyun:
-                builder.Services.TryAddSingleton<IAliyunOssService>(sp =>
-                    (IAliyunOssService)sp.GetRequiredService<IOSSService>());
-                break;
-            case OSSProvider.Minio:
-                builder.Services.TryAddSingleton<IMinioOssService>(sp =>
-                    (IMinioOssService)sp.GetRequiredService<IOSSService>());
-                break;
-            case OSSProvider.QCloud:
-                builder.Services.TryAddSingleton<IQCloudOSSService>(sp =>
-                    (IQCloudOSSService)sp.GetRequiredService<IOSSService>());
-                break;
-        }
+        builder.Services.TryAddSingleton<IOSSService>(serviceProvider =>
+            serviceProvider.GetRequiredService<IOSSServiceFactory>().Create());
 
         return builder;
     }
 
     /// <summary>
-    ///     注册基础服务
+    ///     注册自定义对象存储提供商。提供商实现应提供包含 <see cref="OSSOptions" /> 参数的公开构造函数。
     /// </summary>
-    /// <param name="services">服务集合</param>
+    public static IServiceCollection AddOssProvider<TService>(
+        this IServiceCollection services,
+        string providerType)
+        where TService : class, IOSSService
+    {
+        ArgumentException.ThrowIfNullOrWhiteSpace(providerType);
+        RegisterProvider<TService>(services, providerType.Trim(), true);
+        return services;
+    }
+
     private static void RegisterBaseServices(IServiceCollection services)
     {
-        // 如果未注册 ICacheProvider 则默认注册 MemoryCacheProvider
-        if (services.All(p => p.ServiceType != typeof(ICacheProvider)))
-        {
-            services.AddMemoryCache();
-            services.TryAddSingleton<ICacheProvider, MemoryCacheProvider>();
-        }
+        services.AddMemoryCache();
+        services.TryAddSingleton<ICacheProvider, MemoryCacheProvider>();
+        services.TryAddSingleton<IOSSServiceFactory, OssServiceFactory>();
+    }
 
-        if (services.All(p => p.ServiceType != typeof(IOSSServiceFactory)))
-            services.AddSingleton<IOSSServiceFactory, OssServiceFactory>();
+    private static void RegisterBuiltInProviders(IServiceCollection services)
+    {
+        RegisterProvider<MinioOssService>(services, OSSProviderNames.Minio, false);
+        RegisterProvider<AliyunOssService>(services, OSSProviderNames.Aliyun, false);
+        RegisterProvider<QCloudOssService>(services, OSSProviderNames.QCloud, false);
+    }
+
+    private static void RegisterProvider<TService>(
+        IServiceCollection services,
+        string providerType,
+        bool replaceExisting)
+        where TService : class, IOSSService
+    {
+        var existingDescriptors = services
+            .Where(descriptor => descriptor.ServiceType == typeof(IOSSProviderActivator)
+                                 && descriptor.ImplementationInstance is OSSProviderRegistration registration
+                                 && string.Equals(
+                                     registration.ProviderType,
+                                     providerType,
+                                     StringComparison.OrdinalIgnoreCase))
+            .ToList();
+
+        if (existingDescriptors.Count > 0 && !replaceExisting) return;
+        foreach (var descriptor in existingDescriptors) services.Remove(descriptor);
+
+        services.AddSingleton<IOSSProviderActivator>(
+            new OSSProviderRegistration(
+                providerType,
+                (serviceProvider, options) =>
+                    ActivatorUtilities.CreateInstance<TService>(serviceProvider, options)));
+    }
+
+    private static void RegisterProviderSpecificAliases(
+        IServiceCollection services,
+        OSSOptions options)
+    {
+        if (!options.Enable) return;
+
+        var providers = OSSOptionsResolver.ResolveProviders(options);
+        var defaultProviderName = OSSOptionsResolver.ResolveDefaultProviderName(options, providers);
+
+        RegisterProviderAlias<IMinioOssService>(
+            services,
+            providers,
+            defaultProviderName,
+            OSSProviderNames.Minio);
+        RegisterProviderAlias<IAliyunOssService>(
+            services,
+            providers,
+            defaultProviderName,
+            OSSProviderNames.Aliyun);
+        RegisterProviderAlias<IQCloudOSSService>(
+            services,
+            providers,
+            defaultProviderName,
+            OSSProviderNames.QCloud);
+    }
+
+    private static void RegisterProviderAlias<TService>(
+        IServiceCollection services,
+        IReadOnlyDictionary<string, OSSProviderOptions> providers,
+        string? defaultProviderName,
+        string providerType)
+        where TService : class, IOSSService
+    {
+        var matchedNames = providers
+            .Where(pair => string.Equals(
+                pair.Value.GetProviderType(),
+                providerType,
+                StringComparison.OrdinalIgnoreCase))
+            .Select(pair => pair.Key)
+            .ToList();
+
+        var providerName = matchedNames.Count switch
+        {
+            0 => null,
+            1 => matchedNames[0],
+            _ when defaultProviderName != null && matchedNames.Contains(
+                defaultProviderName,
+                StringComparer.OrdinalIgnoreCase) => defaultProviderName,
+            _ => null
+        };
+
+        if (providerName == null) return;
+
+        services.TryAddSingleton<TService>(serviceProvider =>
+            (TService)serviceProvider.GetRequiredService<IOSSServiceFactory>().Create(providerName));
     }
 }

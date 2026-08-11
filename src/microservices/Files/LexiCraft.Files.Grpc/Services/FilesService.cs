@@ -10,7 +10,6 @@ using LexiCraft.Files.Grpc.Model;
 using Mapster;
 using Microsoft.AspNetCore.StaticFiles;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Options;
 using ProtoBuf.Grpc;
 using static System.Guid;
 
@@ -31,7 +30,7 @@ public class FilesService : IFilesService
     private readonly IWebHostEnvironment _hostEnvironment;
 
     private readonly ILogger<FilesService> _logger;
-    private readonly OSSOptions _ossOptions;
+    private readonly string? _ossBucket;
     private readonly IOSSService _ossService;
     private readonly IUnitOfWork _unitOfWork;
 
@@ -41,28 +40,23 @@ public class FilesService : IFilesService
     /// <param name="fileDbContext"></param>
     /// <param name="unitOfWork"></param>
     /// <param name="hostEnvironment"></param>
-    /// <param name="ossOptions"></param>
-    /// <param name="serviceProvider"></param>
+    /// <param name="ossServiceFactory"></param>
     public FilesService(
         ILogger<FilesService> logger,
         FilesDbContext fileDbContext,
         IUnitOfWork unitOfWork,
         IWebHostEnvironment hostEnvironment,
-        IOptions<OSSOptions> ossOptions,
-        IServiceProvider serviceProvider)
+        IOSSServiceFactory ossServiceFactory)
     {
         _logger = logger;
         _fileDbContext = fileDbContext;
         _unitOfWork = unitOfWork;
         _hostEnvironment = hostEnvironment;
-        _ossOptions = ossOptions.Value;
-        _ossService = (IOSSService)serviceProvider.GetRequiredService(typeof(IOSSService));
+        _ossBucket = ossServiceFactory.DefaultBucket;
+        _ossService = ossServiceFactory.Create();
     }
 
-    private bool IsOssEnabled =>
-        _ossOptions.Enable
-        && !string.IsNullOrWhiteSpace(_ossOptions.DefaultBucket)
-        && _ossOptions.Provider != OSSProvider.Invalid;
+    private bool IsOssEnabled => !string.IsNullOrWhiteSpace(_ossBucket);
 
     /// <summary>
     ///     上传文件
@@ -351,7 +345,7 @@ public class FilesService : IFilesService
         if (IsOssEnabled && !fileInfo.IsDirectory)
         {
             var objectName = NormalizeObjectName(fileInfo.FilePath);
-            await _ossService.RemoveObjectAsync(_ossOptions.DefaultBucket, [objectName]);
+            await _ossService.RemoveObjectAsync(_ossBucket!, [objectName]);
         }
 
         _fileDbContext.FileInfos.Remove(fileInfo);
@@ -463,7 +457,7 @@ public class FilesService : IFilesService
 
         var objectName = NormalizeObjectName(fileInfo.FilePath);
         using var stream = new MemoryStream(content);
-        await _ossService.PutObjectAsync(_ossOptions.DefaultBucket, objectName, stream);
+        await _ossService.PutObjectAsync(_ossBucket!, objectName, stream);
     }
 
     private async Task<FileResponseDto> GetFileFromOssAsync(string relativePath)
@@ -487,7 +481,7 @@ public class FilesService : IFilesService
             stream.CopyTo(memoryStream);
         }
 
-        await _ossService.GetObjectAsync(_ossOptions.DefaultBucket, objectName, WriteStream);
+        await _ossService.GetObjectAsync(_ossBucket!, objectName, WriteStream);
 
         memoryStream.Position = 0;
 
