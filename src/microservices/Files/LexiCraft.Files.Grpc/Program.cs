@@ -1,13 +1,14 @@
 using BuildingBlocks.Extensions;
 using BuildingBlocks.Grpc.Contracts.FileGrpc;
 using BuildingBlocks.OSS;
+using BuildingBlocks.OpenApi.AspnetOpenApi.Extensions;
 using BuildingBlocks.SerilogLogging.Extensions;
 using BuildingBlocks.SerilogLogging.Utils;
 using LexiCraft.Files.Grpc.Data;
+using LexiCraft.Files.Grpc.HttpApi;
 using LexiCraft.Files.Grpc.Services;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.FileProviders;
-using Microsoft.OpenApi.Models;
 using ProtoBuf.Grpc.Server;
 using Serilog;
 
@@ -23,14 +24,8 @@ builder.AddOssService();
 // Add services to the container.
 builder.Services.AddCodeFirstGrpc(options => { options.EnableDetailedErrors = true; });
 builder.Services.AddEndpointsApiExplorer();
-// AddGrpcSwagger 仅描述配置了 JSON Transcoding 的 gRPC HTTP 端点；Code First gRPC 不会自动生成 OpenAPI 路径。
-builder.Services.AddGrpcSwagger();
-builder.Services.AddSwaggerGen(c =>
-{
-    // new OpenApiInfo { Title = "file gRPC transcoding", Version = "v1" }
-    c.SwaggerDoc("v1",
-        new OpenApiInfo { Title = "词汇技艺 Files Api", Version = "v1", Description = "词汇技艺相关接口" });
-});
+builder.Services.AddAuthentication();
+builder.AddAspnetOpenApi();
 builder.Services.WithLexiCraftDbAccess(builder.Configuration);
 builder.Services.WithMapster();
 builder.Services.AddScoped<IFilesService, FilesService>();
@@ -55,20 +50,15 @@ app.UseStaticFiles(new StaticFileOptions
 });
 
 app.MapGet("/content", async ([FromQuery] string relativePath, [FromServices] IFilesService filesService) =>
-{
-    var fileResponse = await filesService.GetFileByPathAsync(relativePath);
-    return Results.File(fileResponse.FileStream, fileResponse.ContentType, fileResponse.FileName);
-});
-
-if (app.Environment.IsDevelopment())
-{
-    app.UseSwagger();
-    app.UseSwaggerUI(c =>
     {
-        c.SwaggerEndpoint("/swagger/v1/swagger.json", "My API V1");
-        c.RoutePrefix = "swagger";
-    });
-}
+        var fileResponse = await filesService.GetFileByPathAsync(relativePath);
+        return Results.File(fileResponse.FileStream, fileResponse.ContentType, fileResponse.FileName);
+    })
+    .ExcludeFromDescription();
+
+app.MapFilesApiEndpoints();
+
+if (app.Environment.IsDevelopment()) app.UseAspnetOpenApi();
 
 // Configure the HTTP request pipeline.
 app.MapGrpcService<FilesService>();

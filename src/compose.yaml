@@ -9,7 +9,7 @@ services:
     environment:
       ASPNETCORE_ENVIRONMENT: "Docker"
       AgileConfig__Nodes: "http://172.31.21.1:8500"
-      AgileConfig__AppId: "api-gateway"
+      AgileConfig__AppId: "lexicraft-api-gateway"
       AgileConfig__Secret: "bb123456"
       AgileConfig__ENV: "TEST"
     restart: unless-stopped
@@ -29,7 +29,7 @@ services:
     environment:
       ASPNETCORE_ENVIRONMENT: "Docker"
       AgileConfig__Nodes: "http://172.31.21.1:8500"
-      AgileConfig__AppId: "files-grpc"
+      AgileConfig__AppId: "lexicraft-files-grpc"
       AgileConfig__Secret: "bb123456"
       AgileConfig__ENV: "TEST"
     restart: unless-stopped
@@ -44,7 +44,7 @@ services:
     environment:
       ASPNETCORE_ENVIRONMENT: "Docker"
       AgileConfig__Nodes: "http://172.31.21.1:8500"
-      AgileConfig__AppId: "identity-api"
+      AgileConfig__AppId: "lexicraft-identity-api"
       AgileConfig__Secret: "bb123456"
       AgileConfig__ENV: "TEST"
     restart: unless-stopped
