@@ -154,12 +154,12 @@ onUnmounted(() => document.removeEventListener('click', handleClickOutside))
 :global(html[data-theme-style='editorial'] .corner-brand) { transform: rotate(-.6deg); }
 :global(html[data-theme-style='editorial'] .user-note) { border-top-width: 4px; }
 :global(html[data-theme-style='zen'] .corner-brand) { transform: scale(.92); transform-origin: left center; }
-:global(html[data-theme-style='zen']) .corner-brand :deep(.brand-logo__copy small), :global(html[data-theme-style='zen'] .today-note) { display: none; }
+:global(html[data-theme-style='zen'] .corner-brand .brand-logo__copy small), :global(html[data-theme-style='zen'] .today-note) { display: none; }
 :global(html[data-theme-style='zen'] .avatar-button) { border-radius: 0; box-shadow: none; }
 :global(html[data-theme-style='zen'] .user-note) { border-width: 1px 0; box-shadow: none; }
-:global(html[data-theme-style='zen']) .note-links :deep(svg) { display: none; }
+:global(html[data-theme-style='zen'] .note-links svg) { display: none; }
 :global(html[data-theme-style='ink'] .corner-brand) { transform: rotate(-1deg); }
-:global(html[data-theme-style='ink']) .corner-brand :deep(.brand-logo__mark) { filter: drop-shadow(3px 3px 0 var(--danger)); transform: rotate(-2deg); }
+:global(html[data-theme-style='ink'] .corner-brand .brand-logo__mark) { filter: drop-shadow(3px 3px 0 var(--danger)); transform: rotate(-2deg); }
 :global(html[data-theme-style='ink'] .today-note), :global(html[data-theme-style='ink'] .user-note) { border-width: 2px; transform: rotate(.35deg); }
 
 @media (max-width: 700px) {
