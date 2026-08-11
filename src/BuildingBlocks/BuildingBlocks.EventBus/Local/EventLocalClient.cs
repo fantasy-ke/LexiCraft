@@ -1,134 +1,154 @@
-using System.Collections.Concurrent;
-using System.Linq.Expressions;
-using System.Reflection;
 using System.Threading.Channels;
 using BuildingBlocks.EventBus.Abstractions;
+using BuildingBlocks.EventBus.Options;
 using BuildingBlocks.EventBus.Shared;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Options;
 
 namespace BuildingBlocks.EventBus.Local;
 
 /// <summary>
-///     本地事件 Client 核心实现
+///     基于有界 Channel 的本地事件客户端
 /// </summary>
-public class EventLocalClient(
-    IServiceProvider serviceProvider,
-    ILogger<EventLocalClient> logger,
-    IHandlerSerializer handlerSerializer) : IDisposable
+public sealed class EventLocalClient : IDisposable
 {
-    private readonly ConcurrentDictionary<string, Channel<string>> _channels = new();
-    private readonly CancellationTokenSource _cts = new();
-    private readonly ConcurrentDictionary<Type, Func<object, object, CancellationToken, Task>> _handlerCache = new();
-    private readonly ConcurrentDictionary<string, Type?> _types = new();
+    private readonly AsyncLocal<int> _consumerDepth = new();
+    private readonly Channel<LocalEventEnvelope> _channel;
+    private readonly EventHandlerInvoker _handlerInvoker;
+    private readonly IHandlerSerializer _handlerSerializer;
+    private readonly ILogger<EventLocalClient> _logger;
+    private readonly IServiceProvider _serviceProvider;
+    private int _completed;
+    private int _disposed;
 
-    public void Dispose()
+    public EventLocalClient(
+        IServiceProvider serviceProvider,
+        ILogger<EventLocalClient> logger,
+        IHandlerSerializer handlerSerializer,
+        EventHandlerInvoker handlerInvoker,
+        IOptions<EventBusOptions> options)
     {
-        _cts.Dispose();
-    }
+        _serviceProvider = serviceProvider;
+        _logger = logger;
+        _handlerSerializer = handlerSerializer;
+        _handlerInvoker = handlerInvoker;
 
-    public async Task PublishAsync(Type eventType, string eventData)
-    {
-        ArgumentNullException.ThrowIfNull(eventType);
-        var channel = CreateOrGetChannels(eventType, out var channelName);
-        while (await channel.Writer.WaitToWriteAsync())
+        _channel = Channel.CreateBounded<LocalEventEnvelope>(new BoundedChannelOptions(options.Value.Local.Capacity)
         {
-            var eventEto = new EventEto(channelName, eventData);
-            var data = handlerSerializer.SerializeJson(eventEto);
-            await channel.Writer.WriteAsync(data, _cts.Token);
-            break;
-        }
-    }
-
-    private Channel<string> CreateOrGetChannels(Type eventType, out string channelName)
-    {
-        var attribute = eventType.GetCustomAttributes().OfType<EventSchemeAttribute>().FirstOrDefault();
-        channelName = attribute?.EventName ?? eventType.FullName!;
-        var channel = _channels.GetValueOrDefault(channelName!);
-        if (channel is not null) return channel;
-
-        channel = Channel.CreateUnbounded<string>(new UnboundedChannelOptions
-        {
-            SingleReader = attribute?.SingleReader ?? true,
-            SingleWriter = attribute?.SingleWriter ?? true,
-            AllowSynchronousContinuations = attribute?.AllowSynchronousContinuations ?? true
+            SingleReader = true,
+            SingleWriter = false,
+            AllowSynchronousContinuations = false,
+            FullMode = BoundedChannelFullMode.Wait
         });
-        _channels.TryAdd(channelName!, channel);
-        return channel;
+    }
+
+    public async ValueTask PublishAsync(
+        Type eventType,
+        string eventData,
+        CancellationToken cancellationToken = default)
+    {
+        ObjectDisposedException.ThrowIf(Volatile.Read(ref _disposed) != 0, this);
+        ArgumentNullException.ThrowIfNull(eventType);
+        ArgumentNullException.ThrowIfNull(eventData);
+
+        if (Volatile.Read(ref _completed) != 0)
+            throw new EventClientException("本地事件总线已停止，无法继续发布事件");
+
+        var envelope = new LocalEventEnvelope(eventType, eventData);
+        if (_channel.Writer.TryWrite(envelope)) return;
+
+        if (_consumerDepth.Value > 0)
+            throw new EventClientException(
+                "本地事件处理器不能在队列已满时同步等待再次发布，这会阻塞唯一消费者");
+
+        try
+        {
+            await _channel.Writer.WriteAsync(envelope, cancellationToken);
+        }
+        catch (ChannelClosedException ex)
+        {
+            throw new EventClientException("本地事件总线已停止，无法继续发布事件", ex);
+        }
     }
 
     public async Task ConsumeStartAsync(CancellationToken stoppingToken)
     {
-        while (!stoppingToken.IsCancellationRequested)
+        try
         {
-            foreach (var channel in _channels)
-                _ = Task.Factory.StartNew(
-                    async () => { await ConsumeChannelAsync(channel.Key, channel.Value, _cts.Token); }, stoppingToken);
-            await Task.Delay(5000, stoppingToken);
+            await foreach (var envelope in _channel.Reader.ReadAllAsync(stoppingToken))
+            {
+                var previousDepth = _consumerDepth.Value;
+                _consumerDepth.Value = previousDepth + 1;
+                try
+                {
+                    await ProcessEnvelopeAsync(envelope, stoppingToken);
+                }
+                finally
+                {
+                    _consumerDepth.Value = previousDepth;
+                }
+            }
+        }
+        catch (OperationCanceledException) when (stoppingToken.IsCancellationRequested)
+        {
+            // Host 正常停止。
         }
     }
 
-    private async Task ConsumeChannelAsync(string channelName, Channel<string> channel,
-        CancellationToken cancellationToken)
+    public void Complete()
     {
-        while (channel.Reader.TryPeek(out _) && await channel.Reader.WaitToReadAsync(cancellationToken))
-            try
-            {
-                if (!channel.Reader.TryRead(out var message)) continue;
-                var eventEto = handlerSerializer.Deserialize<EventEto>(message);
-                if (eventEto == null) continue;
-
-                var eventType = _types.GetOrAdd(eventEto.FullName, fullName =>
-                {
-                    return AppDomain.CurrentDomain.GetAssemblies()
-                        .SelectMany(assembly => assembly.GetTypes())
-                        .FirstOrDefault(t => t.FullName == fullName ||
-                                             t.GetCustomAttributes().OfType<EventSchemeAttribute>()
-                                                 .Any(attr => attr.EventName == fullName));
-                });
-
-                if (eventType == null) continue;
-                var eventData = handlerSerializer.Deserialize(eventEto.Data, eventType);
-                if (eventData == null) continue;
-
-                await ProcessEventAsync(eventType, eventData, cancellationToken);
-            }
-            catch (Exception ex)
-            {
-                logger.LogError(ex, $"消费本地Channel {channelName} 时发生错误");
-            }
-            finally
-            {
-                if (!channel.Reader.TryPeek(out _)) _channels.TryRemove(channelName, out _);
-            }
+        if (Interlocked.Exchange(ref _completed, 1) != 0) return;
+        _channel.Writer.TryComplete();
     }
 
-    private async Task ProcessEventAsync(Type eventType, object eventData, CancellationToken cancellationToken)
+    public void Dispose()
     {
-        var handlerType = typeof(IEventHandler<>).MakeGenericType(eventType);
-        await using var scope = serviceProvider.CreateAsyncScope();
-        var handlers = scope.ServiceProvider.GetServices(handlerType).ToArray();
-
-        foreach (var handler in handlers)
-            try
-            {
-                var handlerDelegate = _handlerCache.GetOrAdd(eventType, type =>
-                {
-                    var handlerParam = Expression.Parameter(typeof(object), "handler");
-                    var eventParam = Expression.Parameter(typeof(object), "eventData");
-                    var tokenParam = Expression.Parameter(typeof(CancellationToken), "token");
-                    var handleMethod = handlerType.GetMethod("HandleAsync", [type, typeof(CancellationToken)]);
-                    var call = Expression.Call(Expression.Convert(handlerParam, handlerType), handleMethod!,
-                        Expression.Convert(eventParam, type), tokenParam);
-                    return Expression
-                        .Lambda<Func<object, object, CancellationToken, Task>>(call, handlerParam, eventParam,
-                            tokenParam).Compile();
-                });
-                await handlerDelegate(handler!, eventData, cancellationToken);
-            }
-            catch (Exception ex)
-            {
-                logger.LogError(ex, $"本地处理程序处理事件 {eventType.FullName} 时发生错误");
-            }
+        if (Interlocked.Exchange(ref _disposed, 1) != 0) return;
+        Complete();
     }
+
+    private async Task ProcessEnvelopeAsync(LocalEventEnvelope envelope, CancellationToken cancellationToken)
+    {
+        try
+        {
+            var eventData = _handlerSerializer.Deserialize(envelope.EventData, envelope.EventType);
+            if (eventData == null)
+            {
+                _logger.LogWarning("无法反序列化本地事件: {EventType}", envelope.EventType.FullName);
+                return;
+            }
+
+            await using var scope = _serviceProvider.CreateAsyncScope();
+            var handlerType = typeof(IEventHandler<>).MakeGenericType(envelope.EventType);
+            var handlers = scope.ServiceProvider.GetServices(handlerType).Where(handler => handler != null).ToArray();
+
+            foreach (var handler in handlers)
+            {
+                try
+                {
+                    await _handlerInvoker.InvokeAsync(handler!, envelope.EventType, eventData, cancellationToken);
+                }
+                catch (OperationCanceledException) when (cancellationToken.IsCancellationRequested)
+                {
+                    throw;
+                }
+                catch (Exception ex)
+                {
+                    _logger.LogError(ex, "本地事件处理器执行失败: {EventType}, Handler: {HandlerType}",
+                        envelope.EventType.FullName, handler!.GetType().FullName);
+                }
+            }
+        }
+        catch (OperationCanceledException) when (cancellationToken.IsCancellationRequested)
+        {
+            throw;
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "消费本地事件时发生错误: {EventType}", envelope.EventType.FullName);
+        }
+    }
+
+    private sealed record LocalEventEnvelope(Type EventType, string EventData);
 }

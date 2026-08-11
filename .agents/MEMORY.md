@@ -26,6 +26,8 @@
 - Vue scoped 样式结合根主题属性时，完整选择器必须放入 `:global(...)`，例如 `:global(html[data-theme-style=...] .selector)`；拆写为 `:global(html[...]) .selector` 会错误影响根元素的 opacity 或 transform。
 - 新品牌标识由 `src/UIs/lexicraft-vue-frontend/src/components/BrandLogo.vue` 提供。新核心表面优先复用品牌组件和 `DoodleIcon.vue`，但不为统一图标而批量改写历史业务页面。
 - MassTransit 采用显式启用策略：未配置 `MassTransit` 节或 `Enabled=false` 时，`AddCustomMassTransit` 不注册消息总线、事件发布器和本地事件后台服务；Identity 与 Practice 因存在发布、Saga 或事件溯源行为而显式启用，Vocabulary 当前无发布或消费行为，不注册 MassTransit。
+- `BuildingBlocks.EventBus` 与 MassTransit 本地领域事件都使用默认容量 `1024` 的有界 Channel；队列满时发布方异步等待并接受取消，Host 停止时关闭写入端。EventBus 的 Redis Pub/Sub 消费回调写入有界缓冲区，过载时丢弃新消息并告警；需要持久化、重试或错误队列的跨服务事件必须使用 MassTransit/RabbitMQ。
+- MassTransit 的 Saga 与 Event Sourcing 均默认关闭；事件溯源启用后使用独立 Redis 连接和分页流式回放，不复用缓存或其他消息组件的 `IConnectionMultiplexer`。Redis Stream 的版本检查与多事件追加不是跨进程原子事务，业务必须采用单写者、Lua/锁或等价协调，并自行管理不会破坏聚合重建的保留策略。
 - `src/BuildingBlocks/` 下 13 个项目统一以 `net10.0` 为目标框架；仓库 SDK 基线为 `10.0.302`，`global.json` 使用 `latestFeature` 且禁用预览 SDK。
 - .NET 10 OpenAPI 版本化使用 `Asp.Versioning.OpenApi` 10.2.1 和 `MapOpenApi().WithDocumentPerVersion()`；受该包 `<3.0.0` 依赖约束，`Microsoft.OpenApi` 固定在最高兼容的 2.x 正式版 2.11.0。
 - MassTransit 9 已进入商业许可版本线；在项目未确认商业许可前，BuildingBlocks 保持最高 8.x 正式版 8.5.10，不把“最高正式版”误解为无条件跨主版本升级。

@@ -9,22 +9,24 @@ namespace BuildingBlocks.MassTransit.EventSourcing.Services;
 /// <summary>
 ///     本地领域事件回放服务实现
 /// </summary>
-public class DomainEventReplayer(
+public sealed class DomainEventReplayer(
     IEventStore eventStore,
     IPublisher publisher,
     ILogger<DomainEventReplayer> logger) : IDomainEventReplayer
 {
-    public async Task ReplayAsync(string streamId, CancellationToken cancellationToken = default)
+    public Task ReplayAsync(string streamId, CancellationToken cancellationToken = default)
     {
-        await ReplayAsync(streamId, 0, null, cancellationToken);
+        return ReplayAsync(streamId, 0, null, cancellationToken);
     }
 
-    public async Task ReplayAsync(string streamId, long fromVersion, long? toVersion = null,
+    public async Task ReplayAsync(
+        string streamId,
+        long fromVersion,
+        long? toVersion = null,
         CancellationToken cancellationToken = default)
     {
-        var storedEvents = await eventStore.ReadStoredEventsAsync(streamId, fromVersion, toVersion, cancellationToken);
-
-        foreach (var storedEvent in storedEvents)
+        await foreach (var storedEvent in eventStore.StreamStoredEventsAsync(
+                           streamId, fromVersion, toVersion, cancellationToken))
         {
             var eventType = Type.GetType(storedEvent.EventType);
             if (eventType == null)
@@ -33,7 +35,6 @@ public class DomainEventReplayer(
                 continue;
             }
 
-            // 确保是领域事件类型
             if (!typeof(IDomainEvent).IsAssignableFrom(eventType))
             {
                 logger.LogDebug("跳过非领域事件: {EventType}", eventType.Name);
@@ -45,8 +46,6 @@ public class DomainEventReplayer(
 
             logger.LogInformation("回放领域事件: {EventType}, Stream: {StreamId}, Version: {Version}",
                 eventType.Name, streamId, storedEvent.Version);
-
-            // 发布到 MediatR 本地处理
             await publisher.Publish(@event, cancellationToken);
         }
     }
