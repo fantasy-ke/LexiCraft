@@ -9,5 +9,5 @@ public interface IOSSProviderActivator
 {
     string ProviderType { get; }
 
-    IOSSService Create(IServiceProvider serviceProvider, OSSOptions options);
+    IOSSService Create(IServiceProvider serviceProvider, OSSProviderOptions options);
 }

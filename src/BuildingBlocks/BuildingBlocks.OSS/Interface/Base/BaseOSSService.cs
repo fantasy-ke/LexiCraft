@@ -4,10 +4,10 @@ using BuildingBlocks.OSS.Utils;
 
 namespace BuildingBlocks.OSS.Interface.Base;
 
-public abstract class BaseOSSService(ICacheProvider cache, OSSOptions options)
+public abstract class BaseOSSService(ICacheProvider cache, OSSProviderOptions options)
 {
     private readonly ICacheProvider _cache = cache ?? throw new ArgumentNullException(nameof(cache));
-    public OSSOptions Options { get; } = options ?? throw new ArgumentNullException(nameof(options));
+    public OSSProviderOptions Options { get; } = options ?? throw new ArgumentNullException(nameof(options));
 
     public virtual Task RemovePresignedUrlCache(OperateObjectInput input)
     {

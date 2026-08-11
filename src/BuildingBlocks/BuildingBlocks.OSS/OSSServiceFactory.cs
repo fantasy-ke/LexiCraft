@@ -90,13 +90,12 @@ public sealed class OssServiceFactory : IOSSServiceFactory
 
     private IOSSService CreateProvider(string providerName, OSSProviderOptions options)
     {
-        var providerType = options.GetProviderType();
+        var providerType = options.Type;
         if (!_providerRegistrations.TryGetValue(providerType, out var registration))
             throw new InvalidOperationException(
                 $"OSS provider type '{providerType}' for '{providerName}' is not registered. " +
                 "Register it with services.AddOssProvider<TService>(providerType).");
 
-        var serviceOptions = OSSOptionsResolver.ToServiceOptions(options);
-        return registration.Create(_serviceProvider, serviceOptions);
+        return registration.Create(_serviceProvider, options);
     }
 }

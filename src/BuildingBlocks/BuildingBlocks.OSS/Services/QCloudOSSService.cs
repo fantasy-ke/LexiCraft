@@ -19,7 +19,7 @@ namespace BuildingBlocks.OSS.Services;
 
 public class QCloudOssService : BaseOSSService, IQCloudOSSService
 {
-    public QCloudOssService(ICacheProvider cache, OSSOptions options)
+    public QCloudOssService(ICacheProvider cache, OSSProviderOptions options)
         : base(cache, options)
     {
         var config = new CosXmlConfig.Builder()

@@ -10,13 +10,8 @@ internal static class OSSOptionsResolver
 
         var providers = new Dictionary<string, OSSProviderOptions>(StringComparer.OrdinalIgnoreCase);
         if (!options.Enable) return providers;
-
         if (options.Providers.Count == 0)
-        {
-            var providerName = NormalizeProviderName(options.DefaultProvider);
-            providers.Add(providerName, Normalize(options));
-            return providers;
-        }
+            throw new InvalidOperationException("At least one OSS provider must be configured when OSS is enabled.");
 
         foreach (var pair in options.Providers)
         {
@@ -48,30 +43,11 @@ internal static class OSSOptionsResolver
             $"Default OSS provider '{configuredName}' was not found. Configured providers: {string.Join(", ", providers.Keys)}.");
     }
 
-    public static OSSOptions ToServiceOptions(OSSProviderOptions options)
-    {
-        return new OSSOptions
-        {
-            Enable = true,
-            Type = options.Type,
-            Provider = options.Provider,
-            DefaultBucket = options.DefaultBucket,
-            Endpoint = options.Endpoint,
-            AccessKey = options.AccessKey,
-            SecretKey = options.SecretKey,
-            Region = options.Region,
-            IsEnableHttps = options.IsEnableHttps,
-            IsEnableCache = options.IsEnableCache
-        };
-    }
-
-
     private static OSSProviderOptions Normalize(OSSProviderOptions options)
     {
         return new OSSProviderOptions
         {
             Type = options.Type?.Trim() ?? string.Empty,
-            Provider = options.Provider,
             DefaultBucket = string.IsNullOrWhiteSpace(options.DefaultBucket)
                 ? DefaultOptionName.Name
                 : options.DefaultBucket.Trim(),

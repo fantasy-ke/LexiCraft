@@ -43,10 +43,10 @@ internal sealed class OSSOptionsValidator : IValidateOptions<OSSOptions>
         OSSProviderOptions options,
         ICollection<string> failures)
     {
-        var providerType = options.GetProviderType();
+        var providerType = options.Type;
         if (string.IsNullOrWhiteSpace(providerType))
         {
-            failures.Add($"OSS provider '{providerName}' must configure Type or Provider.");
+            failures.Add($"OSS provider '{providerName}' must configure Type.");
             return;
         }
 

@@ -13,7 +13,7 @@ namespace BuildingBlocks.OSS;
 public static class OssServiceExtensions
 {
     /// <summary>
-    ///     添加对象存储服务。支持旧的单提供商配置和新的命名多提供商配置。
+    ///     添加支持命名多提供商配置的对象存储服务。
     /// </summary>
     public static IHostApplicationBuilder AddOssService(
         this IHostApplicationBuilder builder,
@@ -41,7 +41,7 @@ public static class OssServiceExtensions
     }
 
     /// <summary>
-    ///     注册自定义对象存储提供商。提供商实现应提供包含 <see cref="OSSOptions" /> 参数的公开构造函数。
+    ///     注册自定义对象存储提供商。提供商实现应提供包含 <see cref="OSSProviderOptions" /> 参数的公开构造函数。
     /// </summary>
     public static IServiceCollection AddOssProvider<TService>(
         this IServiceCollection services,
@@ -127,7 +127,7 @@ public static class OssServiceExtensions
     {
         var matchedNames = providers
             .Where(pair => string.Equals(
-                pair.Value.GetProviderType(),
+                pair.Value.Type,
                 providerType,
                 StringComparison.OrdinalIgnoreCase))
             .Select(pair => pair.Key)
