@@ -6,7 +6,7 @@ import BaseButton from '@/components/BaseButton.vue'
 import FormItem from '@/components/base/form/FormItem.vue'
 import Form from '@/components/base/form/Form.vue'
 import Notice from '@/components/user/Notice.vue'
-import ImagePlaceholder from '@/components/common/ImagePlaceholder.vue'
+import BrandLogo from '@/components/BrandLogo.vue'
 import CaptchaInput from '@/components/auth/CaptchaInput.vue'
 import {FormInstance} from '@/components/base/form/types.ts'
 import {useAuth} from '@/hooks/useAuth'
@@ -33,8 +33,8 @@ const registerFormRef = ref<FormInstance>()
 
 // 表单验证规则
 const registerFormRules = {
-  email: VALIDATION_RULES.email,
-  password: VALIDATION_RULES.password,
+  email: [...VALIDATION_RULES.email],
+  password: [...VALIDATION_RULES.password],
   confirmPassword: [
     ...VALIDATION_RULES.confirmPassword,
     {
@@ -48,8 +48,8 @@ const registerFormRules = {
       trigger: 'blur'
     }
   ],
-  username: VALIDATION_RULES.username,
-  captchaCode: VALIDATION_RULES.captchaCode
+  username: [...VALIDATION_RULES.username],
+  captchaCode: [...VALIDATION_RULES.captchaCode]
 }
 
 // 注册处理
@@ -79,302 +79,175 @@ const handleCaptchaKeyUpdate = (key: string) => {
 const goToLogin = () => {
   router.push(LOGIN_PATH)
 }
+
+const goHome = () => {
+  router.push('/')
+}
 </script>
 
 <template>
-  <div class="register-page-wrapper">
-    <div class="register-container">
-      <!-- 左侧插画区域 (3/7) -->
-      <div class="promo-section">
-        <div class="promo-content">
-          <!-- 使用通用的图片占位符组件 -->
-          <div class="promo-placeholder">
-            <ImagePlaceholder
-                :animated="true"
-                bg-color="bg-white/20"
-                height="h-48"
-                icon="🚀"
-                title="开始学习"
-                width="w-48"
+  <div class="public-editorial register-page">
+    <header class="register-header">
+      <button aria-label="返回 LexiCraft 首页" class="register-brand" type="button" @click="goHome">
+        <BrandLogo tagline="language journal"/>
+      </button>
+      <button class="back-home" type="button" @click="goHome">返回首页 <span>→</span></button>
+    </header>
+
+    <main class="register-manuscript">
+      <section class="welcome-copy" aria-labelledby="register-title">
+        <p class="issue-line">REGISTER EDITION · VOL. 01</p>
+        <h1 id="register-title">写下名字，<br/><em>开始这一册。</em></h1>
+        <p class="welcome-deck">从一个词、一篇文章开始，把每次练习积累成属于你的学习记录。</p>
+        <blockquote>
+          “A different language is a different vision of life.”
+          <cite>— Federico Fellini</cite>
+        </blockquote>
+        <div class="page-note" aria-hidden="true">
+          <span>02</span>
+          <div><strong>CREATE</strong><strong>LEARN</strong><strong>RETURN</strong></div>
+        </div>
+      </section>
+
+      <section class="register-entry" aria-label="注册表单">
+        <div class="entry-heading">
+          <span>CREATE ACCOUNT</span>
+          <h2>创建学习账号</h2>
+          <p>填写基础信息，建立你的学习书页。</p>
+        </div>
+
+        <Form ref="registerFormRef" :model="registerForm" :rules="registerFormRules" class="register-form">
+          <FormItem label="电子邮箱" prop="email">
+            <BaseInput
+                v-model="registerForm.email"
+                autocomplete="email"
+                placeholder="name@example.com"
+                size="large"
+                type="email"
             />
-          </div>
-          <h2 class="promo-title">开启学习之旅</h2>
-          <p class="promo-subtitle">"千里之行，始于足下。"</p>
-        </div>
-        <!-- 装饰性元素 -->
-        <div class="decoration decoration-1"></div>
-        <div class="decoration decoration-2"></div>
-      </div>
+          </FormItem>
 
-      <!-- 右侧注册表单区域 (4/7) -->
-      <div class="form-section">
-        <div class="form-wrapper">
-          <div class="mb-8 text-center lg:text-left">
-            <h1 class="text-3xl font-extrabold text-gray-900 mb-1">注 册</h1>
-            <p class="text-gray-500 text-base">创建您的学习账号，开始词汇学习之旅</p>
-          </div>
+          <FormItem label="用户名" prop="username">
+            <BaseInput
+                v-model="registerForm.username"
+                autocomplete="username"
+                placeholder="请输入用户名"
+                size="large"
+                type="text"
+            />
+          </FormItem>
 
-          <Form ref="registerFormRef" :model="registerForm" :rules="registerFormRules" class="space-y-2">
-            <FormItem label="电子邮箱" prop="email">
-              <BaseInput
-                  v-model="registerForm.email"
-                  placeholder="请输入邮箱地址"
-                  size="large"
-                  type="email"
-              />
-            </FormItem>
+          <FormItem label="密码" prop="password">
+            <BaseInput
+                v-model="registerForm.password"
+                autocomplete="new-password"
+                placeholder="请输入密码（8-20位）"
+                size="large"
+                type="password"
+            />
+          </FormItem>
 
-            <FormItem label="用户名" prop="username">
-              <BaseInput
-                  v-model="registerForm.username"
-                  placeholder="请输入用户名"
-                  size="large"
-                  type="text"
-              />
-            </FormItem>
+          <FormItem label="确认密码" prop="confirmPassword">
+            <BaseInput
+                v-model="registerForm.confirmPassword"
+                autocomplete="new-password"
+                placeholder="请再次输入密码"
+                size="large"
+                type="password"
+            />
+          </FormItem>
 
-            <FormItem label="密码" prop="password">
-              <BaseInput
-                  v-model="registerForm.password"
-                  placeholder="请输入密码（8-20位）"
-                  size="large"
-                  type="password"
-              />
-            </FormItem>
+          <FormItem label="验证码" prop="captchaCode">
+            <CaptchaInput
+                v-model="registerForm.captchaCode"
+                @update:captchaKey="handleCaptchaKeyUpdate"
+            />
+          </FormItem>
+        </Form>
 
-            <FormItem label="确认密码" prop="confirmPassword">
-              <BaseInput
-                  v-model="registerForm.confirmPassword"
-                  placeholder="请再次输入密码（8-20位）"
-                  size="large"
-                  type="password"
-              />
-            </FormItem>
+        <Notice class="terms-note">
+          <span>注册即表示你同意服务条款与隐私说明。</span>
+        </Notice>
 
-            <FormItem label="验证码" prop="captchaCode">
-              <CaptchaInput
-                  v-model="registerForm.captchaCode"
-                  @update:captchaKey="handleCaptchaKeyUpdate"
-              />
-            </FormItem>
-          </Form>
+        <BaseButton
+            :loading="loading || isLoading"
+            class="register-submit"
+            size="large"
+            @click="handleRegister"
+        >
+          创建学习账号 <span aria-hidden="true">→</span>
+        </BaseButton>
 
-          <Notice class="my-2">
-            <span class="text-xs">注册即表示同意我们的服务条款和隐私政策</span>
-          </Notice>
+        <p class="login-line">已有账号？ <button type="button" @click="goToLogin">返回登录，继续学习</button></p>
+      </section>
+    </main>
 
-          <BaseButton
-              :loading="loading || isLoading"
-              class="w-full py-3.5 text-base font-bold shadow-lg shadow-green-100"
-              size="large"
-              style="background: linear-gradient(135deg, #10b981, #06b6d4);"
-              @click="handleRegister"
-          >
-            创建账号
-          </BaseButton>
-
-          <div class="mt-6 text-center text-sm text-gray-600">
-            已有账号?
-            <span class="text-green-600 font-bold hover:underline cursor-pointer" @click="goToLogin">立即登录</span>
-          </div>
-        </div>
-      </div>
-    </div>
+    <footer class="register-footer"><span>LEXICRAFT LANGUAGE JOURNAL</span><span>PAGE 02 / REGISTER</span></footer>
   </div>
 </template>
 
 <style lang="scss" scoped>
-.register-page-wrapper {
-  min-height: 100vh;
-  min-height: 100dvh; /* 移动端使用动态视口高度 */
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  background-color: #f9fafb;
-  padding: 0;
-  font-family: 'Inter', -apple-system, sans-serif;
-  position: relative;
+.register-page { position: relative; display: flex; min-height: 100vh; min-height: 100dvh; flex-direction: column; overflow: hidden; color: var(--text-primary); background-color: var(--surface-page); background-image: radial-gradient(circle at 20% 18%, color-mix(in srgb, var(--text-primary) 4%, transparent) 0 .7px, transparent .9px); background-size: 23px 23px; font-family: var(--font-editorial); }
+.register-page::before { position: absolute; top: 0; bottom: 0; left: 13%; width: 1px; background: color-mix(in srgb, var(--accent) 28%, transparent); content: ''; pointer-events: none; }
+.register-header { position: relative; z-index: 3; display: flex; align-items: center; justify-content: space-between; padding: 24px clamp(20px, 5vw, 74px); }
+.register-brand { display: flex; align-items: center; gap: 10px; padding: 0; border: 0; color: var(--text-primary); background: transparent; cursor: pointer; }
+.register-brand :deep(.brand-logo__mark) { width: 38px; height: 38px; }
+.register-brand :deep(.brand-logo__copy strong) { font-size: 17px; }
+.back-home { padding: 7px 0; border: 0; border-bottom: 1px solid currentColor; color: var(--text-secondary); background: transparent; cursor: pointer; font-family: var(--font-sans); font-size: 11px; }
+.register-manuscript { position: relative; z-index: 2; display: grid; width: min(1220px, calc(100% - 44px)); flex: 1; grid-template-columns: minmax(0, 1.08fr) minmax(400px, .72fr); align-items: center; gap: clamp(50px, 8vw, 130px); margin: 0 auto; padding: 32px 0 48px; }
+.welcome-copy { position: relative; display: flex; align-self: stretch; flex-direction: column; justify-content: center; padding: 60px 0 80px; }
+.issue-line { margin: 0 0 24px; color: var(--accent); font-family: var(--font-sans); font-size: 9px; font-weight: 800; letter-spacing: .18em; }
+.welcome-copy h1 { margin: 0; font-size: clamp(58px, 7vw, 108px); font-weight: 400; letter-spacing: -.055em; line-height: .88; }
+.welcome-copy h1 em { color: var(--accent); font-weight: 400; }
+.welcome-deck { max-width: 570px; margin: 32px 0 0; color: var(--text-secondary); font-family: var(--font-sans); font-size: 16px; line-height: 1.85; }
+.welcome-copy blockquote { max-width: 510px; margin: auto 0 0; padding: 22px 0 0 24px; border-left: 1px solid var(--accent); color: var(--text-secondary); font-size: 17px; font-style: italic; line-height: 1.65; }
+.welcome-copy cite { display: block; margin-top: 10px; color: var(--text-tertiary); font-family: var(--font-sans); font-size: 10px; font-style: normal; letter-spacing: .1em; }
+.page-note { position: absolute; right: -18px; bottom: 10%; display: flex; align-items: center; gap: 14px; color: var(--text-tertiary); transform: rotate(-90deg) translateX(100%); transform-origin: right bottom; }
+.page-note > span { font-size: 38px; }
+.page-note div { display: flex; gap: 10px; font-family: var(--font-sans); font-size: 7px; letter-spacing: .1em; }
+.register-entry { position: relative; padding: clamp(28px, 3.4vw, 46px); overflow: hidden; border: 1px solid var(--border-strong); border-top-width: 5px; color: var(--text-primary); background: var(--surface-card); box-shadow: var(--card-shadow); }
+.register-entry::before { position: absolute; top: 18px; right: -42px; padding: 6px 40px; color: var(--accent-contrast); background: var(--accent); content: 'NEW COPY'; font-family: var(--font-sans); font-size: 7px; font-weight: 800; letter-spacing: .14em; transform: rotate(45deg); }
+.entry-heading > span { color: var(--accent); font-family: var(--font-sans); font-size: 9px; font-weight: 800; letter-spacing: .18em; }
+.entry-heading h2 { margin: 10px 0 0; font-size: 34px; font-weight: 400; }
+.entry-heading p { margin: 8px 0 20px; color: var(--text-secondary); font-family: var(--font-sans); font-size: 13px; }
+.register-form { display: grid; gap: 2px; }
+:deep(.form-item) { position: relative; z-index: 2; align-items: stretch; flex-direction: column; gap: 4px; margin-bottom: 4px; }
+:deep(.form-item .w-20) { width: auto; justify-content: flex-start; color: var(--text-secondary); font-family: var(--font-sans); font-size: 11px; font-weight: 700; }
+:deep(.form-item .flex-1) { width: 100%; }
+:deep(.form-error) { min-height: 12px; margin-top: 2px; font-family: var(--font-sans); font-size: 10px; }
+:deep(.base-input) { padding-inline: 0; border-width: 0 0 1px; border-radius: 0; background: transparent; }
+:deep(.base-input.focus) { border-bottom-color: var(--accent); box-shadow: 0 3px 0 -1px var(--focus-ring); }
+:deep(.base-input .inner) { font-family: var(--font-sans); font-size: 14px; }
+:deep(.captcha-container) { gap: 12px; }
+:deep(.captcha-image-container) { border-color: var(--border-color) !important; border-radius: 0 !important; background: var(--surface-raised); }
+.terms-note { margin-block: 8px 14px !important; font-family: var(--font-sans); font-size: 10px; }
+:deep(.register-submit) { display: flex; width: 100%; min-height: 50px; border: 1px solid var(--text-primary); border-radius: 0; background: var(--text-primary); box-shadow: var(--control-shadow); font-family: var(--font-sans); }
+:deep(.register-submit > span) { display: flex; align-items: center; justify-content: space-between; width: 100%; }
+:deep(.register-submit:hover:not(.disabled)) { background: var(--accent); }
+.login-line { margin: 20px 0 0; color: var(--text-secondary); font-family: var(--font-sans); font-size: 11px; text-align: center; }
+.login-line button { padding: 0; border: 0; border-bottom: 1px solid currentColor; color: var(--accent); background: transparent; cursor: pointer; }
+.register-footer { position: relative; z-index: 2; display: flex; justify-content: space-between; padding: 16px clamp(20px, 5vw, 74px); border-top: 1px solid var(--border-color); color: var(--text-tertiary); font-family: var(--font-sans); font-size: 8px; letter-spacing: .14em; }
+button:focus-visible { outline: 3px solid var(--focus-ring); outline-offset: 3px; }
+
+@media (max-width: 900px) {
+  .register-page { overflow: auto; }
+  .register-manuscript { grid-template-columns: 1fr; gap: 30px; padding-top: 20px; }
+  .welcome-copy { min-height: auto; padding: 45px 0 10px; }
+  .welcome-copy blockquote { margin-top: 35px; }
+  .page-note { display: none; }
+  .register-entry { width: min(100%, 560px); margin-inline: auto; box-sizing: border-box; }
 }
-
-.register-container {
-  display: flex;
-  flex-direction: row;
-  width: 100%;
-  height: 100vh;
-  height: 100dvh; /* 移动端使用动态视口高度 */
-  background: white;
-  box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
-  overflow: hidden;
-  position: relative;
-  z-index: 1; /* 确保在正常层级 */
+@media (max-width: 560px) {
+  .register-page::before { left: 24px; }
+  .register-header { padding: 15px; }
+  .back-home { font-size: 9px; }
+  .register-manuscript { width: calc(100% - 28px); padding-bottom: 35px; }
+  .welcome-copy { padding-left: 18px; }
+  .welcome-copy h1 { font-size: clamp(48px, 16vw, 68px); }
+  .welcome-copy blockquote { display: none; }
+  .register-entry { padding: 28px 20px; }
+  .register-entry::before { display: none; }
+  .register-footer { align-items: flex-start; flex-direction: column; gap: 5px; }
 }
-
-.promo-section {
-  display: none;
-
-  @media (min-width: 1024px) {
-    display: flex;
-    flex-basis: 42.86%;
-    position: relative;
-    overflow: hidden;
-    background: linear-gradient(135deg, #10b981, #14b8a6, #2563eb);
-    align-items: center;
-    justify-content: center;
-    padding: 2rem;
-  }
-}
-
-.promo-content {
-  position: relative;
-  z-index: 10;
-  text-align: center;
-  color: white;
-  max-width: 28rem;
-}
-
-.promo-placeholder {
-  width: 100%;
-  height: 16rem;
-  margin-bottom: 1.5rem;
-}
-
-.promo-title {
-  font-size: 1.875rem;
-  font-weight: 700;
-  margin-bottom: 0.75rem;
-}
-
-.promo-subtitle {
-  font-size: 1.125rem;
-  color: #d1fae5;
-  font-style: italic;
-  opacity: 0.9;
-}
-
-.decoration {
-  position: absolute;
-  border-radius: 50%;
-  filter: blur(3rem);
-
-  &.decoration-1 {
-    top: -10%;
-    left: -10%;
-    width: 16rem;
-    height: 16rem;
-    background: rgba(255, 255, 255, 0.1);
-  }
-
-  &.decoration-2 {
-    bottom: -10%;
-    right: -10%;
-    width: 24rem;
-    height: 24rem;
-    background: rgba(20, 184, 166, 0.2);
-  }
-}
-
-.form-section {
-  width: 100%;
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  align-items: center;
-  padding: 1.5rem;
-  overflow-y: auto; /* 允许滚动 */
-  -webkit-overflow-scrolling: touch; /* iOS 平滑滚动 */
-
-  @media (min-width: 768px) {
-    padding: 3rem;
-  }
-
-  @media (min-width: 1024px) {
-    flex-basis: 57.14%;
-  }
-}
-
-.form-wrapper {
-  width: 100%;
-  max-width: 28rem;
-  position: relative;
-  z-index: 10; /* 确保表单在最上层 */
-}
-
-:deep(.form-item) {
-  flex-direction: column;
-  gap: 0;
-  margin-bottom: 0.5rem;
-  position: relative;
-  z-index: 10; /* 确保表单项在最上层 */
-
-  .w-20 {
-    width: 100%;
-    justify-content: flex-start;
-    font-size: 0.875rem;
-    font-weight: 600;
-    color: #374151;
-    margin-bottom: 0.125rem;
-  }
-
-  .flex-1 {
-    width: 100%;
-  }
-
-  /* 减少错误信息的高度 */
-  .form-error {
-    margin-top: 0.125rem;
-    margin-bottom: 0;
-    min-height: 0.875rem;
-    font-size: 0.75rem;
-  }
-}
-
-:deep(.base-input) {
-  border-radius: 8px;
-  border: 1px solid #d1d5db;
-  background-color: white;
-  transition: all 0.3s;
-  position: relative;
-  z-index: 10; /* 确保输入框在最上层 */
-
-  &:focus-within {
-    border-color: #10b981;
-    box-shadow: 0 0 0 4px rgba(16, 185, 129, 0.1);
-  }
-}
-
-:deep(.base-button) {
-  border-radius: 8px;
-  position: relative;
-  z-index: 10; /* 确保按钮在最上层 */
-
-  &:hover {
-    transform: translateY(-1px);
-    box-shadow: 0 4px 12px rgba(16, 185, 129, 0.3);
-  }
-}
-
-/* 动画样式 */
-@keyframes pulse {
-  0%, 100% {
-    opacity: 1;
-  }
-  50% {
-    opacity: 0.5;
-  }
-}
-
-.animate-pulse {
-  animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
-}
-
-/* 移动端优化 */
-@media (max-width: 768px) {
-  .form-section {
-    padding: 1rem;
-  }
-
-  .form-wrapper {
-    max-width: 100%;
-  }
-}
+@media (prefers-reduced-motion: reduce) { *, *::before, *::after { transition-duration: .01ms !important; animation-duration: .01ms !important; } }
 </style>
