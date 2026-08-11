@@ -14,7 +14,17 @@ public static class SerilogRequestUtility
 
     public static LogEventLevel GetRequestLevel(HttpContext ctx, double _, Exception? ex)
     {
+        if (IsCanceledHealthCheck(ctx, ex)) return LogEventLevel.Debug;
+
         return ex is null && ctx.Response.StatusCode <= 499 ? IgnoreRequest(ctx) : LogEventLevel.Error;
+    }
+
+    private static bool IsCanceledHealthCheck(HttpContext ctx, Exception? ex)
+    {
+        if (ex is not OperationCanceledException || !ctx.RequestAborted.IsCancellationRequested) return false;
+
+        return ctx.Request.Path.StartsWithSegments("/health")
+               || ctx.Request.Path.StartsWithSegments("/alive");
     }
 
 
