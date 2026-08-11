@@ -15,10 +15,10 @@ namespace BuildingBlocks.OSS.Services;
 public class AliyunOssService : BaseOSSService, IAliyunOssService
 {
     public AliyunOssService(ICacheProvider cache
-        , OSSOptions options) : base(cache, options)
+        , OSSProviderOptions options) : base(cache, options)
     {
         if (options == null)
-            throw new ArgumentNullException(nameof(options), "The OSSOptions can not null");
+            throw new ArgumentNullException(nameof(options), "The OSSProviderOptions can not null");
         Context = new OssClient(options.Endpoint, options.AccessKey, options.SecretKey);
     }
 

@@ -7,7 +7,7 @@
 - 业务层只依赖 `IOSSService` 或 `IOSSServiceFactory`，不直接创建厂商 SDK Client。
 - 工厂只向业务层暴露实例选择和默认存储桶，不返回 AccessKey、SecretKey 等连接凭据。
 - 同一服务可以同时配置多个对象存储实例，例如主存储、归档存储和迁移目标。
-- 保留旧的单提供商 `OSSOptions` 配置，现有服务可以渐进迁移。
+- 所有连接配置统一放入 `Providers`，避免模块配置与单个提供商配置耦合。
 - 新增提供商时通过注册扩展，不修改 `OssServiceFactory` 的 `switch`。
 - `OSSOptions.Enable=false` 时仍可解析 `IOSSService`，避免可选 OSS 导致宿主 DI 启动失败。
 
@@ -18,7 +18,7 @@
 | `IOSSService` | 跨提供商的存储桶、对象、ACL 和预签名 URL 操作 |
 | `IOSSServiceFactory` | 获取默认或指定名称的对象存储实例及默认存储桶 |
 | `IOSSProviderActivator` | 根据单个提供商配置创建实现，主要用于扩展新提供商 |
-| `OSSOptions` | 模块开关、默认实例和旧单提供商兼容配置 |
+| `OSSOptions` | 模块开关、默认实例名称和命名提供商集合 |
 | `OSSProviderOptions` | 单个命名对象存储实例的连接配置 |
 | `IAliyunOssService` | 阿里云特有能力 |
 | `IMinioOssService` | MinIO 特有能力 |
@@ -49,7 +49,7 @@ OpenAPI、数据库等其他模块不需要感知具体 OSS SDK。
     "DefaultProvider": "primary",
     "Providers": {
       "primary": {
-        "Provider": "Minio",
+        "Type": "Minio",
         "Endpoint": "localhost:9000",
         "AccessKey": "${MINIO_ACCESS_KEY}",
         "SecretKey": "${MINIO_SECRET_KEY}",
@@ -59,7 +59,7 @@ OpenAPI、数据库等其他模块不需要感知具体 OSS SDK。
         "IsEnableCache": true
       },
       "archive": {
-        "Provider": "Aliyun",
+        "Type": "Aliyun",
         "Endpoint": "https://oss-cn-hangzhou.aliyuncs.com",
         "AccessKey": "${ALIYUN_ACCESS_KEY}",
         "SecretKey": "${ALIYUN_SECRET_KEY}",
@@ -114,27 +114,6 @@ public sealed class ArchiveStorage(IOSSServiceFactory ossServiceFactory)
 
 同一名称的实例由工厂缓存并复用。只有一个命名实例且未设置 `DefaultProvider` 时，会自动选择该实例。配置以应用启动时的 Options 快照为准，修改配置后应重启服务。
 
-## 兼容：旧单提供商配置
-
-旧配置仍然有效：
-
-```json
-{
-  "OSSOptions": {
-    "Enable": true,
-    "Provider": "Minio",
-    "Endpoint": "localhost:9000",
-    "AccessKey": "${MINIO_ACCESS_KEY}",
-    "SecretKey": "${MINIO_SECRET_KEY}",
-    "Region": "us-east-1",
-    "DefaultBucket": "lexicraft-files",
-    "IsEnableHttps": false
-  }
-}
-```
-
-当 `Providers` 为空时，根级连接字段会被转换成一个名为 `DefaultProvider` 的实例；`DefaultProvider` 未配置时使用 `default`。
-
 ## 禁用对象存储
 
 ```json
@@ -167,7 +146,7 @@ public sealed class MinioAdministration(IMinioOssService minioService)
 
 ## 扩展新的提供商
 
-新的实现只需实现 `IOSSService`，并提供包含 `OSSOptions` 参数的公开构造函数。其他依赖会由 DI 提供：
+新的实现只需实现 `IOSSService`，并提供包含 `OSSProviderOptions` 参数的公开构造函数。其他依赖会由 DI 提供：
 
 ```csharp
 builder.Services.AddOssProvider<MyS3Service>("S3");
@@ -192,23 +171,25 @@ builder.AddOssService();
 }
 ```
 
-`Type` 优先于旧的 `Provider` 枚举，因此新增厂商不需要修改 `OSSProvider` 或工厂代码。自定义实现负责校验自己的专有配置。
+`Type` 用于匹配通过 `AddOssProvider<TService>` 注册的实现，因此新增厂商不需要修改工厂代码。自定义实现负责校验自己的专有配置。
 
 ## 启动校验
 
 启用模块时会检查：
 
 - 默认实例名称是否存在。
-- 每个实例是否配置 `Type` 或内置 `Provider`。
+- 每个实例是否配置 `Type`。
 - MinIO、阿里云和腾讯云的 Endpoint、AccessKey、SecretKey 等必要字段。
 - 每个实例的提供商类型是否已经注册。
 
 禁用模块时不要求提供连接配置。
 
-## 迁移建议
+## 从旧配置迁移
 
-1. 单存储应用可以继续使用旧配置，不需要立即迁移。
-2. 需要主备、归档或迁移场景时，将连接字段移入 `Providers`。
-3. 设置明确的 `DefaultProvider`，普通业务继续注入 `IOSSService`。
-4. 只有需要非默认实例时才注入 `IOSSServiceFactory`。
+旧的根级 `Provider`、`Endpoint`、`AccessKey`、`SecretKey` 等单提供商字段已移除。升级时需要：
+
+1. 在 `Providers` 下创建一个命名实例，例如 `primary`。
+2. 将原连接字段移入该实例，并使用字符串 `Type` 指定 `Minio`、`Aliyun`、`QCloud` 或自定义类型。
+3. 将 `DefaultProvider` 设置为该实例名称；只有一个实例时可以省略。
+4. 普通业务继续注入 `IOSSService`，只有选择非默认实例时才注入 `IOSSServiceFactory`。
 5. 不要在业务层根据厂商写 `switch`；厂商差异应保留在 Provider 实现内。
