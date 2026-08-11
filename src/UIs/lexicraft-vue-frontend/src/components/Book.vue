@@ -10,11 +10,13 @@ interface IProps {
   checked?: boolean
   showProgress?: boolean
   isUser?: boolean
+  addText?: string
 }
 
 const props = withDefaults(defineProps<IProps>(), {
   showProgress: true,
-  isUser: false
+  isUser: false,
+  addText: '添加词典'
 })
 
 defineEmits<{
@@ -60,37 +62,42 @@ defineEmits<{
   <div v-else id="no-book" class="book-card add-card">
     <div class="add-content">
       <IconFluentAdd16Regular class="add-icon"/>
-      <span class="add-text">添加词典</span>
+      <span class="add-text">{{ addText }}</span>
     </div>
   </div>
 </template>
 
 <style lang="scss" scoped>
 .book-card {
-  width: 100%; min-width: 0; min-height: 178px; overflow: hidden; display: flex; flex-direction: column;
-  border: 1px solid var(--color-item-border); border-radius: max(10px, var(--radius-card));
-  color: var(--text-primary); background: var(--color-card-bg); box-shadow: var(--control-shadow); cursor: pointer;
-  transition: transform .22s ease, border-color .22s ease, box-shadow .22s ease;
+  display: flex;
+  width: 100%;
+  min-width: 0;
+  min-height: 174px;
+  overflow: hidden;
+  flex-direction: column;
+  border: 1px solid var(--color-item-border);
+  border-radius: var(--radius-card);
+  color: var(--text-primary);
+  background: var(--color-card-bg);
+  cursor: pointer;
+  transition: border-color .18s ease, background .18s ease;
 }
-.book-card:hover { border-color: var(--accent); box-shadow: var(--card-shadow); transform: translateY(-4px); }
-.book-cover { position: relative; height: 112px; overflow: hidden; background: var(--surface-muted); }
+.book-card:hover { border-color: var(--accent); }
+.book-cover { position: relative; height: 108px; overflow: hidden; border-bottom: 1px solid var(--border-color); background: var(--surface-muted); }
 .img-cover { width: 100%; height: 100%; object-fit: cover; }
-.cover-placeholder { display: grid; width: 100%; height: 100%; place-items: center; color: var(--accent); background: linear-gradient(145deg, var(--accent-soft), var(--surface-muted)); font-family: var(--font-heading); font-size: 2rem; font-weight: 800; }
-.status-tag { position: absolute; top: .55rem; z-index: 2; padding: .22rem .55rem; border-radius: 999px; color: var(--accent-contrast); background: var(--accent); box-shadow: var(--control-shadow); font-size: .62rem; font-weight: 800; letter-spacing: .04em; }
-.status-tag.complete { right: .55rem; background: var(--success); }
+.cover-placeholder { display: grid; width: 100%; height: 100%; place-items: center; color: var(--accent); background: var(--surface-muted); font-family: var(--font-heading); font-size: 1.8rem; font-weight: 650; }
+.status-tag { position: absolute; top: .55rem; z-index: 2; padding: .22rem .48rem; border: 1px solid currentColor; border-radius: 4px; color: var(--accent); background: var(--surface-overlay); font-size: .6rem; font-weight: 700; }
+.status-tag.complete { right: .55rem; color: var(--success); }
 .status-tag.custom { left: .55rem; }
-.checkbox-wrapper { position: absolute; bottom: .45rem; left: .45rem; z-index: 3; padding: 3px; border-radius: 8px; background: var(--surface-overlay); }
-.book-info { display: flex; min-height: 66px; flex: 1; flex-direction: column; justify-content: space-between; gap: .45rem; padding: .72rem .78rem .78rem; }
-.book-title { margin: 0; overflow: hidden; color: var(--text-primary); font-family: var(--font-heading); font-size: .92rem; font-weight: 750; line-height: 1.3; text-overflow: ellipsis; white-space: nowrap; }
-.book-meta { display: flex; justify-content: space-between; color: var(--text-tertiary); font-size: .72rem; line-height: 1.2; }
-.add-card { border-style: dashed; background: color-mix(in srgb, var(--surface-card) 70%, transparent); }
+.checkbox-wrapper { position: absolute; bottom: .45rem; left: .45rem; z-index: 3; padding: 3px; border-radius: 6px; background: var(--surface-overlay); }
+.book-info { display: flex; min-height: 64px; flex: 1; flex-direction: column; justify-content: space-between; gap: .45rem; padding: .72rem .78rem .78rem; }
+.book-title { margin: 0; overflow: hidden; color: var(--text-primary); font-family: var(--font-sans); font-size: .88rem; font-weight: 700; line-height: 1.35; text-overflow: ellipsis; white-space: nowrap; }
+.book-meta { display: flex; justify-content: space-between; color: var(--text-tertiary); font-family: var(--font-sans); font-size: .7rem; line-height: 1.2; }
+.add-card { border-style: dashed; background: color-mix(in srgb, var(--surface-card) 76%, transparent); }
 .add-card:hover { background: var(--hover-bg); }
-.add-content { display: flex; min-height: 176px; flex-direction: column; align-items: center; justify-content: center; gap: .55rem; color: var(--text-tertiary); }
-.add-icon { width: 2rem; height: 2rem; color: var(--accent); }
-.add-text { font-size: .82rem; font-weight: 700; }
-:global(html[data-theme-style='editorial'] .book-card) { border-radius: 8px; }
-:global(html[data-theme-style='zen'] .book-card) { border-radius: 6px; box-shadow: none; }
-:global(html[data-theme-style='ink'] .book-card) { border-width: 1.5px; border-radius: 17px 13px 19px 14px; transform: rotate(-.18deg); }
-:global(html[data-theme-style='ink'] .book-card:hover) { transform: translateY(-4px) rotate(.2deg); }
-@media (max-width: 560px) { .book-cover { height: 96px; } .book-card { min-height: 160px; } .add-content { min-height: 158px; } }
+.add-content { display: flex; min-height: 172px; flex-direction: column; align-items: center; justify-content: center; gap: .55rem; color: var(--text-tertiary); }
+.add-icon { width: 1.7rem; height: 1.7rem; color: var(--accent); }
+.add-text { font-size: .8rem; font-weight: 650; }
+:global(html[data-theme-style='zen'] .book-card) { box-shadow: none; }
+@media (max-width: 560px) { .book-cover { height: 94px; } .book-card { min-height: 156px; } .add-content { min-height: 154px; } }
 </style>

@@ -52,7 +52,7 @@ defineEmits(['click'])
   font-family: var(--font-family);
   font-size: .88rem;
   text-align: center;
-  transition: color .2s ease, background .2s ease, border-color .2s ease, box-shadow .2s ease, transform .2s ease;
+  transition: color .18s ease, background .18s ease, border-color .18s ease, box-shadow .18s ease;
   user-select: none;
   white-space: nowrap;
 
@@ -68,7 +68,7 @@ defineEmits(['click'])
   & > span :deep(a) { color: inherit; }
 
   &.primary { background: var(--btn-primary); box-shadow: var(--control-shadow); }
-  &.primary:hover:not(.disabled) { background: var(--btn-primary-hover); transform: translateY(-1px); }
+  &.primary:hover:not(.disabled) { background: var(--btn-primary-hover); }
   &.primary.disabled { background: var(--btn-primary-disabled); }
   &.info { border-color: var(--border-color); color: var(--text-primary); background: var(--btn-info); }
   &.info:hover:not(.disabled) { border-color: var(--accent); background: var(--btn-info-hover); }
@@ -79,9 +79,7 @@ defineEmits(['click'])
   &.active { box-shadow: inset 0 0 0 2px var(--accent-contrast); }
 }
 
-:global(html[data-theme-style='editorial'] .base-button) { font-family: var(--font-sans); letter-spacing: .02em; }
-:global(html[data-theme-style='zen'] .base-button) { border-radius: 6px; box-shadow: none; font-family: var(--font-mono); text-transform: lowercase; }
-:global(html[data-theme-style='zen'] .base-button:hover:not(.disabled)) { transform: none; }
-:global(html[data-theme-style='ink'] .base-button) { border-width: 1.5px; border-color: var(--border-strong); border-radius: 14px 11px 15px 12px; box-shadow: var(--control-shadow); font-weight: 800; transform: rotate(-.2deg); }
-:global(html[data-theme-style='ink'] .base-button:hover:not(.disabled)) { transform: translateY(-2px) rotate(.5deg); }
+:global(html[data-theme-style='editorial'] .base-button) { font-family: var(--font-sans); }
+:global(html[data-theme-style='zen'] .base-button) { border-radius: 6px; box-shadow: none; }
+:global(html[data-theme-style='ink'] .base-button) { border-color: var(--border-color); box-shadow: var(--control-shadow); }
 </style>

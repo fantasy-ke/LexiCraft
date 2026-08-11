@@ -318,9 +318,7 @@ a {
 }
 
 .grad-text {
-  background: var(--grad-premium);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
+  color: var(--text-primary);
 }
 
 .inline-center {
@@ -396,21 +394,11 @@ a {
 }
 
 html[data-theme-style='zen'] .card-white {
-  border-inline: 0;
   box-shadow: none;
 }
 
-html[data-theme-style='zen'] .card-white:hover {
-  transform: none;
-}
-
 html[data-theme-style='ink'] .card-white {
-  border-width: 2px;
-  transform: rotate(-0.15deg);
-}
-
-html[data-theme-style='ink'] .card-white:hover {
-  transform: translateY(-3px) rotate(0.2deg);
+  box-shadow: var(--card-shadow);
 }
 
 ::selection {

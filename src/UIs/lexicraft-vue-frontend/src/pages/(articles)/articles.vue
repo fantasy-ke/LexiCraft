@@ -215,229 +215,98 @@ let isNewHost = $ref(window.location.host === Host)
 
 <template>
   <BasePage class="learning-page reading-page">
-    <!-- Study Record Header Card -->
-    <div class="card-white learning-hero p-8 relative group mb-6">
-      <div class="absolute inset-0 overflow-hidden rounded-xl pointer-events-none">
-        <div class="absolute -right-20 -top-20 w-64 h-64 bg-indigo-500/10 rounded-full blur-3xl group-hover:bg-indigo-500/20 transition-colors duration-700"></div>
-      </div>
-      
-      <div class="flex flex-col lg:flex-row gap-10 relative z-10">
-        <!-- Current Book Focus -->
-        <div class="shrink-0">
-          <Book
-            v-if="base.sbook.id"
-            :is-add="false"
-            :item="base.sbook"
-            :show-progress="false"
-            quantifier="篇"
-            class="scale-110 lg:scale-100 origin-top shadow-2xl"
-            @click="goBookDetail(base.sbook)"
-          />
-          <Book v-else :is-add="true" class="scale-110 lg:scale-100 origin-top shadow-2xl" @click="router.push('/app/book-list')"/>
-        </div>
+    <header class="page-intro">
+      <div><p>文章阅读</p><h1>从当前这篇继续读。</h1><span>书籍、阅读进度和继续按钮保持在同一条主线上。</span></div>
+      <BaseButton type="info" @click="router.push('/app/book-list')">浏览书籍</BaseButton>
+    </header>
 
-        <!-- Weekly & Stats -->
-        <div class="flex-1 space-y-8">
-          <div class="flex justify-between items-start">
-            <div class="space-y-4">
-              <div class="flex items-center gap-3">
-                <div class="w-10 h-10 rounded-xl bg-blue-500/10 center text-blue-600">
-                  <IconFluentCalendarWeekNumbers24Filled class="text-2xl"/>
-                </div>
-                <div>
-                   <h2 class="text-2xl font-black m-0 tracking-tight">本周学习记录</h2>
-                   <p class="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em]">WEEKLY ACTIVITY</p>
-                </div>
-              </div>
-              
-              <div class="flex gap-2">
-                <div
-                  v-for="(item, i) in weekList"
-                  :key="i"
-                  class="flex flex-col items-center gap-2"
-                >
-                   <div 
-                     :class="item ? 'bg-gradient-to-br from-blue-500 to-indigo-600 shadow-lg shadow-blue-500/30' : 'bg-slate-100 dark:bg-slate-800'"
-                     class="w-8 h-8 md:w-10 md:h-10 rounded-xl center transition-all duration-500 hover:scale-110"
-                   >
-                     <IconFluentCheckmark12Filled v-if="item" class="text-white text-lg"/>
-                     <span v-else class="text-xs font-black text-slate-300">{{ i + 1 }}</span>
-                   </div>
-                </div>
-              </div>
-            </div>
-            
-            <BaseButton 
-              v-opacity="base.sbook.id" 
-              class="!h-10 !px-5 !rounded-2xl !bg-white dark:!bg-slate-800 !border-slate-100 dark:!border-slate-700 !text-slate-600 dark:!text-slate-300 shadow-sm hover:!bg-blue-50 dark:hover:!bg-blue-950/30 hover:!border-blue-200 dark:hover:!border-blue-800 hover:!text-blue-600 transition-all duration-300 group" 
-              @click="router.push('/app/book-list')"
-            >
-               <div class="flex items-center gap-2">
-                 <IconFluentArrowSwap24Regular class="text-lg group-hover:rotate-180 transition-transform duration-500"/>
-                 <span class="font-black text-xs uppercase tracking-wider">Change Book</span>
-               </div>
-            </BaseButton>
-          </div>
-
-          <!-- Quick Stats -->
-          <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
-            <div class="stat-card-premium">
-              <div class="icon bg-blue-100 text-blue-600"><IconFluentTimer24Filled/></div>
-              <div>
-                 <div class="value">{{ todayTotalSpend }}</div>
-                 <div class="label">今日时长</div>
-              </div>
-            </div>
-            <div class="stat-card-premium">
-              <div class="icon bg-indigo-100 text-indigo-600"><IconFluentFlash24Filled/></div>
-              <div>
-                 <div class="value">{{ totalDay }}</div>
-                 <div class="label">累计天数</div>
-              </div>
-            </div>
-            <div class="stat-card-premium">
-              <div class="icon bg-emerald-100 text-emerald-600"><IconFluentHistory24Filled/></div>
-              <div>
-                 <div class="value text-emerald-600">{{ totalSpend }}</div>
-                 <div class="label">总计时长</div>
-              </div>
-            </div>
-          </div>
-
-          <!-- Progress and Action -->
-          <div class="reading-progress flex flex-col sm:flex-row gap-6 items-center p-6">
-            <div class="flex-1 w-full space-y-2">
-               <div class="flex justify-between items-end">
-                  <span class="text-sm font-black text-indigo-600 dark:text-indigo-400 uppercase tracking-widest">{{ base.currentBookProgress }}% 完成</span>
-                  <span class="text-xs font-bold text-slate-400">{{ base.sbook?.lastLearnIndex || 0 }} / {{ base.sbook?.length || 0 }} 篇</span>
-               </div>
-               <Progress
-                  :percentage="base.currentBookProgress"
-                  :show-text="false"
-                  class="h-3 rounded-full"
-               ></Progress>
-            </div>
-
-            <BaseButton
-              :disabled="!base.sbook.name"
-              class="w-full sm:w-60 h-16 rounded-[1.25rem] bg-gradient-to-r from-slate-900 via-indigo-950 to-slate-900 border-none shadow-2xl shadow-slate-900/40 text-xl font-black flex items-center justify-center transition-all duration-500 hover:scale-[1.05] active:scale-[0.95] group relative overflow-hidden"
-              @click="startStudy"
-            >
-               <div class="absolute inset-0 bg-gradient-to-r from-white/0 via-white/5 to-white/0 translate-x-[-100%] group-hover:translate-x-[100%] transition-transform duration-1000"></div>
-               <div class="center gap-4 w-full relative z-10">
-                 <div class="w-10 h-10 rounded-full bg-white/10 center group-hover:bg-white/20 transition-colors">
-                   <IconFluentPlay24Filled class="text-xl group-hover:scale-125 transition-transform"/>
-                 </div>
-                 <span class="tracking-widest uppercase text-sm">{{ isSaveData ? 'Continue' : 'Start Path' }}</span>
-               </div>
-            </BaseButton>
+    <section class="card-white reading-overview">
+      <div class="current-book">
+        <span class="section-kicker">当前书籍</span>
+        <div class="current-book__content">
+          <Book v-if="base.sbook.id" :is-add="false" :item="base.sbook" :show-progress="false" quantifier="篇" @click="goBookDetail(base.sbook)"/>
+          <Book v-else :is-add="true" add-text="选择书籍" @click="router.push('/app/book-list')"/>
+          <div class="book-summary">
+            <h2>{{ base.sbook.name || '尚未选择书籍' }}</h2>
+            <p v-if="base.sbook.id">当前阅读 {{ base.sbook?.lastLearnIndex || 0 }} / {{ base.sbook?.length || 0 }} 篇</p>
+            <p v-else>选择一本书后，这里会显示本周记录和阅读进度。</p>
+            <BaseButton v-if="base.sbook.id" size="small" type="info" @click="router.push('/app/book-list')"><IconFluentArrowSwap24Regular/>更换书籍</BaseButton>
           </div>
         </div>
       </div>
-    </div>
 
-    <!-- My Books Section -->
-    <div class="card-white learning-section p-8 mb-6">
-      <div class="learning-section__head flex justify-between items-center mb-10">
-        <div>
-          <h2 class="text-2xl font-black m-0 grad-text">我的书读</h2>
-          <p class="text-sm font-bold text-slate-400 mt-1 uppercase tracking-widest">PERSONAL LIBRARY</p>
+      <div class="reading-status">
+        <div class="weekly-heading"><div><span class="section-kicker">本周记录</span><h2>保持稳定的阅读节奏</h2></div><small>{{ weekList.filter(Boolean).length }} / 7 天</small></div>
+        <div class="week-list" aria-label="本周学习记录">
+          <div v-for="(item, i) in weekList" :key="i" :class="{done: item}"><span>{{ ['一', '二', '三', '四', '五', '六', '日'][i] }}</span><IconFluentCheckmark12Filled v-if="item"/></div>
         </div>
-        <div class="flex gap-4 items-center">
-          <PopConfirm v-if="selectIds.length" title="确认要移出选中的书籍吗？" @confirm="handleBatchDel">
-            <div class="w-10 h-10 rounded-xl bg-rose-50 text-rose-500 center cursor-pointer hover:bg-rose-100 transition-colors">
-              <DeleteIcon class="text-xl"/>
-            </div>
-          </PopConfirm>
-
-          <BaseButton type="info" size="small" class="rounded-xl px-4" @click="isMultiple = !isMultiple; selectIds = []">
-            {{ isMultiple ? '完成管理' : '批量管理' }}
-          </BaseButton>
-          
-          <BaseButton type="primary" size="small" class="rounded-xl px-6 bg-gradient-to-r from-blue-600 to-indigo-600 border-none font-bold" @click="nav('/app/book-detail', { isAdd: true })">
-            添加书籍
-          </BaseButton>
+        <div class="reading-stats"><div><strong>{{ todayTotalSpend }}</strong><span>今日时长</span></div><div><strong>{{ totalDay }}</strong><span>累计天数</span></div><div><strong>{{ totalSpend }}</strong><span>总计时长</span></div></div>
+        <div class="reading-progress">
+          <div class="reading-progress__bar"><div><span>整本进度</span><strong>{{ base.currentBookProgress }}%</strong></div><small>{{ base.sbook?.lastLearnIndex || 0 }} / {{ base.sbook?.length || 0 }} 篇</small><Progress :percentage="base.currentBookProgress" :show-text="false"/></div>
+          <BaseButton :disabled="!base.sbook.name" @click="startStudy">{{ isSaveData ? '继续阅读' : '开始阅读' }} <IconFluentPlay24Filled/></BaseButton>
         </div>
       </div>
-      
-      <div class="learning-grid grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-6">
-        <Book
-          v-for="(item, j) in base.article.bookList"
-          :checked="selectIds.includes(item.id)"
-          :is-add="false"
-          :is-user="true"
-          :item="item"
-          :show-checkbox="isMultiple && j >= 1"
-          quantifier="篇"
-          class="hover:-translate-y-2 transition-transform duration-300"
-          @check="() => toggleSelect(item)"
-          @click="goBookDetail(item)"
-        />
-        <Book :is-add="true" class="hover:-translate-y-2 transition-transform duration-300" @click="router.push('/app/book-list')"/>
-      </div>
-    </div>
+    </section>
 
-    <!-- Recommendations Section -->
-    <div v-loading="isFetching" class="card-white learning-section p-8">
-      <div class="learning-section__head flex justify-between items-center mb-10 pb-6">
-        <div>
-          <h2 class="text-2xl font-black m-0">精选书籍</h2>
-          <p class="text-sm font-bold text-slate-400 mt-1 uppercase tracking-widest">HAND-PICKED FOR YOU</p>
+    <section class="card-white learning-section">
+      <header class="learning-section__head">
+        <div><p class="section-kicker">我的内容</p><h2>我的书架</h2><span>点击书籍查看详情，需要整理时再进入批量管理。</span></div>
+        <div class="section-actions">
+          <PopConfirm v-if="selectIds.length" title="确认要移出选中的书籍吗？" @confirm="handleBatchDel"><BaseButton type="info" size="small"><DeleteIcon/>移出所选</BaseButton></PopConfirm>
+          <BaseButton type="info" size="small" @click="isMultiple = !isMultiple; selectIds = []">{{ isMultiple ? '完成管理' : '批量管理' }}</BaseButton>
+          <BaseButton size="small" @click="nav('/app/book-detail', {isAdd: true})">添加书籍</BaseButton>
         </div>
-        <BaseButton type="info" size="small" class="rounded-xl px-6" @click="router.push('/app/book-list')">
-          发现更多
-        </BaseButton>
+      </header>
+      <div class="learning-grid">
+        <Book v-for="(item, j) in base.article.bookList" :key="item.id" :checked="selectIds.includes(item.id)" :is-add="false" :is-user="true" :item="item" :show-checkbox="isMultiple && j >= 1" quantifier="篇" @check="() => toggleSelect(item)" @click="goBookDetail(item)"/>
+        <Book :is-add="true" add-text="添加书籍" @click="router.push('/app/book-list')"/>
       </div>
+    </section>
 
-      <div class="learning-grid grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-6">
-        <Book
-          v-for="(item, j) in recommendBookList"
-          :is-add="false"
-          :item="item as any"
-          quantifier="篇"
-          class="hover:-translate-y-2 transition-transform duration-300"
-          @click="goBookDetail(item as any)"
-        />
-      </div>
-    </div>
+    <section v-loading="isFetching" class="card-white learning-section">
+      <header class="learning-section__head"><div><p class="section-kicker">推荐内容</p><h2>精选书籍</h2><span>完成当前阅读后，再从这里选择下一本书。</span></div><BaseButton type="info" size="small" @click="router.push('/app/book-list')">查看全部</BaseButton></header>
+      <div class="learning-grid"><Book v-for="item in recommendBookList" :key="item.id" :is-add="false" :item="item as any" quantifier="篇" @click="goBookDetail(item as any)"/></div>
+    </section>
   </BasePage>
 </template>
 
 <style lang="scss" scoped>
-.stat-card-premium {
-  @apply flex items-center gap-4 p-5 rounded-3xl bg-slate-50 dark:bg-slate-800/40 border border-slate-100 dark:border-slate-800 transition-all duration-300;
-  
-  .icon {
-    @apply w-12 h-12 rounded-2xl center text-2xl shrink-0;
-  }
-  
-  .value {
-    @apply text-xl font-black text-slate-900 dark:text-white leading-tight;
-  }
-  
-  .label {
-    @apply text-[10px] font-black text-slate-400 uppercase tracking-widest mt-1;
-  }
-  
-  &:hover {
-    @apply -translate-y-1 shadow-lg shadow-slate-200/50 dark:shadow-none bg-white dark:bg-slate-800;
-  }
-}
-
-.learning-page :deep(.card-white) { padding: clamp(1.1rem, 2.7vw, 2rem) !important; overflow: visible; }
-.learning-hero { border-top: 4px solid var(--accent) !important; }
-.reading-progress { border: 1px solid var(--border-color); border-radius: max(12px, var(--radius-card)); color: var(--text-primary); background: var(--surface-muted); }
-.learning-section__head { gap: 1rem; border-bottom: 1px solid var(--border-color); }
-.learning-grid { grid-template-columns: repeat(auto-fill, minmax(148px, 1fr)) !important; align-items: stretch; gap: clamp(.8rem, 2vw, 1.25rem) !important; }
-.learning-grid :deep(.book-card) { height: 100%; }
-.reading-page :deep(.base-button) { min-height: 2.5rem; }
-.reading-progress :deep(.base-button) { min-height: 3.2rem; border-radius: 14px !important; background: var(--accent) !important; box-shadow: var(--control-shadow) !important; }
-:global(html[data-theme-style='ink']) .learning-hero, :global(html[data-theme-style='ink']) .learning-section { transform: none; }
-@media (max-width: 760px) {
-  .learning-page :deep(.card-white) { padding: 1rem !important; }
-  .learning-section__head { align-items: flex-start !important; flex-direction: column; margin-bottom: 1rem !important; padding-bottom: 1rem !important; }
-  .learning-section__head > div:last-child { width: 100%; flex-wrap: wrap; gap: .6rem; }
-  .learning-grid { grid-template-columns: repeat(2, minmax(0, 1fr)) !important; }
-}
-
+.learning-page { max-width: 1220px; margin: 0 auto; padding-bottom: 48px; font-family: var(--font-sans); }
+.page-intro { display: flex; align-items: flex-end; justify-content: space-between; gap: 28px; margin-bottom: 22px; padding: 14px 2px 0; }
+.page-intro p, .section-kicker { margin: 0; color: var(--accent); font-size: 10px; font-weight: 750; letter-spacing: .14em; text-transform: uppercase; }
+.page-intro h1 { margin: 8px 0 0; color: var(--text-primary); font-family: var(--font-heading); font-size: clamp(30px, 4vw, 44px); font-weight: 620; letter-spacing: -.025em; }
+.page-intro span, .learning-section__head > div > span { display: block; margin-top: 8px; color: var(--text-secondary); font-size: 13px; line-height: 1.65; }
+.reading-overview { display: grid; grid-template-columns: minmax(300px, .72fr) minmax(0, 1.28fr); margin-bottom: 22px; overflow: hidden; }
+.current-book, .reading-status { padding: clamp(24px, 3vw, 36px); }
+.current-book { border-right: 1px solid var(--border-color); background: color-mix(in srgb, var(--surface-muted) 54%, var(--surface-card)); }
+.current-book__content { display: grid; grid-template-columns: minmax(120px, 150px) 1fr; gap: 22px; align-items: start; margin-top: 15px; }
+.book-summary h2, .weekly-heading h2, .learning-section__head h2 { margin: 5px 0 0; color: var(--text-primary); font-family: var(--font-heading); font-size: 23px; font-weight: 650; }
+.book-summary p { margin: 10px 0 18px; color: var(--text-secondary); font-size: 12px; line-height: 1.65; }
+.weekly-heading { display: flex; align-items: flex-end; justify-content: space-between; gap: 20px; }
+.weekly-heading small { color: var(--text-tertiary); font-size: 11px; }
+.week-list { display: grid; grid-template-columns: repeat(7, 1fr); gap: 7px; margin-top: 22px; }
+.week-list > div { display: grid; min-height: 46px; place-items: center; border: 1px solid var(--border-color); border-radius: var(--radius-control); color: var(--text-tertiary); background: var(--surface-muted); font-size: 11px; }
+.week-list > div.done { border-color: var(--accent); color: var(--accent); background: var(--accent-soft); }
+.week-list svg { width: 13px; height: 13px; }
+.reading-stats { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; margin-top: 18px; }
+.reading-stats > div { padding: 14px; border: 1px solid var(--border-color); border-radius: var(--radius-control); background: var(--surface-card); }
+.reading-stats strong, .reading-stats span { display: block; }
+.reading-stats strong { color: var(--text-primary); font-size: 17px; }
+.reading-stats span { margin-top: 5px; color: var(--text-tertiary); font-size: 10px; }
+.reading-progress { display: flex; align-items: flex-end; gap: 18px; margin-top: 20px; padding-top: 20px; border-top: 1px solid var(--border-color); }
+.reading-progress__bar { min-width: 0; flex: 1; }
+.reading-progress__bar > div { display: flex; align-items: baseline; justify-content: space-between; gap: 16px; margin-bottom: 5px; }
+.reading-progress__bar span, .reading-progress__bar small { color: var(--text-tertiary); font-size: 10px; }
+.reading-progress__bar strong { color: var(--text-primary); font-size: 19px; }
+.reading-progress__bar small { display: block; margin-bottom: 10px; }
+.learning-section { margin-bottom: 22px; padding: clamp(24px, 3vw, 34px); }
+.learning-section:last-child { margin-bottom: 0; }
+.learning-section__head { display: flex; align-items: flex-end; justify-content: space-between; gap: 24px; margin-bottom: 28px; padding-bottom: 20px; border-bottom: 1px solid var(--border-color); }
+.learning-section__head h2 { font-size: 24px; }
+.section-actions { display: flex; flex-wrap: wrap; gap: 8px; }
+.section-actions :deep(.base-button + .base-button) { margin-left: 0; }
+.learning-grid { display: grid; grid-template-columns: repeat(6, minmax(0, 1fr)); gap: 16px; }
+@media (max-width: 1080px) { .learning-grid { grid-template-columns: repeat(4, minmax(0, 1fr)); } }
+@media (max-width: 900px) { .reading-overview { grid-template-columns: 1fr; } .current-book { border-right: 0; border-bottom: 1px solid var(--border-color); } .learning-grid { grid-template-columns: repeat(3, minmax(0, 1fr)); } }
+@media (max-width: 640px) { .page-intro, .learning-section__head { align-items: stretch; flex-direction: column; } .page-intro :deep(.base-button) { align-self: flex-start; } .current-book, .reading-status, .learning-section { padding: 22px 18px; } .current-book__content { grid-template-columns: 118px 1fr; gap: 15px; } .reading-progress { align-items: stretch; flex-direction: column; } .reading-progress :deep(.base-button) { width: 100%; } .learning-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; } .section-actions { width: 100%; } }
 </style>

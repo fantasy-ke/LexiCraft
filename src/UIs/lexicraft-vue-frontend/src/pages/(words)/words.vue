@@ -277,265 +277,111 @@ const systemPracticeText = $computed(() => {
 
 <template>
   <BasePage class="learning-page vocabulary-page">
-    <!-- Current Dictionary Progress Card -->
-    <div class="card-white learning-hero p-8 relative group mb-6">
-      <div class="absolute inset-0 overflow-hidden rounded-xl pointer-events-none">
-        <div class="absolute -right-20 -top-20 w-64 h-64 bg-blue-500/10 rounded-full blur-3xl group-hover:bg-blue-500/20 transition-colors duration-700"></div>
-      </div>
-      
-      <div class="flex flex-col lg:flex-row gap-8 relative z-10 items-stretch">
-        <div class="flex-1 space-y-6">
-          <div class="flex items-center gap-4">
-            <div class="learning-hero__icon w-14 h-14 rounded-2xl center">
-              <IconFluentBookNumber24Filled class="text-3xl"/>
-            </div>
-            <div class="flex-1">
-              <h2 class="text-3xl font-black grad-text m-0 cursor-pointer" @click="goDictDetail(store.sdict)">
-                {{ store.sdict.name || '开启词典学习之旅' }}
-              </h2>
-              <div v-if="store.sdict.id" class="text-slate-400 font-bold text-sm tracking-widest uppercase mt-1">
-                {{ store.sdict.complete ? '字典已完成' : '学习进度进行中' }}
-              </div>
-            </div>
+    <header class="page-intro">
+      <div><p>词汇学习</p><h1>今天只完成眼前这一组。</h1><span>先确认当前词典和任务量，再开始或继续练习。</span></div>
+      <BaseButton type="info" @click="router.push('/app/dict-list')">浏览词典</BaseButton>
+    </header>
+
+    <section class="card-white study-overview">
+      <div class="current-study">
+        <div class="study-title-row"><div class="study-icon"><IconFluentBookNumber24Filled/></div><div><span class="section-kicker">当前词典</span><h2 @click="goDictDetail(store.sdict)">{{ store.sdict.name || '尚未选择词典' }}</h2></div></div>
+        <template v-if="store.sdict.id">
+          <div class="learning-progress">
+            <div class="progress-heading"><div><span>学习进度</span><strong>{{ store.currentStudyProgress }}%</strong></div><small>{{ store.sdict?.lastLearnIndex }} / {{ store.sdict.words.length }} 词</small></div>
+            <Progress :percentage="store.currentStudyProgress" :show-text="false"/>
+            <div class="progress-meta"><span>{{ progressTextLeft }}</span><span>预计完成：{{ _getAccomplishDate(store.sdict.words.length - store.sdict.lastLearnIndex, store.sdict.perDayStudyNumber) }}</span></div>
           </div>
-
-          <template v-if="store.sdict.id">
-            <div class="learning-progress p-6">
-              <div class="flex justify-between items-end mb-4">
-                <div class="space-y-1">
-                  <div class="text-sm font-bold text-slate-400 uppercase tracking-wider">预期完成</div>
-                  <div class="text-xl font-black text-slate-900 dark:text-white">
-                    {{ _getAccomplishDate(store.sdict.words.length - store.sdict.lastLearnIndex, store.sdict.perDayStudyNumber) }}
-                  </div>
-                </div>
-                <div class="text-right">
-                  <div class="text-4xl font-black text-indigo-600 dark:text-indigo-400 leading-none">{{ store.currentStudyProgress }}<span class="text-lg ml-1 opacity-50">%</span></div>
-                  <div class="text-xs font-bold text-slate-400 uppercase tracking-widest mt-1">总进度</div>
-                </div>
-              </div>
-              
-              <Progress :percentage="store.currentStudyProgress" :show-text="false" class="h-3 rounded-full" />
-              
-              <div class="flex justify-between mt-4 text-sm font-bold text-slate-500">
-                <span>{{ progressTextLeft }}</span>
-                <span class="text-slate-900 dark:text-slate-300">{{ store.sdict?.lastLearnIndex }} / {{ store.sdict.words.length }} 词</span>
-              </div>
-            </div>
-
-            <div class="learning-actions flex gap-4">
-              <BaseButton size="small" type="info" class="rounded-xl px-6 h-11 bg-slate-50 border-slate-100 hover:bg-blue-50 hover:border-blue-200 hover:text-blue-600 transition-all duration-300" @click="router.push('/app/dict-list')">
-                <div class="flex items-center gap-2">
-                  <IconFluentArrowSwap24Regular class="text-lg"/>
-                  <span class="font-bold">更换词典</span>
-                </div>
-              </BaseButton>
-              <PopConfirm :disabled="!isSaveData" title="更改进度将重新生成任务，是否继续？" @confirm="check(() => (showChangeLastPracticeIndexDialog = true))">
-                <BaseButton v-if="store.sdict.id" size="small" type="info" class="rounded-xl px-6 h-11 bg-slate-50 border-slate-100 hover:bg-indigo-50 hover:border-indigo-200 hover:text-indigo-600 transition-all duration-300">
-                  <div class="flex items-center gap-2">
-                    <IconFluentSlideTextTitleEdit24Regular class="text-lg"/>
-                    <span class="font-bold">调整位置</span>
-                  </div>
-                </BaseButton>
-              </PopConfirm>
-            </div>
-          </template>
-
-          <div v-else class="learning-empty py-10 text-center lg:text-left p-8">
-            <h3 class="text-xl font-bold text-slate-400 mb-6">您当前还没有正在学习的词库</h3>
-            <BaseButton id="step1" size="large" class="h-14 px-10 text-lg shadow-2xl" @click="router.push('/app/dict-list')">
-              <div class="flex items-center gap-3">
-                <IconFluentAdd24Filled/>
-                <span>挑选一本词典</span>
-              </div>
-            </BaseButton>
+          <div class="learning-actions">
+            <BaseButton size="small" type="info" @click="router.push('/app/dict-list')"><IconFluentArrowSwap24Regular/>更换词典</BaseButton>
+            <PopConfirm :disabled="!isSaveData" title="更改进度将重新生成任务，是否继续？" @confirm="check(() => (showChangeLastPracticeIndexDialog = true))">
+              <BaseButton size="small" type="info"><IconFluentSlideTextTitleEdit24Regular/>调整学习位置</BaseButton>
+            </PopConfirm>
           </div>
-        </div>
-
-        <!-- Daily Task Area -->
-        <div class="flex-1 min-w-[340px] flex flex-col" :class="!store.sdict.id && 'opacity-20 grayscale pointer-events-none'">
-          <div class="practice-panel p-8 flex flex-col justify-between flex-1">
-            <div class="flex justify-between items-start mb-8">
-              <div class="space-y-1">
-                <div class="flex items-center gap-2">
-                  <div class="w-8 h-8 rounded-lg bg-red-500/20 center text-red-400">
-                    <IconFluentTarget24Filled class="text-xl"/>
-                  </div>
-                  <h3 class="text-xl font-black m-0">{{ isSaveData ? '继续任务' : '今日目标' }}</h3>
-                </div>
-                <div class="text-xs font-bold text-slate-400 uppercase tracking-widest pl-10" @click="showPracticeWordListDialog = true">
-                   查看完整词表 <IconFluentChevronRight20Regular class="inline text-xs"/>
-                </div>
-              </div>
-              
-              <div class="text-right">
-                <div class="text-3xl font-black text-amber-400 leading-none">
-                  {{ store.sdict.id ? store.sdict.perDayStudyNumber : 0 }}
-                </div>
-                <div class="text-[10px] font-black text-slate-500 uppercase tracking-[0.2em] mt-1">DAILY COUNT</div>
-                <BaseButton size="small" type="info" class="mt-2 h-7 px-3 bg-white/10 border-white/10 hover:bg-white/20 text-[10px]" @click="check(() => (showPracticeSettingDialog = true))">调整</BaseButton>
-              </div>
-            </div>
-
-            <div class="grid grid-cols-3 gap-3 mb-8">
-              <div class="task-stat-box">
-                <div class="num text-blue-400">{{ currentStudy.new.length }}</div>
-                <div class="label">新词学习</div>
-              </div>
-              <div class="task-stat-box">
-                <div class="num text-indigo-400">{{ currentStudy.review.length }}</div>
-                <div class="label">复习新词</div>
-              </div>
-              <div class="task-stat-box">
-                <div class="num text-emerald-400">{{ currentStudy.write.length }}</div>
-                <div class="label">巩固单词</div>
-              </div>
-            </div>
-
-            <div class="practice-actions flex gap-4">
-              <BaseButton
-                class="flex-[2] h-14 rounded-2xl font-black text-lg shadow-xl shadow-indigo-600/30 transition-all duration-300 hover:scale-[1.02] hover:shadow-indigo-600/40 active:scale-[0.98]"
-                :class="settingStore.wordPracticeMode !== WordPracticeMode.Free ? 'bg-gradient-to-r from-indigo-600 to-blue-600 border-none' : 'bg-white/10 border-white/20 hover:bg-white/15'"
-                :loading="loading"
-                @click="systemPractice"
-              >
-                <div class="center gap-3">
-                  <span>{{ systemPracticeText }}</span>
-                  <IconFluentChevronCircleRight24Regular class="text-2xl"/>
-                </div>
-              </BaseButton>
-
-              <BaseButton
-                class="flex-1 h-14 rounded-2xl bg-white/5 border-white/10 backdrop-blur-md transition-all duration-300 hover:bg-white/10 hover:border-white/30 hover:scale-[1.02] active:scale-[0.98]"
-                :loading="loading"
-                @click="freePractice()"
-              >
-                <div class="center gap-2">
-                   <IconStreamlineColorPenDrawFlat class="text-2xl text-blue-300"/>
-                </div>
-              </BaseButton>
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
-
-    <!-- My Dicts Section -->
-    <div class="card-white learning-section p-8 mb-6">
-      <div class="learning-section__head flex justify-between items-center mb-10">
-        <div>
-          <h2 class="text-2xl font-black m-0 grad-text">我的学习库</h2>
-          <p class="text-sm font-bold text-slate-400 mt-1 uppercase tracking-widest">PERSONAL DICTIONARIES</p>
-        </div>
-        <div class="flex gap-4 items-center">
-          <PopConfirm v-if="selectIds.length" title="确认要删除选中的词典吗？" @confirm="handleBatchDel">
-            <div class="w-10 h-10 rounded-xl bg-rose-50 text-rose-500 center cursor-pointer hover:bg-rose-100 transition-colors">
-              <DeleteIcon class="text-xl"/>
-            </div>
-          </PopConfirm>
-
-          <BaseButton type="info" size="small" class="rounded-xl px-4" @click="isManageDict = !isManageDict; selectIds = []">
-            {{ isManageDict ? '完成管理' : '批量管理' }}
-          </BaseButton>
-          
-          <BaseButton type="primary" size="small" class="rounded-xl px-6 bg-gradient-to-r from-blue-600 to-indigo-600 border-none font-bold" @click="nav('/app/dict-detail', { isAdd: true })">
-            新建库
-          </BaseButton>
-        </div>
-      </div>
-      
-      <div class="learning-grid grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-6">
-        <Book
-          v-for="(item, j) in store.word.bookList"
-          :checked="selectIds.includes(item.id)"
-          :is-add="false"
-          :item="item"
-          :show-checkbox="isManageDict && j >= 3"
-          quantifier="词"
-          class="hover:-translate-y-2 transition-transform duration-300"
-          @check="() => toggleSelect(item)"
-          @click="goDictDetail(item)"
-        />
-        <Book :is-add="true" class="hover:-translate-y-2 transition-transform duration-300" @click="router.push('/app/dict-list')"/>
-      </div>
-    </div>
-
-    <!-- Recommendations Section -->
-    <div v-loading="isFetching" class="card-white learning-section p-8 relative overflow-hidden">
-      <div class="learning-section__head flex justify-between items-center mb-10 pb-6">
-        <div>
-          <h2 class="text-2xl font-black m-0">热门推荐</h2>
-          <p class="text-sm font-bold text-slate-400 mt-1 uppercase tracking-widest">BEST SELECTION FOR YOU</p>
-        </div>
-        <BaseButton type="info" size="small" class="rounded-xl px-6" @click="router.push('/app/dict-list')">
-          浏览更多
-        </BaseButton>
+        </template>
+        <div v-else class="learning-empty"><p>选择一本词典后，这里会显示学习进度和预计完成时间。</p><BaseButton id="step1" @click="router.push('/app/dict-list')"><IconFluentAdd24Filled/>选择词典</BaseButton></div>
       </div>
 
-      <div class="learning-grid grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-6">
-        <Book
-          v-for="(item, j) in recommendDictList"
-          :is-add="false"
-          :item="item as any"
-          quantifier="词"
-          class="hover:-translate-y-2 transition-transform duration-300"
-          @click="goDictDetail(item as any)"
-        />
+      <aside class="practice-panel" :class="{'is-disabled': !store.sdict.id}">
+        <div class="practice-heading"><div><span class="section-kicker">今日任务</span><h2>{{ isSaveData ? '继续未完成的练习' : '完成今天的学习目标' }}</h2></div><button type="button" @click="check(() => (showPracticeSettingDialog = true))">每日 {{ store.sdict.id ? store.sdict.perDayStudyNumber : 0 }} 词 · 调整</button></div>
+        <button class="word-list-link" type="button" @click="showPracticeWordListDialog = true">查看本组完整词表 <IconFluentChevronRight20Regular/></button>
+        <div class="task-stats"><div><strong>{{ currentStudy.new.length }}</strong><span>新词</span></div><div><strong>{{ currentStudy.review.length }}</strong><span>复习</span></div><div><strong>{{ currentStudy.write.length }}</strong><span>巩固</span></div></div>
+        <div class="practice-actions">
+          <BaseButton :disabled="!store.sdict.id" :loading="loading" @click="systemPractice">{{ systemPracticeText }} <IconFluentChevronCircleRight24Regular/></BaseButton>
+          <BaseButton :disabled="!store.sdict.id" :loading="loading" type="info" @click="freePractice">自由练习</BaseButton>
+        </div>
+      </aside>
+    </section>
+
+    <section class="card-white learning-section">
+      <header class="learning-section__head">
+        <div><p class="section-kicker">我的内容</p><h2>我的词典</h2><span>管理已经添加的词典，点击卡片查看详情。</span></div>
+        <div class="section-actions">
+          <PopConfirm v-if="selectIds.length" title="确认要删除选中的词典吗？" @confirm="handleBatchDel"><BaseButton type="info" size="small"><DeleteIcon/>删除所选</BaseButton></PopConfirm>
+          <BaseButton type="info" size="small" @click="isManageDict = !isManageDict; selectIds = []">{{ isManageDict ? '完成管理' : '批量管理' }}</BaseButton>
+          <BaseButton size="small" @click="nav('/app/dict-detail', {isAdd: true})">新建词典</BaseButton>
+        </div>
+      </header>
+      <div class="learning-grid">
+        <Book v-for="(item, j) in store.word.bookList" :key="item.id" :checked="selectIds.includes(item.id)" :is-add="false" :item="item" :show-checkbox="isManageDict && j >= 3" quantifier="词" @check="() => toggleSelect(item)" @click="goDictDetail(item)"/>
+        <Book :is-add="true" add-text="添加词典" @click="router.push('/app/dict-list')"/>
       </div>
-    </div>
+    </section>
+
+    <section v-loading="isFetching" class="card-white learning-section">
+      <header class="learning-section__head"><div><p class="section-kicker">推荐内容</p><h2>推荐词典</h2><span>需要新内容时再从这里挑选，不打断当前任务。</span></div><BaseButton type="info" size="small" @click="router.push('/app/dict-list')">查看全部</BaseButton></header>
+      <div class="learning-grid"><Book v-for="item in recommendDictList" :key="item.id" :is-add="false" :item="item as any" quantifier="词" @click="goDictDetail(item as any)"/></div>
+    </section>
   </BasePage>
-
   <PracticeSettingDialog v-model="showPracticeSettingDialog" :show-left-option="false" @ok="savePracticeSetting"/>
-
   <ChangeLastPracticeIndexDialog v-model="showChangeLastPracticeIndexDialog" @ok="saveLastPracticeIndex"/>
-
   <PracticeWordListDialog v-model="showPracticeWordListDialog" :data="currentStudy"/>
-
   <ShufflePracticeSettingDialog v-model="showShufflePracticeSettingDialog" @ok="onShufflePracticeSettingOk"/>
 </template>
 
 <style lang="scss" scoped>
-.task-stat-box {
-  @apply flex flex-col items-center justify-center p-4 rounded-3xl bg-white/5 border border-white/10 backdrop-blur-md transition-all duration-300;
-  
-  .num {
-    @apply text-3xl font-black mb-1;
-  }
-  
-  .label {
-    @apply text-[10px] font-black text-slate-500 uppercase tracking-widest whitespace-nowrap;
-  }
-  
-  &:hover {
-    @apply bg-white/10 -translate-y-1;
-  }
-}
-
-.learning-page :deep(.card-white) { padding: clamp(1.1rem, 2.7vw, 2rem) !important; overflow: visible; }
-.learning-hero { border-top: 4px solid var(--accent) !important; }
-.learning-hero__icon { flex: 0 0 auto; color: var(--accent-contrast); background: var(--accent); box-shadow: var(--control-shadow); }
-.learning-progress, .learning-empty { border: 1px solid var(--border-color); border-radius: max(12px, var(--radius-card)); color: var(--text-primary); background: var(--surface-muted); }
-.learning-empty { border-style: dashed; }
-.practice-panel { border: 1px solid var(--border-strong); border-radius: max(18px, var(--radius-card)); color: var(--text-primary); background: linear-gradient(145deg, var(--surface-muted), var(--surface-card)); box-shadow: var(--card-shadow); }
-.practice-panel :deep(.base-button) { min-height: 3rem; }
-.learning-actions { flex-wrap: wrap; }
-.learning-section__head { gap: 1rem; border-bottom: 1px solid var(--border-color); }
-.learning-grid { grid-template-columns: repeat(auto-fill, minmax(148px, 1fr)) !important; align-items: stretch; gap: clamp(.8rem, 2vw, 1.25rem) !important; }
-.learning-grid :deep(.book-card) { height: 100%; }
-:global(html[data-theme-style='ink']) .learning-hero, :global(html[data-theme-style='ink']) .learning-section { transform: none; }
-@media (max-width: 760px) {
-  .learning-page :deep(.card-white) { padding: 1rem !important; }
-  .learning-section__head { align-items: flex-start !important; flex-direction: column; margin-bottom: 1rem !important; padding-bottom: 1rem !important; }
-  .learning-section__head > div:last-child { width: 100%; flex-wrap: wrap; gap: .6rem; }
-  .learning-actions, .practice-actions { flex-direction: column; }
-  .learning-actions :deep(.base-button), .practice-actions :deep(.base-button) { width: 100%; margin-left: 0; }
-  .learning-grid { grid-template-columns: repeat(2, minmax(0, 1fr)) !important; }
-}
-
-.fade-item-enter-active, .fade-item-leave-active {
-  transition: all 0.5s ease;
-}
-.fade-item-enter-from, .fade-item-leave-to {
-  opacity: 0;
-  transform: translateY(20px);
-}
+.learning-page { max-width: 1220px; margin: 0 auto; padding-bottom: 48px; font-family: var(--font-sans); }
+.page-intro { display: flex; align-items: flex-end; justify-content: space-between; gap: 28px; margin-bottom: 22px; padding: 14px 2px 0; }
+.page-intro p, .section-kicker { margin: 0; color: var(--accent); font-size: 10px; font-weight: 750; letter-spacing: .14em; text-transform: uppercase; }
+.page-intro h1 { margin: 8px 0 0; color: var(--text-primary); font-family: var(--font-heading); font-size: clamp(30px, 4vw, 44px); font-weight: 620; letter-spacing: -.025em; }
+.page-intro span, .learning-section__head > div > span { display: block; margin-top: 8px; color: var(--text-secondary); font-size: 13px; line-height: 1.65; }
+.study-overview { display: grid; grid-template-columns: minmax(0, 1fr) minmax(340px, .82fr); gap: 0; margin-bottom: 22px; overflow: hidden; }
+.current-study, .practice-panel { padding: clamp(24px, 3vw, 36px); }
+.current-study { border-right: 1px solid var(--border-color); }
+.study-title-row { display: flex; align-items: center; gap: 14px; }
+.study-icon { display: grid; width: 44px; height: 44px; flex: 0 0 auto; place-items: center; border: 1px solid var(--border-color); border-radius: var(--radius-control); color: var(--accent); background: var(--surface-muted); font-size: 23px; }
+.study-title-row h2, .practice-heading h2, .learning-section__head h2 { margin: 5px 0 0; color: var(--text-primary); font-family: var(--font-heading); font-size: 23px; font-weight: 650; }
+.study-title-row h2 { cursor: pointer; }
+.learning-progress { margin-top: 28px; padding: 20px; border: 1px solid var(--border-color); border-radius: var(--radius-control); background: var(--surface-muted); }
+.progress-heading { display: flex; align-items: flex-end; justify-content: space-between; gap: 20px; margin-bottom: 14px; }
+.progress-heading span, .progress-heading strong { display: block; }
+.progress-heading span { color: var(--text-secondary); font-size: 11px; }
+.progress-heading strong { margin-top: 3px; color: var(--text-primary); font-size: 25px; }
+.progress-heading small, .progress-meta { color: var(--text-tertiary); font-size: 11px; }
+.progress-meta { display: flex; justify-content: space-between; gap: 18px; margin-top: 12px; }
+.learning-actions, .practice-actions, .section-actions { display: flex; flex-wrap: wrap; gap: 8px; }
+.learning-actions { margin-top: 16px; }
+.learning-actions :deep(.base-button + .base-button), .practice-actions :deep(.base-button + .base-button), .section-actions :deep(.base-button + .base-button) { margin-left: 0; }
+.learning-empty { margin-top: 28px; padding: 24px; border: 1px dashed var(--border-strong); border-radius: var(--radius-control); background: var(--surface-muted); }
+.learning-empty p { margin: 0 0 18px; color: var(--text-secondary); line-height: 1.7; }
+.practice-panel { display: flex; min-width: 0; flex-direction: column; justify-content: space-between; background: color-mix(in srgb, var(--surface-muted) 64%, var(--surface-card)); }
+.practice-panel.is-disabled { opacity: .62; }
+.practice-heading { display: flex; align-items: flex-start; justify-content: space-between; gap: 20px; }
+.practice-heading button, .word-list-link { border: 0; color: var(--text-secondary); background: transparent; cursor: pointer; font: inherit; font-size: 11px; }
+.practice-heading button:hover, .word-list-link:hover { color: var(--accent); }
+.word-list-link { display: flex; align-items: center; gap: 4px; width: max-content; margin-top: 16px; padding: 0; }
+.task-stats { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; margin: 28px 0; }
+.task-stats > div { padding: 15px; border: 1px solid var(--border-color); border-radius: var(--radius-control); background: var(--surface-card); }
+.task-stats strong, .task-stats span { display: block; }
+.task-stats strong { color: var(--text-primary); font-size: 22px; }
+.task-stats span { margin-top: 5px; color: var(--text-tertiary); font-size: 11px; }
+.practice-actions :deep(.base-button:first-child) { flex: 1.4; }
+.practice-actions :deep(.base-button:last-child) { flex: 1; }
+.learning-section { margin-bottom: 22px; padding: clamp(24px, 3vw, 34px); }
+.learning-section:last-child { margin-bottom: 0; }
+.learning-section__head { display: flex; align-items: flex-end; justify-content: space-between; gap: 24px; margin-bottom: 28px; padding-bottom: 20px; border-bottom: 1px solid var(--border-color); }
+.learning-section__head h2 { font-size: 24px; }
+.learning-grid { display: grid; grid-template-columns: repeat(6, minmax(0, 1fr)); gap: 16px; }
+@media (max-width: 1080px) { .learning-grid { grid-template-columns: repeat(4, minmax(0, 1fr)); } }
+@media (max-width: 860px) { .study-overview { grid-template-columns: 1fr; } .current-study { border-right: 0; border-bottom: 1px solid var(--border-color); } .learning-grid { grid-template-columns: repeat(3, minmax(0, 1fr)); } }
+@media (max-width: 640px) { .page-intro, .learning-section__head { align-items: stretch; flex-direction: column; } .page-intro :deep(.base-button) { align-self: flex-start; } .current-study, .practice-panel, .learning-section { padding: 22px 18px; } .practice-heading { flex-direction: column; } .progress-meta { flex-direction: column; gap: 5px; } .learning-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; } .section-actions { width: 100%; } }
 </style>

@@ -1,124 +1,78 @@
 <template>
-  <div class="public-editorial editorial-home">
-    <header class="reading-header" aria-label="LexiCraft 阅读首页">
-      <button aria-label="??????" class="wordmark" type="button" @click="scrollToSection('opening')">
-        <BrandLogo tagline="Language, carefully made."/>
+  <div class="public-editorial quiet-home">
+    <header class="home-header" aria-label="LexiCraft 首页导航">
+      <button class="wordmark" aria-label="返回首页顶部" type="button" @click="scrollToSection('opening')">
+        <BrandLogo tagline="A quiet place to learn."/>
       </button>
       <nav class="header-links" aria-label="主导航">
-        <button type="button" @click="scrollToSection('method')">学习方法</button>
-        <button type="button" @click="scrollToSection('experience')">阅读体验</button>
+        <button type="button" @click="scrollToSection('method')">{{ copy.nav.method }}</button>
+        <button type="button" @click="scrollToSection('experience')">{{ copy.nav.experience }}</button>
       </nav>
       <div class="header-actions">
         <button class="language-button" type="button" @click="toggleLang">{{ lang === 'zh' ? 'EN' : '中' }}</button>
         <button class="text-button" type="button" @click="handleLogin">{{ copy.nav.login }}</button>
-        <button class="solid-button solid-button--small" type="button" @click="startLearning">{{ copy.nav.start }} <span>→</span></button>
+        <button class="solid-button solid-button--small" type="button" @click="startLearning">{{ copy.nav.start }}</button>
       </div>
     </header>
 
     <main>
       <section id="opening" class="opening" aria-labelledby="home-title">
-        <p class="edition-line"><span>ISSUE 01</span>{{ copy.hero.eyebrow }}<span>{{ currentDate }}</span></p>
-        <h1 id="home-title">
-          <span>{{ copy.hero.line1 }}</span>
-          <span>{{ copy.hero.line2Prefix }} <em>{{ copy.hero.highlight }}</em></span>
-        </h1>
-        <p class="opening-deck">{{ copy.hero.description }}</p>
-        <div class="opening-actions">
-          <button class="solid-button" type="button" @click="startLearning">{{ copy.hero.primary }} <span>→</span></button>
-          <button class="underlined-button" type="button" @click="scrollToSection('method')">{{ copy.hero.secondary }}</button>
+        <div class="opening-copy">
+          <p class="eyebrow">{{ copy.hero.eyebrow }}</p>
+          <h1 id="home-title"><span>{{ copy.hero.line1 }}</span><span>{{ copy.hero.line2 }}</span></h1>
+          <p class="opening-description">{{ copy.hero.description }}</p>
+          <div class="opening-actions">
+            <button class="solid-button" type="button" @click="startLearning">{{ copy.hero.primary }} <span aria-hidden="true">→</span></button>
+            <button class="outline-button" type="button" @click="scrollToSection('method')">{{ copy.hero.secondary }}</button>
+          </div>
+          <p class="supporting-note">{{ copy.hero.note }}</p>
         </div>
 
-        <figure class="reading-preview">
-          <div class="preview-topline">
-            <span>LEXICRAFT / TODAY'S READING</span>
-            <span>VOL. 07</span>
+        <aside class="today-card" aria-label="今日学习示例">
+          <header class="today-card__header">
+            <div><span>{{ copy.preview.label }}</span><strong>{{ copy.preview.title }}</strong></div>
+            <small>{{ currentDate }}</small>
+          </header>
+          <div class="focus-word">
+            <span>WORD IN CONTEXT</span><strong>serendipity</strong><small>/ˌserənˈdɪpəti/</small>
+            <p>{{ copy.preview.meaning }}</p>
           </div>
-          <div class="book-spread">
-            <article class="book-page book-page--left">
-              <p class="page-folio">12</p>
-              <p class="page-kicker">A WORD IN CONTEXT</p>
-              <h2>serendipity</h2>
-              <p class="phonetic">/ˌser.ənˈdɪp.ə.ti/</p>
-              <p class="definition">意外发现美好事物的幸运与惊喜。</p>
-              <blockquote>“Learning a word is not collecting a label. It is meeting a new way to notice the world.”</blockquote>
-              <div class="margin-rule"><span></span><span></span><span></span></div>
-            </article>
-            <article class="book-page book-page--right">
-              <p class="page-folio">13</p>
-              <p class="page-kicker">YOUR NOTE</p>
-              <p class="hand-note">把今天学会的词，<br/>写进自己的生活。</p>
-              <div class="sentence-lines">
-                <span>We found the little bookshop by pure</span>
-                <strong>serendipity.</strong>
-              </div>
-              <div class="editorial-stamp"><span>DAY</span><strong>07</strong><small>KEEP READING</small></div>
-            </article>
-          </div>
-          <figcaption>{{ copy.hero.caption }}</figcaption>
-        </figure>
-      </section>
-
-      <section id="method" class="reading-chapter" aria-labelledby="method-title">
-        <aside class="chapter-aside">
-          <span>CHAPTER</span><strong>01</strong><small>Daily rhythm</small>
-        </aside>
-        <div class="chapter-body">
-          <p class="chapter-kicker">{{ copy.notes.quoteLabel }}</p>
-          <blockquote class="daily-quote">“{{ dailyQuote.text }}”</blockquote>
-          <p class="quote-author">— {{ dailyQuote.author }}</p>
-          <h2 id="method-title">{{ copy.notes.title }}</h2>
-          <p class="chapter-intro">{{ copy.notes.description }}</p>
-
-          <ol class="learning-flow">
-            <li>
-              <span class="flow-number">I</span>
-              <div><strong>先读语境</strong><p>不急着背释义，先看它如何在一句话里生长。</p></div>
-              <em>read</em>
-            </li>
-            <li>
-              <span class="flow-number">II</span>
-              <div><strong>再做练习</strong><p>用输入和判断完成一次简短、有节奏的回忆。</p></div>
-              <em>review</em>
-            </li>
-            <li>
-              <span class="flow-number">III</span>
-              <div><strong>留下痕迹</strong><p>让错题、笔记和连续学习天数成为你的阅读记录。</p></div>
-              <em>notice</em>
-            </li>
+          <blockquote>“{{ copy.preview.sentence }}”</blockquote>
+          <ol class="preview-steps">
+            <li v-for="(item, index) in copy.preview.steps" :key="item"><span>0{{ index + 1 }}</span>{{ item }}</li>
           </ol>
-        </div>
+        </aside>
       </section>
 
-      <section id="experience" class="editorial-feature" aria-labelledby="experience-title">
-        <div class="feature-copy">
-          <p class="chapter-kicker">A QUIETER LEARNING TOOL</p>
-          <h2 id="experience-title">{{ copy.features.title }}</h2>
-          <p>{{ copy.features.description }}</p>
-          <button class="underlined-button" type="button" @click="startLearning">开始今天的学习 <span>→</span></button>
-        </div>
-        <div class="feature-manuscript">
-          <article v-for="(item, index) in copy.features.items" :key="item.title">
-            <span>{{ String(index + 1).padStart(2, '0') }}</span>
-            <div><h3>{{ item.title }}</h3><p>{{ item.description }}</p></div>
-            <em>{{ item.scribble }}</em>
+      <section id="method" class="section-block" aria-labelledby="method-title">
+        <header class="section-heading">
+          <p class="eyebrow">{{ copy.method.eyebrow }}</p><h2 id="method-title">{{ copy.method.title }}</h2><p>{{ copy.method.description }}</p>
+        </header>
+        <ol class="method-grid">
+          <li v-for="(item, index) in copy.method.items" :key="item.title">
+            <span class="step-number">0{{ index + 1 }}</span><div><h3>{{ item.title }}</h3><p>{{ item.description }}</p></div>
+          </li>
+        </ol>
+      </section>
+
+      <section id="experience" class="section-block feature-section" aria-labelledby="experience-title">
+        <header class="section-heading section-heading--compact">
+          <p class="eyebrow">{{ copy.experience.eyebrow }}</p><h2 id="experience-title">{{ copy.experience.title }}</h2><p>{{ copy.experience.description }}</p>
+        </header>
+        <div class="feature-grid">
+          <article v-for="item in copy.experience.items" :key="item.title">
+            <span class="feature-mark" aria-hidden="true">{{ item.mark }}</span><div><h3>{{ item.title }}</h3><p>{{ item.description }}</p></div>
           </article>
         </div>
       </section>
 
-      <section class="closing-page" aria-labelledby="closing-title">
-        <span class="closing-mark">L</span>
-        <p>{{ copy.final.label }}</p>
-        <h2 id="closing-title">{{ copy.final.title }}</h2>
-        <div class="closing-rule"></div>
-        <p class="closing-description">{{ copy.final.description }}</p>
-        <button class="solid-button" type="button" @click="startLearning">{{ copy.final.action }} <span>→</span></button>
+      <section class="closing" aria-labelledby="closing-title">
+        <div><p class="eyebrow">{{ copy.closing.eyebrow }}</p><h2 id="closing-title">{{ copy.closing.title }}</h2><p>{{ copy.closing.description }}</p></div>
+        <button class="solid-button" type="button" @click="startLearning">{{ copy.closing.action }} <span aria-hidden="true">→</span></button>
       </section>
     </main>
 
-    <footer class="reading-footer">
-      <span>LexiCraft © {{ new Date().getFullYear() }}</span>
-      <span>{{ copy.footer }}</span>
-    </footer>
+    <footer><BrandLogo :show-tagline="false"/><span>{{ copy.footer }}</span></footer>
   </div>
 </template>
 
@@ -129,158 +83,114 @@ import BrandLogo from '@/components/BrandLogo.vue'
 
 const router = useRouter()
 const lang = ref<'zh' | 'en'>('zh')
-const quotes = [
-  {text: 'A different language is a different vision of life.', author: 'Federico Fellini'},
-  {text: 'The limits of my language mean the limits of my world.', author: 'Ludwig Wittgenstein'},
-  {text: 'Small steps every day make a language feel like home.', author: 'LexiCraft'},
-  {text: 'Language is the road map of a culture.', author: 'Rita Mae Brown'}
-]
-const translations = {
+const copybook = {
   zh: {
-    nav: {login: '登录', start: '开始学习'},
-    hero: {eyebrow: '一本值得每天翻阅的语言手记', line1: '让每一个词', line2Prefix: '都成为', highlight: '你的语言', description: '温暖的纸张、有意义的语境和恰到好处的复习，让学习从待办清单变成每日阅读仪式。', primary: '翻开今日书页', secondary: '阅读学习方法', caption: '词汇、阅读与练习被收进同一本随你成长的语言书。'},
-    notes: {quoteLabel: '每日一句 · TODAY’S PASSAGE', title: '学习可以很安静，也可以留下痕迹。', description: 'LexiCraft 把学习编排成阅读流：遇见一个词，在语境里理解它，然后在恰当的时刻重新相遇。进度不会喧哗，只会轻轻告诉你已经读了多远。'},
-    features: {title: '像使用一本好书那样使用学习工具。', description: '少一些卡片网格和嵌套菜单，让内容、行动与反馈自然地向下流动。', items: [
-      {title: '先有语境，再记忆', description: '先看见一个词如何生活在句子里，再决定如何记住它。', scribble: 'Context'},
-      {title: '用节奏带回记忆', description: '需要关注的内容会自然返回，少一些选择，也少一些噪音。', scribble: 'Rhythm'},
-      {title: '让反馈保有温度', description: '认真回应每一次完成，也清楚标记每一个需要重新理解的错误。', scribble: 'Care'}
+    nav: {method: '学习方法', experience: '学习内容', login: '登录', start: '开始学习'},
+    hero: {eyebrow: '词汇 · 阅读 · 练习', line1: '把词汇和文章，', line2: '放进一条清晰的学习路径。', description: '打开内容、开始练习、查看进度。每个页面都只突出当前最重要的下一步。', primary: '进入学习空间', secondary: '查看学习流程', note: '无需复杂设置，从一本词典或一篇文章开始。'},
+    preview: {label: '学习示例', title: '今天只专注一个语境', meaning: '意外发现美好事物的能力或经历。', sentence: 'Reading often creates the serendipity that memorisation cannot.', steps: ['先读语境', '再理解词义', '最后完成练习']},
+    method: {eyebrow: '简单的学习流程', title: '先理解，再练习，最后复习。', description: '减少来回寻找功能的时间，把注意力留给真正需要掌握的内容。', items: [
+      {title: '选择内容', description: '从一本词典或一本书开始，首页直接显示当前学习对象。'},
+      {title: '完成今日任务', description: '主按钮只负责开始或继续，次要操作集中放在旁边。'},
+      {title: '查看真实进度', description: '用完成量、连续天数和学习时间判断下一步，而不是被装饰打断。'}
     ]},
-    final: {label: 'THE NEXT PAGE IS YOURS', title: '今天，从认真读好一个词开始。', description: '不需要完美计划。走进你的学习空间，让下一页现在开始。', action: '进入 LexiCraft'},
-    footer: 'A quiet place for words, reading and memory.'
+    experience: {eyebrow: '一个学习空间', title: '词汇、文章和进度，保持同一套操作逻辑。', description: '布局一致、按钮清楚、颜色克制，让你切换内容时不必重新理解页面。', items: [
+      {mark: 'W', title: '词汇学习', description: '当前词典、今日任务和练习入口放在同一视线范围内。'},
+      {mark: 'R', title: '文章阅读', description: '书籍、阅读进度和继续阅读按钮形成明确主线。'},
+      {mark: 'P', title: '学习进度', description: '用简单数据反馈学习状态，不用渐变、动效或无意义标签抢注意力。'}
+    ]},
+    closing: {eyebrow: '准备好了', title: '少一点界面噪音，多一点有效学习。', description: '进入学习空间，选择内容并完成今天的第一组练习。', action: '开始今天的学习'},
+    footer: 'LexiCraft · 让学习路径更清楚'
   },
   en: {
-    nav: {login: 'Sign in', start: 'Start learning'},
-    hero: {eyebrow: 'A language journal worth returning to', line1: 'Let every word', line2Prefix: 'become part of', highlight: 'your language', description: 'Warm paper, meaningful context and thoughtful review turn study from a checklist into a daily reading ritual.', primary: 'Open today’s page', secondary: 'Read the method', caption: 'Vocabulary, reading and practice gathered into one language book that keeps growing with you.'},
-    notes: {quoteLabel: 'TODAY’S PASSAGE', title: 'Learning can be quiet and still leave a trace.', description: 'LexiCraft arranges study as a reading flow: meet a word, understand it in context, then return at the right moment. Progress never shouts. It simply shows how far you have read.'},
-    features: {title: 'Use a learning tool like a well-made book.', description: 'Fewer card grids and nested menus. Content, action and feedback follow a natural reading order.', items: [
-      {title: 'Context before memory', description: 'See how a word lives in a sentence before deciding how to remember it.', scribble: 'Context'},
-      {title: 'Review with rhythm', description: 'What needs attention returns naturally, with less choosing and less noise.', scribble: 'Rhythm'},
-      {title: 'Feedback with warmth', description: 'Success is acknowledged and mistakes are annotated with clarity.', scribble: 'Care'}
+    nav: {method: 'Method', experience: 'Learning', login: 'Sign in', start: 'Start'},
+    hero: {eyebrow: 'Vocabulary · Reading · Practice', line1: 'Put words and reading', line2: 'into one clear learning path.', description: 'Open your material, start a session, and check progress. Every page highlights the next important action.', primary: 'Enter learning space', secondary: 'See the learning flow', note: 'No complex setup. Start with one dictionary or one book.'},
+    preview: {label: 'Learning example', title: 'Focus on one context today', meaning: 'The chance discovery of something valuable or delightful.', sentence: 'Reading often creates the serendipity that memorisation cannot.', steps: ['Read the context', 'Understand the word', 'Finish the practice']},
+    method: {eyebrow: 'A simple learning flow', title: 'Understand, practise, then review.', description: 'Spend less time finding features and more time mastering the material in front of you.', items: [
+      {title: 'Choose material', description: 'Start with one dictionary or book and see it clearly on the dashboard.'},
+      {title: 'Finish today’s task', description: 'One primary action starts or resumes learning; secondary actions stay nearby.'},
+      {title: 'Review real progress', description: 'Use completion, streaks, and study time to decide what comes next.'}
     ]},
-    final: {label: 'THE NEXT PAGE IS YOURS', title: 'Begin today by reading one word well.', description: 'No perfect plan required. Enter your learning room and let the next page begin now.', action: 'Enter LexiCraft'},
-    footer: 'A quiet place for words, reading and memory.'
+    experience: {eyebrow: 'One learning space', title: 'Vocabulary, reading, and progress share one clear system.', description: 'Consistent layouts, clear actions, and restrained colour reduce the effort of switching contexts.', items: [
+      {mark: 'W', title: 'Vocabulary', description: 'Current dictionary, daily task, and practice entry remain in one view.'},
+      {mark: 'R', title: 'Reading', description: 'Books, reading progress, and the continue action form one obvious path.'},
+      {mark: 'P', title: 'Progress', description: 'Simple data shows your state without decorative motion competing for attention.'}
+    ]},
+    closing: {eyebrow: 'Ready when you are', title: 'Less interface noise. More useful learning.', description: 'Enter the learning space, choose your material, and finish the first session today.', action: 'Start today’s learning'},
+    footer: 'LexiCraft · A clearer path to learning'
   }
-}
-
-const copy = computed(() => translations[lang.value])
-const dailyQuote = computed(() => quotes[Math.floor(Date.now() / 86400000) % quotes.length])
-const currentDate = computed(() => new Intl.DateTimeFormat(lang.value === 'zh' ? 'zh-CN' : 'en-US', {month: 'short', day: '2-digit'}).format(new Date()))
-const toggleLang = () => { lang.value = lang.value === 'zh' ? 'en' : 'zh' }
-const startLearning = () => router.push('/app/dashboard')
-const handleLogin = () => router.push('/login')
+} as const
+const copy = computed(() => copybook[lang.value])
+const currentDate = computed(() => new Intl.DateTimeFormat(lang.value === 'zh' ? 'zh-CN' : 'en-US', {month: 'short', day: 'numeric'}).format(new Date()))
 const scrollToSection = (id: string) => document.getElementById(id)?.scrollIntoView({behavior: 'smooth'})
+const toggleLang = () => { lang.value = lang.value === 'zh' ? 'en' : 'zh' }
+const handleLogin = () => router.push('/login')
+const startLearning = () => router.push('/app')
 </script>
 
 <style lang="scss" scoped>
-.editorial-home { min-height: 100vh; overflow: hidden; color: var(--text-primary); background-color: var(--surface-page); background-image: radial-gradient(circle at 16% 20%, color-mix(in srgb, var(--text-primary) 4%, transparent) 0 .7px, transparent .9px), radial-gradient(circle at 80% 70%, color-mix(in srgb, var(--text-primary) 3%, transparent) 0 .7px, transparent .9px); background-size: 22px 22px, 31px 31px; font-family: var(--font-editorial); }
-button { font: inherit; }
-.reading-header { position: absolute; z-index: 20; top: 0; right: 0; left: 0; display: grid; grid-template-columns: 1fr auto 1fr; align-items: center; gap: 2rem; padding: 24px clamp(20px, 5vw, 76px); }
-.wordmark { display: flex; align-items: center; justify-self: start; gap: 11px; padding: 0; border: 0; color: var(--text-primary); background: transparent; cursor: pointer; text-align: left; }
-.wordmark :deep(.brand-logo__mark) { width: 39px; height: 39px; }
+.quiet-home { min-height: 100vh; color: var(--text-primary); background: var(--surface-page); }
+.home-header { position: sticky; top: 0; z-index: 20; display: grid; grid-template-columns: 1fr auto 1fr; align-items: center; min-height: 72px; padding: 0 clamp(24px, 5vw, 80px); border-bottom: 1px solid var(--border-color); background: color-mix(in srgb, var(--surface-page) 94%, transparent); backdrop-filter: blur(16px); }
+.wordmark, .header-links button, .header-actions button { border: 0; color: inherit; background: transparent; cursor: pointer; font: inherit; }
+.wordmark { justify-self: start; padding: 4px; }
+.wordmark :deep(.brand-logo__mark) { width: 38px; height: 38px; }
 .wordmark :deep(.brand-logo__copy strong) { font-size: 17px; }
-.wordmark :deep(.brand-logo__copy small) { font-family: var(--font-sans); }
-.header-links { display: flex; gap: 28px; }
-.header-links button, .text-button, .language-button { padding: 5px 0; border: 0; color: var(--text-secondary); background: transparent; cursor: pointer; font-family: var(--font-sans); font-size: 12px; }
-.header-links button:hover, .text-button:hover { color: var(--accent); }
-.header-actions { display: flex; align-items: center; justify-self: end; gap: 16px; }
-.language-button { width: 34px; height: 34px; padding: 0; border: 1px solid var(--border-color); border-radius: 50%; color: var(--text-primary); }
-.solid-button { display: inline-flex; align-items: center; justify-content: center; gap: 18px; min-height: 50px; padding: 0 24px; border: 1px solid var(--text-primary); border-radius: 2px; color: var(--accent-contrast); background: var(--text-primary); box-shadow: var(--control-shadow); cursor: pointer; font-family: var(--font-sans); font-size: 13px; font-weight: 700; transition: transform .2s ease, background .2s ease; }
-.solid-button:hover { background: var(--accent); transform: translateY(-2px); }
-.solid-button--small { min-height: 42px; padding-inline: 18px; }
-.underlined-button { padding: 8px 0; border: 0; border-bottom: 1px solid currentColor; color: var(--text-primary); background: transparent; cursor: pointer; font-family: var(--font-sans); font-size: 13px; }
-.opening { min-height: 100vh; padding: 150px clamp(22px, 7vw, 112px) 110px; text-align: center; }
-.edition-line { display: flex; max-width: 820px; align-items: center; justify-content: center; gap: 14px; margin: 0 auto 26px; color: var(--text-tertiary); font-family: var(--font-sans); font-size: 10px; letter-spacing: .15em; text-transform: uppercase; }
-.edition-line span { display: flex; align-items: center; gap: 14px; }
-.edition-line span:first-child::after, .edition-line span:last-child::before { content: ''; width: 42px; height: 1px; background: var(--border-color); }
-h1 { max-width: 1060px; margin: 0 auto; font-size: clamp(62px, 8vw, 132px); font-weight: 400; letter-spacing: -.055em; line-height: .86; }
-h1 span { display: block; }
-h1 em { color: var(--accent); font-weight: 400; }
-.opening-deck { max-width: 650px; margin: 35px auto 0; color: var(--text-secondary); font-family: var(--font-sans); font-size: clamp(15px, 1.5vw, 18px); line-height: 1.8; }
-.opening-actions { display: flex; align-items: center; justify-content: center; gap: 28px; margin-top: 30px; }
-.reading-preview { max-width: 1180px; margin: 88px auto 0; border: 1px solid var(--border-strong); background: var(--surface-muted); box-shadow: 0 34px 75px rgba(70, 50, 36, .16); text-align: left; }
-.preview-topline { display: flex; justify-content: space-between; padding: 12px 18px; border-bottom: 1px solid var(--border-strong); color: var(--text-secondary); font-family: var(--font-sans); font-size: 9px; letter-spacing: .14em; }
-.book-spread { display: grid; grid-template-columns: 1fr 1fr; padding: clamp(22px, 5vw, 70px); }
-.book-page { position: relative; min-height: 430px; padding: clamp(28px, 5vw, 64px); color: #2b241f; background: #fffaf0; box-shadow: 0 20px 45px rgba(70, 50, 36, .13); }
-.book-page--left { border-right: 1px solid #ded1bd; }
-.book-page--right { background: #fbf2e4; }
-.page-folio { position: absolute; top: 22px; right: 28px; margin: 0; color: #9a8d7d; font-size: 11px; }
-.page-kicker { margin: 0 0 20px; color: #9b4a3c; font-family: var(--font-sans); font-size: 9px; font-weight: 800; letter-spacing: .16em; }
-.book-page h2 { margin: 0; font-size: clamp(38px, 5vw, 70px); font-weight: 400; letter-spacing: -.04em; }
-.phonetic { color: #75685c; font-family: var(--font-mono); font-size: 12px; }
-.definition { max-width: 33rem; margin-top: 28px; color: #4f463e; font-size: 17px; line-height: 1.8; }
-.book-page blockquote { margin: 34px 0 0; padding-left: 20px; border-left: 2px solid #9b4a3c; color: #75685c; font-style: italic; line-height: 1.7; }
-.margin-rule { display: grid; gap: 12px; margin-top: 34px; }
-.margin-rule span { height: 1px; background: #ded4c5; }
-.hand-note { margin: 55px 0 0; color: #9b4a3c; font-size: clamp(28px, 4vw, 52px); font-style: italic; line-height: 1.25; transform: rotate(-2deg); }
-.sentence-lines { display: grid; gap: 8px; margin-top: 58px; padding-block: 16px; border-block: 1px solid #d8cbb8; font-size: 17px; }
-.editorial-stamp { position: absolute; right: 42px; bottom: 42px; display: grid; width: 92px; height: 92px; place-content: center; border: 2px double #9b4a3c; border-radius: 50%; color: #9b4a3c; text-align: center; transform: rotate(-8deg); }
-.editorial-stamp span, .editorial-stamp small { font-family: var(--font-sans); font-size: 7px; letter-spacing: .12em; }
-.editorial-stamp strong { font-size: 27px; line-height: 1; }
-.reading-preview figcaption { padding: 14px 20px; border-top: 1px solid var(--border-strong); color: var(--text-secondary); font-family: var(--font-sans); font-size: 11px; text-align: center; }
-.reading-chapter { display: grid; max-width: 1180px; grid-template-columns: 150px 1fr; gap: clamp(36px, 8vw, 110px); margin: 0 auto; padding: 145px clamp(22px, 4vw, 50px); }
-.chapter-aside { display: flex; flex-direction: column; align-items: center; align-self: start; padding-block: 24px; border-block: 1px solid var(--border-strong); }
-.chapter-aside span, .chapter-aside small { color: var(--text-tertiary); font-family: var(--font-sans); font-size: 9px; letter-spacing: .15em; text-transform: uppercase; }
-.chapter-aside strong { font-size: 66px; font-weight: 400; }
-.chapter-kicker { color: var(--accent); font-family: var(--font-sans); font-size: 10px; font-weight: 800; letter-spacing: .15em; text-transform: uppercase; }
-.daily-quote { max-width: 900px; margin: 28px 0 0; font-size: clamp(34px, 5vw, 64px); line-height: 1.12; }
-.quote-author { color: var(--text-tertiary); font-family: var(--font-sans); font-size: 12px; }
-.chapter-body > h2, .feature-copy h2, .closing-page h2 { max-width: 780px; margin: 100px 0 0; font-size: clamp(42px, 6vw, 76px); font-weight: 400; letter-spacing: -.04em; line-height: 1.02; }
-.chapter-intro { max-width: 760px; color: var(--text-secondary); font-family: var(--font-sans); font-size: 17px; line-height: 1.9; }
-.learning-flow { margin: 70px 0 0; padding: 0; border-top: 1px solid var(--border-strong); list-style: none; }
-.learning-flow li { display: grid; grid-template-columns: 50px 1fr auto; align-items: start; gap: 22px; padding: 30px 0; border-bottom: 1px solid var(--border-color); }
-.flow-number { color: var(--accent); font-style: italic; }
-.learning-flow strong { font-size: 24px; font-weight: 400; }
-.learning-flow p { max-width: 620px; margin: 8px 0 0; color: var(--text-secondary); font-family: var(--font-sans); font-size: 14px; line-height: 1.7; }
-.learning-flow em { color: var(--text-tertiary); font-size: 24px; }
-.editorial-feature { display: grid; grid-template-columns: .85fr 1.15fr; gap: clamp(50px, 9vw, 130px); padding: 140px clamp(24px, 8vw, 130px); color: var(--accent-contrast); background: var(--text-primary); }
-.feature-copy { align-self: start; }
-.feature-copy .chapter-kicker { color: color-mix(in srgb, var(--accent) 85%, white); }
-.feature-copy h2 { margin-top: 20px; }
-.feature-copy > p:not(.chapter-kicker) { color: color-mix(in srgb, var(--accent-contrast) 68%, transparent); font-family: var(--font-sans); line-height: 1.8; }
-.feature-copy .underlined-button { margin-top: 20px; color: var(--accent-contrast); }
-.feature-manuscript { border-top: 1px solid color-mix(in srgb, var(--accent-contrast) 40%, transparent); }
-.feature-manuscript article { display: grid; grid-template-columns: 42px 1fr auto; gap: 20px; padding: 30px 0; border-bottom: 1px solid color-mix(in srgb, var(--accent-contrast) 24%, transparent); }
-.feature-manuscript > article > span { color: var(--accent); font-family: var(--font-sans); font-size: 11px; }
-.feature-manuscript h3 { margin: 0; font-size: 25px; font-weight: 400; }
-.feature-manuscript p { margin: 8px 0 0; color: color-mix(in srgb, var(--accent-contrast) 64%, transparent); font-family: var(--font-sans); font-size: 13px; line-height: 1.7; }
-.feature-manuscript em { color: var(--accent); font-size: 20px; }
-.closing-page { max-width: 900px; margin: 0 auto; padding: 150px 24px; text-align: center; }
-.closing-mark { display: grid; width: 54px; height: 54px; place-items: center; margin: 0 auto 25px; border: 1px solid var(--accent); border-radius: 50%; color: var(--accent); font-size: 30px; font-style: italic; }
-.closing-page > p:first-of-type { color: var(--accent); font-family: var(--font-sans); font-size: 10px; font-weight: 800; letter-spacing: .16em; }
-.closing-page h2 { margin: 25px auto 0; }
-.closing-rule { width: 70px; height: 1px; margin: 34px auto; background: var(--border-strong); }
-.closing-description { max-width: 600px; margin: 0 auto 28px; color: var(--text-secondary); font-family: var(--font-sans); line-height: 1.8; }
-.reading-footer { display: flex; justify-content: space-between; gap: 20px; padding: 28px clamp(20px, 6vw, 96px); border-top: 1px solid var(--border-color); color: var(--text-tertiary); font-family: var(--font-sans); font-size: 10px; letter-spacing: .08em; text-transform: uppercase; }
-button:focus-visible { outline: 3px solid var(--focus-ring); outline-offset: 4px; }
-
-@media (max-width: 900px) {
-  .reading-header { grid-template-columns: 1fr auto; }
-  .header-links { display: none; }
-  .book-spread { grid-template-columns: 1fr; }
-  .book-page--left { border-right: 0; border-bottom: 1px solid #ded1bd; }
-  .reading-chapter { grid-template-columns: 1fr; }
-  .chapter-aside { width: 120px; }
-  .editorial-feature { grid-template-columns: 1fr; }
-}
-@media (max-width: 640px) {
-  .reading-header { padding: 16px; }
-  .wordmark small, .text-button, .header-actions .solid-button { display: none; }
-  .header-actions { gap: 8px; }
-  .opening { padding: 125px 16px 80px; }
-  h1 { font-size: clamp(50px, 17vw, 78px); line-height: .92; }
-  .edition-line span:first-child::after, .edition-line span:last-child::before { display: none; }
-  .opening-actions { align-items: stretch; flex-direction: column; gap: 12px; }
-  .reading-preview { margin-top: 58px; }
-  .book-spread { padding: 12px; }
-  .book-page { min-height: 390px; padding: 45px 24px 28px; }
-  .reading-chapter { padding-block: 90px; }
-  .chapter-body > h2 { margin-top: 70px; }
-  .learning-flow li { grid-template-columns: 32px 1fr; }
-  .learning-flow em { display: none; }
-  .feature-manuscript article { grid-template-columns: 30px 1fr; }
-  .feature-manuscript em { display: none; }
-  .editorial-feature { padding: 90px 22px; }
-  .reading-footer { align-items: flex-start; flex-direction: column; }
-}
-@media (prefers-reduced-motion: reduce) { *, *::before, *::after { scroll-behavior: auto !important; transition-duration: .01ms !important; } }
+.wordmark :deep(.brand-logo__copy small) { font-size: 9px; }
+.header-links { display: flex; gap: 30px; }
+.header-links button, .text-button, .language-button { color: var(--text-secondary); font-family: var(--font-sans); font-size: 13px; }
+.header-links button:hover, .text-button:hover, .language-button:hover { color: var(--text-primary); }
+.header-actions { display: flex; justify-self: end; align-items: center; gap: 18px; }
+.language-button { min-width: 28px; }
+.solid-button, .outline-button { display: inline-flex; min-height: 46px; align-items: center; justify-content: center; gap: 12px; padding: 0 22px; border: 1px solid var(--text-primary); border-radius: var(--radius-control); cursor: pointer; font-family: var(--font-sans); font-size: 14px; font-weight: 650; transition: background .18s ease, border-color .18s ease, color .18s ease; }
+.solid-button { color: var(--accent-contrast); background: var(--accent); border-color: var(--accent); }
+.solid-button:hover { background: var(--accent-hover); border-color: var(--accent-hover); }
+.solid-button--small { min-height: 38px; padding: 0 16px; font-size: 12px; }
+.outline-button { color: var(--text-primary); background: transparent; }
+.outline-button:hover { border-color: var(--accent); color: var(--accent); background: var(--surface-card); }
+main { width: min(1180px, calc(100% - 48px)); margin: 0 auto; }
+.opening { display: grid; grid-template-columns: minmax(0, 1.05fr) minmax(360px, .75fr); gap: clamp(56px, 8vw, 112px); align-items: center; min-height: calc(100vh - 72px); padding: 88px 0; }
+.eyebrow { margin: 0 0 18px; color: var(--accent); font-family: var(--font-sans); font-size: 11px; font-weight: 700; letter-spacing: .16em; text-transform: uppercase; }
+.opening h1, .section-heading h2, .closing h2 { margin: 0; font-family: var(--font-display); font-weight: 560; letter-spacing: -.035em; }
+.opening h1 { max-width: 760px; font-size: clamp(48px, 6.6vw, 86px); line-height: 1.04; }
+.opening h1 span { display: block; }
+.opening-description { max-width: 620px; margin: 30px 0 0; color: var(--text-secondary); font-family: var(--font-sans); font-size: 17px; line-height: 1.9; }
+.opening-actions { display: flex; flex-wrap: wrap; gap: 12px; margin-top: 34px; }
+.supporting-note { margin: 18px 0 0; color: var(--text-tertiary); font-family: var(--font-sans); font-size: 12px; }
+.today-card { padding: 28px; border: 1px solid var(--border-color); border-radius: var(--radius-card); background: var(--surface-card); box-shadow: var(--card-shadow); }
+.today-card__header { display: flex; justify-content: space-between; gap: 20px; padding-bottom: 22px; border-bottom: 1px solid var(--border-color); }
+.today-card__header span, .today-card__header strong { display: block; }
+.today-card__header span, .today-card__header small { color: var(--text-tertiary); font-family: var(--font-sans); font-size: 11px; }
+.today-card__header strong { margin-top: 4px; font-size: 18px; }
+.focus-word { padding: 30px 0 24px; }
+.focus-word > span { display: block; color: var(--text-tertiary); font-family: var(--font-mono); font-size: 9px; letter-spacing: .12em; }
+.focus-word strong { display: block; margin-top: 12px; font-family: var(--font-editorial); font-size: clamp(34px, 4vw, 50px); font-weight: 560; }
+.focus-word small { color: var(--text-tertiary); font-family: var(--font-mono); }
+.focus-word p { margin: 18px 0 0; color: var(--text-secondary); font-family: var(--font-sans); line-height: 1.75; }
+.today-card blockquote { margin: 0; padding: 18px 0; border-block: 1px solid var(--border-color); color: var(--text-secondary); font-size: 15px; line-height: 1.75; }
+.preview-steps { display: grid; gap: 12px; margin: 22px 0 0; padding: 0; list-style: none; }
+.preview-steps li { display: flex; align-items: center; gap: 12px; color: var(--text-secondary); font-family: var(--font-sans); font-size: 12px; }
+.preview-steps span { display: grid; width: 26px; height: 26px; place-items: center; border: 1px solid var(--border-color); border-radius: 50%; color: var(--accent); font-family: var(--font-mono); font-size: 9px; }
+.section-block { padding: 112px 0; border-top: 1px solid var(--border-color); }
+.section-heading { max-width: 720px; margin-bottom: 56px; }
+.section-heading h2 { font-size: clamp(36px, 4.5vw, 58px); line-height: 1.12; }
+.section-heading > p:last-child { margin: 22px 0 0; color: var(--text-secondary); font-family: var(--font-sans); font-size: 15px; line-height: 1.8; }
+.method-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 24px; margin: 0; padding: 0; list-style: none; }
+.method-grid li { display: grid; grid-template-columns: auto 1fr; gap: 18px; padding: 24px 0; border-top: 1px solid var(--border-strong); }
+.step-number { color: var(--accent); font-family: var(--font-mono); font-size: 11px; }
+.method-grid h3, .feature-grid h3 { margin: 0; font-family: var(--font-sans); font-size: 16px; font-weight: 700; }
+.method-grid p, .feature-grid p { margin: 12px 0 0; color: var(--text-secondary); font-family: var(--font-sans); font-size: 13px; line-height: 1.75; }
+.feature-section { display: grid; grid-template-columns: minmax(280px, .8fr) minmax(0, 1.2fr); gap: 72px; }
+.section-heading--compact { margin: 0; }
+.feature-grid { display: grid; gap: 0; }
+.feature-grid article { display: grid; grid-template-columns: 42px 1fr; gap: 18px; padding: 24px 0; border-top: 1px solid var(--border-color); }
+.feature-grid article:last-child { border-bottom: 1px solid var(--border-color); }
+.feature-mark { display: grid; width: 34px; height: 34px; place-items: center; border: 1px solid var(--border-color); border-radius: 50%; color: var(--accent); font-family: var(--font-mono); font-size: 11px; }
+.closing { display: flex; align-items: center; justify-content: space-between; gap: 48px; margin: 0 0 80px; padding: 54px; border: 1px solid var(--border-color); border-radius: var(--radius-card); background: var(--surface-card); }
+.closing h2 { max-width: 720px; font-size: clamp(34px, 4vw, 54px); line-height: 1.1; }
+.closing p:not(.eyebrow) { margin: 18px 0 0; color: var(--text-secondary); font-family: var(--font-sans); line-height: 1.7; }
+footer { display: flex; align-items: center; justify-content: space-between; gap: 24px; padding: 28px clamp(24px, 5vw, 80px); border-top: 1px solid var(--border-color); color: var(--text-tertiary); font-family: var(--font-sans); font-size: 11px; }
+footer :deep(.brand-logo__mark) { width: 30px; height: 30px; }
+footer :deep(.brand-logo__copy strong) { font-size: 13px; }
+button:focus-visible { outline: 3px solid var(--focus-ring); outline-offset: 3px; }
+@media (max-width: 900px) { .home-header { grid-template-columns: 1fr auto; } .header-links { display: none; } .opening { grid-template-columns: 1fr; min-height: auto; padding: 88px 0; } .today-card { max-width: 620px; } .method-grid { grid-template-columns: 1fr; } .feature-section { grid-template-columns: 1fr; gap: 42px; } .closing { align-items: flex-start; flex-direction: column; } }
+@media (max-width: 640px) { .home-header { min-height: 64px; padding: 0 16px; } .wordmark :deep(.brand-logo__copy small), .text-button { display: none; } .header-actions { gap: 10px; } .solid-button--small { padding: 0 12px; } main { width: min(100% - 32px, 1180px); } .opening { padding: 64px 0 72px; } .opening h1 { font-size: clamp(42px, 13vw, 60px); } .opening-description { font-size: 15px; } .opening-actions { align-items: stretch; flex-direction: column; } .opening-actions button { width: 100%; } .today-card { padding: 22px; } .section-block { padding: 78px 0; } .section-heading { margin-bottom: 38px; } .method-grid li { padding: 20px 0; } .closing { margin-bottom: 48px; padding: 30px 24px; } .closing .solid-button { width: 100%; } footer { align-items: flex-start; flex-direction: column; padding-inline: 16px; } }
 </style>
