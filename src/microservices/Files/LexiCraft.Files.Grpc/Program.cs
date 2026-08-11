@@ -22,7 +22,8 @@ builder.AddOssService();
 
 // Add services to the container.
 builder.Services.AddCodeFirstGrpc(options => { options.EnableDetailedErrors = true; });
-//
+builder.Services.AddEndpointsApiExplorer();
+// AddGrpcSwagger 仅描述配置了 JSON Transcoding 的 gRPC HTTP 端点；Code First gRPC 不会自动生成 OpenAPI 路径。
 builder.Services.AddGrpcSwagger();
 builder.Services.AddSwaggerGen(c =>
 {

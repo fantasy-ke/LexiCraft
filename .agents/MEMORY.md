@@ -11,6 +11,7 @@
 - Aspire Host 目标框架为 `net10.0`，当前使用 `Aspire.AppHost.Sdk/13.4.6`。
 - 系统由 API Gateway、Identity、Vocabulary、Practice、Files gRPC 和 Aspire ServiceDefaults 组成；`src/BuildingBlocks/` 提供跨服务基础能力。
 - Identity 使用 PostgreSQL 与 Redis；Vocabulary 使用 PostgreSQL 与 Redis；Practice 使用 MongoDB 与 Redis；Files 使用 OSS 抽象并提供 gRPC/内容读取能力。
+- Files 服务当前采用 protobuf-net Code First gRPC；`AddGrpcSwagger()` 不会把 `[OperationContract]` 自动转换为 OpenAPI 路径。现有 HTTP Minimal API 需注册 `AddEndpointsApiExplorer()`；若要在 Swagger 中展示全部文件 RPC，必须另行设计 REST 门面，或迁移为带 `google.api.http` 规则的契约优先 gRPC JSON Transcoding。
 - 公共运行能力通过 `AddServiceDefaults()` 提供，包括 AgileConfig 接入、服务发现、HttpClient resilience、健康检查和 OpenTelemetry。
 - 网关通过 YARP 的 `ReverseProxy` 配置转发请求，并附带限流、安全头和 CORS。仓库内的 `ReverseProxy` 节点目前是空结构，真实路由来源必须在运行环境或 AgileConfig 中确认，不能从 README 推断。
 - 后端模块前缀由代码定义为：`api/v{version:apiVersion}/identity`、`api/v{version:apiVersion}/vocabulary`、`api/v{version:apiVersion}/practice`。
