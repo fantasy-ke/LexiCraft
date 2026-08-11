@@ -24,8 +24,7 @@ public static partial class HostApplicationBuilderExtensions
         builder.AddCustomAuthentication();
         builder.Services.AddPermissionDefinitionProvider<PracticePermissionDefinitionProvider>();
 
-        builder.AddCustomVersioning();
-        builder.AddAspnetOpenApi(["v1"]);
+        builder.AddAspnetOpenApi();
 
         builder.Services.AddTransient(typeof(IPipelineBehavior<,>), typeof(LoggingBehavior<,>));
         builder.Services.AddTransient(typeof(IPipelineBehavior<,>), typeof(RequestValidationBehavior<,>));

@@ -25,8 +25,7 @@ public static partial class HostApplicationBuilderExtensions
         // 注册权限定义提供程序
         builder.Services.AddPermissionDefinitionProvider<IdentityDefinitionProvider>();
 
-        builder.AddCustomVersioning();
-        builder.AddAspnetOpenApi(["v1", "v2"]);
+        builder.AddAspnetOpenApi();
 
         builder.Services.AddTransient(typeof(IPipelineBehavior<,>), typeof(LoggingBehavior<,>));
         builder.Services.AddTransient(typeof(IPipelineBehavior<,>), typeof(RequestValidationBehavior<,>));

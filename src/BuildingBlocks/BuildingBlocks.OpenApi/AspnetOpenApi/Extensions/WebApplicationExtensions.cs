@@ -9,7 +9,7 @@ public static class WebApplicationExtensions
 {
     public static WebApplication UseAspnetOpenApi(this WebApplication app)
     {
-        app.MapOpenApi();
+        app.MapOpenApi().WithDocumentPerVersion();
 
         if (OpenApiOptions.IsOpenApiBuild || app.Environment.IsBuild())
             Environment.Exit(0);

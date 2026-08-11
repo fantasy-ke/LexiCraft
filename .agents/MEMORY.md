@@ -24,6 +24,9 @@
 - Vue scoped 样式结合根主题属性时，完整选择器必须放入 `:global(...)`，例如 `:global(html[data-theme-style=...] .selector)`；拆写为 `:global(html[...]) .selector` 会错误影响根元素的 opacity 或 transform。
 - 新品牌标识由 `src/UIs/lexicraft-vue-frontend/src/components/BrandLogo.vue` 提供。新核心表面优先复用品牌组件和 `DoodleIcon.vue`，但不为统一图标而批量改写历史业务页面。
 - MassTransit 采用显式启用策略：未配置 `MassTransit` 节或 `Enabled=false` 时，`AddCustomMassTransit` 不注册消息总线、事件发布器和本地事件后台服务；Identity 与 Practice 因存在发布、Saga 或事件溯源行为而显式启用，Vocabulary 当前无发布或消费行为，不注册 MassTransit。
+- `src/BuildingBlocks/` 下 13 个项目统一以 `net10.0` 为目标框架；仓库 SDK 基线为 `10.0.302`，`global.json` 使用 `latestFeature` 且禁用预览 SDK。
+- .NET 10 OpenAPI 版本化使用 `Asp.Versioning.OpenApi` 10.2.1 和 `MapOpenApi().WithDocumentPerVersion()`；受该包 `<3.0.0` 依赖约束，`Microsoft.OpenApi` 固定在最高兼容的 2.x 正式版 2.11.0。
+- MassTransit 9 已进入商业许可版本线；在项目未确认商业许可前，BuildingBlocks 保持最高 8.x 正式版 8.5.10，不把“最高正式版”误解为无条件跨主版本升级。
 
 ## 已确认的长期协作约定
 
@@ -47,7 +50,6 @@
 8. 分拆超大活跃文件：`MinioOssService` 已按客户端初始化、Minio 管理与策略、Bucket、Object 拆为同一 `partial` 类型，公开契约和实现逻辑保持不变；当前仍需处理后端 `CacheService.cs`（923 行）、`DistributedCacheService.cs`（841 行）及 6 个超过 800 行的前端 Vue 文件。缓存拆分前先补锁、降级、TTL、Hash 和序列化测试，前端拆分必须配合真实页面核验；不为满足行数规则进行无关重构。
 9. 评估生产探针与可观测性：当前默认健康检查端点主要在 Development 映射，生产暴露策略需要结合部署平台明确配置。
 10. 清理前端既有构建债务：`build-tsc` 当前受多处 Vue/TypeScript 类型错误和缺失的 `vitest` 类型阻塞；Vite 仍存在静态/动态重复导入和主分块过大的提示。
-11. 处理 Aspire 升级后仍存在的 Humanizer 版本约束警告，并在后续依赖升级中保持范围可控。
 
 ## 构建与契约陷阱
 

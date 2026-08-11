@@ -8,31 +8,10 @@ namespace BuildingBlocks.OpenApi.AspnetOpenApi.Extensions;
 
 public static class DependencyInjectionExtensions
 {
-    public static IHostApplicationBuilder AddAspnetOpenApi(this IHostApplicationBuilder builder, string[] versions)
+    public static IHostApplicationBuilder AddAspnetOpenApi(this IHostApplicationBuilder builder)
     {
         builder.Services.AddConfigurationOptions<OpenApiOptions>();
 
-        foreach (var documentName in versions)
-            builder.Services.AddOpenApi(
-                documentName,
-                options =>
-                {
-                    options.AddDocumentTransformer<OpenApiVersioningDocumentTransformer>();
-                    options.AddDocumentTransformer<BearerSecuritySchemeTransformer>();
-                    // options.AddOperationTransformer<OperationDeprecatedStatusTransformers>();
-                    // options.AddDocumentTransformer<SecuritySchemeDocumentTransformer>();
-                    // options.AddOperationTransformer<OpenApiDefaultValuesOperationTransformer>();
-                    // options.AddSchemaTransformer<SchemaNullableFalseTransformers>();
-                    options.AddSchemaTransformer<EnumSchemaTransformer>();
-                }
-            );
-
-        return builder;
-    }
-
-    public static IHostApplicationBuilder AddCustomVersioning(this IHostApplicationBuilder builder)
-    {
-        // 复制官方示例的https://github.com/dotnet/aspnet-api-versioning/blob/main/examples/AspNetCore/WebApi/MinimalOpenApiExample/Program.cs
         builder
             .Services.AddApiVersioning(options =>
             {
@@ -44,7 +23,6 @@ public static class DependencyInjectionExtensions
                     new UrlSegmentApiVersionReader()
                 );
                 options.AssumeDefaultVersionWhenUnspecified = true;
-
                 options.DefaultApiVersion = new ApiVersion(1, 0);
 
                 options
@@ -57,10 +35,14 @@ public static class DependencyInjectionExtensions
             .AddApiExplorer(options =>
             {
                 options.GroupNameFormat = "'v'VVV";
-
                 options.SubstituteApiVersionInUrl = true;
             })
-            .EnableApiVersionBinding();
+            .AddOpenApi(options =>
+            {
+                options.Document.AddDocumentTransformer<OpenApiVersioningDocumentTransformer>();
+                options.Document.AddDocumentTransformer<BearerSecuritySchemeTransformer>();
+                options.Document.AddSchemaTransformer<EnumSchemaTransformer>();
+            });
 
         return builder;
     }
