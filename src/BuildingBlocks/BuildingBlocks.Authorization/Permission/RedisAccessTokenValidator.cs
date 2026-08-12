@@ -5,12 +5,16 @@ using Microsoft.Extensions.Logging;
 
 namespace BuildingBlocks.Authentication.Permission;
 
+/// <summary>
+///     在 Identity 服务中比较当前 Bearer Token 摘要与 Redis 会话指针，实现单用户单当前会话校验。
+/// </summary>
 public sealed class RedisAccessTokenValidator(
     IHttpContextAccessor httpContextAccessor,
     IUserContext userContext,
     IAuthorizationCache authorizationCache,
     ILogger<RedisAccessTokenValidator> logger) : IAccessTokenValidator
 {
+    /// <inheritdoc />
     public async Task<AccessTokenValidationResult> ValidateAsync(
         CancellationToken cancellationToken = default)
     {

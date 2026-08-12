@@ -9,7 +9,7 @@ using Microsoft.Extensions.Options;
 namespace BuildingBlocks.Authentication.Permission;
 
 /// <summary>
-///     Validates business-service permissions through Identity.Api.
+///     将业务服务当前请求的 Bearer Token 和权限集合转发给 Identity API 进行集中验证。
 /// </summary>
 public sealed class IdentityApiPermissionCheck(
     HttpClient httpClient,
@@ -17,6 +17,7 @@ public sealed class IdentityApiPermissionCheck(
     IOptionsMonitor<PermissionAuthorizationOptions> options,
     ILogger<IdentityApiPermissionCheck> logger) : IPermissionCheck
 {
+    /// <inheritdoc />
     public async Task<PermissionValidationResult> CheckAsync(
         IReadOnlyCollection<string> permissionNames,
         CancellationToken cancellationToken = default)

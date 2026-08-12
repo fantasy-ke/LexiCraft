@@ -5,7 +5,7 @@ using Microsoft.Extensions.Options;
 namespace BuildingBlocks.Authentication;
 
 /// <summary>
-///     Local permission validation used by Identity.Api.
+///     Identity 服务的本地权限验证器，使用注册定义和权威用户权限快照完成精确匹配。
 /// </summary>
 public sealed class PermissionCheck(
     IUserContext userContext,
@@ -13,6 +13,7 @@ public sealed class PermissionCheck(
     IPermissionDefinitionManager permissionDefinitionManager,
     IOptionsMonitor<PermissionAuthorizationOptions> options) : IPermissionCheck
 {
+    /// <inheritdoc />
     public async Task<PermissionValidationResult> CheckAsync(
         IReadOnlyCollection<string> permissionNames,
         CancellationToken cancellationToken = default)

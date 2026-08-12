@@ -5,6 +5,9 @@ using Microsoft.Extensions.Logging;
 
 namespace BuildingBlocks.Authentication;
 
+/// <summary>
+///     依次验证认证状态、当前登录会话和所需权限，并标记可映射为 401 或 503 的失败原因。
+/// </summary>
 public sealed class AuthorizeHandler(
     IUserContext userContext,
     IAccessTokenValidator accessTokenValidator,
@@ -15,6 +18,7 @@ public sealed class AuthorizeHandler(
     internal const string InvalidSessionItemKey = "BuildingBlocks.Authorization.InvalidSession";
     internal const string ServiceUnavailableItemKey = "BuildingBlocks.Authorization.ServiceUnavailable";
 
+    /// <inheritdoc />
     protected override async Task HandleRequirementAsync(
         AuthorizationHandlerContext context,
         AuthorizeRequirement requirement)

@@ -5,7 +5,7 @@ using Microsoft.Extensions.Logging;
 namespace BuildingBlocks.Authentication.Permission;
 
 /// <summary>
-///     Stores complete permission snapshots in Redis without a process-local cache.
+///     在 Redis 中缓存用户完整权限快照，不使用进程内缓存；默认有效期为一分钟。
 /// </summary>
 public sealed class RedisPermissionCache(
     IAuthorizationCache authorizationCache,
@@ -13,6 +13,7 @@ public sealed class RedisPermissionCache(
 {
     private static readonly TimeSpan DefaultRedisCacheExpiration = TimeSpan.FromMinutes(1);
 
+    /// <inheritdoc />
     public async Task<HashSet<string>?> GetUserPermissionsAsync(
         Guid userId,
         CancellationToken cancellationToken = default)
@@ -38,6 +39,7 @@ public sealed class RedisPermissionCache(
         }
     }
 
+    /// <inheritdoc />
     public async Task SetUserPermissionsAsync(
         Guid userId,
         HashSet<string> permissions,
@@ -62,6 +64,7 @@ public sealed class RedisPermissionCache(
         }
     }
 
+    /// <inheritdoc />
     public async Task RemoveUserPermissionsAsync(
         Guid userId,
         CancellationToken cancellationToken = default)

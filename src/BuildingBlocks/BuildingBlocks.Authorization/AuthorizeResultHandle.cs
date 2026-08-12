@@ -10,10 +10,14 @@ using Microsoft.Extensions.Options;
 
 namespace BuildingBlocks.Authentication;
 
+/// <summary>
+///     将授权中间件结果统一转换为 <c>ResultDto</c> 格式的 401、403 或 503 响应。
+/// </summary>
 public sealed class AuthorizeResultHandle(
     ILogger<AuthorizeResultHandle> logger,
     IOptionsMonitor<JsonOptions> options) : IAuthorizationMiddlewareResultHandler
 {
+    /// <inheritdoc />
     public async Task HandleAsync(
         RequestDelegate next,
         HttpContext context,

@@ -4,12 +4,16 @@ using Microsoft.Extensions.Options;
 
 namespace BuildingBlocks.Authentication;
 
+/// <summary>
+///     将逗号分隔且已注册的权限名称解析为动态授权策略，并为默认策略补充当前会话验证。
+/// </summary>
 public sealed class AuthorizationPolicyProvider(
     IOptions<Microsoft.AspNetCore.Authorization.AuthorizationOptions> authorizationOptions,
     IPermissionDefinitionManager permissionDefinitionManager) : IAuthorizationPolicyProvider
 {
     private readonly DefaultAuthorizationPolicyProvider _defaultProvider = new(authorizationOptions);
 
+    /// <inheritdoc />
     public async Task<AuthorizationPolicy?> GetPolicyAsync(string policyName)
     {
         var configuredPolicy = await _defaultProvider.GetPolicyAsync(policyName);
@@ -31,11 +35,13 @@ public sealed class AuthorizationPolicyProvider(
             .Build();
     }
 
+    /// <inheritdoc />
     public async Task<AuthorizationPolicy> GetDefaultPolicyAsync()
     {
         return AddSessionValidation(await _defaultProvider.GetDefaultPolicyAsync());
     }
 
+    /// <inheritdoc />
     public async Task<AuthorizationPolicy?> GetFallbackPolicyAsync()
     {
         var policy = await _defaultProvider.GetFallbackPolicyAsync();
