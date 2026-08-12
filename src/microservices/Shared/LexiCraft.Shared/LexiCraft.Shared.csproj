@@ -2,6 +2,7 @@
 
     <ItemGroup>
         <ProjectReference Include="..\..\..\BuildingBlocks\BuildingBlocks\BuildingBlocks.csproj"/>
+        <ProjectReference Include="..\..\..\BuildingBlocks\BuildingBlocks.Authorization\BuildingBlocks.Authorization.csproj"/>
     </ItemGroup>
 
 </Project>

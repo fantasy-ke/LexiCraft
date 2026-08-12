@@ -2,7 +2,7 @@ using System.Globalization;
 using System.Text.Json;
 using BuildingBlocks.Authentication;
 using BuildingBlocks.Authentication.Contract;
-using BuildingBlocks.Caching.Abstractions;
+using BuildingBlocks.Authentication.Shared;
 using BuildingBlocks.Exceptions;
 using BuildingBlocks.Extensions.System;
 using BuildingBlocks.Mediator;
@@ -11,6 +11,8 @@ using LexiCraft.Services.Identity.Identity.Models;
 using LexiCraft.Services.Identity.Shared.Contracts;
 using LexiCraft.Services.Identity.Shared.Dtos;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Options;
 
 namespace LexiCraft.Services.Identity.Identity.Features.RefreshToken;
 
@@ -26,48 +28,131 @@ public class RefreshTokenCommandValidator : AbstractValidator<RefreshTokenComman
 }
 
 public class RefreshTokenCommandHandler(
-    ICacheService cacheService,
+    IAuthorizationCache authorizationCache,
+    IAuthorizationSynchronization authorizationSynchronization,
     IUserRepository userRepository,
-    IJwtTokenProvider jwtTokenProvider) : ICommandHandler<RefreshTokenCommand, TokenResponse>
+    IJwtTokenProvider jwtTokenProvider,
+    IOptionsMonitor<OAuthOptions> oauthOptions,
+    ILogger<RefreshTokenCommandHandler> logger) : ICommandHandler<RefreshTokenCommand, TokenResponse>
 {
-    public async Task<TokenResponse> Handle(RefreshTokenCommand command, CancellationToken cancellationToken)
+    public Task<TokenResponse> Handle(RefreshTokenCommand command, CancellationToken cancellationToken)
     {
-        var key = string.Format(CultureInfo.InvariantCulture, UserInfoConst.RedisRefreshTokenKey, command.RefreshToken);
-        var userIdValue = await cacheService.GetAsync<string>(key, cancellationToken: cancellationToken);
-        if (string.IsNullOrWhiteSpace(userIdValue)) ThrowUserFriendlyException.ThrowException("刷新令牌无效或已过期");
+        var refreshTokenHash = AuthorizationTokenHasher.Hash(command.RefreshToken);
+        var refreshTokenKey = GetRefreshTokenKey(refreshTokenHash);
 
-        if (!Guid.TryParse(userIdValue, out var userId)) ThrowUserFriendlyException.ThrowException("刷新令牌无效");
+        return authorizationSynchronization.ExecuteAsync(
+            $"refresh:{refreshTokenHash}",
+            async refreshTokenCancellationToken =>
+            {
+                var userIdValue = await authorizationCache.GetAsync<string>(
+                    refreshTokenKey,
+                    refreshTokenCancellationToken);
+                if (string.IsNullOrWhiteSpace(userIdValue))
+                    return ThrowInvalidRefreshToken("刷新令牌无效或已过期");
 
-        var user = await userRepository.QueryNoTracking()
-            .FirstOrDefaultAsync(x => x.Id == userId, cancellationToken);
+                if (!Guid.TryParse(userIdValue, out var userId))
+                    return ThrowInvalidRefreshToken("刷新令牌无效");
 
-        if (user == null) ThrowUserFriendlyException.ThrowException("用户不存在");
+                return await authorizationSynchronization.ExecuteAsync(
+                    $"session:{userId:N}",
+                    async sessionCancellationToken =>
+                    {
+                        var currentUserIdValue = await authorizationCache.GetAsync<string>(
+                            refreshTokenKey,
+                            sessionCancellationToken);
+                        var sessionKey = string.Format(
+                            CultureInfo.InvariantCulture,
+                            UserInfoConst.RedisAuthorizationSessionKey,
+                            userId.ToString("N"));
+                        var currentSession = await authorizationCache.GetAsync<AccessTokenCacheEntry>(
+                            sessionKey,
+                            sessionCancellationToken);
 
-        await cacheService.RemoveAsync(key, cancellationToken: cancellationToken);
+                        if (!string.Equals(currentUserIdValue, userIdValue, StringComparison.Ordinal) ||
+                            !string.Equals(
+                                currentSession?.RefreshTokenHash,
+                                refreshTokenHash,
+                                StringComparison.Ordinal))
+                        {
+                            await TryRemoveRefreshTokenAsync(refreshTokenHash, sessionCancellationToken);
+                            return ThrowInvalidRefreshToken("刷新令牌无效或已过期");
+                        }
 
-        var userDict = new Dictionary<string, string>();
-        var userForClaims = user.ToJson(JsonSerializerOptions.Web).FromJson<User>(JsonSerializerOptions.Web);
-        if (userForClaims != null)
+                        var user = await userRepository.QueryNoTracking()
+                            .FirstOrDefaultAsync(x => x.Id == userId, sessionCancellationToken);
+                        if (user == null)
+                            return ThrowInvalidRefreshToken("用户不存在");
+
+                        var userDict = new Dictionary<string, string>();
+                        var userForClaims = user.ToJson(JsonSerializerOptions.Web)
+                            .FromJson<User>(JsonSerializerOptions.Web);
+                        if (userForClaims != null)
+                        {
+                            userForClaims.ClearPassword();
+                            userDict.Add(UserInfoConst.UserId, user.Id.ToString());
+                            userDict.Add(UserInfoConst.UserName, user.Username);
+                            userDict.Add(UserInfoConst.UserAccount, user.UserAccount);
+                            userDict.Add("UserInfo", userForClaims.ToJson(JsonSerializerOptions.Web));
+                        }
+
+                        var accessToken = jwtTokenProvider.GenerateAccessToken(
+                            userDict,
+                            user.Id.Value,
+                            user.Roles.ToArray());
+                        var newRefreshToken = jwtTokenProvider.GenerateRefreshToken();
+                        var accessTokenHash = AuthorizationTokenHasher.Hash(accessToken);
+                        var newRefreshTokenHash = AuthorizationTokenHasher.Hash(newRefreshToken);
+                        var currentOptions = oauthOptions.CurrentValue;
+
+                        // 先写新的刷新令牌，再切换当前会话。旧刷新令牌即使清理失败也会因会话指针不匹配而失效。
+                        await authorizationCache.SetAsync(
+                            GetRefreshTokenKey(newRefreshTokenHash),
+                            user.Id.Value.ToString("N"),
+                            GetExpiration(currentOptions.RefreshExpireMinute, TimeSpan.FromDays(7)),
+                            sessionCancellationToken);
+                        await authorizationCache.SetAsync(
+                            sessionKey,
+                            new AccessTokenCacheEntry(accessTokenHash, newRefreshTokenHash),
+                            GetExpiration(currentOptions.RefreshExpireMinute, TimeSpan.FromDays(7)),
+                            sessionCancellationToken);
+                        await TryRemoveRefreshTokenAsync(refreshTokenHash, sessionCancellationToken);
+
+                        return new TokenResponse(accessToken, newRefreshToken);
+                    },
+                    refreshTokenCancellationToken);
+            },
+            cancellationToken);
+    }
+
+    private async Task TryRemoveRefreshTokenAsync(string refreshTokenHash, CancellationToken cancellationToken)
+    {
+        try
         {
-            userForClaims.ClearPassword();
-            userDict.Add(UserInfoConst.UserId, user.Id.ToString());
-            userDict.Add(UserInfoConst.UserName, user.Username);
-            userDict.Add(UserInfoConst.UserAccount, user.UserAccount);
-            userDict.Add("UserInfo", userForClaims.ToJson(JsonSerializerOptions.Web));
+            await authorizationCache.RemoveAsync(GetRefreshTokenKey(refreshTokenHash), cancellationToken);
         }
+        catch (OperationCanceledException) when (cancellationToken.IsCancellationRequested)
+        {
+            throw;
+        }
+        catch (Exception exception)
+        {
+            logger.LogWarning(exception, "Failed to remove a stale refresh token");
+        }
+    }
 
-        var token = jwtTokenProvider.GenerateAccessToken(userDict, user.Id.Value, user.Roles.ToArray());
-        var newRefreshToken = jwtTokenProvider.GenerateRefreshToken();
-        var response = new TokenResponse(token, newRefreshToken);
+    private static TokenResponse ThrowInvalidRefreshToken(string message)
+    {
+        ThrowUserFriendlyException.ThrowException(message);
+        throw new InvalidOperationException(message);
+    }
 
-        await cacheService.SetAsync(
-            string.Format(CultureInfo.InvariantCulture, UserInfoConst.RedisTokenKey, user.Id.Value.ToString("N")),
-            response,
-            options => options.Expiry = TimeSpan.FromDays(7), cancellationToken);
-        await cacheService.SetAsync(
-            string.Format(CultureInfo.InvariantCulture, UserInfoConst.RedisRefreshTokenKey, newRefreshToken),
-            user.Id.Value.ToString("N"), options => options.Expiry = TimeSpan.FromDays(7), cancellationToken);
+    private static string GetRefreshTokenKey(string refreshTokenHash)
+    {
+        return string.Format(CultureInfo.InvariantCulture, UserInfoConst.RedisAuthorizationRefreshTokenKey, refreshTokenHash);
+    }
 
-        return response;
+    private static TimeSpan GetExpiration(int configuredMinutes, TimeSpan fallback)
+    {
+        return configuredMinutes > 0 ? TimeSpan.FromMinutes(configuredMinutes) : fallback;
     }
 }

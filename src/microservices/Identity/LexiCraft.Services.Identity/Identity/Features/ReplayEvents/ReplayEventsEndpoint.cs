@@ -1,4 +1,5 @@
 using Humanizer;
+using LexiCraft.Shared.Permissions;
 using MediatR;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Http;
@@ -17,7 +18,7 @@ public static class ReplayEventsEndpoint
             .WithDisplayName(nameof(ReplayEvents).Humanize())
             .WithSummary("重发/回放事件流".Humanize())
             .WithDescription("根据 StreamId 重发存储在 Redis 中的事件".Humanize())
-            ; // 通常重发事件需要管理员权限，这里先要求授权
+            .RequireAuthorization(IdentityPermissions.Events.Replay);
 
         async Task<IResult> Handle(
             [AsParameters] ReplayEventsRequestParameters requestParameters)

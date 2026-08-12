@@ -76,4 +76,20 @@ public static class IdentityPermissions
         /// </summary>
         public const string Delete = "Pages.Identity.Permissions.Delete";
     }
+
+    /// <summary>
+    ///     事件管理相关权限
+    /// </summary>
+    public static class Events
+    {
+        /// <summary>
+        ///     事件管理页面访问权限
+        /// </summary>
+        public const string Default = "Pages.Identity.Events";
+
+        /// <summary>
+        ///     重放失败事件权限
+        /// </summary>
+        public const string Replay = "Pages.Identity.Events.Replay";
+    }
 }

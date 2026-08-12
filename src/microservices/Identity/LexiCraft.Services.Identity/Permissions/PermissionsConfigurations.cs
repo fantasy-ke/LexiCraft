@@ -2,6 +2,7 @@ using LexiCraft.Services.Identity.Permissions.Features.AddPermission;
 using LexiCraft.Services.Identity.Permissions.Features.GetUserPermissions;
 using LexiCraft.Services.Identity.Permissions.Features.RemovePermission;
 using LexiCraft.Services.Identity.Permissions.Features.UpdatePermissions;
+using LexiCraft.Services.Identity.Permissions.Features.ValidatePermissions;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Routing;
@@ -28,6 +29,7 @@ internal static class PermissionsConfigurations
             .MapGroup(PermissionsPrefixUri)
             .HasApiVersion(1.0);
 
+        permissionsGroupV1.MapValidatePermissionsEndpoint();
         permissionsGroupV1.MapGetUserPermissionsEndpoint();
         permissionsGroupV1.MapAddPermissionEndpoint();
         permissionsGroupV1.MapRemovePermissionEndpoint();

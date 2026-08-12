@@ -2,12 +2,10 @@
 
 namespace BuildingBlocks.Authentication;
 
-public class AuthorizeRequirement : IAuthorizationRequirement
+public sealed class AuthorizeRequirement(params string[] authorizeName) : IAuthorizationRequirement
 {
-    public AuthorizeRequirement(params string[] authorizeName)
-    {
-        AuthorizeName = authorizeName;
-    }
-
-    public virtual string[] AuthorizeName { get; private set; }
+    public string[] AuthorizeName { get; } = authorizeName
+        .Where(name => !string.IsNullOrWhiteSpace(name))
+        .Distinct(StringComparer.Ordinal)
+        .ToArray();
 }

@@ -15,8 +15,27 @@ public static class PermissionConstant
         [
             Pages,
             IdentityPermissions.Page,
+            IdentityPermissions.Users.Default,
             IdentityPermissions.Users.Query,
-            IdentityPermissions.Users.UploadAvatar
+            IdentityPermissions.Users.UploadAvatar,
+            PracticePermissions.Page,
+            PracticePermissions.Tasks.Default,
+            PracticePermissions.Tasks.Create,
+            PracticePermissions.Tasks.Complete,
+            PracticePermissions.Assessments.Default,
+            PracticePermissions.Assessments.Submit,
+            VocabularyPermissions.Page,
+            VocabularyPermissions.Words.Default,
+            VocabularyPermissions.Words.Query,
+            VocabularyPermissions.WordLists.Default,
+            VocabularyPermissions.WordLists.Query,
+            VocabularyPermissions.UserStates.Default,
+            VocabularyPermissions.UserStates.Query,
+            VocabularyPermissions.UserStates.Update,
+            FilesPermissions.Page,
+            FilesPermissions.Items.Default,
+            FilesPermissions.Items.Query,
+            FilesPermissions.Items.ReadContent
         ];
     }
 }

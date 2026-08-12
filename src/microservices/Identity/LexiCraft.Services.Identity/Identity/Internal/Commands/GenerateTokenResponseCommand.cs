@@ -2,11 +2,13 @@ using System.Globalization;
 using System.Text.Json;
 using BuildingBlocks.Authentication;
 using BuildingBlocks.Authentication.Contract;
-using BuildingBlocks.Caching.Abstractions;
+using BuildingBlocks.Authentication.Shared;
 using BuildingBlocks.Extensions.System;
 using LexiCraft.Services.Identity.Identity.Models;
 using LexiCraft.Services.Identity.Shared.Dtos;
 using MediatR;
+using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Options;
 
 namespace LexiCraft.Services.Identity.Identity.Internal.Commands;
 
@@ -15,8 +17,11 @@ public record GenerateTokenResponseCommand(User User, string LoginType, string? 
 
 public class GenerateTokenResponseCommandHandler(
     IJwtTokenProvider jwtTokenProvider,
-    ICacheService cacheService,
-    IMediator mediator) : IRequestHandler<GenerateTokenResponseCommand, TokenResponse>
+    IAuthorizationCache authorizationCache,
+    IAuthorizationSynchronization authorizationSynchronization,
+    IOptionsMonitor<OAuthOptions> oauthOptions,
+    IMediator mediator,
+    ILogger<GenerateTokenResponseCommandHandler> logger) : IRequestHandler<GenerateTokenResponseCommand, TokenResponse>
 {
     public async Task<TokenResponse> Handle(GenerateTokenResponseCommand request, CancellationToken cancellationToken)
     {
@@ -36,7 +41,8 @@ public class GenerateTokenResponseCommandHandler(
 
         var accessToken = jwtTokenProvider.GenerateAccessToken(userDict, user.Id.Value, user.Roles.ToArray());
         var refreshToken = jwtTokenProvider.GenerateRefreshToken();
-
+        var accessTokenHash = AuthorizationTokenHasher.Hash(accessToken);
+        var refreshTokenHash = AuthorizationTokenHasher.Hash(refreshToken);
         var response = new TokenResponse(accessToken, refreshToken);
 
         // 发布登录日志
@@ -45,31 +51,71 @@ public class GenerateTokenResponseCommandHandler(
             new PublishLoginLogCommand(user.UserAccount, logMessage, user.Id, true, request.LoginType),
             cancellationToken);
 
-        var cacheKey = string.Format(
+        var sessionKey = string.Format(
             CultureInfo.InvariantCulture,
-            UserInfoConst.RedisTokenKey,
+            UserInfoConst.RedisAuthorizationSessionKey,
             user.Id.Value.ToString("N"));
 
-        // 检查Redis中是否存在该用户的Token记录，如果存在则先删除旧的Token
-        var oldToken = await cacheService.GetAsync<TokenResponse>(cacheKey, cancellationToken: cancellationToken);
-        if (oldToken != null)
-        {
-            if (!string.IsNullOrEmpty(oldToken.RefreshToken))
+        await authorizationSynchronization.ExecuteAsync(
+            $"session:{user.Id.Value:N}",
+            async token =>
             {
-                var oldRefreshTokenKey = string.Format(CultureInfo.InvariantCulture, UserInfoConst.RedisRefreshTokenKey,
-                    oldToken.RefreshToken);
-                await cacheService.RemoveAsync(oldRefreshTokenKey, cancellationToken: cancellationToken);
-            }
+                var oldSession = await authorizationCache.GetAsync<AccessTokenCacheEntry>(sessionKey, token);
+                var refreshTokenKey = GetRefreshTokenKey(refreshTokenHash);
+                var currentOptions = oauthOptions.CurrentValue;
 
-            await cacheService.RemoveAsync(cacheKey, cancellationToken: cancellationToken);
-        }
+                // 先写新的刷新令牌，再切换当前会话。任何一步失败时，旧会话仍然可用。
+                await authorizationCache.SetAsync(
+                    refreshTokenKey,
+                    user.Id.Value.ToString("N"),
+                    GetExpiration(currentOptions.RefreshExpireMinute, TimeSpan.FromDays(7)),
+                    token);
+                await authorizationCache.SetAsync(
+                    sessionKey,
+                    new AccessTokenCacheEntry(accessTokenHash, refreshTokenHash),
+                    GetExpiration(currentOptions.RefreshExpireMinute, TimeSpan.FromDays(7)),
+                    token);
 
-        await cacheService.SetAsync(cacheKey, response,
-            options => options.Expiry = TimeSpan.FromHours(2), cancellationToken);
-        await cacheService.SetAsync(
-            string.Format(CultureInfo.InvariantCulture, UserInfoConst.RedisRefreshTokenKey, refreshToken),
-            user.Id.Value.ToString("N"), options => options.Expiry = TimeSpan.FromDays(1), cancellationToken);
+                if (!string.IsNullOrEmpty(oldSession?.RefreshTokenHash) &&
+                    !string.Equals(oldSession.RefreshTokenHash, refreshTokenHash, StringComparison.Ordinal))
+                {
+                    await TryRemoveRefreshTokenAsync(user.Id.Value, oldSession.RefreshTokenHash, token);
+                }
+
+                return true;
+            },
+            cancellationToken);
 
         return response;
+    }
+
+    private async Task TryRemoveRefreshTokenAsync(
+        Guid userId,
+        string refreshTokenHash,
+        CancellationToken cancellationToken)
+    {
+        try
+        {
+            await authorizationCache.RemoveAsync(GetRefreshTokenKey(refreshTokenHash), cancellationToken);
+        }
+        catch (OperationCanceledException) when (cancellationToken.IsCancellationRequested)
+        {
+            throw;
+        }
+        catch (Exception exception)
+        {
+            // 当前会话记录是刷新令牌的最终判定依据，旧键清理失败不会恢复旧会话。
+            logger.LogWarning(exception, "Failed to remove the previous refresh token for user {UserId}", userId);
+        }
+    }
+
+    private static string GetRefreshTokenKey(string refreshTokenHash)
+    {
+        return string.Format(CultureInfo.InvariantCulture, UserInfoConst.RedisAuthorizationRefreshTokenKey, refreshTokenHash);
+    }
+
+    private static TimeSpan GetExpiration(int configuredMinutes, TimeSpan fallback)
+    {
+        return configuredMinutes > 0 ? TimeSpan.FromMinutes(configuredMinutes) : fallback;
     }
 }

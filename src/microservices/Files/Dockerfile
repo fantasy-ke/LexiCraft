@@ -11,11 +11,15 @@ COPY ["Directory.Packages.props", "."]
 COPY ["Directory.Build.props", "."]
 COPY ["microservices/Files/LexiCraft.Files.Grpc/LexiCraft.Files.Grpc.csproj", "microservices/Files/LexiCraft.Files.Grpc/"]
 COPY ["BuildingBlocks/BuildingBlocks.Authorization/BuildingBlocks.Authorization.csproj", "BuildingBlocks/BuildingBlocks.Authorization/"]
+COPY ["BuildingBlocks/BuildingBlocks.Caching/BuildingBlocks.Caching.csproj", "BuildingBlocks/BuildingBlocks.Caching/"]
+COPY ["microservices/Shared/LexiCraft.Shared/LexiCraft.Shared.csproj", "microservices/Shared/LexiCraft.Shared/"]
 COPY ["BuildingBlocks/BuildingBlocks/BuildingBlocks.csproj", "BuildingBlocks/BuildingBlocks/"]
 COPY ["BuildingBlocks/BuildingBlocks.SerilogLogging/BuildingBlocks.SerilogLogging.csproj", "BuildingBlocks/BuildingBlocks.SerilogLogging/"]
 COPY ["LexiCraft.Aspire.ServiceDefaults/LexiCraft.Aspire.ServiceDefaults.csproj", "LexiCraft.Aspire.ServiceDefaults/"]
 COPY ["BuildingBlocks/BuildingBlocks.Grpc.Contracts/BuildingBlocks.Grpc.Contracts.csproj", "BuildingBlocks/BuildingBlocks.Grpc.Contracts/"]
 COPY ["BuildingBlocks/BuildingBlocks.EntityFrameworkCore/BuildingBlocks.EntityFrameworkCore.csproj", "BuildingBlocks/BuildingBlocks.EntityFrameworkCore/"]
+COPY ["BuildingBlocks/BuildingBlocks.OpenApi/BuildingBlocks.OpenApi.csproj", "BuildingBlocks/BuildingBlocks.OpenApi/"]
+COPY ["BuildingBlocks/BuildingBlocks.OSS/BuildingBlocks.OSS.csproj", "BuildingBlocks/BuildingBlocks.OSS/"]
 RUN dotnet restore "microservices/Files/LexiCraft.Files.Grpc/LexiCraft.Files.Grpc.csproj"
 COPY . .
 WORKDIR "/src/microservices/Files/LexiCraft.Files.Grpc"

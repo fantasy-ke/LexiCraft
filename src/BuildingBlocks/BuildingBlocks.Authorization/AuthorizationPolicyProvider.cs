@@ -1,74 +1,53 @@
-using Microsoft.AspNetCore.Authentication;
+using BuildingBlocks.Authentication.Contract;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.Extensions.Options;
 
 namespace BuildingBlocks.Authentication;
 
-public class AuthorizationPolicyProvider(IAuthenticationSchemeProvider authenticationSchemeProvider)
-    : IAuthorizationPolicyProvider
+public sealed class AuthorizationPolicyProvider(
+    IOptions<Microsoft.AspNetCore.Authorization.AuthorizationOptions> authorizationOptions,
+    IPermissionDefinitionManager permissionDefinitionManager) : IAuthorizationPolicyProvider
 {
-    /// <summary>
-    ///     返回给定名称的授权策略
-    /// </summary>
-    /// <param name="policyName"></param>
-    /// <returns></returns>
+    private readonly DefaultAuthorizationPolicyProvider _defaultProvider = new(authorizationOptions);
+
     public async Task<AuthorizationPolicy?> GetPolicyAsync(string policyName)
     {
-        var policy = new AuthorizationPolicyBuilder();
+        var configuredPolicy = await _defaultProvider.GetPolicyAsync(policyName);
+        if (configuredPolicy != null)
+            return AddSessionValidation(configuredPolicy);
 
-        await SetScheme(policy);
+        var permissionNames = policyName
+            .Split(',', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries)
+            .Distinct(StringComparer.Ordinal)
+            .ToArray();
 
-        SetPolicy(policy, policyName);
+        if (permissionNames.Length == 0 ||
+            permissionNames.Any(permission => !permissionDefinitionManager.TryGetPermission(permission, out _)))
+            return null;
 
-        return policy.Build();
+        var defaultPolicy = await _defaultProvider.GetDefaultPolicyAsync();
+        return new AuthorizationPolicyBuilder(defaultPolicy)
+            .AddRequirements(new AuthorizeRequirement(permissionNames))
+            .Build();
     }
 
-    /// <summary>
-    ///     会返回默认授权策略（在未指定策略的情况下用于 [Authorize] 属性的策略）
-    /// </summary>
-    /// <returns></returns>
     public async Task<AuthorizationPolicy> GetDefaultPolicyAsync()
     {
-        var policy = new AuthorizationPolicyBuilder();
-
-        await SetScheme(policy);
-
-        SetPolicy(policy);
-
-        return policy.Build();
+        return AddSessionValidation(await _defaultProvider.GetDefaultPolicyAsync());
     }
 
-    /// <summary>
-    ///     返回回退授权策略（在未指定策略时由授权中间件使用的策略
-    /// </summary>
-    /// <returns></returns>
     public async Task<AuthorizationPolicy?> GetFallbackPolicyAsync()
     {
-        var policy = new AuthorizationPolicyBuilder();
-
-        await SetScheme(policy);
-
-        SetPolicy(policy);
-
-        return policy.Build();
+        var policy = await _defaultProvider.GetFallbackPolicyAsync();
+        return policy == null ? null : AddSessionValidation(policy);
     }
 
-    private void SetPolicy(AuthorizationPolicyBuilder policyBuilder, string? policyName = null)
+    private static AuthorizationPolicy AddSessionValidation(AuthorizationPolicy policy)
     {
-        if (!string.IsNullOrEmpty(policyName))
-        {
-            var authorizations = policyName.Split(',');
-            if (authorizations.Any()) policyBuilder.AddRequirements(new AuthorizeRequirement(authorizations));
-        }
-        else
-        {
-            policyBuilder.AddRequirements(new AuthorizeRequirement());
-        }
-    }
-
-    private async Task SetScheme(AuthorizationPolicyBuilder policyBuilder, string? policyName = null)
-    {
-        var schemes = await authenticationSchemeProvider.GetAllSchemesAsync();
-
-        foreach (var scheme in schemes) policyBuilder.AuthenticationSchemes.Add(scheme.Name);
+        return policy.Requirements.OfType<AuthorizeRequirement>().Any()
+            ? policy
+            : new AuthorizationPolicyBuilder(policy)
+                .AddRequirements(new AuthorizeRequirement())
+                .Build();
     }
 }

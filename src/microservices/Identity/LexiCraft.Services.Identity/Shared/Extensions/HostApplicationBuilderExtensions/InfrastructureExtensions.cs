@@ -4,6 +4,7 @@ using BuildingBlocks.OpenApi.AspnetOpenApi.Extensions;
 using BuildingBlocks.Validation.Extensions;
 using BuildingBlocks.Validation.Pipelines;
 using LexiCraft.Services.Identity.Shared.Authorization;
+using LexiCraft.Shared.Permissions;
 using MediatR;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
@@ -15,15 +16,14 @@ public static partial class HostApplicationBuilderExtensions
     public static IHostApplicationBuilder AddInfrastructure(this IHostApplicationBuilder builder)
     {
         builder.AddDefaultCors();
-
         builder.Services.AddHttpContextAccessor();
-
         builder.Services.AddEndpointsApiExplorer();
 
         builder.RegisterAuthorization();
+        builder.AddAuthorizationRedis();
         builder.AddCustomAuthentication();
-        // 注册权限定义提供程序
-        builder.Services.AddPermissionDefinitionProvider<IdentityDefinitionProvider>();
+        builder.Services.AddPermissionDefinitionProvider<LexiCraftPermissionDefinitionProvider>();
+        builder.Services.AddLocalPermissionValidation<IdentityUserPermissionStore>();
 
         builder.AddAspnetOpenApi();
 

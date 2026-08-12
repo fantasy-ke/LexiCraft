@@ -1,6 +1,9 @@
-﻿namespace BuildingBlocks.Authentication;
+﻿using BuildingBlocks.Authentication.Contract;
+
+namespace BuildingBlocks.Authentication;
 
 public interface IPermissionCheck
 {
-    Task<bool> IsGranted(string authorizationNames);
+    Task<PermissionValidationResult> CheckAsync(IReadOnlyCollection<string> permissionNames,
+        CancellationToken cancellationToken = default);
 }

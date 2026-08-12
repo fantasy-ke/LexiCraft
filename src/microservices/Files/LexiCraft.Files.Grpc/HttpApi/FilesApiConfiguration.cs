@@ -1,4 +1,5 @@
 using BuildingBlocks.Grpc.Contracts.FileGrpc;
+using LexiCraft.Shared.Permissions;
 using Microsoft.AspNetCore.Mvc;
 
 namespace LexiCraft.Files.Grpc.HttpApi;
@@ -26,6 +27,7 @@ public static class FilesApiConfiguration
             .WithDescription("使用 multipart/form-data 上传一个文件并返回文件信息。")
             .Accepts<UploadFileForm>("multipart/form-data")
             .Produces<FileInfoDto>()
+            .RequireAuthorization(FilesPermissions.Items.Upload)
             .DisableAntiforgery();
 
         filesGroupV1
@@ -36,6 +38,7 @@ public static class FilesApiConfiguration
             .WithDescription("使用 multipart/form-data 批量上传文件，同一批文件共用目录和元数据。")
             .Accepts<BatchUploadFilesForm>("multipart/form-data")
             .Produces<List<FileInfoDto>>()
+            .RequireAuthorization(FilesPermissions.Items.Upload)
             .DisableAntiforgery();
 
         filesGroupV1
@@ -44,7 +47,8 @@ public static class FilesApiConfiguration
             .WithDisplayName("创建文件夹")
             .WithSummary("创建文件夹")
             .WithDescription("创建文件夹并返回文件夹信息。")
-            .Produces<FileInfoDto>();
+            .Produces<FileInfoDto>()
+            .RequireAuthorization(FilesPermissions.Items.CreateFolder);
 
         filesGroupV1
             .MapGet("{id:guid}", GetFileInfoAsync)
@@ -52,7 +56,8 @@ public static class FilesApiConfiguration
             .WithDisplayName("获取文件信息")
             .WithSummary("根据ID获取文件信息")
             .WithDescription("根据文件或文件夹ID获取详细信息。")
-            .Produces<FileInfoDto>();
+            .Produces<FileInfoDto>()
+            .RequireAuthorization(FilesPermissions.Items.Query);
 
         filesGroupV1
             .MapGet("query", QueryFilesAsync)
@@ -60,7 +65,8 @@ public static class FilesApiConfiguration
             .WithDisplayName("查询文件")
             .WithSummary("分页查询文件和文件夹")
             .WithDescription("根据目录、文件名、扩展名、标签和时间范围分页查询文件。")
-            .Produces<QueryFilesResponseDto>();
+            .Produces<QueryFilesResponseDto>()
+            .RequireAuthorization(FilesPermissions.Items.Query);
 
         filesGroupV1
             .MapDelete("{id:guid}", DeleteAsync)
@@ -68,7 +74,8 @@ public static class FilesApiConfiguration
             .WithDisplayName("删除文件或文件夹")
             .WithSummary("删除文件或文件夹")
             .WithDescription("根据ID删除文件或文件夹。")
-            .Produces<DeleteResponseDto>();
+            .Produces<DeleteResponseDto>()
+            .RequireAuthorization(FilesPermissions.Items.Delete);
 
         filesGroupV1
             .MapGet("tree", GetDirectoryTreeAsync)
@@ -76,7 +83,8 @@ public static class FilesApiConfiguration
             .WithDisplayName("获取目录树")
             .WithSummary("获取完整目录树")
             .WithDescription("获取全部文件夹组成的目录树。")
-            .Produces<List<FileInfoDto>>();
+            .Produces<List<FileInfoDto>>()
+            .RequireAuthorization(FilesPermissions.Items.Query);
 
         filesGroupV1
             .MapGet("content", GetFileContentAsync)
@@ -84,7 +92,8 @@ public static class FilesApiConfiguration
             .WithDisplayName("获取文件内容")
             .WithSummary("根据相对路径获取文件内容")
             .WithDescription("读取指定相对路径的文件并返回二进制文件流。")
-            .Produces(StatusCodes.Status200OK, contentType: "application/octet-stream");
+            .Produces(StatusCodes.Status200OK, contentType: "application/octet-stream")
+            .RequireAuthorization(FilesPermissions.Items.ReadContent);
         return endpoints;
     }
 

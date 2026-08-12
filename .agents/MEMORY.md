@@ -18,6 +18,10 @@
 - 后端模块前缀由代码定义为：`api/v{version:apiVersion}/identity`、`api/v{version:apiVersion}/vocabulary`、`api/v{version:apiVersion}/practice`、`api/v{version:apiVersion}/files`。
 - Identity、Vocabulary、Practice 业务端点通常经过 `ResultEndPointFilter` 包装为 `ResultDto`；Files 的版本化 HTTP 门面直接返回文件 DTO、列表或文件流，不使用 `ResultDto`。
 - 认证采用 JWT Bearer 和权限声明；前端应使用 `Authorization: Bearer`，并统一令牌字段和刷新策略。
+- 授权采用“各服务本地验证 JWT、Identity 集中验证当前会话与权限”的边界：Practice、Vocabulary、Files 携带原始 Bearer Token 调用 Identity 内部权限验证端点，不直接读取授权 Redis 或 Identity 数据库。
+- 全量权限树由 `LexiCraft.Shared` 的 `LexiCraftPermissionDefinitionProvider` 统一注册；权限使用精确匹配，父节点只作分组，不隐式授予子权限；管理员旁路只依据持久化的 `admin` 角色。
+- Identity 使用独立命名 Redis 实例 `OAuthRedis` 保存哈希后的令牌会话和用户权限完整快照；会话/刷新令牌使用 `authorization:v2:*` 版本化键，旧格式不会被新验证器读取；授权缓存禁用进程本地副本，权限回源和变更使用分布式锁，Redis 或 Identity 不可用时授权链路 fail closed 并返回 503。
+- Files 的 8 个版本化 HTTP 端点已纳入权限验证；公开 `/uploads`、旧 `/content` 和 Code First gRPC 是兼容边界，只能用于公开内容或内部网络，不能作为私有文件对外入口。
 - HTTP 响应 DTO 不应直接暴露 `UserId` 等领域值对象；用户 ID 在传输层使用基础 `Guid`。前端归一化逻辑暂时兼容旧 `{ value }` 或 `{ Value }` 结构，并在路径参数中进行 URL 编码。
 - OAuth 创建的用户仍须满足 `PasswordHash` 非空约束：未提供本地密码时生成不可知随机值并写入 BCrypt 哈希，不修改数据库约束，也不向客户端返回随机明文。
 - 前端是独立的 Vue 3/Vite 工程，使用 TypeScript、Pinia、Vue Router、Axios、UnoCSS、Vue Macros 和自动组件/图标导入；前端同时存在新认证客户端与旧业务 API 封装。
@@ -54,6 +58,10 @@
 8. 分拆超大活跃文件：`MinioOssService` 已按客户端初始化、Minio 管理与策略、Bucket、Object 拆为同一 `partial` 类型，公开契约和实现逻辑保持不变；当前仍需处理后端 `CacheService.cs`（923 行）、`DistributedCacheService.cs`（841 行）及 6 个超过 800 行的前端 Vue 文件。缓存拆分前先补锁、降级、TTL、Hash 和序列化测试，前端拆分必须配合真实页面核验；不为满足行数规则进行无关重构。
 9. 评估生产探针与可观测性：当前默认健康检查端点主要在 Development 映射，生产暴露策略需要结合部署平台明确配置。
 10. 清理前端既有构建债务：`build-tsc` 当前受多处 Vue/TypeScript 类型错误和缺失的 `vitest` 类型阻塞；Vite 仍存在静态/动态重复导入和主分块过大的提示。
+11. 授权长期应从多服务共享对称 JWT 密钥迁移到 Identity 私钥签名、业务服务仅持公钥的非对称方案，降低单个业务服务泄漏后伪造令牌的风险。
+12. Identity 权限验证端点必须限制为服务网络访问；生产环境还需为 Identity 和授权 Redis 提供高可用、延迟/503 监控与故障演练，因为受保护业务请求同步依赖该链路。
+13. 授权发布前必须在真实 Aspire/部署环境完成登录、并发刷新、旧令牌失效、赋权撤权、多实例缓存一致性和 Redis/Identity 故障的端到端验收。
+14. `authorization:v2:*` 会话键升级会使旧 access/refresh token 失效；部署时必须协调更新并重启全部 Identity 实例，不能让新旧会话格式长期混跑，用户需重新登录。
 
 ## 构建与契约陷阱
 

@@ -24,6 +24,9 @@ public class UserConfiguration : IEntityTypeConfiguration<User>
             .HasMaxLength(32)
             .HasComment("用户名");
 
+        builder.Property(x => x.Roles)
+            .HasColumnType("text[]");
+
         builder.Property(x => x.PasswordHash)
             .IsRequired()
             .HasMaxLength(64)

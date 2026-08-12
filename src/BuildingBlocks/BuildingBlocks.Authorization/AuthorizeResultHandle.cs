@@ -10,40 +10,60 @@ using Microsoft.Extensions.Options;
 
 namespace BuildingBlocks.Authentication;
 
-public class AuthorizeResultHandle(
-    ILogger<IAuthorizationMiddlewareResultHandler> logger,
+public sealed class AuthorizeResultHandle(
+    ILogger<AuthorizeResultHandle> logger,
     IOptionsMonitor<JsonOptions> options) : IAuthorizationMiddlewareResultHandler
 {
-    public async Task HandleAsync(RequestDelegate next, HttpContext context, AuthorizationPolicy policy,
+    public async Task HandleAsync(
+        RequestDelegate next,
+        HttpContext context,
+        AuthorizationPolicy policy,
         PolicyAuthorizationResult authorizeResult)
     {
-        //返回鉴权失败信息
-        if (authorizeResult.Challenged)
+        if (context.Items.ContainsKey(AuthorizeHandler.ServiceUnavailableItemKey))
         {
-            context.Response.StatusCode = (int)HttpStatusCode.Unauthorized;
-            context.Response.ContentType = "application/json";
-            var response = ResultDto.Fail("Authentication failed, token invalid", 401);
-            await context.Response.WriteAsync(
-                response.ToJson(options.CurrentValue.SerializerOptions));
-
+            logger.LogError("Identity authorization service unavailable for {RequestPath}", context.Request.Path);
+            await WriteFailureAsync(
+                context,
+                HttpStatusCode.ServiceUnavailable,
+                "Authorization service unavailable");
             return;
         }
 
-        //返回授权失败信息
+        var invalidSession = context.Items.ContainsKey(AuthorizeHandler.InvalidSessionItemKey);
+        if (authorizeResult.Challenged || invalidSession)
+        {
+            await WriteFailureAsync(
+                context,
+                HttpStatusCode.Unauthorized,
+                "Authentication failed, token invalid");
+            return;
+        }
+
         if (authorizeResult.Forbidden)
         {
             var reason = string.Join(",",
-                authorizeResult.AuthorizationFailure?.FailureReasons.Select(p => p.Message) ?? []);
-            logger.LogWarning($"Authorization failed  with reason: {reason}");
+                authorizeResult.AuthorizationFailure?.FailureReasons.Select(item => item.Message) ?? []);
+            if (string.IsNullOrWhiteSpace(reason))
+                reason = "Authorization failed";
 
-            context.Response.StatusCode = 599;
-            context.Response.ContentType = "application/json";
-            var response = ResultDto.Fail(reason, 599);
-            await context.Response.WriteAsync(
-                response.ToJson(options.CurrentValue.SerializerOptions));
+            logger.LogWarning(
+                "Authorization failed for {RequestPath}: {Reason}",
+                context.Request.Path,
+                reason);
+
+            await WriteFailureAsync(context, HttpStatusCode.Forbidden, reason);
             return;
         }
 
         await next(context);
+    }
+
+    private async Task WriteFailureAsync(HttpContext context, HttpStatusCode statusCode, string message)
+    {
+        context.Response.StatusCode = (int)statusCode;
+        context.Response.ContentType = "application/json";
+        var response = ResultDto.Fail(message, (int)statusCode);
+        await context.Response.WriteAsync(response.ToJson(options.CurrentValue.SerializerOptions));
     }
 }

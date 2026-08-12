@@ -37,16 +37,25 @@ var vocabularyApi = builder.AddProject<LexiCraft_Services_Vocabulary_Api>("lexic
     .WithHttpHealthCheck("/health")
     .WithReference(postgresVocabulary)
     .WithReference(redis)
+    .WithReference(identityApi)
+    .WaitFor(identityApi)
+    .WithEnvironment("PermissionAuthorizationOptions__IdentityApiBaseAddress", identityApi.GetEndpoint("http"))
     .WithAgileConfig(agileConfig);
 
 var practiceApi = builder.AddProject<LexiCraft_Services_Practice_Api>("lexicraft-practice-api")
     .WithHttpHealthCheck("/health")
     .WithReference(mongoPractice)
     .WithReference(redis)
+    .WithReference(identityApi)
+    .WaitFor(identityApi)
+    .WithEnvironment("PermissionAuthorizationOptions__IdentityApiBaseAddress", identityApi.GetEndpoint("http"))
     .WithAgileConfig(agileConfig);
 
 var filesGrpc = builder.AddProject<LexiCraft_Files_Grpc>("lexicraft-files-grpc")
     .WithHttpHealthCheck("/health")
+    .WithReference(identityApi)
+    .WaitFor(identityApi)
+    .WithEnvironment("PermissionAuthorizationOptions__IdentityApiBaseAddress", identityApi.GetEndpoint("http"))
     .WithAgileConfig(agileConfig);
 
 var apiGateway = builder.AddProject<LexiCraft_ApiGateway>("lexicraft-api-gateway")

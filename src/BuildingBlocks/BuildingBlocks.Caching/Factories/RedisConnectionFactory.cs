@@ -205,22 +205,11 @@ public class RedisConnectionFactory : IRedisConnectionFactory, IDisposable
             if (_disposed)
                 throw new ObjectDisposedException(nameof(RedisConnectionFactory));
 
-            var connectionString = _options.GetConnectionString(instanceName);
-            if (string.IsNullOrEmpty(connectionString))
-                throw new InvalidOperationException($"Redis 实例 '{instanceName}' 未配置连接字符串");
-
             _logger.LogInformation("正在创建 Redis 连接: {InstanceName}", instanceName);
 
             try
             {
-                var configurationOptions = ConfigurationOptions.Parse(connectionString);
-
-                // 应用配置选项
-                configurationOptions.AbortOnConnectFail = _options.AbortOnConnectFail;
-                configurationOptions.ConnectRetry = _options.ConnectRetry;
-                configurationOptions.ConnectTimeout = _options.ConnectTimeout;
-                configurationOptions.SyncTimeout = _options.SyncTimeout;
-                configurationOptions.AsyncTimeout = _options.AsyncTimeout;
+                var configurationOptions = _options.CreateConfigurationOptions(instanceName);
 
                 var connection = ConnectionMultiplexer.Connect(configurationOptions);
 

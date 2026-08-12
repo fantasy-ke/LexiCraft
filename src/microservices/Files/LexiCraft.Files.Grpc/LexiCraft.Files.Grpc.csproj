@@ -9,7 +9,9 @@
     </ItemGroup>
 
     <ItemGroup>
+        <ProjectReference Include="..\..\..\BuildingBlocks\BuildingBlocks.Authorization\BuildingBlocks.Authorization.csproj"/>
         <ProjectReference Include="..\..\..\BuildingBlocks\BuildingBlocks.EntityFrameworkCore\BuildingBlocks.EntityFrameworkCore.csproj"/>
+        <ProjectReference Include="..\..\Shared\LexiCraft.Shared\LexiCraft.Shared.csproj"/>
         <ProjectReference Include="..\..\..\BuildingBlocks\BuildingBlocks.Grpc.Contracts\BuildingBlocks.Grpc.Contracts.csproj"/>
         <ProjectReference Include="..\..\..\BuildingBlocks\BuildingBlocks.OpenApi\BuildingBlocks.OpenApi.csproj"/>
         <ProjectReference Include="..\..\..\LexiCraft.Aspire.ServiceDefaults\LexiCraft.Aspire.ServiceDefaults.csproj"/>

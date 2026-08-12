@@ -1,7 +1,7 @@
 namespace BuildingBlocks.Authentication.Permission;
 
 /// <summary>
-///     权限定义
+///     Describes a permission node used for registration, display and assignment validation.
 /// </summary>
 public class PermissionDefinition
 {
@@ -12,97 +12,55 @@ public class PermissionDefinition
         Description = description ?? name;
     }
 
-    /// <summary>
-    ///     权限名称
-    /// </summary>
-    public string Name { get; set; }
+    public string Name { get; }
 
-    /// <summary>
-    ///     显示名称
-    /// </summary>
-    public string DisplayName { get; set; }
+    public string DisplayName { get; }
 
-    /// <summary>
-    ///     描述
-    /// </summary>
-    public string Description { get; set; }
+    public string Description { get; }
 
-    /// <summary>
-    ///     父权限（用于构建权限层次结构）
-    /// </summary>
-    public PermissionDefinition? Parent { get; set; }
+    public PermissionDefinition? Parent { get; private set; }
 
-    /// <summary>
-    ///     子权限列表
-    /// </summary>
-    public List<PermissionDefinition> Children { get; } = new();
+    public List<PermissionDefinition> Children { get; } = [];
 
-    /// <summary>
-    ///     添加子权限
-    /// </summary>
-    /// <param name="permission"></param>
-    /// <returns></returns>
     public PermissionDefinition AddChild(PermissionDefinition permission)
     {
+        var existing = GetChildOrNull(permission.Name);
+        if (existing != null)
+            return existing;
+
         permission.Parent = this;
         Children.Add(permission);
         return permission;
     }
 
-    /// <summary>
-    ///     创建子权限
-    /// </summary>
-    /// <param name="name"></param>
-    /// <param name="displayName"></param>
-    /// <param name="description"></param>
-    /// <returns></returns>
-    public PermissionDefinition CreateChildPermission(string name, string? displayName, string? description)
+    public PermissionDefinition CreateChildPermission(
+        string name,
+        string? displayName,
+        string? description)
     {
-        var child = new PermissionDefinition(name, displayName, description)
-        {
-            Parent = this
-        };
-        Children.Add(child);
-        return child;
+        return GetChildOrNull(name) ?? AddChild(new PermissionDefinition(name, displayName, description));
     }
 
-    /// <summary>
-    ///     获取指定名称的子权限
-    /// </summary>
-    /// <param name="name"></param>
-    /// <returns></returns>
     public PermissionDefinition? GetChildOrNull(string name)
     {
-        return Children.FirstOrDefault(c => c.Name == name);
+        return Children.FirstOrDefault(child => string.Equals(child.Name, name, StringComparison.Ordinal));
     }
 
-    /// <summary>
-    ///     获取所有后代权限（递归获取所有子权限）
-    /// </summary>
-    /// <returns></returns>
     public IEnumerable<PermissionDefinition> GetAllChildren()
     {
         foreach (var child in Children)
         {
             yield return child;
-
-            foreach (var descendant in child.GetAllChildren()) yield return descendant;
+            foreach (var descendant in child.GetAllChildren())
+                yield return descendant;
         }
     }
 
-    /// <summary>
-    ///     获取所有后代权限名称
-    /// </summary>
-    /// <returns></returns>
     public IEnumerable<string> GetAllChildrenNames()
     {
-        return GetAllChildren().Select(c => c.Name);
+        return GetAllChildren().Select(child => child.Name);
     }
 
-    /// <summary>
-    ///     获取所有祖先权限（递归获取所有父权限）
-    /// </summary>
-    /// <returns></returns>
     public IEnumerable<PermissionDefinition> GetAllParents()
     {
         var current = Parent;
@@ -113,12 +71,8 @@ public class PermissionDefinition
         }
     }
 
-    /// <summary>
-    ///     获取所有祖先权限名称
-    /// </summary>
-    /// <returns></returns>
     public IEnumerable<string> GetAllParentNames()
     {
-        return GetAllParents().Select(p => p.Name);
+        return GetAllParents().Select(parent => parent.Name);
     }
 }

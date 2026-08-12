@@ -4,10 +4,7 @@ using Microsoft.Extensions.DependencyInjection;
 
 namespace BuildingBlocks.Authentication.Permission;
 
-/// <summary>
-///     权限定义管理器实现
-/// </summary>
-public class PermissionDefinitionManager : IPermissionDefinitionManager
+public sealed class PermissionDefinitionManager : IPermissionDefinitionManager
 {
     private readonly Dictionary<string, PermissionDefinition> _permissionDict;
     private readonly ImmutableList<PermissionDefinition> _permissions;
@@ -16,35 +13,31 @@ public class PermissionDefinitionManager : IPermissionDefinitionManager
     public PermissionDefinitionManager(IServiceProvider serviceProvider)
     {
         var context = new PermissionDefinitionContext();
-
-        // 通过DI容器获取所有权限提供程序并执行定义
-        var providers = serviceProvider.GetServices<PermissionDefinitionProvider>();
-        foreach (var provider in providers) provider.Define(context);
+        foreach (var provider in serviceProvider.GetServices<PermissionDefinitionProvider>())
+            provider.Define(context);
 
         _rootPermissions = context.RootPermissions;
         _permissions = context.GetAllPermissions().ToImmutableList();
-        _permissionDict = _permissions.ToDictionary(p => p.Name, p => p);
+
+        var duplicateNames = _permissions.GroupBy(permission => permission.Name, StringComparer.Ordinal)
+            .Where(group => group.Count() > 1)
+            .Select(group => group.Key)
+            .ToArray();
+        if (duplicateNames.Length > 0)
+            throw new InvalidOperationException($"Duplicate permissions: {string.Join(',', duplicateNames)}");
+
+        _permissionDict = _permissions.ToDictionary(permission => permission.Name, StringComparer.Ordinal);
     }
 
-    /// <inheritdoc />
-    public ImmutableList<PermissionDefinition> GetRootPermissions()
-    {
-        return _rootPermissions;
-    }
+    public ImmutableList<PermissionDefinition> GetRootPermissions() => _rootPermissions;
 
-    /// <inheritdoc />
-    public ImmutableList<PermissionDefinition> GetPermissions()
-    {
-        return _permissions;
-    }
+    public ImmutableList<PermissionDefinition> GetPermissions() => _permissions;
 
-    /// <inheritdoc />
     public PermissionDefinition? GetPermission(string name)
     {
         return _permissionDict.TryGetValue(name, out var permission) ? permission : null;
     }
 
-    /// <inheritdoc />
     public bool TryGetPermission(string name, out PermissionDefinition? permission)
     {
         return _permissionDict.TryGetValue(name, out permission);

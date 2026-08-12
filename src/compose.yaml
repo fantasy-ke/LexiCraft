@@ -32,7 +32,10 @@ services:
       AgileConfig__AppId: "lexicraft-files-grpc"
       AgileConfig__Secret: "bb123456"
       AgileConfig__ENV: "TEST"
+      PermissionAuthorizationOptions__IdentityApiBaseAddress: "http://identity-api:8080"
     restart: unless-stopped
+    depends_on:
+      - identity-api
     networks:
       - lexicraft-net
 
@@ -62,7 +65,10 @@ services:
       AgileConfig__AppId: "vocabulary-api"
       AgileConfig__Secret: "bb123456"
       AgileConfig__ENV: "TEST"
+      PermissionAuthorizationOptions__IdentityApiBaseAddress: "http://identity-api:8080"
     restart: unless-stopped
+    depends_on:
+      - identity-api
     networks:
       - lexicraft-net
 
@@ -77,7 +83,10 @@ services:
       AgileConfig__AppId: "practice-api"
       AgileConfig__Secret: "bb123456"
       AgileConfig__ENV: "TEST"
+      PermissionAuthorizationOptions__IdentityApiBaseAddress: "http://identity-api:8080"
     restart: unless-stopped
+    depends_on:
+      - identity-api
     networks:
       - lexicraft-net
 

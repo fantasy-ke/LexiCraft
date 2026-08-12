@@ -1,75 +1,112 @@
 using BuildingBlocks.Authentication.Contract;
 using BuildingBlocks.Authentication.Permission;
 using BuildingBlocks.Authentication.Shared;
+using BuildingBlocks.Caching.Abstractions;
 using BuildingBlocks.Caching.Configuration;
-using BuildingBlocks.Caching.Factories;
+using BuildingBlocks.Caching.DistributedLock;
 using BuildingBlocks.Extensions;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
 using Microsoft.Extensions.Hosting;
+using StackExchange.Redis;
 
 namespace BuildingBlocks.Authentication;
 
 public static class AuthorizationExtensions
 {
+    public const string AuthorizationRedisInstanceName = "OAuthRedis";
+
     public static IHostApplicationBuilder RegisterAuthorization(this IHostApplicationBuilder builder)
     {
-        builder.AddAuthorizationRedis();
-        builder.Services.AddTransient<IAuthorizationPolicyProvider, AuthorizationPolicyProvider>();
+        builder.Services.AddAuthorization();
+        builder.Services.AddHttpContextAccessor();
+        builder.Services.AddConfigurationOptions<OAuthOptions>();
+        builder.Services.AddOptions<PermissionAuthorizationOptions>()
+            .BindConfiguration(nameof(PermissionAuthorizationOptions))
+            .Validate(options => Uri.TryCreate(options.IdentityApiBaseAddress, UriKind.Absolute, out _),
+                "IdentityApiBaseAddress must be an absolute URI")
+            .Validate(options => options.IdentityApiValidationPath.StartsWith("/", StringComparison.Ordinal),
+                "IdentityApiValidationPath must start with '/'")
+            .ValidateOnStart();
+        builder.Services.AddSingleton<IAuthorizationPolicyProvider, AuthorizationPolicyProvider>();
         builder.Services.AddSingleton<IAuthorizationMiddlewareResultHandler, AuthorizeResultHandle>();
-        builder.Services.AddSingleton<IAuthorizationHandler, AuthorizeHandler>();
+        builder.Services.AddScoped<IAuthorizationHandler, AuthorizeHandler>();
         builder.Services.AddSingleton<IJwtTokenProvider, JwtTokenProvider>();
         builder.Services.AddScoped<IUserContext, UserContext>();
-        // 权限相关服务
         builder.Services.AddSingleton<IPermissionDefinitionManager, PermissionDefinitionManager>();
 
         return builder;
     }
 
-    /// <summary>
-    ///     添加权限 Redis
-    /// </summary>
-    /// <param name="builder"></param>
-    /// <returns></returns>
     public static IHostApplicationBuilder AddAuthorizationRedis(this IHostApplicationBuilder builder)
     {
-        // 使用扩展方法绑定配置
         var oauthOptions = builder.Configuration.BindOptions<OAuthOptions>();
-        // 注册配置选项
         builder.Services.AddConfigurationOptions<OAuthOptions>();
-        // 如果未启用 Redis，直接返回
-        if (!oauthOptions.OAuthRedis.Enable) return builder;
 
-        // 注册默认 Redis 配置 (如果存在)
-        builder.Services.Configure<RedisConnectionOptions>(builder.Configuration.GetSection("RedisCache"));
+        if (!oauthOptions.OAuthRedis.Enable)
+            throw new InvalidOperationException("OAuthOptions:OAuthRedis must be enabled for Identity authorization");
 
-        // 配置 Redis 连接选项，添加 OAuth 实例
+        if (string.IsNullOrWhiteSpace(oauthOptions.OAuthRedis.ConnectionString))
+            throw new InvalidOperationException("OAuthOptions:OAuthRedis:ConnectionString is required");
+
+        if (!builder.Services.Any(descriptor => descriptor.ServiceType == typeof(ICacheService)) ||
+            !builder.Services.Any(descriptor => descriptor.ServiceType == typeof(IDistributedLockProvider)))
+        {
+            throw new InvalidOperationException(
+                "AddCaching must be registered before AddAuthorizationRedis");
+        }
+
+        var redisConfiguration = ConfigurationOptions.Parse(oauthOptions.OAuthRedis.ConnectionString);
+        redisConfiguration.DefaultDatabase = oauthOptions.OAuthRedis.DefaultDatabase;
+        redisConfiguration.ConnectTimeout = oauthOptions.OAuthRedis.ConnectTimeout;
+        redisConfiguration.SyncTimeout = oauthOptions.OAuthRedis.SyncTimeout;
+        redisConfiguration.AsyncTimeout = oauthOptions.OAuthRedis.SyncTimeout;
+
         builder.Services.Configure<RedisConnectionOptions>(options =>
         {
-            if (!string.IsNullOrEmpty(oauthOptions.OAuthRedis.ConnectionString))
-                options.Instances["OAuthRedis"] = oauthOptions.OAuthRedis.ConnectionString;
+            options.Instances[AuthorizationRedisInstanceName] = redisConfiguration.ToString(true);
         });
 
-        // 确保 RedisConnectionFactory 已注册
-        builder.Services.TryAddSingleton<IRedisConnectionFactory, RedisConnectionFactory>();
-
-        // 注册 Redis 权限缓存服务
+        builder.Services.AddSingleton<IAuthorizationCache, AuthorizationCache>();
         builder.Services.AddSingleton<IPermissionCache, RedisPermissionCache>();
-        builder.Services.AddScoped<IPermissionCheck, PermissionCheck>();
+        builder.Services.AddSingleton<IAuthorizationSynchronization, RedisAuthorizationSynchronization>();
+        builder.Services.AddScoped<IAccessTokenValidator, RedisAccessTokenValidator>();
         return builder;
     }
 
-    /// <summary>
-    ///     添加权限定义提供程序
-    /// </summary>
-    /// <typeparam name="T"></typeparam>
-    /// <param name="services"></param>
-    /// <returns></returns>
+    public static IServiceCollection AddLocalPermissionValidation<TPermissionStore>(
+        this IServiceCollection services)
+        where TPermissionStore : class, IUserPermissionStore
+    {
+        services.RemoveAll<IPermissionCheck>();
+        services.AddScoped<IUserPermissionStore, TPermissionStore>();
+        services.AddScoped<IPermissionCheck, PermissionCheck>();
+        return services;
+    }
+
+    public static IServiceCollection AddIdentityApiPermissionValidation(this IServiceCollection services)
+    {
+        services.RemoveAll<IPermissionCheck>();
+        services.RemoveAll<IAccessTokenValidator>();
+        services.AddScoped<IAccessTokenValidator, AuthenticatedAccessTokenValidator>();
+        services.AddHttpClient<IdentityApiPermissionCheck>((serviceProvider, httpClient) =>
+        {
+            var options = serviceProvider
+                .GetRequiredService<Microsoft.Extensions.Options.IOptionsMonitor<PermissionAuthorizationOptions>>()
+                .CurrentValue;
+            httpClient.BaseAddress = new Uri(options.IdentityApiBaseAddress, UriKind.Absolute);
+            httpClient.Timeout = TimeSpan.FromSeconds(5);
+        });
+        services.AddScoped<IPermissionCheck>(serviceProvider =>
+            serviceProvider.GetRequiredService<IdentityApiPermissionCheck>());
+        return services;
+    }
+
     public static IServiceCollection AddPermissionDefinitionProvider<T>(this IServiceCollection services)
         where T : PermissionDefinitionProvider
     {
-        services.AddSingleton<PermissionDefinitionProvider, T>();
+        services.TryAddEnumerable(ServiceDescriptor.Singleton<PermissionDefinitionProvider, T>());
         return services;
     }
 }

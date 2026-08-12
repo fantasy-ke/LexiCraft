@@ -1,46 +1,56 @@
+using System.Net;
+using BuildingBlocks.Authentication;
 using BuildingBlocks.Authentication.Contract;
 using BuildingBlocks.Mediator;
-using LexiCraft.Services.Identity.Shared.Contracts;
 using LexiCraft.Shared.Models;
+using LexiCraft.Shared.Permissions;
 
 namespace LexiCraft.Services.Identity.Permissions.Features.GetUserPermissions;
 
 public record GetUserPermissionsQuery(UserId UserId) : IQuery<GetUserPermissionsResult>;
 
-public record GetUserPermissionsResult(
-    UserId UserId,
-    List<string> Permissions
-);
+public record GetUserPermissionsResult(UserId UserId, List<string> Permissions);
 
-public class GetUserPermissionsQueryHandler(
-    IUserPermissionRepository userPermissionRepository,
-    IPermissionCache permissionCache)
+public sealed class GetUserPermissionsQueryHandler(
+    IUserPermissionStore permissionStore,
+    IUserContext userContext,
+    IPermissionCheck permissionCheck)
     : IQueryHandler<GetUserPermissionsQuery, GetUserPermissionsResult>
 {
-    public async Task<GetUserPermissionsResult> Handle(GetUserPermissionsQuery query,
+    public async Task<GetUserPermissionsResult> Handle(
+        GetUserPermissionsQuery query,
         CancellationToken cancellationToken)
     {
-        // 先查询缓存
-        var cachedPermissions = await permissionCache.GetUserPermissionsAsync(query.UserId.Value);
-        if (cachedPermissions != null)
-            return new GetUserPermissionsResult(
-                query.UserId,
-                cachedPermissions.ToList()
-            );
+        if (query.UserId.Value != userContext.UserId)
+        {
+            var authorizationResult = await permissionCheck.CheckAsync(
+                [IdentityPermissions.Permissions.Query],
+                cancellationToken);
 
-        // 缓存未命中，查询数据库
-        var permissions = await userPermissionRepository.GetUserPermissionsAsync(query.UserId);
+            if (!authorizationResult.ServiceAvailable)
+            {
+                throw new HttpRequestException(
+                    "The Identity authorization service is unavailable",
+                    null,
+                    HttpStatusCode.ServiceUnavailable);
+            }
 
-        // 回写到缓存
-        if (permissions.Count > 0)
-            await permissionCache.SetUserPermissionsAsync(
-                query.UserId.Value,
-                permissions.ToHashSet()
-            );
+            if (!authorizationResult.SessionValid)
+            {
+                throw new HttpRequestException(
+                    "The access token is no longer the current user session",
+                    null,
+                    HttpStatusCode.Unauthorized);
+            }
 
-        return new GetUserPermissionsResult(
-            query.UserId,
-            permissions
-        );
+            if (!authorizationResult.Granted)
+                throw new UnauthorizedAccessException("No permission to query another user's permissions");
+        }
+
+        var permissions = await permissionStore.GetUserPermissionsAsync(
+            query.UserId.Value,
+            cancellationToken);
+
+        return new GetUserPermissionsResult(query.UserId, permissions.ToList());
     }
 }

@@ -1,3 +1,4 @@
+using System.Net;
 using BuildingBlocks.Authentication.Contract;
 using BuildingBlocks.Exceptions;
 using BuildingBlocks.Mediator;
@@ -30,38 +31,57 @@ public class UpdatePermissionsCommandValidator : AbstractValidator<UpdatePermiss
 
 public class UpdatePermissionsCommandHandler(
     IUserRepository userRepository,
-    IPermissionCache permissionCache)
+    IPermissionCache permissionCache,
+    IPermissionDefinitionManager permissionDefinitionManager,
+    IAuthorizationSynchronization authorizationSynchronization)
     : ICommandHandler<UpdatePermissionsCommand, bool>
 {
     public async Task<bool> Handle(UpdatePermissionsCommand command, CancellationToken cancellationToken)
     {
         try
         {
-            // 通过聚合根操作：加载包含权限的用户实体（启用跟踪以支持集合变更）
-            var user = await userRepository.Query()
-                .Include(u => u.Permissions)
-                .FirstOrDefaultAsync(u => u.Id == command.UserId, cancellationToken);
-
-            if (user == null)
+            var unknownPermissions = command.Permissions
+                .Where(permission => !permissionDefinitionManager.TryGetPermission(permission, out _))
+                .Distinct(StringComparer.Ordinal)
+                .ToArray();
+            if (unknownPermissions.Length > 0)
             {
-                ThrowUserFriendlyException.ThrowException("未找到指定用户");
+                ThrowUserFriendlyException.ThrowException(
+                    $"Unknown permissions: {string.Join(',', unknownPermissions)}");
                 return false;
             }
 
-            // 在领域模型中执行变更
-            user.SetPermissions(command.Permissions);
+            return await authorizationSynchronization.ExecuteAsync(
+                $"permission:{command.UserId.Value:N}",
+                async token =>
+                {
+                    var user = await userRepository.Query()
+                        .Include(u => u.Permissions)
+                        .FirstOrDefaultAsync(u => u.Id == command.UserId, token);
 
-            // 通过聚合根仓储级联持久化
-            await userRepository.UpdateAsync(user);
-            await userRepository.SaveChangesAsync();
+                    if (user == null)
+                    {
+                        ThrowUserFriendlyException.ThrowException("未找到指定用户");
+                        return false;
+                    }
 
-            // 同步更新缓存
-            await permissionCache.SetUserPermissionsAsync(
-                command.UserId.Value,
-                command.Permissions.ToHashSet()
-            );
+                    await permissionCache.RemoveUserPermissionsAsync(command.UserId.Value, token);
 
-            return true;
+                    user.SetPermissions(command.Permissions);
+                    await userRepository.UpdateAsync(user);
+                    await userRepository.SaveChangesAsync();
+
+                    return true;
+                },
+                cancellationToken);
+        }
+        catch (OperationCanceledException) when (cancellationToken.IsCancellationRequested)
+        {
+            throw;
+        }
+        catch (HttpRequestException exception) when (exception.StatusCode == HttpStatusCode.ServiceUnavailable)
+        {
+            throw;
         }
         catch (Exception e)
         {

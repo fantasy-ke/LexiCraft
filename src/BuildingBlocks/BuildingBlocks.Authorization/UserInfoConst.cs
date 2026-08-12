@@ -26,6 +26,10 @@ public class UserInfoConst
 
     public const string RedisRefreshTokenKey = "user:login:refreshtoken:{0}";
 
+    public const string RedisAuthorizationSessionKey = "authorization:v2:session:{0}";
+
+    public const string RedisAuthorizationRefreshTokenKey = "authorization:v2:refresh:{0}";
+
     /// <summary>
     ///     获取权限请求头
     /// </summary>

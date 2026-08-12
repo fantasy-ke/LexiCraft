@@ -1,3 +1,5 @@
+using StackExchange.Redis;
+
 namespace BuildingBlocks.Caching.Configuration;
 
 /// <summary>
@@ -61,6 +63,41 @@ public class RedisConnectionOptions
         if (Instances.TryGetValue(instanceName, out var connectionString)) return connectionString;
 
         return instanceName == "default" ? DefaultConnectionString : null;
+    }
+
+    /// <summary>
+    ///     Creates Redis options for an instance. Explicit connection-string values override global defaults.
+    /// </summary>
+    public ConfigurationOptions CreateConfigurationOptions(string instanceName)
+    {
+        var connectionString = GetConnectionString(instanceName);
+        if (string.IsNullOrWhiteSpace(connectionString))
+            throw new InvalidOperationException($"Redis instance '{instanceName}' has no connection string");
+
+        var configuration = ConfigurationOptions.Parse(connectionString);
+        if (!HasConfigurationOption(connectionString, "abortConnect"))
+            configuration.AbortOnConnectFail = AbortOnConnectFail;
+        if (!HasConfigurationOption(connectionString, "connectRetry"))
+            configuration.ConnectRetry = ConnectRetry;
+        if (!HasConfigurationOption(connectionString, "connectTimeout"))
+            configuration.ConnectTimeout = ConnectTimeout;
+        if (!HasConfigurationOption(connectionString, "syncTimeout"))
+            configuration.SyncTimeout = SyncTimeout;
+        if (!HasConfigurationOption(connectionString, "asyncTimeout"))
+            configuration.AsyncTimeout = AsyncTimeout;
+
+        return configuration;
+    }
+
+    private static bool HasConfigurationOption(string connectionString, string optionName)
+    {
+        return connectionString.Split(',', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries)
+            .Any(part =>
+            {
+                var separatorIndex = part.IndexOf('=');
+                return separatorIndex > 0 &&
+                       string.Equals(part[..separatorIndex].Trim(), optionName, StringComparison.OrdinalIgnoreCase);
+            });
     }
 
     /// <summary>

@@ -1,11 +1,10 @@
 using System.Globalization;
 using BuildingBlocks.Authentication;
 using BuildingBlocks.Authentication.Contract;
-using BuildingBlocks.Caching.Abstractions;
 using BuildingBlocks.Mediator;
 using FluentValidation;
-using LexiCraft.Services.Identity.Shared.Dtos;
 using LexiCraft.Shared.Models;
+using Microsoft.Extensions.Logging;
 
 namespace LexiCraft.Services.Identity.Identity.Features.Logout;
 
@@ -21,31 +20,51 @@ public class LogoutCommandValidator : AbstractValidator<LogoutCommand>
 }
 
 public class LogoutCommandHandler(
-    ICacheService cacheService)
+    IAuthorizationCache authorizationCache,
+    IAuthorizationSynchronization authorizationSynchronization,
+    ILogger<LogoutCommandHandler> logger)
     : ICommandHandler<LogoutCommand, bool>
 {
-    public async Task<bool> Handle(LogoutCommand command, CancellationToken cancellationToken)
+    public Task<bool> Handle(LogoutCommand command, CancellationToken cancellationToken)
     {
-        var cacheKey = string.Format(
-            CultureInfo.InvariantCulture,
-            UserInfoConst.RedisTokenKey,
-            command.UserId.Value.ToString("N"));
-
-        var oldToken = await cacheService.GetAsync<TokenResponse>(cacheKey, cancellationToken: cancellationToken);
-        if (oldToken != null)
-        {
-            if (!string.IsNullOrEmpty(oldToken.RefreshToken))
+        return authorizationSynchronization.ExecuteAsync(
+            $"session:{command.UserId.Value:N}",
+            async token =>
             {
-                var oldRefreshTokenKey = string.Format(
+                var sessionKey = string.Format(
                     CultureInfo.InvariantCulture,
-                    UserInfoConst.RedisRefreshTokenKey,
-                    oldToken.RefreshToken);
-                await cacheService.RemoveAsync(oldRefreshTokenKey, cancellationToken: cancellationToken);
-            }
+                    UserInfoConst.RedisAuthorizationSessionKey,
+                    command.UserId.Value.ToString("N"));
 
-            await cacheService.RemoveAsync(cacheKey, cancellationToken: cancellationToken);
+                var oldSession = await authorizationCache.GetAsync<AccessTokenCacheEntry>(sessionKey, token);
+
+                // 先移除当前会话。此后旧刷新令牌即使残留，也无法通过会话指针校验。
+                await authorizationCache.RemoveAsync(sessionKey, token);
+                if (!string.IsNullOrEmpty(oldSession?.RefreshTokenHash))
+                    await TryRemoveRefreshTokenAsync(oldSession.RefreshTokenHash, token);
+
+                return true;
+            },
+            cancellationToken);
+    }
+
+    private async Task TryRemoveRefreshTokenAsync(string refreshTokenHash, CancellationToken cancellationToken)
+    {
+        try
+        {
+            var refreshTokenKey = string.Format(
+                CultureInfo.InvariantCulture,
+                UserInfoConst.RedisAuthorizationRefreshTokenKey,
+                refreshTokenHash);
+            await authorizationCache.RemoveAsync(refreshTokenKey, cancellationToken);
         }
-
-        return true;
+        catch (OperationCanceledException) when (cancellationToken.IsCancellationRequested)
+        {
+            throw;
+        }
+        catch (Exception exception)
+        {
+            logger.LogWarning(exception, "Failed to remove the refresh token during logout");
+        }
     }
 }
