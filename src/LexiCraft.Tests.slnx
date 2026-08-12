@@ -1,0 +1,6 @@
+<Solution>
+  <Folder Name="/Tests/">
+    <Project Path="BuildingBlocks/BuildingBlocks.Authorization.Tests/BuildingBlocks.Authorization.Tests.csproj" />
+    <Project Path="BuildingBlocks/BuildingBlocks.Messaging.Tests/BuildingBlocks.Messaging.Tests.csproj" />
+  </Folder>
+</Solution>

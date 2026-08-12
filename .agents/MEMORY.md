@@ -6,7 +6,7 @@
 
 ## 稳定架构事实
 
-- 当前默认开发解决方案是 `src/LexiCraft.slnx`，默认运行入口是 `src/LexiCraft.Aspire.Host/AppHost.cs`。
+- 当前默认开发解决方案是 `src/LexiCraft.slnx`，仅展示生产项目；测试项目统一放在 `src/LexiCraft.Tests.slnx`，默认运行入口是 `src/LexiCraft.Aspire.Host/AppHost.cs`。
 - 根目录 `LexiCraft.sln` 属于较早的解决方案文件，项目清单与 `src/LexiCraft.slnx` 存在潜在漂移；涉及构建时优先使用 `.slnx`，并在发现差异时记录。
 - Aspire Host 目标框架为 `net10.0`，当前使用 `Aspire.AppHost.Sdk/13.4.6`。
 - 系统由 API Gateway、Identity、Vocabulary、Practice、Files gRPC 和 Aspire ServiceDefaults 组成；`src/BuildingBlocks/` 提供跨服务基础能力。
