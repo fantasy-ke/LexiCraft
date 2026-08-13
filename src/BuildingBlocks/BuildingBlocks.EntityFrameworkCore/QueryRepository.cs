@@ -7,12 +7,11 @@ namespace BuildingBlocks.EntityFrameworkCore;
 /// <summary>
 ///     只读仓储实现类
 /// </summary>
-/// <typeparam name="TDbContext"></typeparam>
-/// <typeparam name="TEntity"></typeparam>
 public class QueryRepository<TDbContext, TEntity>(TDbContext dbContext) : IQueryRepository<TEntity>
-    where TEntity : class where TDbContext : DbContext
+    where TEntity : class
+    where TDbContext : DbContext
 {
-    protected TDbContext DbContext { get; } = dbContext;
+    public TDbContext DbContext { get; } = dbContext;
 
     protected DbSet<TEntity> Entity => DbContext.Set<TEntity>();
 
@@ -21,59 +20,75 @@ public class QueryRepository<TDbContext, TEntity>(TDbContext dbContext) : IQuery
         return DbContext.Set<TTemp>();
     }
 
-    public Task<List<TEntity>> GetListAsync(Expression<Func<TEntity, bool>> predicate)
+    public Task<List<TEntity>> GetListAsync(
+        Expression<Func<TEntity, bool>> predicate,
+        CancellationToken cancellationToken = default)
     {
-        return Entity.Where(predicate).ToListAsync();
+        return Entity.Where(predicate).ToListAsync(cancellationToken);
     }
 
-    public async Task<TEntity?> FirstOrDefaultAsync(Expression<Func<TEntity, bool>> predicate)
+    public Task<TEntity?> FirstOrDefaultAsync(
+        Expression<Func<TEntity, bool>> predicate,
+        CancellationToken cancellationToken = default)
     {
-        return await Entity.FirstOrDefaultAsync(predicate).ConfigureAwait(false);
+        return Entity.FirstOrDefaultAsync(predicate, cancellationToken);
     }
 
-    public Task<TEntity> FirstAsync(Expression<Func<TEntity, bool>> predicate)
+    public Task<TEntity> FirstAsync(
+        Expression<Func<TEntity, bool>> predicate,
+        CancellationToken cancellationToken = default)
     {
-        return Entity.FirstAsync(predicate);
+        return Entity.FirstAsync(predicate, cancellationToken);
     }
 
-    public Task<TEntity> SingleOrDefaultAsync(Expression<Func<TEntity, bool>> predicate)
+    public Task<TEntity?> SingleOrDefaultAsync(
+        Expression<Func<TEntity, bool>> predicate,
+        CancellationToken cancellationToken = default)
     {
-        return Entity.SingleOrDefaultAsync(predicate)!;
+        return Entity.SingleOrDefaultAsync(predicate, cancellationToken);
     }
 
-    public Task<TEntity> SingleAsync(Expression<Func<TEntity, bool>> predicate)
+    public Task<TEntity> SingleAsync(
+        Expression<Func<TEntity, bool>> predicate,
+        CancellationToken cancellationToken = default)
     {
-        return Entity.SingleAsync(predicate);
+        return Entity.SingleAsync(predicate, cancellationToken);
     }
 
-    public Task<int> CountAsync(Expression<Func<TEntity, bool>> predicate)
+    public Task<int> CountAsync(
+        Expression<Func<TEntity, bool>> predicate,
+        CancellationToken cancellationToken = default)
     {
-        return Entity.CountAsync(predicate);
+        return Entity.CountAsync(predicate, cancellationToken);
     }
 
-    public Task<bool> AnyAsync(Expression<Func<TEntity, bool>> predicate)
+    public Task<bool> AnyAsync(
+        Expression<Func<TEntity, bool>> predicate,
+        CancellationToken cancellationToken = default)
     {
-        return Entity.AnyAsync(predicate);
+        return Entity.AnyAsync(predicate, cancellationToken);
     }
 
-    public Task<TEntity?> GetAsync(Expression<Func<TEntity, bool>> predicate)
+    public Task<TEntity?> GetAsync(
+        Expression<Func<TEntity, bool>> predicate,
+        CancellationToken cancellationToken = default)
     {
-        return Entity.FirstOrDefaultAsync(predicate);
+        return Entity.FirstOrDefaultAsync(predicate, cancellationToken);
     }
 
-    public Task<List<TEntity>> GetListAsync()
+    public Task<List<TEntity>> GetListAsync(CancellationToken cancellationToken = default)
     {
-        return Entity.ToListAsync();
+        return Entity.ToListAsync(cancellationToken);
     }
 
     public IQueryable<TEntity> Query()
     {
-        return DbContext.Set<TEntity>();
+        return Entity;
     }
 
     public IQueryable<TEntity> QueryNoTracking()
     {
-        return DbContext.Set<TEntity>().AsNoTracking();
+        return Entity.AsNoTracking();
     }
 
     public IQueryable<T> QueryNoTracking<T>() where T : class
@@ -82,17 +97,32 @@ public class QueryRepository<TDbContext, TEntity>(TDbContext dbContext) : IQuery
     }
 
     public async Task<(int total, IEnumerable<TEntity> result)> GetPageListAsync(
-        Expression<Func<TEntity, bool>> predicate, int pageIndex,
-        int pageSize, Expression<Func<TEntity, object>>? orderBy = null, bool isAsc = true)
+        Expression<Func<TEntity, bool>> predicate,
+        int pageIndex,
+        int pageSize,
+        Expression<Func<TEntity, object>>? orderBy = null,
+        bool isAsc = true,
+        CancellationToken cancellationToken = default)
     {
+        ValidatePagination(pageIndex, pageSize);
+
         var query = Entity.Where(predicate);
+        var total = await query.CountAsync(cancellationToken);
 
-        var total = await query.CountAsync();
+        if (orderBy != null)
+            query = isAsc ? query.OrderBy(orderBy) : query.OrderByDescending(orderBy);
 
-        if (orderBy != null) query = isAsc ? query.OrderBy(orderBy) : query.OrderByDescending(orderBy);
-
-        var list = await query.Skip((pageIndex - 1) * pageSize).Take(pageSize).ToArrayAsync();
+        var skip = checked((pageIndex - 1) * pageSize);
+        var list = await query.Skip(skip).Take(pageSize).ToArrayAsync(cancellationToken);
 
         return (total, list);
+    }
+
+    private static void ValidatePagination(int pageIndex, int pageSize)
+    {
+        if (pageIndex < 1)
+            throw new ArgumentOutOfRangeException(nameof(pageIndex), pageIndex, "Page index must be greater than zero.");
+        if (pageSize < 1)
+            throw new ArgumentOutOfRangeException(nameof(pageSize), pageSize, "Page size must be greater than zero.");
     }
 }

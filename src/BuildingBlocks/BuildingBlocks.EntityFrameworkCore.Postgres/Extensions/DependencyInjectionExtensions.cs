@@ -4,9 +4,9 @@ using BuildingBlocks.EntityFrameworkCore.Extensions;
 using BuildingBlocks.EntityFrameworkCore.Interceptors;
 using BuildingBlocks.Extensions;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.DependencyInjection.Extensions;
 using Microsoft.Extensions.Hosting;
 
 namespace BuildingBlocks.EntityFrameworkCore.Postgres;
@@ -19,53 +19,46 @@ public static class DependencyInjectionExtensions
         Assembly? migrationAssembly = null,
         Action<IHostApplicationBuilder>? action = null,
         Action<DbContextOptionsBuilder>? dbContextBuilder = null,
-        Action<PostgresOptions>? configurator = null
-    )
+        Action<PostgresOptions>? configurator = null)
         where TDbContext : DbContext
     {
         AppContext.SetSwitch("Npgsql.EnableLegacyTimestampBehavior", true);
+        AppContext.SetSwitch("Npgsql.DisableDateTimeInfinityConversions", true);
 
         builder.Services.AddValidationOptions(configurator: configurator);
+        var postgresOptions = builder.Configuration.BindOptions(configurator);
 
-        var postgresOptions = builder.Configuration.BindOptions<PostgresOptions>();
+        var configuredConnectionString = string.IsNullOrWhiteSpace(connectionStringName)
+            ? null
+            : builder.Configuration.GetConnectionString(connectionStringName);
+        var connectionString = !string.IsNullOrWhiteSpace(configuredConnectionString)
+            ? configuredConnectionString
+            : postgresOptions.ConnectionString;
 
-        var connectionString =
-            !string.IsNullOrWhiteSpace(connectionStringName)
-            && !string.IsNullOrWhiteSpace(builder.Configuration.GetConnectionString(connectionStringName))
-                ? builder.Configuration.GetConnectionString(connectionStringName)
-                : postgresOptions.ConnectionString
-                  ?? throw new InvalidOperationException(
-                      $"Postgres connection string '{connectionStringName}' or `postgresOptions.ConnectionString` not found."
-                  );
+        if (string.IsNullOrWhiteSpace(connectionString))
+            throw new InvalidOperationException(
+                $"Postgres connection string '{connectionStringName}' or 'PostgresOptions.ConnectionString' was not configured.");
 
-        builder.Services.AddDbContext<TDbContext>((sp, options) =>
-            {
-                options.ConfigureWarnings(w => w.Ignore(RelationalEventId.PendingModelChangesWarning));
+        builder.Services.TryAddScoped<AuditableEntityInterceptor>();
+        builder.Services.AddDbContext<TDbContext>((serviceProvider, options) =>
+        {
+            options
+                .UseNpgsql(
+                    connectionString,
+                    sqlOptions =>
+                    {
+                        var name = migrationAssembly?.GetName().Name
+                                   ?? postgresOptions.MigrationAssembly
+                                   ?? typeof(TDbContext).Assembly.GetName().Name;
 
-                options
-                    .UseNpgsql(
-                        connectionString,
-                        sqlOptions =>
-                        {
-                            var name =
-                                migrationAssembly?.GetName().Name
-                                ?? postgresOptions.MigrationAssembly
-                                ?? typeof(TDbContext).Assembly.GetName().Name;
+                        sqlOptions.MigrationsAssembly(name);
+                        sqlOptions.EnableRetryOnFailure(5, TimeSpan.FromSeconds(10), null);
+                    })
+                .UseSnakeCaseNamingConvention();
 
-                            sqlOptions.MigrationsAssembly(name);
-                            sqlOptions.EnableRetryOnFailure(5, TimeSpan.FromSeconds(10), null);
-                        }
-                    )
-                    .UseSnakeCaseNamingConvention();
-
-                options.AddInterceptors(
-                    new AuditableEntityInterceptor(
-                        builder.Services.BuildServiceProvider())
-                );
-
-                dbContextBuilder?.Invoke(options);
-            }
-        );
+            options.AddInterceptors(serviceProvider.GetRequiredService<AuditableEntityInterceptor>());
+            dbContextBuilder?.Invoke(options);
+        });
 
         action?.Invoke(builder);
         builder.Services.AddScoped<IUnitOfWork, UnitOfWork<TDbContext>>();

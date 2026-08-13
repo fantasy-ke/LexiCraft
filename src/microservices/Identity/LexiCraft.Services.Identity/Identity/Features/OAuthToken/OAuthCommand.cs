@@ -50,7 +50,7 @@ internal class OAuthCommandHandler(
 
         return await unitOfWork.ExecuteAsync(async () =>
         {
-            await unitOfWork.BeginTransactionAsync();
+            await unitOfWork.BeginTransactionAsync(cancellationToken);
             try
             {
                 // 1. 获取OAuth用户信息
@@ -62,12 +62,17 @@ internal class OAuthCommandHandler(
                 // 3. 生成Token与处理后续逻辑
                 var tokenResponse = await HandlePostLoginAsync(user, request.Type, cancellationToken);
 
-                await unitOfWork.SaveChangesAsync();
-                await unitOfWork.CommitTransactionAsync();
+                await unitOfWork.SaveChangesAsync(cancellationToken);
+                await unitOfWork.CommitTransactionAsync(cancellationToken);
 
                 logger.LogInformation("OAuth登录处理完成，用户: {UserAccount}, 来源: {Source}", user.UserAccount, user.Source);
 
                 return tokenResponse;
+            }
+            catch (OperationCanceledException) when (cancellationToken.IsCancellationRequested)
+            {
+                await unitOfWork.RollbackTransactionAsync();
+                throw;
             }
             catch (Exception ex)
             {
@@ -75,7 +80,7 @@ internal class OAuthCommandHandler(
                 await unitOfWork.RollbackTransactionAsync();
                 throw ex.ThrowUserFriendly(ex.Message, 500);
             }
-        });
+        }, cancellationToken);
     }
 
     private async Task<OAuthUserDto> GetOAuthUserInfoAsync(OAuthCommand request)

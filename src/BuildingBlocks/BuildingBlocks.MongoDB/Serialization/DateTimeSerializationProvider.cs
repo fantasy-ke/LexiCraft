@@ -7,6 +7,6 @@ public class DateTimeSerializationProvider : IBsonSerializationProvider
 {
     public IBsonSerializer? GetSerializer(Type type)
     {
-        return type == typeof(DateTime) ? new DateTimeSerializer(DateTimeKind.Local) : null;
+        return type == typeof(DateTime) ? new DateTimeSerializer(DateTimeKind.Utc) : null;
     }
 }

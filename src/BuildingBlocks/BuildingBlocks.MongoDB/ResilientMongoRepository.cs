@@ -8,9 +8,6 @@ using MongoDB.Driver;
 
 namespace BuildingBlocks.MongoDB;
 
-/// <summary>
-///     具有弹性和性能监控的 MongoDB 仓储基类
-/// </summary>
 public class ResilientMongoRepository<TEntity> : ResilientMongoQueryRepository<TEntity>, IRepository<TEntity>
     where TEntity : MongoEntity, IAggregateRoot
 {
@@ -18,93 +15,85 @@ public class ResilientMongoRepository<TEntity> : ResilientMongoQueryRepository<T
         IMongoDatabase database,
         IResilienceService resilienceService,
         IMongoPerformanceMonitor performanceMonitor,
-        ILogger logger,
+        ILogger<ResilientMongoRepository<TEntity>> logger,
         string? collectionName = null)
         : base(database, resilienceService, performanceMonitor, logger, collectionName)
     {
     }
 
-    public virtual async Task<TEntity> InsertAsync(TEntity entity)
+    public virtual async Task<TEntity> InsertAsync(
+        TEntity entity,
+        CancellationToken cancellationToken = default)
     {
         using var _ = PerformanceMonitor.StartOperation("Insert", CollectionName);
-
-        return await ResilienceService.ExecuteWithRetryAsync(
-            async () =>
-            {
-                entity.CreationTime = DateTime.UtcNow;
-                await Collection.InsertOneAsync(entity);
-                return entity;
-            },
-            $"Insert_{CollectionName}",
-            CancellationToken.None);
-    }
-
-    public virtual async Task InsertAsync(IEnumerable<TEntity> entities)
-    {
-        using var _ = PerformanceMonitor.StartOperation("InsertMany", CollectionName);
+        entity.CreationTime = DateTime.UtcNow;
 
         await ResilienceService.ExecuteWithRetryAsync(
-            async () =>
-            {
-                var entitiesList = entities.ToList();
-                var now = DateTime.UtcNow;
-
-                foreach (var entity in entitiesList) entity.CreationTime = now;
-
-                await Collection.InsertManyAsync(entitiesList);
-            },
-            $"InsertMany_{CollectionName}",
-            CancellationToken.None);
+            () => Collection.InsertOneAsync(entity, cancellationToken: cancellationToken),
+            $"Insert_{CollectionName}",
+            cancellationToken);
+        return entity;
     }
 
-    public virtual async Task<TEntity> UpdateAsync(TEntity entity)
+    public virtual async Task InsertAsync(
+        IEnumerable<TEntity> entities,
+        CancellationToken cancellationToken = default)
+    {
+        var entityList = entities.ToList();
+        if (entityList.Count == 0) return;
+
+        using var _ = PerformanceMonitor.StartOperation("InsertMany", CollectionName);
+        var now = DateTime.UtcNow;
+        foreach (var entity in entityList) entity.CreationTime = now;
+
+        await ResilienceService.ExecuteWithRetryAsync(
+            () => Collection.InsertManyAsync(entityList, cancellationToken: cancellationToken),
+            $"InsertMany_{CollectionName}",
+            cancellationToken);
+    }
+
+    public virtual async Task<TEntity> UpdateAsync(
+        TEntity entity,
+        CancellationToken cancellationToken = default)
     {
         using var _ = PerformanceMonitor.StartOperation("Update", CollectionName);
-
+        var filter = Builders<TEntity>.Filter.Eq(x => x.Id, entity.Id);
         var result = await ResilienceService.ExecuteWithRetryAsync(
-            async () =>
-            {
-                var filter = Builders<TEntity>.Filter.Eq(x => x.Id, entity.Id);
-                var replaceResult = await Collection.ReplaceOneAsync(filter, entity);
-                return replaceResult.MatchedCount > 0 ? entity : null;
-            },
+            () => Collection.ReplaceOneAsync(filter, entity, cancellationToken: cancellationToken),
             $"Update_{CollectionName}",
-            CancellationToken.None);
+            cancellationToken);
 
-        return result ?? throw new InvalidOperationException($"Failed to update entity with ID: {entity.Id}");
+        return result.MatchedCount > 0
+            ? entity
+            : throw new InvalidOperationException($"Failed to update entity with ID: {entity.Id}");
     }
 
-    public virtual async Task DeleteAsync(TEntity entity)
+    public virtual async Task DeleteAsync(
+        TEntity entity,
+        CancellationToken cancellationToken = default)
     {
         using var _ = PerformanceMonitor.StartOperation("Delete", CollectionName);
-
+        var filter = Builders<TEntity>.Filter.Eq(x => x.Id, entity.Id);
         await ResilienceService.ExecuteWithRetryAsync(
-            async () =>
-            {
-                var filter = Builders<TEntity>.Filter.Eq(x => x.Id, entity.Id);
-                await Collection.DeleteOneAsync(filter);
-                return true;
-            },
+            () => Collection.DeleteOneAsync(filter, cancellationToken),
             $"Delete_{CollectionName}",
-            CancellationToken.None);
+            cancellationToken);
     }
 
-    public virtual async Task DeleteAsync(Expression<Func<TEntity, bool>> predicate)
+    public virtual async Task DeleteAsync(
+        Expression<Func<TEntity, bool>> predicate,
+        CancellationToken cancellationToken = default)
     {
         using var _ = PerformanceMonitor.StartOperation("DeleteMany", CollectionName);
-
         await ResilienceService.ExecuteWithRetryAsync(
-            async () =>
-            {
-                await Collection.DeleteManyAsync(predicate);
-                return true;
-            },
+            () => Collection.DeleteManyAsync(predicate, cancellationToken),
             $"DeleteMany_{CollectionName}",
-            CancellationToken.None);
+            cancellationToken);
     }
 
-    public virtual Task<int> SaveChangesAsync()
+    public virtual Task<int> SaveChangesAsync(CancellationToken cancellationToken = default)
     {
-        return Task.FromResult(1);
+        cancellationToken.ThrowIfCancellationRequested();
+        return Task.FromResult(0);
     }
 }

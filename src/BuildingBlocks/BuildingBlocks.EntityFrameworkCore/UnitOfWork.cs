@@ -5,48 +5,47 @@ namespace BuildingBlocks.EntityFrameworkCore;
 
 public class UnitOfWork<TDbContext>(TDbContext dbContext) : IUnitOfWork where TDbContext : DbContext
 {
-    public async Task BeginTransactionAsync()
+    public Task BeginTransactionAsync(CancellationToken cancellationToken = default)
     {
-        await dbContext.Database.BeginTransactionAsync();
+        return dbContext.Database.BeginTransactionAsync(cancellationToken);
     }
 
-    public async Task CommitTransactionAsync()
+    public Task CommitTransactionAsync(CancellationToken cancellationToken = default)
     {
-        await dbContext.Database.CommitTransactionAsync();
+        return dbContext.Database.CommitTransactionAsync(cancellationToken);
     }
 
-    public async Task RollbackTransactionAsync()
+    public Task RollbackTransactionAsync(CancellationToken cancellationToken = default)
     {
-        await dbContext.Database.RollbackTransactionAsync();
+        return dbContext.Database.RollbackTransactionAsync(cancellationToken);
     }
 
-    public async Task<int> SaveChangesAsync()
+    public Task<int> SaveChangesAsync(CancellationToken cancellationToken = default)
     {
-        return await dbContext.SaveChangesAsync();
+        return dbContext.SaveChangesAsync(cancellationToken);
     }
 
-    public async Task ExecuteAsync(Func<Task> action)
+    public Task ExecuteAsync(Func<Task> action, CancellationToken cancellationToken = default)
     {
         var strategy = dbContext.Database.CreateExecutionStrategy();
-        await strategy.ExecuteAsync(action);
+        return strategy.ExecuteAsync(_ => action(), cancellationToken);
     }
 
-    public async Task<TResult> ExecuteAsync<TResult>(Func<Task<TResult>> action)
+    public Task<TResult> ExecuteAsync<TResult>(
+        Func<Task<TResult>> action,
+        CancellationToken cancellationToken = default)
     {
         var strategy = dbContext.Database.CreateExecutionStrategy();
-        return await strategy.ExecuteAsync(action);
+        return strategy.ExecuteAsync(_ => action(), cancellationToken);
     }
 
     public void Dispose()
     {
-        if (dbContext is IDisposable dbContextDisposable)
-            dbContextDisposable.Dispose();
-        else
-            _ = dbContext.DisposeAsync().AsTask();
+        dbContext.Dispose();
     }
 
-    public async ValueTask DisposeAsync()
+    public ValueTask DisposeAsync()
     {
-        await dbContext.DisposeAsync();
+        return dbContext.DisposeAsync();
     }
 }

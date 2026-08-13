@@ -79,5 +79,5 @@ app.MapGet("/content", async ([FromQuery] string relativePath, [FromServices] IF
 app.MapFilesApiEndpoints();
 if (app.Environment.IsDevelopment()) app.UseAspnetOpenApi();
 app.MapGrpcService<FilesService>();
-app.UseMigration();
+await app.UseMigrationAsync();
 app.Run();

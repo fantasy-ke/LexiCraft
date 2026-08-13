@@ -10,56 +10,70 @@ public class MongoRepository<TEntity>(IMongoDbContext context)
     : MongoQueryRepository<TEntity>(context), IRepository<TEntity>
     where TEntity : MongoEntity, IAggregateRoot
 {
-    public async Task<TEntity> InsertAsync(TEntity entity)
+    public async Task<TEntity> InsertAsync(
+        TEntity entity,
+        CancellationToken cancellationToken = default)
     {
-        if (Context.Session != null && Context.Session.IsInTransaction)
-            await Collection.InsertOneAsync(Context.Session, entity);
+        if (Context.Session is { IsInTransaction: true } session)
+            await Collection.InsertOneAsync(session, entity, cancellationToken: cancellationToken);
         else
-            await Collection.InsertOneAsync(entity);
+            await Collection.InsertOneAsync(entity, cancellationToken: cancellationToken);
 
         return entity;
     }
 
-    public async Task InsertAsync(IEnumerable<TEntity> entities)
+    public async Task InsertAsync(
+        IEnumerable<TEntity> entities,
+        CancellationToken cancellationToken = default)
     {
-        if (Context.Session != null && Context.Session.IsInTransaction)
-            await Collection.InsertManyAsync(Context.Session, entities);
+        var entityList = entities.ToList();
+        if (entityList.Count == 0) return;
+
+        if (Context.Session is { IsInTransaction: true } session)
+            await Collection.InsertManyAsync(session, entityList, cancellationToken: cancellationToken);
         else
-            await Collection.InsertManyAsync(entities);
+            await Collection.InsertManyAsync(entityList, cancellationToken: cancellationToken);
     }
 
-    public async Task<TEntity> UpdateAsync(TEntity entity)
+    public async Task<TEntity> UpdateAsync(
+        TEntity entity,
+        CancellationToken cancellationToken = default)
     {
         var filter = Builders<TEntity>.Filter.Eq(x => x.Id, entity.Id);
 
-        if (Context.Session != null && Context.Session.IsInTransaction)
-            await Collection.ReplaceOneAsync(Context.Session, filter, entity);
+        if (Context.Session is { IsInTransaction: true } session)
+            await Collection.ReplaceOneAsync(session, filter, entity, cancellationToken: cancellationToken);
         else
-            await Collection.ReplaceOneAsync(filter, entity);
+            await Collection.ReplaceOneAsync(filter, entity, cancellationToken: cancellationToken);
 
         return entity;
     }
 
-    public async Task DeleteAsync(TEntity entity)
+    public async Task DeleteAsync(
+        TEntity entity,
+        CancellationToken cancellationToken = default)
     {
         var filter = Builders<TEntity>.Filter.Eq(x => x.Id, entity.Id);
 
-        if (Context.Session != null && Context.Session.IsInTransaction)
-            await Collection.DeleteOneAsync(Context.Session, filter);
+        if (Context.Session is { IsInTransaction: true } session)
+            await Collection.DeleteOneAsync(session, filter, cancellationToken: cancellationToken);
         else
-            await Collection.DeleteOneAsync(filter);
+            await Collection.DeleteOneAsync(filter, cancellationToken);
     }
 
-    public async Task DeleteAsync(Expression<Func<TEntity, bool>> predicate)
+    public async Task DeleteAsync(
+        Expression<Func<TEntity, bool>> predicate,
+        CancellationToken cancellationToken = default)
     {
-        if (Context.Session is { IsInTransaction: true })
-            await Collection.DeleteManyAsync(Context.Session, predicate);
+        if (Context.Session is { IsInTransaction: true } session)
+            await Collection.DeleteManyAsync(session, predicate, cancellationToken: cancellationToken);
         else
-            await Collection.DeleteManyAsync(predicate);
+            await Collection.DeleteManyAsync(predicate, cancellationToken);
     }
 
-    public Task<int> SaveChangesAsync()
+    public Task<int> SaveChangesAsync(CancellationToken cancellationToken = default)
     {
-        return Task.FromResult(1);
+        cancellationToken.ThrowIfCancellationRequested();
+        return Task.FromResult(0);
     }
 }

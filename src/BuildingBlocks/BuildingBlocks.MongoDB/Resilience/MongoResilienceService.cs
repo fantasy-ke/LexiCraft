@@ -5,9 +5,6 @@ using MongoDB.Driver;
 
 namespace BuildingBlocks.MongoDB.Resilience;
 
-/// <summary>
-///     MongoDB 特定的弹性服务实现
-/// </summary>
 public class MongoResilienceService(
     IMongoClient mongoClient,
     ILogger<MongoResilienceService> logger,
@@ -18,16 +15,13 @@ public class MongoResilienceService(
     {
         return exception switch
         {
-            // 不应重试的异常
-            MongoIncompatibleDriverException => false,
-            MongoAuthenticationException => false,
-
-            // 应该重试的 MongoDB 异常
-            MongoException => true,
-
-            // 其他应该重试的异常
+            MongoConnectionException => true,
+            MongoExecutionTimeoutException => true,
+            MongoException mongoException when
+                mongoException.HasErrorLabel("RetryableWriteError") ||
+                mongoException.HasErrorLabel("TransientTransactionError") ||
+                mongoException.HasErrorLabel("UnknownTransactionCommitResult") => true,
             TimeoutException => true,
-
             _ => false
         };
     }
@@ -36,10 +30,13 @@ public class MongoResilienceService(
     {
         try
         {
-            // 使用 ping 命令检查 MongoDB 连接
             var database = mongoClient.GetDatabase("admin");
             await database.RunCommandAsync<object>("{ ping: 1 }", cancellationToken: cancellationToken);
             return true;
+        }
+        catch (OperationCanceledException) when (cancellationToken.IsCancellationRequested)
+        {
+            throw;
         }
         catch (Exception ex)
         {

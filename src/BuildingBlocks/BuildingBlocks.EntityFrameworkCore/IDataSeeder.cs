@@ -5,5 +5,5 @@ namespace BuildingBlocks.EntityFrameworkCore;
 public interface IDataSeeder<in TContext>
     where TContext : DbContext
 {
-    Task SeedAsync(TContext context);
+    Task SeedAsync(TContext context, CancellationToken cancellationToken = default);
 }

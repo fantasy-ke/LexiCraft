@@ -35,58 +35,90 @@ public class ResilientMongoQueryRepository<TEntity> : IQueryRepository<TEntity> 
             "MongoDB repository does not support arbitrary generic Select<T> directly like EF.");
     }
 
-    public virtual async Task<List<TEntity>> GetListAsync(Expression<Func<TEntity, bool>> predicate)
+    public virtual Task<List<TEntity>> GetListAsync(
+        Expression<Func<TEntity, bool>> predicate,
+        CancellationToken cancellationToken = default)
     {
-        return await FindAsync(predicate);
+        return FindAsync(predicate, cancellationToken);
     }
 
-    public virtual async Task<TEntity?> FirstOrDefaultAsync(Expression<Func<TEntity, bool>> predicate)
+    public virtual Task<TEntity?> FirstOrDefaultAsync(
+        Expression<Func<TEntity, bool>> predicate,
+        CancellationToken cancellationToken = default)
     {
-        var results = await FindAsync(predicate);
-        return results.FirstOrDefault();
+        return ExecuteFindAsync(
+            "FirstOrDefault",
+            predicate,
+            query => query.Limit(1).FirstOrDefaultAsync(cancellationToken),
+            cancellationToken)!;
     }
 
-    public virtual async Task<TEntity> FirstAsync(Expression<Func<TEntity, bool>> predicate)
+    public virtual Task<TEntity> FirstAsync(
+        Expression<Func<TEntity, bool>> predicate,
+        CancellationToken cancellationToken = default)
     {
-        var results = await FindAsync(predicate);
-        return results.First();
+        return ExecuteFindAsync(
+            "First",
+            predicate,
+            query => query.Limit(1).FirstAsync(cancellationToken),
+            cancellationToken);
     }
 
-    public virtual async Task<TEntity> SingleOrDefaultAsync(Expression<Func<TEntity, bool>> predicate)
+    public virtual Task<TEntity?> SingleOrDefaultAsync(
+        Expression<Func<TEntity, bool>> predicate,
+        CancellationToken cancellationToken = default)
     {
-        var results = await FindAsync(predicate);
-        return results.SingleOrDefault()!;
+        return ExecuteFindAsync(
+            "SingleOrDefault",
+            predicate,
+            query => query.Limit(2).SingleOrDefaultAsync(cancellationToken),
+            cancellationToken)!;
     }
 
-    public virtual async Task<TEntity> SingleAsync(Expression<Func<TEntity, bool>> predicate)
+    public virtual Task<TEntity> SingleAsync(
+        Expression<Func<TEntity, bool>> predicate,
+        CancellationToken cancellationToken = default)
     {
-        var results = await FindAsync(predicate);
-        return results.Single();
+        return ExecuteFindAsync(
+            "Single",
+            predicate,
+            query => query.Limit(2).SingleAsync(cancellationToken),
+            cancellationToken);
     }
 
-    public virtual async Task<int> CountAsync(Expression<Func<TEntity, bool>> predicate)
+    public virtual async Task<int> CountAsync(
+        Expression<Func<TEntity, bool>> predicate,
+        CancellationToken cancellationToken = default)
     {
         using var _ = PerformanceMonitor.StartOperation("Count", CollectionName);
         var count = await ResilienceService.ExecuteWithRetryAsync(
-            async () => await Collection.CountDocumentsAsync(predicate),
+            () => Collection.CountDocumentsAsync(predicate, cancellationToken: cancellationToken),
             $"Count_{CollectionName}",
-            CancellationToken.None);
-        return (int)count;
+            cancellationToken);
+        return checked((int)count);
     }
 
-    public virtual async Task<bool> AnyAsync(Expression<Func<TEntity, bool>> predicate)
+    public virtual Task<bool> AnyAsync(
+        Expression<Func<TEntity, bool>> predicate,
+        CancellationToken cancellationToken = default)
     {
-        return await CountAsync(predicate) > 0;
+        return ExecuteFindAsync(
+            "Any",
+            predicate,
+            query => query.Limit(1).AnyAsync(cancellationToken),
+            cancellationToken);
     }
 
-    public virtual async Task<TEntity?> GetAsync(Expression<Func<TEntity, bool>> predicate)
+    public virtual Task<TEntity?> GetAsync(
+        Expression<Func<TEntity, bool>> predicate,
+        CancellationToken cancellationToken = default)
     {
-        return await FirstOrDefaultAsync(predicate);
+        return FirstOrDefaultAsync(predicate, cancellationToken);
     }
 
-    public virtual async Task<List<TEntity>> GetListAsync()
+    public virtual Task<List<TEntity>> GetListAsync(CancellationToken cancellationToken = default)
     {
-        return await FindAllAsync();
+        return FindAllAsync(cancellationToken);
     }
 
     public virtual IQueryable<TEntity> Query()
@@ -108,15 +140,21 @@ public class ResilientMongoQueryRepository<TEntity> : IQueryRepository<TEntity> 
     }
 
     public virtual async Task<(int total, IEnumerable<TEntity> result)> GetPageListAsync(
-        Expression<Func<TEntity, bool>> predicate, int pageIndex, int pageSize,
-        Expression<Func<TEntity, object>>? orderBy = null, bool isAsc = true)
+        Expression<Func<TEntity, bool>> predicate,
+        int pageIndex,
+        int pageSize,
+        Expression<Func<TEntity, object>>? orderBy = null,
+        bool isAsc = true,
+        CancellationToken cancellationToken = default)
     {
+        ValidatePagination(pageIndex, pageSize);
+        var skip = checked((pageIndex - 1) * pageSize);
         var (items, totalCount) =
-            await FindPagedAsync(predicate, (pageIndex - 1) * pageSize, pageSize, orderBy, !isAsc);
-        return ((int)totalCount, items);
+            await FindPagedAsync(predicate, skip, pageSize, orderBy, !isAsc, cancellationToken);
+        return (checked((int)totalCount), items);
     }
 
-    public async Task<TEntity?> FindByIdAsync(string id, CancellationToken cancellationToken = default)
+    public Task<TEntity?> FindByIdAsync(string id, CancellationToken cancellationToken = default)
     {
         if (string.IsNullOrWhiteSpace(id))
             throw new ArgumentException("Id cannot be null or whitespace.", nameof(id));
@@ -124,34 +162,30 @@ public class ResilientMongoQueryRepository<TEntity> : IQueryRepository<TEntity> 
         if (!global::MongoDB.Bson.ObjectId.TryParse(id, out var objectId))
             throw new ArgumentException("Id is not a valid ObjectId.", nameof(id));
 
-        using var _ = PerformanceMonitor.StartOperation("FindById", CollectionName);
-        return await ResilienceService.ExecuteWithRetryAsync(
-            async () =>
-            {
-                var filter = Builders<TEntity>.Filter.Eq(x => x.Id, objectId);
-                return await Collection.Find(filter).FirstOrDefaultAsync(cancellationToken);
-            },
-            $"FindById_{CollectionName}",
-            cancellationToken);
+        return ExecuteFindAsync(
+            "FindById",
+            entity => entity.Id == objectId,
+            query => query.Limit(1).FirstOrDefaultAsync(cancellationToken),
+            cancellationToken)!;
     }
 
-    public async Task<List<TEntity>> FindAllAsync(CancellationToken cancellationToken = default)
+    public Task<List<TEntity>> FindAllAsync(CancellationToken cancellationToken = default)
     {
-        using var _ = PerformanceMonitor.StartOperation("FindAll", CollectionName);
-        return await ResilienceService.ExecuteWithRetryAsync(
-            async () => await Collection.Find(_ => true).ToListAsync(cancellationToken),
-            $"FindAll_{CollectionName}",
+        return ExecuteFindAsync(
+            "FindAll",
+            _ => true,
+            query => query.ToListAsync(cancellationToken),
             cancellationToken);
     }
 
-    public async Task<List<TEntity>> FindAsync(
+    public Task<List<TEntity>> FindAsync(
         Expression<Func<TEntity, bool>> filter,
         CancellationToken cancellationToken = default)
     {
-        using var _ = PerformanceMonitor.StartOperation("Find", CollectionName);
-        return await ResilienceService.ExecuteWithRetryAsync(
-            async () => await Collection.Find(filter).ToListAsync(cancellationToken),
-            $"Find_{CollectionName}",
+        return ExecuteFindAsync(
+            "Find",
+            filter,
+            query => query.ToListAsync(cancellationToken),
             cancellationToken);
     }
 
@@ -163,29 +197,47 @@ public class ResilientMongoQueryRepository<TEntity> : IQueryRepository<TEntity> 
         bool sortDescending = false,
         CancellationToken cancellationToken = default)
     {
+        if (skip < 0) throw new ArgumentOutOfRangeException(nameof(skip));
+        if (limit <= 0) throw new ArgumentOutOfRangeException(nameof(limit));
+
         using var _ = PerformanceMonitor.StartOperation("FindPaged", CollectionName);
         return await ResilienceService.ExecuteWithRetryAsync(
             async () =>
             {
-                var filterDefinition = filter != null
-                    ? Builders<TEntity>.Filter.Where(filter)
-                    : Builders<TEntity>.Filter.Empty;
-
+                var filterDefinition = filter is null
+                    ? Builders<TEntity>.Filter.Empty
+                    : Builders<TEntity>.Filter.Where(filter);
                 var query = Collection.Find(filterDefinition);
 
-                if (sortBy != null)
-                    query = sortDescending
-                        ? query.SortByDescending(sortBy)
-                        : query.SortBy(sortBy);
+                if (sortBy is not null)
+                    query = sortDescending ? query.SortByDescending(sortBy) : query.SortBy(sortBy);
 
                 var totalCountTask =
                     Collection.CountDocumentsAsync(filterDefinition, cancellationToken: cancellationToken);
                 var itemsTask = query.Skip(skip).Limit(limit).ToListAsync(cancellationToken);
-
                 await Task.WhenAll(totalCountTask, itemsTask);
                 return (await itemsTask, await totalCountTask);
             },
             $"FindPaged_{CollectionName}",
             cancellationToken);
+    }
+
+    private async Task<TResult> ExecuteFindAsync<TResult>(
+        string operationName,
+        Expression<Func<TEntity, bool>> predicate,
+        Func<IFindFluent<TEntity, TEntity>, Task<TResult>> operation,
+        CancellationToken cancellationToken)
+    {
+        using var _ = PerformanceMonitor.StartOperation(operationName, CollectionName);
+        return await ResilienceService.ExecuteWithRetryAsync(
+            () => operation(Collection.Find(predicate)),
+            $"{operationName}_{CollectionName}",
+            cancellationToken);
+    }
+
+    private static void ValidatePagination(int pageIndex, int pageSize)
+    {
+        if (pageIndex <= 0) throw new ArgumentOutOfRangeException(nameof(pageIndex));
+        if (pageSize <= 0) throw new ArgumentOutOfRangeException(nameof(pageSize));
     }
 }

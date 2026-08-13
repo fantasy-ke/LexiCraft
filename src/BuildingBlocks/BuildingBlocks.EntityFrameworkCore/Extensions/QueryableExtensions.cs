@@ -81,16 +81,23 @@ public static class QueryableExtensions
 
     public static async Task<(int total, IEnumerable<T> result)> GetPageListAsync<T>(
         this IQueryable<T> queryable,
-        Expression<Func<T, bool>> predicate, int pageIndex,
-        int pageSize, Expression<Func<T, object>>? orderBy = null, bool isAsc = true)
+        Expression<Func<T, bool>> predicate,
+        int pageIndex,
+        int pageSize,
+        Expression<Func<T, object>>? orderBy = null,
+        bool isAsc = true,
+        CancellationToken cancellationToken = default)
     {
-        var query = queryable.Where(predicate);
+        if (pageIndex < 1) throw new ArgumentOutOfRangeException(nameof(pageIndex));
+        if (pageSize < 1) throw new ArgumentOutOfRangeException(nameof(pageSize));
 
-        var total = await query.CountAsync();
+        var query = queryable.Where(predicate);
+        var total = await query.CountAsync(cancellationToken);
 
         if (orderBy != null) query = isAsc ? query.OrderBy(orderBy) : query.OrderByDescending(orderBy);
 
-        var list = await query.Skip((pageIndex - 1) * pageSize).Take(pageSize).ToArrayAsync();
+        var skip = checked((pageIndex - 1) * pageSize);
+        var list = await query.Skip(skip).Take(pageSize).ToArrayAsync(cancellationToken);
 
         return (total, list);
     }

@@ -65,7 +65,7 @@ public class CompletePracticeHandler : IRequestHandler<CompletePracticeCommand, 
     public async Task<bool> Handle(CompletePracticeCommand request, CancellationToken cancellationToken)
     {
         // 根据任务ID从仓库中查找对应的练习任务
-        var task = await _repository.FirstOrDefaultByIdAsync(request.TaskId);
+        var task = await _repository.FirstOrDefaultByIdAsync(request.TaskId, cancellationToken);
 
         // 如果任务不存在，抛出异常
         if (task == null)
@@ -79,7 +79,7 @@ public class CompletePracticeHandler : IRequestHandler<CompletePracticeCommand, 
         task.Complete();
 
         // 将更新后的任务保存回数据库
-        await _repository.UpdateAsync(task);
+        await _repository.UpdateAsync(task, cancellationToken);
 
         // 计算正确答案数量
         var correctCount = task.Answers.Count(x => x.Status == AnswerStatus.Correct);

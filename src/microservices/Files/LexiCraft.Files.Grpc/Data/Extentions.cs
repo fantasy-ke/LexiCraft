@@ -1,5 +1,4 @@
 ﻿using BuildingBlocks.EntityFrameworkCore.Extensions;
-using BuildingBlocks.EntityFrameworkCore.Interceptors;
 using Microsoft.EntityFrameworkCore;
 
 namespace LexiCraft.Files.Grpc.Data;
@@ -25,7 +24,6 @@ public static class Extentions
 #if DEBUG
             options.EnableSensitiveDataLogging();
             options.EnableDetailedErrors();
-            options.AddInterceptors(new AuditableEntityInterceptor(services.BuildServiceProvider()));
 #endif
         });
         // services.Configure<ContextOption>(configuration.GetSection("DbContextOptions"));
@@ -38,12 +36,12 @@ public static class Extentions
     /// </summary>
     /// <param name="app"></param>
     /// <returns></returns>
-    public static IApplicationBuilder UseMigration(this IApplicationBuilder app)
+    public static async Task UseMigrationAsync(
+        this WebApplication app,
+        CancellationToken cancellationToken = default)
     {
-        using var scope = app.ApplicationServices.CreateScope();
-        using var dbContext = scope.ServiceProvider.GetRequiredService<FilesDbContext>();
-        dbContext.Database.MigrateAsync();
-
-        return app;
+        await using var scope = app.Services.CreateAsyncScope();
+        var dbContext = scope.ServiceProvider.GetRequiredService<FilesDbContext>();
+        await dbContext.Database.MigrateAsync(cancellationToken);
     }
 }

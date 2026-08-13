@@ -1,115 +1,127 @@
 using System.Collections.Concurrent;
 using System.Diagnostics;
+using BuildingBlocks.MongoDB.Configuration;
 using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Options;
 
 namespace BuildingBlocks.MongoDB.Performance;
 
-/// <summary>
-///     MongoDB 性能监控实现
-/// </summary>
 public class MongoPerformanceMonitor : IMongoPerformanceMonitor
 {
-    private readonly object _lockObject = new();
+    private const int MaxMetricCount = 10_000;
+    private static readonly TimeSpan SlowOperationThreshold = TimeSpan.FromMilliseconds(200);
+    private static readonly TimeSpan VerySlowOperationThreshold = TimeSpan.FromSeconds(1);
+
+    private readonly bool _enabled;
     private readonly ILogger<MongoPerformanceMonitor> _logger;
     private readonly ConcurrentQueue<OperationMetric> _metrics = new();
+    private readonly object _metricTrimLock = new();
+    private int _metricCount;
 
-    public MongoPerformanceMonitor(ILogger<MongoPerformanceMonitor> logger)
+    public MongoPerformanceMonitor(
+        ILogger<MongoPerformanceMonitor> logger,
+        IOptions<MongoOptions> options)
     {
         _logger = logger;
+        _enabled = options.Value.EnablePerformanceMonitoring;
     }
 
     public IDisposable StartOperation(string operationName, string collectionName)
     {
-        return new OperationTimer(operationName, collectionName, this, _logger);
+        return _enabled
+            ? new OperationTimer(operationName, collectionName, this)
+            : EmptyDisposable.Instance;
     }
 
     public Task<PerformanceMetrics> GetMetricsAsync(TimeSpan? period = null)
     {
-        var cutoffTime = DateTime.UtcNow - (period ?? TimeSpan.FromMinutes(5));
+        var selectedPeriod = period ?? TimeSpan.FromMinutes(5);
+        if (selectedPeriod <= TimeSpan.Zero)
+            throw new ArgumentOutOfRangeException(nameof(period), "Metrics period must be greater than zero.");
 
-        lock (_lockObject)
+        if (!_enabled) return Task.FromResult(new PerformanceMetrics());
+
+        var cutoffTime = DateTime.UtcNow - selectedPeriod;
+        var validMetrics = _metrics.ToArray().Where(metric => metric.Timestamp >= cutoffTime).ToArray();
+        if (validMetrics.Length == 0) return Task.FromResult(new PerformanceMetrics());
+
+        return Task.FromResult(new PerformanceMetrics
         {
-            // 清理旧指标
-            var validMetrics = new List<OperationMetric>();
-            while (_metrics.TryDequeue(out var metric))
-                if (metric.Timestamp >= cutoffTime)
-                    validMetrics.Add(metric);
-
-            // 重新添加有效指标
-            foreach (var metric in validMetrics) _metrics.Enqueue(metric);
-
-            if (!validMetrics.Any()) return Task.FromResult(new PerformanceMetrics());
-
-            var metrics = new PerformanceMetrics
-            {
-                TotalOperations = validMetrics.Count,
-                AverageResponseTime =
-                    TimeSpan.FromMilliseconds(validMetrics.Average(m => m.Duration.TotalMilliseconds)),
-                MaxResponseTime = validMetrics.Max(m => m.Duration),
-                MinResponseTime = validMetrics.Min(m => m.Duration),
-                OperationsPerSecond = validMetrics.Count / (period?.TotalSeconds ?? 300), // 默认5分钟
-                SlowOperations = validMetrics.Count(m => m.Duration.TotalMilliseconds > 200), // >200ms
-                OperationsByCollection = validMetrics
-                    .GroupBy(m => m.CollectionName)
-                    .ToDictionary(g => g.Key, g => g.Count()),
-                OperationsByType = validMetrics
-                    .GroupBy(m => m.OperationName)
-                    .ToDictionary(g => g.Key, g => g.Count())
-            };
-
-            return Task.FromResult(metrics);
-        }
+            TotalOperations = validMetrics.Length,
+            AverageResponseTime = TimeSpan.FromMilliseconds(
+                validMetrics.Average(metric => metric.Duration.TotalMilliseconds)),
+            MaxResponseTime = validMetrics.Max(metric => metric.Duration),
+            MinResponseTime = validMetrics.Min(metric => metric.Duration),
+            OperationsPerSecond = validMetrics.Length / selectedPeriod.TotalSeconds,
+            SlowOperations = validMetrics.Count(metric => metric.Duration > SlowOperationThreshold),
+            OperationsByCollection = validMetrics
+                .GroupBy(metric => metric.CollectionName)
+                .ToDictionary(group => group.Key, group => group.Count()),
+            OperationsByType = validMetrics
+                .GroupBy(metric => metric.OperationName)
+                .ToDictionary(group => group.Key, group => group.Count())
+        });
     }
 
     internal void RecordOperation(string operationName, string collectionName, TimeSpan duration)
     {
-        var metric = new OperationMetric
+        if (!_enabled) return;
+
+        _metrics.Enqueue(new OperationMetric
         {
             OperationName = operationName,
             CollectionName = collectionName,
             Duration = duration,
             Timestamp = DateTime.UtcNow
-        };
+        });
 
-        _metrics.Enqueue(metric);
+        if (Interlocked.Increment(ref _metricCount) > MaxMetricCount)
+        {
+            lock (_metricTrimLock)
+            {
+                while (Volatile.Read(ref _metricCount) > MaxMetricCount && _metrics.TryDequeue(out _))
+                    Interlocked.Decrement(ref _metricCount);
+            }
+        }
 
-        // 记录慢操作
-        if (duration.TotalMilliseconds > 200)
-            _logger.LogWarning("Slow MongoDB operation detected: {Operation} on {Collection} took {Duration}ms",
-                operationName, collectionName, duration.TotalMilliseconds);
-
-        // 记录非常慢的操作为错误
-        if (duration.TotalMilliseconds > 1000)
-            _logger.LogError("Very slow MongoDB operation: {Operation} on {Collection} took {Duration}ms",
-                operationName, collectionName, duration.TotalMilliseconds);
+        if (duration > VerySlowOperationThreshold)
+            _logger.LogError(
+                "Very slow MongoDB operation: {Operation} on {Collection} took {Duration}ms",
+                operationName,
+                collectionName,
+                duration.TotalMilliseconds);
+        else if (duration > SlowOperationThreshold)
+            _logger.LogWarning(
+                "Slow MongoDB operation detected: {Operation} on {Collection} took {Duration}ms",
+                operationName,
+                collectionName,
+                duration.TotalMilliseconds);
     }
 
-    private class OperationTimer : IDisposable
-    {
-        private readonly string _collectionName;
-        private readonly ILogger _logger;
-        private readonly MongoPerformanceMonitor _monitor;
-        private readonly string _operationName;
-        private readonly Stopwatch _stopwatch;
-        private bool _disposed;
 
-        public OperationTimer(string operationName, string collectionName, MongoPerformanceMonitor monitor,
-            ILogger logger)
-        {
-            _operationName = operationName;
-            _collectionName = collectionName;
-            _monitor = monitor;
-            _logger = logger;
-            _stopwatch = Stopwatch.StartNew();
-        }
+    private sealed class OperationTimer(
+        string operationName,
+        string collectionName,
+        MongoPerformanceMonitor monitor) : IDisposable
+    {
+        private readonly Stopwatch _stopwatch = Stopwatch.StartNew();
+        private int _disposed;
 
         public void Dispose()
         {
-            if (_disposed) return;
+            if (Interlocked.Exchange(ref _disposed, 1) != 0) return;
 
             _stopwatch.Stop();
-            _monitor.RecordOperation(_operationName, _collectionName, _stopwatch.Elapsed);
-            _disposed = true;
+            monitor.RecordOperation(operationName, collectionName, _stopwatch.Elapsed);
+        }
+    }
+
+    private sealed class EmptyDisposable : IDisposable
+    {
+        public static readonly EmptyDisposable Instance = new();
+
+        public void Dispose()
+        {
         }
     }
 }

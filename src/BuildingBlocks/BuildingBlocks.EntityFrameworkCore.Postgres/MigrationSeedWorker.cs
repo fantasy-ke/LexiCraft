@@ -13,9 +13,9 @@ public class MigrationSeedWorker<TContext>(IServiceProvider serviceProvider) : I
 
     public async Task StartAsync(CancellationToken cancellationToken)
     {
-        using var scope = serviceProvider.CreateScope();
+        await using var scope = serviceProvider.CreateAsyncScope();
         var scopeServiceProvider = scope.ServiceProvider;
-        var seeder = scope.ServiceProvider.GetRequiredService<IDataSeeder<TContext>>();
+        var seeder = scopeServiceProvider.GetRequiredService<IDataSeeder<TContext>>();
         var logger = scopeServiceProvider.GetRequiredService<ILogger<TContext>>();
         var context = scopeServiceProvider.GetRequiredService<TContext>();
 
@@ -26,20 +26,22 @@ public class MigrationSeedWorker<TContext>(IServiceProvider serviceProvider) : I
             logger.LogInformation("Migrating database associated with context {DbContextName}", typeof(TContext).Name);
 
             var strategy = context.Database.CreateExecutionStrategy();
-
-            await strategy.ExecuteAsync(() => ExecuteAsync(seeder, context));
+            await strategy.ExecuteAsync(
+                token => ExecuteAsync(seeder, context, token),
+                cancellationToken);
+        }
+        catch (OperationCanceledException) when (cancellationToken.IsCancellationRequested)
+        {
+            throw;
         }
         catch (Exception ex)
         {
             logger.LogError(
                 ex,
                 "An error occurred while migrating the database used on context {DbContextName}",
-                typeof(TContext).Name
-            );
-
+                typeof(TContext).Name);
             activity?.SetStatus(ActivityStatusCode.Error, ex.Message);
-
-            // throw;
+            throw;
         }
     }
 
@@ -48,20 +50,14 @@ public class MigrationSeedWorker<TContext>(IServiceProvider serviceProvider) : I
         return Task.CompletedTask;
     }
 
-    private static async Task ExecuteAsync(IDataSeeder<TContext> seeder, TContext context)
+    private static async Task ExecuteAsync(
+        IDataSeeder<TContext> seeder,
+        TContext context,
+        CancellationToken cancellationToken)
     {
         using var activity = ActivitySource.StartActivity($"Migrating {typeof(TContext).Name}");
 
-        try
-        {
-            await context.Database.MigrateAsync();
-            await seeder.SeedAsync(context);
-        }
-        catch (Exception ex)
-        {
-            activity?.SetStatus(ActivityStatusCode.Error, ex.Message);
-
-            throw;
-        }
+        await context.Database.MigrateAsync(cancellationToken);
+        await seeder.SeedAsync(context, cancellationToken);
     }
 }

@@ -28,7 +28,7 @@ public class AnswerRecordRepository(
     {
         // Note: This assumes we have a way to correlate with user, might need to join with PracticeTask
         // For now, we'll just get by PracticeTaskItemId
-        return await FirstOrDefaultAsync(x => x.PracticeTaskItemId == practiceTaskItemId);
+        return await FirstOrDefaultAsync(x => x.PracticeTaskItemId == practiceTaskItemId, cancellationToken);
     }
 
     public async Task<List<AnswerRecord>> GetAnswersByStatusAsync(AnswerStatus status,

@@ -71,7 +71,7 @@ public class SubmitAnswerHandler(IPracticeTaskRepository repository)
     public async Task<AssessmentResult> Handle(SubmitAnswerCommand request, CancellationToken cancellationToken)
     {
         // 从仓库获取练习任务
-        var task = await repository.FirstOrDefaultByIdAsync(request.TaskId);
+        var task = await repository.FirstOrDefaultByIdAsync(request.TaskId, cancellationToken);
 
         // 验证任务是否存在
         if (task == null) throw new ArgumentException($"找不到ID为 {request.TaskId} 的练习任务。");
@@ -82,7 +82,7 @@ public class SubmitAnswerHandler(IPracticeTaskRepository repository)
 
         // 更新持久化存储
         // 对于MongoDB中的聚合根模式，替换整个文档是最简单的更新方式
-        await repository.UpdateAsync(task);
+        await repository.UpdateAsync(task, cancellationToken);
 
         return result;
     }

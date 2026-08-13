@@ -59,7 +59,7 @@ public class ImportWordsCommandHandler(
         // 我们通过 IUnitOfWork.ExecuteAsync 封装了这一行为。
         return await unitOfWork.ExecuteAsync(async () =>
         {
-            await unitOfWork.BeginTransactionAsync();
+            await unitOfWork.BeginTransactionAsync(cancellationToken);
             try
             {
                 // 1. 获取或创建词库
@@ -71,7 +71,7 @@ public class ImportWordsCommandHandler(
                 // 3. 建立关联关系
                 await LinkWordsToListAsync(wordList.Id, deployedWords, cancellationToken);
 
-                await unitOfWork.CommitTransactionAsync();
+                await unitOfWork.CommitTransactionAsync(cancellationToken);
 
                 return new WordImportResult(
                     wordList.Id,
@@ -86,19 +86,19 @@ public class ImportWordsCommandHandler(
                 await unitOfWork.RollbackTransactionAsync();
                 throw;
             }
-        });
+        }, cancellationToken);
     }
 
     private async Task<WordList> GetOrCreateWordListAsync(ImportWordsRequest request,
         CancellationToken cancellationToken)
     {
-        var wordList = await wordListRepository.FirstOrDefaultAsync(x => x.Name == request.Name);
+        var wordList = await wordListRepository.FirstOrDefaultAsync(x => x.Name == request.Name, cancellationToken);
         if (wordList == null)
         {
             wordList = new WordList(request.Name, request.Category);
             wordList.SetDescription(request.Description);
-            await wordListRepository.InsertAsync(wordList);
-            await unitOfWork.SaveChangesAsync();
+            await wordListRepository.InsertAsync(wordList, cancellationToken);
+            await unitOfWork.SaveChangesAsync(cancellationToken);
         }
 
         return wordList;
@@ -149,7 +149,7 @@ public class ImportWordsCommandHandler(
     private async Task LinkWordsToListAsync(WordListId wordListId, List<WordDuplicateInfo> deployedWords,
         CancellationToken cancellationToken)
     {
-        var wordList = await wordListRepository.FirstOrDefaultAsync(x => x.Id == wordListId)
+        var wordList = await wordListRepository.FirstOrDefaultAsync(x => x.Id == wordListId, cancellationToken)
                        ?? throw new InvalidOperationException("WordList not found");
 
         var currentWordIds = await wordListItemRepository.QueryNoTracking()
@@ -164,7 +164,7 @@ public class ImportWordsCommandHandler(
             if (!existingWordIds.Contains(mapping.Id))
                 wordList.AddWord(mapping.Id, sortOrder++);
 
-        await wordListRepository.UpdateAsync(wordList);
-        await wordListRepository.SaveChangesAsync();
+        await wordListRepository.UpdateAsync(wordList, cancellationToken);
+        await wordListRepository.SaveChangesAsync(cancellationToken);
     }
 }

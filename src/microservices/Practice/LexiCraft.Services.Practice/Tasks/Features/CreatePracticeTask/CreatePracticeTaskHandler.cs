@@ -141,7 +141,7 @@ public class CreatePracticeTaskHandler(IPracticeTaskRepository repository)
         );
 
         // 插入到数据库
-        await repository.InsertAsync(task);
+        await repository.InsertAsync(task, cancellationToken);
 
         // 返回包含新任务 ID 的结果
         return new CreatePracticeTaskResult(task.Id.ToString());

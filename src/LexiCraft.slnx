@@ -7,6 +7,7 @@
         <Project Path="BuildingBlocks/BuildingBlocks.MassTransit/BuildingBlocks.MassTransit.csproj" />
         <Project Path="BuildingBlocks/BuildingBlocks.MongoDB/BuildingBlocks.MongoDB.csproj" />
         <Project Path="BuildingBlocks/BuildingBlocks.OpenApi/BuildingBlocks.OpenApi.csproj" />
+        <Project Path="BuildingBlocks/BuildingBlocks.Persistence.Tests/BuildingBlocks.Persistence.Tests.csproj" />
         <Project Path="BuildingBlocks/BuildingBlocks.SerilogLogging/BuildingBlocks.SerilogLogging.csproj" />
         <Project Path="BuildingBlocks/BuildingBlocks.Validation/BuildingBlocks.Validation.csproj" />
         <Project Path="BuildingBlocks/BuildingBlocks.Caching/BuildingBlocks.Caching.csproj" />

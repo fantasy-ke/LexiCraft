@@ -18,19 +18,23 @@ public static class MongoIdExtensions
         return id!;
     }
 
-    public static Task<TEntity?> FirstOrDefaultByIdAsync<TEntity>(this IQueryRepository<TEntity> repository, string id)
+    public static Task<TEntity?> FirstOrDefaultByIdAsync<TEntity>(
+        this IQueryRepository<TEntity> repository,
+        string id,
+        CancellationToken cancellationToken = default)
         where TEntity : MongoEntity
     {
         var validId = id.EnsureValidMongoId(nameof(id));
         var objectId = ObjectId.Parse(validId);
-        return repository.FirstOrDefaultAsync(entity => entity.Id == objectId);
+        return repository.FirstOrDefaultAsync(entity => entity.Id == objectId, cancellationToken);
     }
 
-    public static Task<TEntity?> GetByIdAsync<TEntity>(this IQueryRepository<TEntity> repository, string id)
+    public static Task<TEntity?> GetByIdAsync<TEntity>(
+        this IQueryRepository<TEntity> repository,
+        string id,
+        CancellationToken cancellationToken = default)
         where TEntity : MongoEntity
     {
-        return repository.FirstOrDefaultByIdAsync(id);
+        return repository.FirstOrDefaultByIdAsync(id, cancellationToken);
     }
 }
-
-

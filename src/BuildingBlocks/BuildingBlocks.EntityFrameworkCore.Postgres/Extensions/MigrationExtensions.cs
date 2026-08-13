@@ -6,24 +6,30 @@ namespace BuildingBlocks.EntityFrameworkCore.Postgres;
 
 public static class MigrationExtensions
 {
-    public static readonly string ActivitySourceName = "DbMigrations";
+    public const string ActivitySourceName = "DbMigrations";
 
     extension(IHostApplicationBuilder builder)
     {
         public IHostApplicationBuilder AddMigration<TContext>()
             where TContext : DbContext
         {
-            return builder.AddMigration<TContext>((_, _) => Task.CompletedTask);
+            return builder.AddMigration<TContext>((_, _, _) => Task.CompletedTask);
         }
 
-        public IHostApplicationBuilder AddMigration<TContext>(Func<TContext, IServiceProvider, Task> seeder
-        )
+        public IHostApplicationBuilder AddMigration<TContext>(
+            Func<TContext, IServiceProvider, Task> seeder)
             where TContext : DbContext
         {
-            builder.Services.AddScoped<IDataSeeder<TContext>>(sp => new DefaultDataSeeder<TContext>(sp, seeder));
+            return builder.AddMigration<TContext>((context, serviceProvider, _) => seeder(context, serviceProvider));
+        }
 
+        public IHostApplicationBuilder AddMigration<TContext>(
+            Func<TContext, IServiceProvider, CancellationToken, Task> seeder)
+            where TContext : DbContext
+        {
+            builder.Services.AddScoped<IDataSeeder<TContext>>(serviceProvider =>
+                new DefaultDataSeeder<TContext>(serviceProvider, seeder));
             builder.Services.AddHostedService<MigrationSeedWorker<TContext>>();
-
             return builder;
         }
 
@@ -33,18 +39,18 @@ public static class MigrationExtensions
         {
             builder.Services.AddScoped<IDataSeeder<TContext>, TDbSeeder>();
             builder.Services.AddHostedService<MigrationSeedWorker<TContext>>();
-
             return builder;
         }
     }
 }
 
-internal class DefaultDataSeeder<TContext>(IServiceProvider sp, Func<TContext, IServiceProvider, Task> seeder)
-    : IDataSeeder<TContext>
+internal class DefaultDataSeeder<TContext>(
+    IServiceProvider serviceProvider,
+    Func<TContext, IServiceProvider, CancellationToken, Task> seeder) : IDataSeeder<TContext>
     where TContext : DbContext
 {
-    public async Task SeedAsync(TContext context)
+    public Task SeedAsync(TContext context, CancellationToken cancellationToken = default)
     {
-        await seeder(context, sp);
+        return seeder(context, serviceProvider, cancellationToken);
     }
 }

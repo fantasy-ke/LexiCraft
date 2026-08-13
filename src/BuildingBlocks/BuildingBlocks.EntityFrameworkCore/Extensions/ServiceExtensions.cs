@@ -1,6 +1,7 @@
 ﻿using System.Reflection;
 using BuildingBlocks.Domain;
 using BuildingBlocks.Domain.Internal;
+using BuildingBlocks.EntityFrameworkCore.Interceptors;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
@@ -10,80 +11,54 @@ namespace BuildingBlocks.EntityFrameworkCore.Extensions;
 
 public static class ServiceExtensions
 {
-    /// <summary>
-    ///     添加数据库访问
-    /// </summary>
-    /// <param name="services"></param>
-    /// <param name="optionsAction"></param>
-    /// <typeparam name="TDbContext"></typeparam>
-    /// <returns></returns>
-    public static IServiceCollection WithDbAccess<TDbContext>(this IServiceCollection services,
-        Action<DbContextOptionsBuilder> optionsAction, Action<IHostApplicationBuilder>? action = null)
+    public static IServiceCollection WithDbAccess<TDbContext>(
+        this IServiceCollection services,
+        Action<DbContextOptionsBuilder> optionsAction,
+        Action<IHostApplicationBuilder>? action = null)
         where TDbContext : DbContext
     {
-        // Npgsql 6.0.0 之后的版本需要设置以下两个开关，否则会导致时间戳字段的值不正确
-        AppContext.SetSwitch("Npgsql.EnableLegacyTimestampBehavior", true);
-        AppContext.SetSwitch("Npgsql.DisableDateTimeInfinityConversions", true);
-
-        services.AddDbContext<TDbContext>(optionsAction);
-        // services.AddDbContextPool<TDbContext>(optionsAction);
-        services.AddScoped<IUnitOfWork, UnitOfWork<TDbContext>>();
-        // services.AddScoped(typeof(IRepository<,>), typeof(Repository<,>));
-        return services;
-    }
-
-    public static IServiceCollection WithRepository<TDbContext>(
-        this IServiceCollection services)
-        where TDbContext : DbContext
-    {
-        // 获取当前类所在的程序集
-        // var currentAssembly = Assembly.GetExecutingAssembly();
-        var currentAssembly = typeof(TDbContext).Assembly;
-        // 获取当前程序集引用的所有程序集名称
-        var referencedAssemblyNames = currentAssembly.GetReferencedAssemblies().ToList();
-
-        // 存储当前程序集和引用的程序集
-        var assemblies = new List<Assembly> { currentAssembly };
-
-        referencedAssemblyNames.ForEach(assemblyName =>
+        services.TryAddScoped<AuditableEntityInterceptor>();
+        services.AddDbContext<TDbContext>((serviceProvider, options) =>
         {
-            // 加载引用的程序集
-            var referencedAssembly = Assembly.Load(assemblyName);
-            assemblies.Add(referencedAssembly);
+            optionsAction(options);
+            options.AddInterceptors(serviceProvider.GetRequiredService<AuditableEntityInterceptor>());
         });
-        services.TryAddRepository<TDbContext>(assemblies.Distinct());
+        services.AddScoped<IUnitOfWork, UnitOfWork<TDbContext>>();
+
+        // Retained for source compatibility with the previous public signature.
+        _ = action;
         return services;
     }
 
-    /// <summary>
-    ///     添加仓储
-    /// </summary>
-    /// <param name="services"></param>
-    /// <param name="assemblies"></param>
-    /// <typeparam name="TDbContext"></typeparam>
-    /// <returns></returns>
+    public static IServiceCollection WithRepository<TDbContext>(this IServiceCollection services)
+        where TDbContext : DbContext
+    {
+        return services.TryAddRepository<TDbContext>([typeof(TDbContext).Assembly]);
+    }
+
     public static IServiceCollection TryAddRepository<TDbContext>(
         this IServiceCollection services,
         IEnumerable<Assembly> assemblies)
         where TDbContext : DbContext
     {
-        var allTypes = assemblies.SelectMany(assembly => assembly.GetExportedTypes()).ToList();
-        var entityTypes = allTypes.Where(type => type.IsEntity());
+        var entityTypes = assemblies
+            .Distinct()
+            .SelectMany(assembly => assembly.GetExportedTypes())
+            .Where(type => type.IsEntity());
+
         foreach (var entityType in entityTypes)
         {
-            // 注册只读仓储 (适用于所有实体)
             var queryRepositoryInterfaceType = typeof(IQueryRepository<>).MakeGenericType(entityType);
             var queryRepositoryImplementationType =
                 typeof(QueryRepository<,>).MakeGenericType(typeof(TDbContext), entityType);
             services.TryAddScoped(queryRepositoryInterfaceType, queryRepositoryImplementationType);
 
-            // 注册聚合根仓储 (仅适用于聚合根)
-            if (typeof(IAggregateRoot).IsAssignableFrom(entityType))
-            {
-                var repositoryInterfaceType = typeof(IRepository<>).MakeGenericType(entityType);
-                services.TryAddAddDefaultRepository(repositoryInterfaceType,
-                    GetRepositoryImplementationType(typeof(TDbContext), entityType));
-            }
+            if (!typeof(IAggregateRoot).IsAssignableFrom(entityType)) continue;
+
+            var repositoryInterfaceType = typeof(IRepository<>).MakeGenericType(entityType);
+            services.TryAddDefaultRepository(
+                repositoryInterfaceType,
+                typeof(Repository<,>).MakeGenericType(typeof(TDbContext), entityType));
         }
 
         return services;
@@ -95,15 +70,12 @@ public static class ServiceExtensions
                typeof(IEntity).IsAssignableFrom(type);
     }
 
-    private static void TryAddAddDefaultRepository(this IServiceCollection services, Type repositoryInterfaceType,
+    private static void TryAddDefaultRepository(
+        this IServiceCollection services,
+        Type repositoryInterfaceType,
         Type repositoryImplementationType)
     {
         if (repositoryInterfaceType.IsAssignableFrom(repositoryImplementationType))
             services.TryAddScoped(repositoryInterfaceType, repositoryImplementationType);
-    }
-
-    private static Type GetRepositoryImplementationType(Type dbContextType, Type entityType)
-    {
-        return typeof(Repository<,>).MakeGenericType(dbContextType, entityType);
     }
 }

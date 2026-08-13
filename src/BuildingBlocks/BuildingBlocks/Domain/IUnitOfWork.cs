@@ -2,31 +2,17 @@
 
 public interface IUnitOfWork : IDisposable, IAsyncDisposable
 {
-    /// <summary>
-    ///     开启事务
-    /// </summary>
-    /// <returns></returns>
-    Task BeginTransactionAsync();
+    Task BeginTransactionAsync(CancellationToken cancellationToken = default);
 
-    /// <summary>
-    ///     提交事务
-    /// </summary>
-    /// <returns></returns>
-    Task CommitTransactionAsync();
+    Task CommitTransactionAsync(CancellationToken cancellationToken = default);
 
-    /// <summary>
-    ///     回滚事务
-    /// </summary>
-    /// <returns></returns>
-    Task RollbackTransactionAsync();
+    Task RollbackTransactionAsync(CancellationToken cancellationToken = default);
 
-    /// <summary>
-    ///     保存更改
-    /// </summary>
-    /// <returns></returns>
-    Task<int> SaveChangesAsync();
+    Task<int> SaveChangesAsync(CancellationToken cancellationToken = default);
 
-    Task ExecuteAsync(Func<Task> action);
+    Task ExecuteAsync(Func<Task> action, CancellationToken cancellationToken = default);
 
-    Task<TResult> ExecuteAsync<TResult>(Func<Task<TResult>> action);
+    Task<TResult> ExecuteAsync<TResult>(
+        Func<Task<TResult>> action,
+        CancellationToken cancellationToken = default);
 }

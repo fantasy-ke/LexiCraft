@@ -20,7 +20,7 @@ public class PracticeTaskRepository(
     public async Task<PracticeTask?> GetActiveTaskForUserAsync(UserId userId,
         CancellationToken cancellationToken = default)
     {
-        return await FirstOrDefaultAsync(x => x.UserId == userId && x.Status == PracticeStatus.InProgress);
+        return await FirstOrDefaultAsync(x => x.UserId == userId && x.Status == PracticeStatus.InProgress, cancellationToken);
     }
 
     public async Task<List<PracticeTask>> GetCompletedTasksAsync(UserId userId, int limit = 10,

@@ -1,4 +1,4 @@
-﻿# LexiCraft 项目长期记忆
+﻿﻿﻿# LexiCraft 项目长期记忆
 
 ## 记录范围
 
@@ -63,6 +63,12 @@
 13. 授权发布前必须在真实 Aspire/部署环境完成登录、并发刷新、旧令牌失效、赋权撤权、多实例缓存一致性和 Redis/Identity 故障的端到端验收。
 14. `authorization:v2:*` 会话键升级会使旧 access/refresh token 失效；部署时必须协调更新并重启全部 Identity 实例，不能让新旧会话格式长期混跑，用户需重新登录。
 
+### 持久化基础组件约定
+
+- EF/PostgreSQL 的 `AuditableEntityInterceptor` 必须由当前 DbContext scope 解析，禁止在注册阶段调用 `BuildServiceProvider()`；软删除仅标记 `IsDeleted` 和删除审计字段为已修改，避免脱离跟踪实体覆盖其他列。
+- PostgreSQL 启动迁移或 seed 失败必须终止启动并向上抛出；所有数据库、仓储、工作单元和 seed 异步调用需要向底层传播 `CancellationToken`。
+- MongoDB BSON convention/serializer 是进程级全局状态，只初始化一次，并保持嵌套文档 camelCase、枚举字符串和历史 Guid 表示兼容；传入的配置节名称必须同时用于注册与绑定。Mongo 异常 mapper 应替换默认主映射器并对非 Mongo 异常保留默认 fallback。事务内读写必须绑定同一 session，且只在提交或回滚成功后释放。
+- MongoDB 写操作重试不能替代业务幂等；具体命令仍需唯一索引、幂等键或事务保护。进程内性能指标必须有界，不能无限保留操作记录。
 ## 构建与契约陷阱
 
 - `BuildingBlocks.EventBus` 项目目录可能残留已删除子项目的 `Tests/obj` 等生成文件；父项目必须排除任意层级的 `bin/obj`，否则 SDK 默认源码通配符会编译嵌套生成的程序集属性并触发 `CS0579`。
