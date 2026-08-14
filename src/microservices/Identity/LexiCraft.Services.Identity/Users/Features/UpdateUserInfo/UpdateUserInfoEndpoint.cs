@@ -1,4 +1,3 @@
-using BuildingBlocks.Authentication.Contract;
 using Humanizer;
 using LexiCraft.Services.Identity.Users.Features.GetUserInfo;
 using MediatR;
@@ -6,6 +5,7 @@ using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Routing;
+using BuildingBlocks.Contexts;
 
 namespace LexiCraft.Services.Identity.Users.Features.UpdateUserInfo;
 

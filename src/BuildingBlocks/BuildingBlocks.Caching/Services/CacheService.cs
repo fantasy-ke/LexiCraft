@@ -1,6 +1,8 @@
 using BuildingBlocks.Caching.Abstractions;
-using BuildingBlocks.Caching.Configuration;
-using BuildingBlocks.Caching.DistributedLock;
+using BuildingBlocks.Caching.Internal;
+using BuildingBlocks.Caching.Options;
+using BuildingBlocks.Caching.Locking;
+using BuildingBlocks.Caching.Redis;
 using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.Logging;
 
@@ -9,9 +11,9 @@ namespace BuildingBlocks.Caching.Services;
 /// <summary>
 ///     缓存服务实现，提供高级缓存操作
 /// </summary>
-public class CacheService : ICacheService
+internal sealed partial class CacheService : ICacheService
 {
-    private readonly IDistributedCacheService _distributedCacheService;
+    private readonly IRedisCacheStore _distributedCacheService;
     private readonly IDistributedLockProvider _lockProvider;
     private readonly ILogger<CacheService> _logger;
     private readonly IMemoryCache _memoryCache;
@@ -24,7 +26,7 @@ public class CacheService : ICacheService
     /// <param name="lockProvider">分布式锁提供者</param>
     /// <param name="logger">日志记录器</param>
     public CacheService(
-        IDistributedCacheService distributedCacheService,
+        IRedisCacheStore distributedCacheService,
         IMemoryCache memoryCache,
         IDistributedLockProvider lockProvider,
         ILogger<CacheService> logger)
@@ -41,48 +43,64 @@ public class CacheService : ICacheService
         CancellationToken cancellationToken = default)
     {
         var options = GetEffectiveOptions(configure);
+        var result = await GetAsyncResultInternal<T>(key, options, cancellationToken);
+        return result.Value;
+    }
 
+    private async Task<CacheReadResult<T>> GetAsyncResultInternal<T>(
+        string key,
+        CacheServiceOptions options,
+        CancellationToken cancellationToken)
+    {
         try
         {
-            // 混合缓存模式：优先从本地缓存读取
-            if (options.UseLocal)
-            {
-                var localKey = GetLocalCacheKey(key);
-                if (_memoryCache.TryGetValue(localKey, out T? localValue))
-                {
-                    _logger.LogDebug("缓存命中 (本地): {Key}", key);
-                    return localValue;
-                }
-            }
-
-            // 从分布式缓存读取
-            if (options.UseDistributed)
-            {
-                var distributedValue = await _distributedCacheService.GetAsync<T>(key, options);
-                if (distributedValue != null)
-                {
-                    _logger.LogDebug("缓存命中 (分布式): {Key}", key);
-
-                    // 如果启用本地缓存，将分布式缓存的值同步到本地缓存
-                    if (options.UseLocal)
-                    {
-                        var localExpiry = GetLocalExpiry(options);
-                        var localKey = GetLocalCacheKey(key);
-                        _memoryCache.Set(localKey, distributedValue, localExpiry);
-                        _logger.LogDebug("同步到本地缓存: {Key}", key);
-                    }
-
-                    return distributedValue;
-                }
-            }
-
-            _logger.LogDebug("缓存未命中: {Key}", key);
-            return default;
+            return await TryGetAsyncInternal<T>(key, options, cancellationToken);
         }
         catch (Exception ex)
         {
-            return await HandleException<T>(ex, options, key, "GetAsync");
+            var fallback = await HandleException<T>(ex, options, key, "GetAsync");
+            return fallback is null
+                ? CacheReadResult<T>.Miss
+                : CacheReadResult<T>.Hit(fallback);
         }
+    }
+
+    private async Task<CacheReadResult<T>> TryGetAsyncInternal<T>(
+        string key,
+        CacheServiceOptions options,
+        CancellationToken cancellationToken)
+    {
+        if (options.UseLocal)
+        {
+            var localKey = GetLocalCacheKey(key, options);
+            if (_memoryCache.TryGetValue(localKey, out T? localValue))
+            {
+                    _logger.LogDebug("缓存命中 (本地): {Key}", key);
+                return CacheReadResult<T>.Hit(localValue);
+            }
+        }
+
+        if (options.UseDistributed)
+        {
+            var distributedResult = await _distributedCacheService.GetAsync<T>(key, options, cancellationToken);
+            if (distributedResult.Found)
+            {
+                    _logger.LogDebug("缓存命中 (分布式): {Key}", key);
+
+                if (options.UseLocal)
+                {
+                    var localExpiry = GetLocalExpiry(options);
+                    var localKey = GetLocalCacheKey(key, options);
+                    _memoryCache.Set(localKey, distributedResult.Value, localExpiry);
+                        _logger.LogDebug("同步到本地缓存: {Key}", key);
+                }
+
+                return distributedResult;
+            }
+        }
+
+            _logger.LogDebug("缓存未命中: {Key}", key);
+        return CacheReadResult<T>.Miss;
     }
 
     /// <inheritdoc />
@@ -105,7 +123,7 @@ public class CacheService : ICacheService
             // 删除分布式缓存
             if (options.UseDistributed)
             {
-                var distributedResult = await _distributedCacheService.RemoveAsync(key, options);
+                var distributedResult = await _distributedCacheService.RemoveAsync(key, options, cancellationToken);
                 success = success && distributedResult;
                 _logger.LogDebug("删除分布式缓存: {Key}, 结果: {Success}", key, distributedResult);
             }
@@ -113,7 +131,7 @@ public class CacheService : ICacheService
             // 删除本地缓存
             if (options.UseLocal)
             {
-                var localKey = GetLocalCacheKey(key);
+                var localKey = GetLocalCacheKey(key, options);
                 _memoryCache.Remove(localKey);
                 _logger.LogDebug("删除本地缓存: {Key}", key);
             }
@@ -138,7 +156,7 @@ public class CacheService : ICacheService
             // 检查本地缓存
             if (options.UseLocal)
             {
-                var localKey = GetLocalCacheKey(key);
+                var localKey = GetLocalCacheKey(key, options);
                 if (_memoryCache.TryGetValue(localKey, out _))
                 {
                     _logger.LogDebug("本地缓存存在: {Key}", key);
@@ -149,7 +167,7 @@ public class CacheService : ICacheService
             // 检查分布式缓存
             if (options.UseDistributed)
             {
-                var exists = await _distributedCacheService.ExistsAsync(key, options);
+                var exists = await _distributedCacheService.ExistsAsync(key, options, cancellationToken);
                 _logger.LogDebug("分布式缓存存在检查: {Key}, 结果: {Exists}", key, exists);
                 return exists;
             }
@@ -174,7 +192,7 @@ public class CacheService : ICacheService
             // 只有分布式缓存支持设置过期时间
             if (options.UseDistributed)
             {
-                var result = await _distributedCacheService.SetExpirationAsync(key, expirationTime, options);
+                var result = await _distributedCacheService.SetExpirationAsync(key, expirationTime, options, cancellationToken);
                 _logger.LogDebug("设置分布式缓存过期时间: {Key}, 过期时间: {Expiration}, 结果: {Success}", key, expirationTime, result);
                 return result;
             }
@@ -198,8 +216,8 @@ public class CacheService : ICacheService
         try
         {
             // 首先尝试获取缓存
-            var cachedValue = await GetAsync<T>(key, configure, cancellationToken);
-            if (cachedValue != null) return cachedValue;
+            var cachedResult = await GetAsyncResultInternal<T>(key, options, cancellationToken);
+            if (cachedResult.Found) return cachedResult.Value;
 
             // 缓存未命中，需要通过工厂方法获取值
             if (options.EnableLock)
@@ -215,68 +233,6 @@ public class CacheService : ICacheService
         }
     }
 
-    /// <inheritdoc />
-    public async Task<TResult?> GetOrSetHashAsync<TResult>(
-        string hashKey,
-        IEnumerable<string> queryFields,
-        Func<Dictionary<string, string>, TResult?> parseFromHash,
-        Func<Task<Dictionary<string, string>>> buildFullCache,
-        Action<CacheServiceOptions>? configure = null,
-        CancellationToken cancellationToken = default)
-    {
-        var options = GetEffectiveOptions(configure);
-
-        try
-        {
-            var queryFieldsList = queryFields.ToList();
-
-            // 首先尝试从缓存获取 Hash 数据
-            if (options.UseDistributed)
-            {
-                var hashData = await _distributedCacheService.HashGetAsync(hashKey, queryFieldsList, options);
-                if (hashData != null && hashData.Count > 0)
-                {
-                    // 检查时间戳验证缓存是否过期
-                    if (IsHashCacheValid(hashData, options))
-                    {
-                        _logger.LogDebug("Hash 缓存命中: {HashKey}", hashKey);
-                        return parseFromHash(hashData);
-                    }
-
-                    _logger.LogDebug("Hash 缓存已过期: {HashKey}", hashKey);
-                }
-            }
-
-            // Hash 缓存未命中或已过期，需要重建
-            if (options.EnableLock)
-                return await GetOrSetHashWithLockAsync(hashKey, queryFieldsList, parseFromHash, buildFullCache, options,
-                    cancellationToken);
-
-            return await GetOrSetHashWithoutLockAsync(hashKey, queryFieldsList, parseFromHash, buildFullCache, options,
-                cancellationToken);
-        }
-        catch (Exception ex)
-        {
-            return await HandleException<TResult>(ex, options, hashKey, "GetOrSetHashAsync");
-        }
-    }
-
-    /// <inheritdoc />
-    public async Task<Dictionary<string, string>?> GetOrSetHashAsync(
-        string hashKey,
-        IEnumerable<string> queryFields,
-        Func<Task<Dictionary<string, string>>> buildFullCache,
-        Action<CacheServiceOptions>? configure = null,
-        CancellationToken cancellationToken = default)
-    {
-        return await GetOrSetHashAsync<Dictionary<string, string>>(
-            hashKey,
-            queryFields,
-            hashData => hashData,
-            buildFullCache,
-            configure,
-            cancellationToken);
-    }
 
     /// <summary>
     ///     内部设置缓存方法，使用已解析的配置选项
@@ -292,7 +248,7 @@ public class CacheService : ICacheService
             // 设置分布式缓存
             if (options.UseDistributed)
             {
-                await _distributedCacheService.SetAsync(key, value, options, expiry);
+                await _distributedCacheService.SetAsync(key, value, options, expiry, cancellationToken);
                 _logger.LogDebug("设置分布式缓存: {Key}, TTL: {Expiry}", key, expiry);
             }
 
@@ -300,7 +256,7 @@ public class CacheService : ICacheService
             if (options.UseLocal)
             {
                 var localExpiry = GetLocalExpiry(options);
-                var localKey = GetLocalCacheKey(key);
+                var localKey = GetLocalCacheKey(key, options);
                 _memoryCache.Set(localKey, value, localExpiry);
                 _logger.LogDebug("设置本地缓存: {Key}, TTL: {LocalExpiry}", key, localExpiry);
             }
@@ -381,9 +337,12 @@ public class CacheService : ICacheService
     /// </summary>
     /// <param name="key">原始键</param>
     /// <returns>本地缓存键</returns>
-    private static string GetLocalCacheKey(string key)
+    private static string GetLocalCacheKey(string key, CacheServiceOptions options)
     {
-        return $"local:{key}";
+        var instanceName = string.IsNullOrWhiteSpace(options.RedisInstanceName)
+            ? "default"
+            : options.RedisInstanceName;
+        return $"local:{instanceName}:{key}";
     }
 
     /// <summary>
@@ -399,18 +358,6 @@ public class CacheService : ICacheService
         return AdjustExpiry(options, value);
     }
 
-    /// <summary>
-    ///     获取分布式缓存 Hash 过期时间
-    ///     需求 2.1: 统一过期时间 - 为所有缓存项应用默认 TTL
-    ///     需求 2.5: Hash 缓存 TTL 调整 - 基于 Hash 内容调整过期时间
-    /// </summary>
-    /// <param name="options">配置选项</param>
-    /// <param name="hashData">Hash 缓存数据</param>
-    /// <returns>分布式缓存 Hash 过期时间</returns>
-    private TimeSpan GetDistributedCacheHashExpiry(CacheServiceOptions options, Dictionary<string, string> hashData)
-    {
-        return AdjustHashExpiry(options, hashData);
-    }
 
     /// <summary>
     ///     获取本地缓存过期时间
@@ -446,6 +393,13 @@ public class CacheService : ICacheService
             try
             {
                 var adjustedExpiry = options.AdjustExpiryForValue(expiry, value);
+                if (adjustedExpiry <= TimeSpan.Zero)
+                {
+                    _logger.LogWarning("Adjusted cache expiry {AdjustedExpiry} is invalid; using {DefaultExpiry}.",
+                        adjustedExpiry, expiry);
+                    return expiry;
+                }
+
                 _logger.LogDebug("动态调整缓存过期时间: 原始={OriginalExpiry}, 调整后={AdjustedExpiry}, 键类型={ValueType}",
                     options.Expiry, adjustedExpiry, value?.GetType().Name ?? "null");
                 return adjustedExpiry;
@@ -470,6 +424,9 @@ public class CacheService : ICacheService
     /// <returns>默认值或异常处理结果</returns>
     private async Task<T?> HandleException<T>(Exception ex, CacheServiceOptions options, string key, string operation)
     {
+        if (ex is OperationCanceledException)
+            System.Runtime.ExceptionServices.ExceptionDispatchInfo.Capture(ex).Throw();
+
         _logger.LogError(ex, "缓存操作异常: {Operation}, 键: {Key}, 异常类型: {ExceptionType}", operation, key, ex.GetType().Name);
 
         // 调用异常回调（需求 4.3: 异常回调机制）
@@ -574,7 +531,7 @@ public class CacheService : ICacheService
     private async Task<T?> GetOrSetWithLockAsync<T>(string key, Func<Task<T>> factory, CacheServiceOptions options,
         CancellationToken cancellationToken)
     {
-        var lockKey = $"lock:{key}";
+        var lockKey = key;
         IDistributedLock? distributedLock = null;
 
         try
@@ -592,11 +549,11 @@ public class CacheService : ICacheService
                 _logger.LogDebug("获取分布式锁成功: {LockKey}", lockKey);
 
                 // 再次检查缓存（双重检查锁定模式）
-                var cachedValue = await GetAsync<T>(key, null, cancellationToken);
-                if (cachedValue != null)
+                var cachedResult = await GetAsyncResultInternal<T>(key, options, cancellationToken);
+                if (cachedResult.Found)
                 {
                     _logger.LogDebug("双重检查缓存命中: {Key}", key);
-                    return cachedValue;
+                    return cachedResult.Value;
                 }
 
                 // 调用工厂方法获取值
@@ -646,181 +603,6 @@ public class CacheService : ICacheService
         return value;
     }
 
-    /// <summary>
-    ///     使用分布式锁的 Hash GetOrSet 操作
-    /// </summary>
-    private async Task<TResult?> GetOrSetHashWithLockAsync<TResult>(
-        string hashKey,
-        List<string> queryFields,
-        Func<Dictionary<string, string>, TResult?> parseFromHash,
-        Func<Task<Dictionary<string, string>>> buildFullCache,
-        CacheServiceOptions options,
-        CancellationToken cancellationToken)
-    {
-        var lockKey = $"lock:{hashKey}";
-        IDistributedLock? distributedLock = null;
-
-        try
-        {
-            // 尝试获取分布式锁
-            distributedLock = await _lockProvider.TryAcquireLockAsync(
-                lockKey,
-                options.LockTimeout,
-                options.LockAcquireTimeout,
-                options.RedisInstanceName,
-                cancellationToken);
-
-            if (distributedLock != null)
-            {
-                _logger.LogDebug("获取 Hash 分布式锁成功: {LockKey}", lockKey);
-
-                // 再次检查缓存（双重检查锁定模式）
-                if (options.UseDistributed)
-                {
-                    var hashData = await _distributedCacheService.HashGetAsync(hashKey, queryFields, options);
-                    if (hashData != null && hashData.Count > 0 && IsHashCacheValid(hashData, options))
-                    {
-                        _logger.LogDebug("Hash 双重检查缓存命中: {HashKey}", hashKey);
-                        return parseFromHash(hashData);
-                    }
-                }
-
-                // 调用工厂方法构建完整缓存
-                var fullCacheData = await buildFullCache();
-                if (fullCacheData != null && fullCacheData.Count > 0)
-                {
-                    // 添加时间戳
-                    var cacheDataWithTimestamp = new Dictionary<string, string>(fullCacheData)
-                    {
-                        ["cache_timestamp"] = DateTimeOffset.UtcNow.ToString("O")
-                    };
-
-                    // 调整 Hash 缓存 TTL
-                    var expiry = GetDistributedCacheHashExpiry(options, cacheDataWithTimestamp);
-
-                    // 设置 Hash 缓存
-                    if (options.UseDistributed)
-                    {
-                        await _distributedCacheService.HashSetAsync(hashKey, cacheDataWithTimestamp, options, expiry);
-                        _logger.LogDebug("通过工厂方法构建并设置 Hash 缓存: {HashKey}, TTL: {Expiry}", hashKey, expiry);
-                    }
-
-                    // 解析并返回结果
-                    return parseFromHash(cacheDataWithTimestamp);
-                }
-
-                return default;
-            }
-            else
-            {
-                _logger.LogWarning("获取 Hash 分布式锁失败: {LockKey}", lockKey);
-
-                // 锁获取失败，执行降级策略
-                return await HandleHashLockFailure<TResult>(hashKey, queryFields, parseFromHash, buildFullCache,
-                    options, cancellationToken);
-            }
-        }
-        finally
-        {
-            if (distributedLock != null)
-            {
-                await distributedLock.DisposeAsync();
-                _logger.LogDebug("释放 Hash 分布式锁: {LockKey}", lockKey);
-            }
-        }
-    }
-
-    /// <summary>
-    ///     不使用分布式锁的 Hash GetOrSet 操作
-    /// </summary>
-    private async Task<TResult?> GetOrSetHashWithoutLockAsync<TResult>(
-        string hashKey,
-        List<string> queryFields,
-        Func<Dictionary<string, string>, TResult?> parseFromHash,
-        Func<Task<Dictionary<string, string>>> buildFullCache,
-        CacheServiceOptions options,
-        CancellationToken cancellationToken)
-    {
-        // 直接调用工厂方法构建完整缓存
-        var fullCacheData = await buildFullCache();
-        if (fullCacheData != null && fullCacheData.Count > 0)
-        {
-            // 添加时间戳
-            var cacheDataWithTimestamp = new Dictionary<string, string>(fullCacheData)
-            {
-                ["cache_timestamp"] = DateTimeOffset.UtcNow.ToString("O")
-            };
-
-            // 调整 Hash 缓存 TTL
-            var expiry = GetDistributedCacheHashExpiry(options, cacheDataWithTimestamp);
-
-            // 设置 Hash 缓存
-            if (options.UseDistributed)
-            {
-                await _distributedCacheService.HashSetAsync(hashKey, cacheDataWithTimestamp, options, expiry);
-                _logger.LogDebug("通过工厂方法构建并设置 Hash 缓存 (无锁): {HashKey}, TTL: {Expiry}", hashKey, expiry);
-            }
-
-            // 解析并返回结果
-            return parseFromHash(cacheDataWithTimestamp);
-        }
-
-        return default;
-    }
-
-    /// <summary>
-    ///     检查 Hash 缓存是否有效（基于时间戳）
-    /// </summary>
-    private bool IsHashCacheValid(Dictionary<string, string> hashData, CacheServiceOptions options)
-    {
-        if (!hashData.TryGetValue("cache_timestamp", out var timestampStr))
-            // 没有时间戳，认为缓存有效
-            return true;
-
-        if (DateTimeOffset.TryParse(timestampStr, out var timestamp))
-        {
-            var age = DateTimeOffset.UtcNow - timestamp;
-            var isValid = age < options.Expiry;
-
-            if (!isValid) _logger.LogDebug("Hash 缓存已过期: 年龄 {Age}, 最大年龄 {MaxAge}", age, options.Expiry);
-
-            return isValid;
-        }
-
-        // 时间戳格式无效，认为缓存有效
-        return true;
-    }
-
-    /// <summary>
-    ///     调整 Hash 缓存过期时间
-    ///     需求 2.1: 统一过期时间 - 为所有缓存项应用默认 TTL
-    ///     需求 2.5: Hash 缓存 TTL 调整 - 基于 Hash 内容调整过期时间
-    /// </summary>
-    /// <param name="options">配置选项</param>
-    /// <param name="hashData">Hash 缓存数据</param>
-    /// <returns>调整后的过期时间</returns>
-    private TimeSpan AdjustHashExpiry(CacheServiceOptions options, Dictionary<string, string> hashData)
-    {
-        // 需求 2.1: 使用全局缓存过期时间作为基础 TTL
-        var expiry = options.Expiry;
-
-        // 需求 2.5: 如果提供了 Hash 缓存 TTL 调整委托，则调用委托函数
-        if (options.AdjustExpiryForHash != null)
-            try
-            {
-                var adjustedExpiry = options.AdjustExpiryForHash(expiry, hashData);
-                _logger.LogDebug("动态调整 Hash 缓存过期时间: 原始={OriginalExpiry}, 调整后={AdjustedExpiry}, Hash字段数={FieldCount}",
-                    options.Expiry, adjustedExpiry, hashData.Count);
-                return adjustedExpiry;
-            }
-            catch (Exception ex)
-            {
-                _logger.LogWarning(ex, "动态调整 Hash 缓存过期时间失败，使用默认过期时间: {DefaultExpiry}, Hash字段数: {FieldCount}",
-                    options.Expiry, hashData.Count);
-            }
-
-        return expiry;
-    }
 
     /// <summary>
     ///     处理锁获取失败的降级策略
@@ -843,12 +625,20 @@ public class CacheService : ICacheService
                     {
                         await SetAsyncInternal(key, value, options, cancellationToken);
                     }
+                    catch (OperationCanceledException)
+                    {
+                        throw;
+                    }
                     catch (Exception ex)
                     {
                         _logger.LogWarning(ex, "锁失败降级时设置缓存失败: {Key}", key);
                     }
 
                 return value;
+            }
+            catch (OperationCanceledException)
+            {
+                throw;
             }
             catch (Exception ex)
             {
@@ -864,60 +654,4 @@ public class CacheService : ICacheService
         return default;
     }
 
-    /// <summary>
-    ///     处理 Hash 锁获取失败的降级策略
-    /// </summary>
-    private async Task<TResult?> HandleHashLockFailure<TResult>(
-        string hashKey,
-        List<string> queryFields,
-        Func<Dictionary<string, string>, TResult?> parseFromHash,
-        Func<Task<Dictionary<string, string>>> buildFullCache,
-        CacheServiceOptions options,
-        CancellationToken cancellationToken)
-    {
-        _logger.LogWarning("Hash 分布式锁获取失败: {HashKey}", hashKey);
-
-        // 需求 4.4: 工厂方法降级策略
-        if (options.FallbackToFactory)
-            try
-            {
-                _logger.LogDebug("Hash 锁获取失败，回退到工厂方法: {HashKey}", hashKey);
-                var fullCacheData = await buildFullCache();
-
-                if (fullCacheData != null && fullCacheData.Count > 0)
-                    // 尝试设置缓存（可能会失败，但不影响返回值）
-                    try
-                    {
-                        var cacheDataWithTimestamp = new Dictionary<string, string>(fullCacheData)
-                        {
-                            ["cache_timestamp"] = DateTimeOffset.UtcNow.ToString("O")
-                        };
-
-                        var expiry = GetDistributedCacheHashExpiry(options, cacheDataWithTimestamp);
-
-                        if (options.UseDistributed)
-                            await _distributedCacheService.HashSetAsync(hashKey, cacheDataWithTimestamp, options,
-                                expiry);
-
-                        return parseFromHash(cacheDataWithTimestamp);
-                    }
-                    catch (Exception ex)
-                    {
-                        _logger.LogWarning(ex, "Hash 锁失败降级时设置缓存失败: {HashKey}", hashKey);
-                        return parseFromHash(fullCacheData);
-                    }
-            }
-            catch (Exception ex)
-            {
-                _logger.LogError(ex, "Hash 工厂方法降级策略执行失败: {HashKey}", hashKey);
-                // 如果工厂方法失败，继续尝试其他降级策略
-            }
-
-        // 尝试其他降级策略
-        var fallbackResult = await ExecuteFallbackStrategy<TResult>(hashKey, "HashLockFailure", options);
-        if (fallbackResult.HasValue) return fallbackResult.Value;
-
-        _logger.LogWarning("Hash 锁获取失败且无可用降级策略: {HashKey}", hashKey);
-        return default;
-    }
 }

@@ -1,10 +1,13 @@
 using System.Net;
 using System.Net.Http.Json;
 using BuildingBlocks.Authentication;
-using BuildingBlocks.Authentication.Contract;
-using BuildingBlocks.Authentication.Permission;
-using BuildingBlocks.Authentication.Shared;
-using BuildingBlocks.Caching.Configuration;
+using BuildingBlocks.Authentication.Abstractions;
+using BuildingBlocks.Authentication.Permissions;
+using BuildingBlocks.Authentication.Options;
+using BuildingBlocks.Authentication.Redis.Caching;
+using BuildingBlocks.Authentication.Redis.Sessions;
+using BuildingBlocks.Authentication.Redis.Synchronization;
+using BuildingBlocks.Caching.Options;
 using BuildingBlocks.Caching.Extensions;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Configuration;
@@ -13,6 +16,9 @@ using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging.Abstractions;
 using Microsoft.Extensions.Options;
 using StackExchange.Redis;
+using BuildingBlocks.Authentication.Tokens;
+using LexiCraft.Shared.Permissions;
+using BuildingBlocks.Authentication.Redis.Keys;
 
 namespace BuildingBlocks.Authorization.Tests;
 
@@ -24,7 +30,7 @@ public sealed class DistributedAuthorizationTests
         var userId = Guid.NewGuid();
         var cache = new TestAuthorizationCache();
         await cache.SetAsync(
-            string.Format(UserInfoConst.RedisAuthorizationSessionKey, userId.ToString("N")),
+            string.Format(AuthorizationRedisKeys.Session, userId.ToString("N")),
             new AccessTokenCacheEntry(
                 AuthorizationTokenHasher.Hash("current-token"),
                 AuthorizationTokenHasher.Hash("refresh-token")),
@@ -53,7 +59,7 @@ public sealed class DistributedAuthorizationTests
         var userId = Guid.NewGuid();
         var cache = new TestAuthorizationCache();
         await cache.SetAsync(
-            string.Format(UserInfoConst.RedisTokenKey, userId.ToString("N")),
+            string.Format(AuthorizationRedisKeys.LegacyAccessToken, userId.ToString("N")),
             new AccessTokenCacheEntry(
                 AuthorizationTokenHasher.Hash("current-token"),
                 AuthorizationTokenHasher.Hash("refresh-token")),
@@ -113,6 +119,27 @@ public sealed class DistributedAuthorizationTests
         Assert.True(result.ServiceAvailable);
     }
 
+    [Fact]
+    public async Task IdentityApiPermissionCheck_RejectsNonBearerHeaderWithoutRemoteCall()
+    {
+        var requestCount = 0;
+        var handler = new StubHttpMessageHandler(_ =>
+        {
+            requestCount++;
+            return Task.FromResult(new HttpResponseMessage(HttpStatusCode.OK));
+        });
+        var context = new DefaultHttpContext();
+        context.Request.Headers.Authorization = "Basic credentials";
+        var check = CreateIdentityApiPermissionCheck(handler, context);
+
+        var result = await check.CheckAsync([VocabularyPermissions.Words.Query]);
+
+        Assert.False(result.Granted);
+        Assert.False(result.SessionValid);
+        Assert.Equal(0, requestCount);
+    }
+
+
     [Theory]
     [InlineData(HttpStatusCode.Unauthorized, false, true)]
     [InlineData(HttpStatusCode.InternalServerError, true, false)]
@@ -144,7 +171,7 @@ public sealed class DistributedAuthorizationTests
 
         Assert.Equal(42, result);
         Assert.Equal("authorization:permission:user-id", lockProvider.LastLockKey);
-        Assert.Equal(AuthorizationExtensions.AuthorizationRedisInstanceName, lockProvider.LastRedisInstanceName);
+        Assert.Equal(AuthorizationRedisExtensions.AuthorizationRedisInstanceName, lockProvider.LastRedisInstanceName);
     }
 
     [Fact]
@@ -192,7 +219,7 @@ public sealed class DistributedAuthorizationTests
         using var serviceProvider = builder.Services.BuildServiceProvider();
         var options = serviceProvider.GetRequiredService<IOptions<RedisConnectionOptions>>().Value;
         var redisConfiguration = options.CreateConfigurationOptions(
-            AuthorizationExtensions.AuthorizationRedisInstanceName);
+            AuthorizationRedisExtensions.AuthorizationRedisInstanceName);
 
         Assert.Equal(1111, options.ConnectTimeout);
         Assert.Equal(2222, options.SyncTimeout);

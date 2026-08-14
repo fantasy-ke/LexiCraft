@@ -1,14 +1,16 @@
 using System.Globalization;
 using System.Text.Json;
 using BuildingBlocks.Authentication;
-using BuildingBlocks.Authentication.Contract;
-using BuildingBlocks.Authentication.Shared;
+using BuildingBlocks.Authentication.Abstractions;
+using BuildingBlocks.Authentication.Options;
 using BuildingBlocks.Extensions.System;
 using LexiCraft.Services.Identity.Identity.Models;
 using LexiCraft.Services.Identity.Shared.Dtos;
 using MediatR;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
+using BuildingBlocks.Authentication.Tokens;
+using BuildingBlocks.Authentication.Redis.Keys;
 
 namespace LexiCraft.Services.Identity.Identity.Internal.Commands;
 
@@ -53,7 +55,7 @@ public class GenerateTokenResponseCommandHandler(
 
         var sessionKey = string.Format(
             CultureInfo.InvariantCulture,
-            UserInfoConst.RedisAuthorizationSessionKey,
+            AuthorizationRedisKeys.Session,
             user.Id.Value.ToString("N"));
 
         await authorizationSynchronization.ExecuteAsync(
@@ -111,7 +113,7 @@ public class GenerateTokenResponseCommandHandler(
 
     private static string GetRefreshTokenKey(string refreshTokenHash)
     {
-        return string.Format(CultureInfo.InvariantCulture, UserInfoConst.RedisAuthorizationRefreshTokenKey, refreshTokenHash);
+        return string.Format(CultureInfo.InvariantCulture, AuthorizationRedisKeys.RefreshToken, refreshTokenHash);
     }
 
     private static TimeSpan GetExpiration(int configuredMinutes, TimeSpan fallback)

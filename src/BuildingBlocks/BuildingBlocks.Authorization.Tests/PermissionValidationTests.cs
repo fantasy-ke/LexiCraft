@@ -1,11 +1,12 @@
 using BuildingBlocks.Authentication;
-using BuildingBlocks.Authentication.Contract;
-using BuildingBlocks.Authentication.Permission;
-using BuildingBlocks.Authentication.Shared;
+using BuildingBlocks.Authentication.Abstractions;
+using BuildingBlocks.Authentication.Permissions;
+using BuildingBlocks.Authentication.Options;
 using LexiCraft.Shared.Permissions;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Options;
+using BuildingBlocks.Authentication.Policies;
 
 namespace BuildingBlocks.Authorization.Tests;
 
@@ -69,6 +70,10 @@ public sealed class PermissionValidationTests
 
         Assert.True((await exactCheck.CheckAsync([PracticePermissions.Tasks.Create])).Granted);
         Assert.True((await adminCheck.CheckAsync([VocabularyPermissions.Words.Import])).Granted);
+
+        var unknownPermission = await adminCheck.CheckAsync(["Pages.Unknown.Action"]);
+        Assert.False(unknownPermission.Granted);
+        Assert.Equal(["Pages.Unknown.Action"], unknownPermission.MissingPermissions);
     }
 
     [Fact]
@@ -126,8 +131,6 @@ public sealed class PermissionValidationTests
 
     private static IPermissionDefinitionManager CreatePermissionDefinitionManager()
     {
-        var services = new ServiceCollection();
-        services.AddSingleton<PermissionDefinitionProvider, LexiCraftPermissionDefinitionProvider>();
-        return new PermissionDefinitionManager(services.BuildServiceProvider());
+        return new PermissionDefinitionManager([new LexiCraftPermissionDefinitionProvider()]);
     }
 }

@@ -1,6 +1,6 @@
-using BuildingBlocks.Caching.Configuration;
-using BuildingBlocks.Caching.DistributedLock;
-using BuildingBlocks.Caching.Factories;
+using BuildingBlocks.Caching.Options;
+using BuildingBlocks.Caching.Locking;
+using BuildingBlocks.Caching.Redis.Connections;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 

@@ -1,9 +1,11 @@
 using System.Security.Claims;
 using BuildingBlocks.Authentication;
-using BuildingBlocks.Authentication.Contract;
+using BuildingBlocks.Authentication.Abstractions;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Logging.Abstractions;
+using BuildingBlocks.Authentication.Permissions;
+using BuildingBlocks.Authentication.Policies;
 
 namespace BuildingBlocks.Authorization.Tests;
 

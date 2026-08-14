@@ -1,7 +1,8 @@
 using BuildingBlocks.Caching.Abstractions;
-using BuildingBlocks.Caching.Configuration;
-using BuildingBlocks.Caching.DistributedLock;
-using BuildingBlocks.Caching.Factories;
+using BuildingBlocks.Caching.Options;
+using BuildingBlocks.Caching.Locking;
+using BuildingBlocks.Caching.Redis.Connections;
+using BuildingBlocks.Caching.Redis;
 using BuildingBlocks.Caching.Services;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -86,7 +87,7 @@ public static class DependencyInjectionExtensions
         services.AddSingleton<IRedisConnectionFactory, RedisConnectionFactory>();
 
         // 注册缓存服务
-        services.AddSingleton<IDistributedCacheService, DistributedCacheService>();
+        services.AddSingleton<IRedisCacheStore, RedisCacheStore>();
         services.AddSingleton<IDistributedLockProvider, RedisDistributedLockProvider>();
         services.AddSingleton<ICacheService, CacheService>();
         // 添加内存缓存支持

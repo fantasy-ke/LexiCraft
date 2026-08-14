@@ -1,6 +1,7 @@
-using BuildingBlocks.Authentication.Contract;
-using BuildingBlocks.Caching.DistributedLock;
+using BuildingBlocks.Authentication.Abstractions;
+using BuildingBlocks.Caching.Locking;
 using Microsoft.Extensions.Options;
+using BuildingBlocks.Contexts;
 
 namespace BuildingBlocks.Authorization.Tests;
 
@@ -162,13 +163,13 @@ internal sealed class TestDistributedLock(string lockKey, TimeSpan timeout) : ID
 
     public DateTime ExpiresAt { get; } = DateTime.UtcNow.Add(timeout);
 
-    public Task<bool> ReleaseAsync()
+    public Task<bool> ReleaseAsync(CancellationToken cancellationToken = default)
     {
         IsValid = false;
         return Task.FromResult(true);
     }
 
-    public Task<bool> ExtendAsync(TimeSpan extendBy) => Task.FromResult(true);
+    public Task<bool> ExtendAsync(TimeSpan extendBy, CancellationToken cancellationToken = default) => Task.FromResult(true);
 
     public async ValueTask DisposeAsync()
     {

@@ -1,4 +1,4 @@
-using BuildingBlocks.Authentication.Permission;
+using BuildingBlocks.Authentication.Permissions;
 
 namespace LexiCraft.Shared.Permissions;
 

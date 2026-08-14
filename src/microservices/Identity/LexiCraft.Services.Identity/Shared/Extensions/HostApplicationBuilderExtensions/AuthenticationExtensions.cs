@@ -10,7 +10,7 @@ using Microsoft.IdentityModel.Tokens;
 using MrHuo.OAuth;
 using MrHuo.OAuth.Gitee;
 using MrHuo.OAuth.Github;
-using OAuthOptions = BuildingBlocks.Authentication.Shared.OAuthOptions;
+using OAuthOptions = BuildingBlocks.Authentication.Options.OAuthOptions;
 
 namespace LexiCraft.Services.Identity.Shared.Extensions.HostApplicationBuilderExtensions;
 

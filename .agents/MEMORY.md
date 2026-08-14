@@ -6,7 +6,7 @@
 
 ## 稳定架构事实
 
-- 当前默认开发解决方案是 `src/LexiCraft.slnx`，仅展示生产项目；测试项目统一放在 `src/LexiCraft.Tests.slnx`，默认运行入口是 `src/LexiCraft.Aspire.Host/AppHost.cs`。
+- 当前默认开发解决方案是 `src/LexiCraft.slnx`，包含生产项目以及 Persistence、Caching、Authorization 三个基础组件回归测试项目；`src/LexiCraft.Tests.slnx` 是补充测试解决方案且项目清单可能不完全同步。默认运行入口是 `src/LexiCraft.Aspire.Host/AppHost.cs`。
 - 根目录 `LexiCraft.sln` 属于较早的解决方案文件，项目清单与 `src/LexiCraft.slnx` 存在潜在漂移；涉及构建时优先使用 `.slnx`，并在发现差异时记录。
 - Aspire Host 目标框架为 `net10.0`，当前使用 `Aspire.AppHost.Sdk/13.4.6`。
 - 系统由 API Gateway、Identity、Vocabulary、Practice、Files gRPC 和 Aspire ServiceDefaults 组成；`src/BuildingBlocks/` 提供跨服务基础能力。
@@ -74,6 +74,17 @@
 - Mongo 只保留 `MongoQueryRepository<TEntity>` / `MongoRepository<TEntity>` 单一仓储层级：非事务读取可通过 `IMongoResilienceService` 重试，事务内操作绑定同一 session 且不局部重试，写入不做应用层盲重试。Mongo 专属 resilience 注册不能覆盖容器中的通用 `IResilienceService`。
 - Practice 以 `PracticeTask` 为 Mongo 聚合写入边界，`AnswerRecord` 和 `PracticeTaskItem` 内嵌保存；Context 与具体仓储必须共享显式 `PracticeTasksCollectionName = "practice_tasks"`，不得注册没有写入路径的独立集合仓储。当前真实调用仅插入、按 `_id` 获取和按 `_id` 替换，内置 `_id` 索引已覆盖；新的查询接口和复合索引必须由实际端点、分页/排序契约及 `explain()` 证据驱动，禁止为假设需求预建。
 - Mongo 索引初始化不得通过捕获 scoped Context 的 fire-and-forget `Task.Run` 执行；需要自动迁移时必须受 Host 生命周期管理且失败可见，线上历史集合/索引删除仍作为有统计证据和回滚方案的独立运维任务。
+
+### 缓存与授权基础组件约定
+
+- `BuildingBlocks.Authorization` 是无 Redis 的授权核心；Identity 专用 Redis 实现统一位于 `BuildingBlocks.Authorization.Redis`。Practice、Vocabulary、Files 等业务服务不得引用 Redis 适配层，也不得传递引入 StackExchange.Redis/MemoryPack。
+- `IUserContext` 位于通用 `BuildingBlocks.Contexts`，供授权和 EF 审计共同使用；持久化项目不得为了当前用户抽象依赖授权实现。
+- 授权核心目录按 `Abstractions`、`Contexts`、`Options`、`Permissions`、`Policies`、`Tokens` 组织；缓存目录按 `Abstractions`、`Options`、`Locking`、`Redis`、`Services`、`Internal` 组织。公共 API 只保留接口、配置、扩展点和注册入口，具体 DI/Redis/序列化实现默认 internal。
+- Identity 使用本地权威权限检查和授权 Redis；业务服务使用 Identity API 远程验证。未知权限必须先拒绝再判断管理员角色；缺失、非 Bearer 或空 Token Header 不应产生远程验证请求；依赖不可用必须关闭式失败。
+- Redis 缓存未命中必须用显式状态表达，不能依赖 `default(T)`；同一次缓存操作只解析一次选项，锁后二次读取复用同一选项，本地缓存键必须包含 Redis 实例名，调用方取消不能被 `HideErrors` 吞掉。
+- 每个命名 Redis 实例共享一个 `ConnectionMultiplexer`，不建立自定义连接池；Hash 数据和 TTL 应原子提交，内部时间戳必须参与部分字段读取时的有效性判断。分布式锁仅适合短缓存重建临界区，不是 Redlock，且当前没有自动续租。
+- 活动解决方案必须包含 Persistence、Caching、Authorization 回归测试，防止 `dotnet test src\LexiCraft.slnx --no-build` 漏掉基础组件行为。
+- 真实 Redis/Aspire 多副本验证、授权链路压测、Redis 异步预热、CancellationToken 工厂重载、服务间身份、JWT 非对称签名和命名空间统一均为独立任务；构建和单元测试不能替代运行时证明。
 ## 构建与契约陷阱
 
 - `BuildingBlocks.EventBus` 项目目录可能残留已删除子项目的 `Tests/obj` 等生成文件；父项目必须排除任意层级的 `bin/obj`，否则 SDK 默认源码通配符会编译嵌套生成的程序集属性并触发 `CS0579`。

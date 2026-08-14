@@ -1,9 +1,10 @@
 using BuildingBlocks.Authentication;
-using BuildingBlocks.Authentication.Contract;
+using BuildingBlocks.Authentication.Abstractions;
 using Humanizer;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Routing;
+using BuildingBlocks.Authentication.Permissions;
 
 namespace LexiCraft.Services.Identity.Permissions.Features.ValidatePermissions;
 

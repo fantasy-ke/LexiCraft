@@ -1,9 +1,9 @@
-using BuildingBlocks.Authentication.Contract;
 using BuildingBlocks.Domain.Internal;
 using IdGen;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.ChangeTracking;
 using Microsoft.EntityFrameworkCore.Diagnostics;
+using BuildingBlocks.Contexts;
 
 namespace BuildingBlocks.EntityFrameworkCore.Interceptors;
 

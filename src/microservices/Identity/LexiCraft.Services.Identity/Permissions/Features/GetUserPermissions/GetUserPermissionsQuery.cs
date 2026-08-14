@@ -1,9 +1,11 @@
 using System.Net;
 using BuildingBlocks.Authentication;
-using BuildingBlocks.Authentication.Contract;
+using BuildingBlocks.Authentication.Abstractions;
 using BuildingBlocks.Mediator;
 using LexiCraft.Shared.Models;
 using LexiCraft.Shared.Permissions;
+using BuildingBlocks.Contexts;
+using BuildingBlocks.Authentication.Permissions;
 
 namespace LexiCraft.Services.Identity.Permissions.Features.GetUserPermissions;
 

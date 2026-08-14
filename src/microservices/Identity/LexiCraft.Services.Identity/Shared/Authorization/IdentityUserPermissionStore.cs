@@ -1,4 +1,4 @@
-using BuildingBlocks.Authentication.Contract;
+using BuildingBlocks.Authentication.Abstractions;
 using LexiCraft.Services.Identity.Shared.Contracts;
 using LexiCraft.Shared.Models;
 

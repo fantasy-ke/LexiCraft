@@ -1,9 +1,9 @@
-using BuildingBlocks.Authentication.Contract;
 using Humanizer;
 using MediatR;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Routing;
+using BuildingBlocks.Contexts;
 
 namespace LexiCraft.Services.Identity.Identity.Features.Logout;
 

@@ -10,7 +10,6 @@
         <PackageReference Include="Humanizer"/>
         <PackageReference Include="Mapster"/>
         <PackageReference Include="MediatR"/>
-        <PackageReference Include="Microsoft.Extensions.Caching.StackExchangeRedis"/>
         <PackageReference Include="Newtonsoft.Json"/>
         <PackageReference Include="Scrutor"/>
         <PackageReference Include="IdGen.DependencyInjection"/>

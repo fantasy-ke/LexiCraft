@@ -7,7 +7,6 @@
     </PropertyGroup>
 
     <ItemGroup>
-        <ProjectReference Include="..\BuildingBlocks.Authorization\BuildingBlocks.Authorization.csproj"/>
         <ProjectReference Include="..\BuildingBlocks\BuildingBlocks.csproj"/>
         <ProjectReference Include="..\BuildingBlocks.Persistence.Abstractions\BuildingBlocks.Persistence.Abstractions.csproj"/>
     </ItemGroup>

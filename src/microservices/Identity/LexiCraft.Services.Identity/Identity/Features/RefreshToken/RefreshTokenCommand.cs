@@ -1,8 +1,8 @@
 using System.Globalization;
 using System.Text.Json;
 using BuildingBlocks.Authentication;
-using BuildingBlocks.Authentication.Contract;
-using BuildingBlocks.Authentication.Shared;
+using BuildingBlocks.Authentication.Abstractions;
+using BuildingBlocks.Authentication.Options;
 using BuildingBlocks.Exceptions;
 using BuildingBlocks.Extensions.System;
 using BuildingBlocks.Mediator;
@@ -13,6 +13,8 @@ using LexiCraft.Services.Identity.Shared.Dtos;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
+using BuildingBlocks.Authentication.Tokens;
+using BuildingBlocks.Authentication.Redis.Keys;
 
 namespace LexiCraft.Services.Identity.Identity.Features.RefreshToken;
 
@@ -62,7 +64,7 @@ public class RefreshTokenCommandHandler(
                             sessionCancellationToken);
                         var sessionKey = string.Format(
                             CultureInfo.InvariantCulture,
-                            UserInfoConst.RedisAuthorizationSessionKey,
+                            AuthorizationRedisKeys.Session,
                             userId.ToString("N"));
                         var currentSession = await authorizationCache.GetAsync<AccessTokenCacheEntry>(
                             sessionKey,
@@ -148,7 +150,7 @@ public class RefreshTokenCommandHandler(
 
     private static string GetRefreshTokenKey(string refreshTokenHash)
     {
-        return string.Format(CultureInfo.InvariantCulture, UserInfoConst.RedisAuthorizationRefreshTokenKey, refreshTokenHash);
+        return string.Format(CultureInfo.InvariantCulture, AuthorizationRedisKeys.RefreshToken, refreshTokenHash);
     }
 
     private static TimeSpan GetExpiration(int configuredMinutes, TimeSpan fallback)

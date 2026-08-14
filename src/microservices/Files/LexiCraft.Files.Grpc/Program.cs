@@ -1,6 +1,6 @@
 using System.Text;
 using BuildingBlocks.Authentication;
-using BuildingBlocks.Authentication.Shared;
+using BuildingBlocks.Authentication.Options;
 using BuildingBlocks.Extensions;
 using BuildingBlocks.Grpc.Contracts.FileGrpc;
 using BuildingBlocks.OSS;

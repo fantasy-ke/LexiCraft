@@ -1,5 +1,5 @@
 using System.Text;
-using BuildingBlocks.Caching.Serialization;
+using BuildingBlocks.Caching.Redis.Serialization;
 
 namespace BuildingBlocks.Caching.Examples;
 

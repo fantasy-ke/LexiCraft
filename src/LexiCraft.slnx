@@ -1,6 +1,8 @@
 <Solution>
     <Folder Name="/BuildingBlocks/">
+        <Project Path="BuildingBlocks/BuildingBlocks.Authorization.Tests/BuildingBlocks.Authorization.Tests.csproj" />
         <Project Path="BuildingBlocks/BuildingBlocks.Authorization/BuildingBlocks.Authorization.csproj" />
+        <Project Path="BuildingBlocks/BuildingBlocks.Authorization.Redis/BuildingBlocks.Authorization.Redis.csproj" />
         <Project Path="BuildingBlocks/BuildingBlocks.EntityFrameworkCore.Postgres/BuildingBlocks.EntityFrameworkCore.Postgres.csproj" />
         <Project Path="BuildingBlocks/BuildingBlocks.EntityFrameworkCore/BuildingBlocks.EntityFrameworkCore.csproj" />
         <Project Path="BuildingBlocks/BuildingBlocks.Grpc.Contracts/BuildingBlocks.Grpc.Contracts.csproj" />
@@ -11,6 +13,7 @@
         <Project Path="BuildingBlocks/BuildingBlocks.Persistence.Tests/BuildingBlocks.Persistence.Tests.csproj" />
         <Project Path="BuildingBlocks/BuildingBlocks.SerilogLogging/BuildingBlocks.SerilogLogging.csproj" />
         <Project Path="BuildingBlocks/BuildingBlocks.Validation/BuildingBlocks.Validation.csproj" />
+        <Project Path="BuildingBlocks/BuildingBlocks.Caching.Tests/BuildingBlocks.Caching.Tests.csproj" />
         <Project Path="BuildingBlocks/BuildingBlocks.Caching/BuildingBlocks.Caching.csproj" />
         <Project Path="BuildingBlocks/BuildingBlocks.EventBus/BuildingBlocks.EventBus.csproj" />
         <Project Path="BuildingBlocks/BuildingBlocks/BuildingBlocks.csproj" />

@@ -1,5 +1,5 @@
 using System.Text;
-using BuildingBlocks.Authentication.Shared;
+using BuildingBlocks.Authentication.Options;
 using BuildingBlocks.Extensions;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.Extensions.DependencyInjection;

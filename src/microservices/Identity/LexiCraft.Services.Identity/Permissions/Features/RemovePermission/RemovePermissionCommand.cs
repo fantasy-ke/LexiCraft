@@ -1,5 +1,5 @@
 using System.Net;
-using BuildingBlocks.Authentication.Contract;
+using BuildingBlocks.Authentication.Abstractions;
 using BuildingBlocks.Exceptions;
 using BuildingBlocks.Mediator;
 using FluentValidation;

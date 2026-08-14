@@ -18,7 +18,6 @@
 
     <ItemGroup>
         <ProjectReference Include="..\BuildingBlocks\BuildingBlocks.csproj"/>
-        <ProjectReference Include="..\BuildingBlocks.Caching\BuildingBlocks.Caching.csproj"/>
     </ItemGroup>
 
 </Project>

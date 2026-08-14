@@ -1,4 +1,4 @@
-using BuildingBlocks.Caching.Configuration;
+using BuildingBlocks.Caching.Options;
 
 namespace BuildingBlocks.Caching.Abstractions;
 

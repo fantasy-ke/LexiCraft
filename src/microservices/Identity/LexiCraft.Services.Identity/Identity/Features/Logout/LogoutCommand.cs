@@ -1,10 +1,11 @@
 using System.Globalization;
 using BuildingBlocks.Authentication;
-using BuildingBlocks.Authentication.Contract;
+using BuildingBlocks.Authentication.Abstractions;
 using BuildingBlocks.Mediator;
 using FluentValidation;
 using LexiCraft.Shared.Models;
 using Microsoft.Extensions.Logging;
+using BuildingBlocks.Authentication.Redis.Keys;
 
 namespace LexiCraft.Services.Identity.Identity.Features.Logout;
 
@@ -33,7 +34,7 @@ public class LogoutCommandHandler(
             {
                 var sessionKey = string.Format(
                     CultureInfo.InvariantCulture,
-                    UserInfoConst.RedisAuthorizationSessionKey,
+                    AuthorizationRedisKeys.Session,
                     command.UserId.Value.ToString("N"));
 
                 var oldSession = await authorizationCache.GetAsync<AccessTokenCacheEntry>(sessionKey, token);
@@ -54,7 +55,7 @@ public class LogoutCommandHandler(
         {
             var refreshTokenKey = string.Format(
                 CultureInfo.InvariantCulture,
-                UserInfoConst.RedisAuthorizationRefreshTokenKey,
+                AuthorizationRedisKeys.RefreshToken,
                 refreshTokenHash);
             await authorizationCache.RemoveAsync(refreshTokenKey, cancellationToken);
         }

@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Authorization.Policy;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Http.Json;
 using Microsoft.Extensions.Logging.Abstractions;
+using BuildingBlocks.Authentication.Policies;
 
 namespace BuildingBlocks.Authorization.Tests;
 
