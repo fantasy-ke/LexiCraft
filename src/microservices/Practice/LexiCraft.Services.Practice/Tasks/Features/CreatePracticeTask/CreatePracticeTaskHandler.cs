@@ -1,5 +1,5 @@
+using BuildingBlocks.Persistence.Abstractions.Repositories;
 using FluentValidation;
-using LexiCraft.Services.Practice.Shared.Contracts;
 using LexiCraft.Services.Practice.Tasks.Models;
 using LexiCraft.Shared.Models;
 using MediatR;
@@ -114,7 +114,7 @@ public class CreatePracticeTaskValidator : AbstractValidator<CreatePracticeTaskC
 ///     创建练习任务命令处理器
 /// </summary>
 /// <param name="repository">练习任务仓库</param>
-public class CreatePracticeTaskHandler(IPracticeTaskRepository repository)
+public class CreatePracticeTaskHandler(IRepository<PracticeTask> repository)
     : IRequestHandler<CreatePracticeTaskCommand, CreatePracticeTaskResult>
 {
     /// <summary>

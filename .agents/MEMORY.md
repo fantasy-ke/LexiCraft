@@ -72,7 +72,8 @@
 - 公共持久化端口统一位于 `BuildingBlocks.Persistence.Abstractions` 的 `Repositories` / `Transactions` 命名空间；`BuildingBlocks` 根类库不引用 EF Core 或 MongoDB 驱动。业务项目若直接声明或注入仓储/工作单元，应直接引用抽象项目。
 - EF、PostgreSQL、Mongo 的类型目录与命名空间按 `Abstractions`、`Repositories`、`Transactions`、`Configuration`、`Migrations`、`Context`、`Entities`、`Resilience` 等职责组织，不再把公共类型堆放在项目根目录。
 - Mongo 只保留 `MongoQueryRepository<TEntity>` / `MongoRepository<TEntity>` 单一仓储层级：非事务读取可通过 `IMongoResilienceService` 重试，事务内操作绑定同一 session 且不局部重试，写入不做应用层盲重试。Mongo 专属 resilience 注册不能覆盖容器中的通用 `IResilienceService`。
-- Practice 以 `PracticeTask` 为 Mongo 聚合写入边界，`AnswerRecord` 和 `PracticeTaskItem` 内嵌保存；Context、仓储和索引必须共享同一个 `PracticeTasksCollectionName`，禁止分别推导单数/复数集合名；不得同时注册没有写入路径的独立集合仓储。索引必须与实际 `UserId + Status/TaskType/SourceType` 查询匹配，线上历史冗余索引通过独立运维步骤核查清理。
+- Practice 以 `PracticeTask` 为 Mongo 聚合写入边界，`AnswerRecord` 和 `PracticeTaskItem` 内嵌保存；Context 与具体仓储必须共享显式 `PracticeTasksCollectionName = "practice_tasks"`，不得注册没有写入路径的独立集合仓储。当前真实调用仅插入、按 `_id` 获取和按 `_id` 替换，内置 `_id` 索引已覆盖；新的查询接口和复合索引必须由实际端点、分页/排序契约及 `explain()` 证据驱动，禁止为假设需求预建。
+- Mongo 索引初始化不得通过捕获 scoped Context 的 fire-and-forget `Task.Run` 执行；需要自动迁移时必须受 Host 生命周期管理且失败可见，线上历史集合/索引删除仍作为有统计证据和回滚方案的独立运维任务。
 ## 构建与契约陷阱
 
 - `BuildingBlocks.EventBus` 项目目录可能残留已删除子项目的 `Tests/obj` 等生成文件；父项目必须排除任意层级的 `bin/obj`，否则 SDK 默认源码通配符会编译嵌套生成的程序集属性并触发 `CS0579`。

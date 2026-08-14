@@ -1,8 +1,8 @@
+using BuildingBlocks.Persistence.Abstractions.Repositories;
 using BuildingBlocks.MassTransit.Services;
 using BuildingBlocks.MongoDB.Extensions;
 using FluentValidation;
 using LexiCraft.Services.Practice.Assessments.Models;
-using LexiCraft.Services.Practice.Shared.Contracts;
 using LexiCraft.Services.Practice.Shared.Events.IntegrationEvents;
 using LexiCraft.Services.Practice.Tasks.Models;
 using MediatR;
@@ -43,14 +43,14 @@ public class CompletePracticeValidator : AbstractValidator<CompletePracticeComma
 public class CompletePracticeHandler : IRequestHandler<CompletePracticeCommand, bool>
 {
     private readonly IEventPublisher _eventPublisher;
-    private readonly IPracticeTaskRepository _repository;
+    private readonly IRepository<PracticeTask> _repository;
 
     /// <summary>
     ///     构造函数，注入依赖项
     /// </summary>
     /// <param name="repository">练习任务仓库，用于数据访问</param>
     /// <param name="eventPublisher">事件发布者，用于发布集成事件</param>
-    public CompletePracticeHandler(IPracticeTaskRepository repository, IEventPublisher eventPublisher)
+    public CompletePracticeHandler(IRepository<PracticeTask> repository, IEventPublisher eventPublisher)
     {
         _repository = repository;
         _eventPublisher = eventPublisher;

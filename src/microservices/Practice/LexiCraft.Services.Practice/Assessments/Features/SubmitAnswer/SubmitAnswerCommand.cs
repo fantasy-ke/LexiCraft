@@ -1,7 +1,7 @@
+using BuildingBlocks.Persistence.Abstractions.Repositories;
 using BuildingBlocks.MongoDB.Extensions;
 using FluentValidation;
 using LexiCraft.Services.Practice.Assessments.Models;
-using LexiCraft.Services.Practice.Shared.Contracts;
 using LexiCraft.Services.Practice.Tasks.Models;
 using MediatR;
 
@@ -59,7 +59,7 @@ public class SubmitAnswerValidator : AbstractValidator<SubmitAnswerCommand>
 ///     处理用户提交的答案并返回评估结果
 /// </summary>
 /// <param name="repository">练习任务仓库</param>
-public class SubmitAnswerHandler(IPracticeTaskRepository repository)
+public class SubmitAnswerHandler(IRepository<PracticeTask> repository)
     : IRequestHandler<SubmitAnswerCommand, AssessmentResult>
 {
     /// <summary>

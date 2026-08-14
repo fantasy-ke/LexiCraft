@@ -25,7 +25,7 @@ builder.AddMongoDbContext<PracticeDbContext>(nameof(MongoOptions));
 builder.AddMongoRepository<PracticeDbContext>();
 ```
 
-自定义仓储可以直接继承 `MongoQueryRepository<TEntity>` 或 `MongoRepository<TEntity>` 并显式指定集合名。
+默认仓储使用 `typeof(TEntity).Name` 作为集合名。需要稳定业务集合名的聚合应通过具体仓储继承 `MongoQueryRepository<TEntity>` 或 `MongoRepository<TEntity>` 并显式传入集合名；不要在没有线上集合迁移的情况下假设自动 plural、lowercase 或 snake_case。
 
 传入的配置节名称会同时用于 Options 注册和即时绑定，不会回退到固定的 `MongoOptions` 节。连接字符串必须包含数据库名，连接池边界会在启动时校验。
 
@@ -59,6 +59,8 @@ builder.AddMongoRepository<PracticeDbContext>();
 - 写入：不做应用层自动重试，依赖 MongoDB 驱动的 retryable writes；业务仍需唯一索引、幂等键或事务保护。
 
 Mongo 使用专属 `IMongoResilienceService` 注册，不再占用全局 `IResilienceService` 服务槽位，避免同一进程中的其他弹性实现被覆盖。
+
+索引创建不得通过捕获 scoped Context 的 fire-and-forget `Task.Run` 执行。确有索引迁移需求时，应使用受 Host 生命周期管理且失败语义明确的迁移流程，或独立、可回滚的部署步骤。
 
 ## 性能指标
 

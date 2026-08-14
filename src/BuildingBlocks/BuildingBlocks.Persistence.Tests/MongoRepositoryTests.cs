@@ -69,6 +69,45 @@ public class MongoRepositoryTests
         Assert.Equal(0, resilienceService.ExecutionCount);
     }
 
+    [Fact]
+    public void Explicit_collection_name_is_used_by_the_repository_and_driver_collection()
+    {
+        var client = CreateOfflineClient();
+        using var context = new StubMongoDbContext(client.GetDatabase("test_database"), client);
+        var repository = new TestMongoQueryRepository(
+            context,
+            new CountingResilienceService(),
+            new NoOpPerformanceMonitor(),
+            "practice_tasks");
+
+        Assert.Equal("practice_tasks", repository.CurrentCollectionName);
+        Assert.Equal("practice_tasks", repository.DriverCollectionName);
+    }
+
+    [Fact]
+    public async Task Write_pipeline_bypasses_application_retry_and_uses_the_active_session()
+    {
+        var client = CreateOfflineClient();
+        var session = DispatchProxy.Create<IClientSessionHandle, ActiveSessionProxy>();
+        using var context = new StubMongoDbContext(client.GetDatabase("test_database"), client, session);
+        var resilienceService = new CountingResilienceService();
+        var repository = new TestMongoQueryRepository(
+            context,
+            resilienceService,
+            new NoOpPerformanceMonitor());
+        IClientSessionHandle? observedSession = null;
+
+        var result = await repository.ExecuteWritePipelineAsync(currentSession =>
+        {
+            observedSession = currentSession;
+            return Task.FromResult(42);
+        });
+
+        Assert.Equal(42, result);
+        Assert.Same(session, observedSession);
+        Assert.Equal(0, resilienceService.ExecutionCount);
+    }
+
     private static MongoClient CreateOfflineClient()
     {
         return new MongoClient(new MongoClientSettings
@@ -85,14 +124,25 @@ public class MongoRepositoryTests
     private sealed class TestMongoQueryRepository(
         IMongoDbContext context,
         IMongoResilienceService resilienceService,
-        IMongoPerformanceMonitor performanceMonitor)
-        : MongoQueryRepository<TestAggregate>(context, resilienceService, performanceMonitor)
+        IMongoPerformanceMonitor performanceMonitor,
+        string? collectionName = null)
+        : MongoQueryRepository<TestAggregate>(context, resilienceService, performanceMonitor, collectionName)
     {
+        public string CurrentCollectionName => CollectionName;
+        public string DriverCollectionName => Collection.CollectionNamespace.CollectionName;
+
         public Task<TResult> ExecuteReadPipelineAsync<TResult>(
             Func<IClientSessionHandle?, Task<TResult>> operation,
             CancellationToken cancellationToken = default)
         {
             return ExecuteReadOperationAsync("TestRead", operation, cancellationToken);
+        }
+
+        public Task<TResult> ExecuteWritePipelineAsync<TResult>(
+            Func<IClientSessionHandle?, Task<TResult>> operation,
+            CancellationToken cancellationToken = default)
+        {
+            return ExecuteWriteOperationAsync("TestWrite", operation, cancellationToken);
         }
     }
 

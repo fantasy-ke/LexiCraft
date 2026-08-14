@@ -1,10 +1,11 @@
 // 任务模块配置
 
 using BuildingBlocks.Filters;
-using LexiCraft.Services.Practice.Shared.Contracts;
+using BuildingBlocks.Persistence.Abstractions.Repositories;
 using LexiCraft.Services.Practice.Tasks.Data.Repositories;
 using LexiCraft.Services.Practice.Tasks.Features.CompletePractice;
 using LexiCraft.Services.Practice.Tasks.Features.CreatePracticeTask;
+using LexiCraft.Services.Practice.Tasks.Models;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Routing;
@@ -29,7 +30,7 @@ public static class TasksConfigurations
     public static IHostApplicationBuilder AddTasksModuleServices(this IHostApplicationBuilder builder)
     {
         // 注册仓库
-        builder.Services.AddScoped<IPracticeTaskRepository, PracticeTaskRepository>();
+        builder.Services.AddScoped<IRepository<PracticeTask>, PracticeTaskRepository>();
 
         return builder;
     }
