@@ -1,4 +1,4 @@
-using BuildingBlocks.Domain;
+using BuildingBlocks.Persistence.Abstractions.Transactions;
 using BuildingBlocks.Mediator;
 using FluentValidation;
 using LexiCraft.Services.Vocabulary.Shared.Contracts;

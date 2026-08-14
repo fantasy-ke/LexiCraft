@@ -1,4 +1,4 @@
-﻿<Project Sdk="Microsoft.NET.Sdk">
+<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
     <TargetFramework>net10.0</TargetFramework>
@@ -27,6 +27,7 @@
     <ProjectReference Include="..\BuildingBlocks.EntityFrameworkCore\BuildingBlocks.EntityFrameworkCore.csproj" />
     <ProjectReference Include="..\BuildingBlocks.EntityFrameworkCore.Postgres\BuildingBlocks.EntityFrameworkCore.Postgres.csproj" />
     <ProjectReference Include="..\BuildingBlocks.MongoDB\BuildingBlocks.MongoDB.csproj" />
+    <ProjectReference Include="..\BuildingBlocks.Persistence.Abstractions\BuildingBlocks.Persistence.Abstractions.csproj" />
   </ItemGroup>
 
 </Project>

@@ -1,78 +1,35 @@
-using LexiCraft.Services.Practice.Assessments.Models;
 using LexiCraft.Services.Practice.Tasks.Models;
 using MongoDB.Driver;
 
 namespace LexiCraft.Services.Practice.Shared.Data;
 
 /// <summary>
-///     Data seeder for PracticeDbContext
+///     Creates the indexes used by practice task queries.
 /// </summary>
 public class PracticeDbDataSeeder(PracticeDbContext context)
 {
-    public async Task SeedAsync(CancellationToken cancellationToken = default)
+    public Task SeedAsync(CancellationToken cancellationToken = default)
     {
-        // Create indexes for better performance
-        await CreateIndexesAsync(cancellationToken);
-
-        // Add initial seed data if needed
-        await SeedInitialDataAsync(cancellationToken);
-    }
-
-    private async Task CreateIndexesAsync(CancellationToken cancellationToken = default)
-    {
-        // Create indexes for PracticeTasks
-        var practiceTaskIndexes = new[]
+        var indexes = new[]
         {
             new CreateIndexModel<PracticeTask>(
-                Builders<PracticeTask>.IndexKeys.Ascending(x => x.UserId)),
+                Builders<PracticeTask>.IndexKeys
+                    .Ascending(x => x.UserId)
+                    .Ascending(x => x.Status)
+                    .Descending(x => x.FinishedAt),
+                new CreateIndexOptions { Name = "ix_practice_tasks_user_status_finished_at" }),
             new CreateIndexModel<PracticeTask>(
-                Builders<PracticeTask>.IndexKeys.Ascending(x => x.Status)),
+                Builders<PracticeTask>.IndexKeys
+                    .Ascending(x => x.UserId)
+                    .Ascending(x => x.TaskType),
+                new CreateIndexOptions { Name = "ix_practice_tasks_user_task_type" }),
             new CreateIndexModel<PracticeTask>(
-                Builders<PracticeTask>.IndexKeys.Ascending(x => x.UserId).Ascending(x => x.Status))
+                Builders<PracticeTask>.IndexKeys
+                    .Ascending(x => x.UserId)
+                    .Ascending(x => x.SourceType),
+                new CreateIndexOptions { Name = "ix_practice_tasks_user_source_type" })
         };
 
-        await context.PracticeTasks.Indexes.CreateManyAsync(practiceTaskIndexes, cancellationToken);
-
-        // Create indexes for AnswerRecords
-        var answerRecordIndexes = new[]
-        {
-            new CreateIndexModel<AnswerRecord>(
-                Builders<AnswerRecord>.IndexKeys.Ascending(x => x.PracticeTaskItemId)),
-            new CreateIndexModel<AnswerRecord>(
-                Builders<AnswerRecord>.IndexKeys.Ascending(x => x.SubmittedAt))
-        };
-
-        await context.AnswerRecords.Indexes.CreateManyAsync(answerRecordIndexes, cancellationToken);
-
-        // Create indexes for MistakeItems
-        var mistakeItemIndexes = new[]
-        {
-            new CreateIndexModel<MistakeItem>(
-                Builders<MistakeItem>.IndexKeys.Ascending(x => x.UserId)),
-            new CreateIndexModel<MistakeItem>(
-                Builders<MistakeItem>.IndexKeys.Ascending(x => x.WordId)),
-            new CreateIndexModel<MistakeItem>(
-                Builders<MistakeItem>.IndexKeys.Ascending(x => x.AnswerRecordId))
-        };
-
-        await context.MistakeItems.Indexes.CreateManyAsync(mistakeItemIndexes, cancellationToken);
-
-        // Create indexes for PracticeTaskItems
-        var practiceTaskItemIndexes = new[]
-        {
-            new CreateIndexModel<PracticeTaskItem>(
-                Builders<PracticeTaskItem>.IndexKeys.Ascending(x => x.WordId)),
-            new CreateIndexModel<PracticeTaskItem>(
-                Builders<PracticeTaskItem>.IndexKeys.Ascending(x => x.OrderIndex))
-        };
-
-        await context.PracticeTaskItems.Indexes.CreateManyAsync(practiceTaskItemIndexes, cancellationToken);
-    }
-
-    private async Task SeedInitialDataAsync(CancellationToken cancellationToken = default)
-    {
-        // Add any initial seed data here if needed
-        // For now, we'll keep this empty as practice data is user-generated
-        await Task.CompletedTask;
+        return context.PracticeTasks.Indexes.CreateManyAsync(indexes, cancellationToken);
     }
 }

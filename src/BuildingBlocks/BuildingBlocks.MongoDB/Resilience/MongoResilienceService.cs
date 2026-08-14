@@ -9,7 +9,7 @@ public class MongoResilienceService(
     IMongoClient mongoClient,
     ILogger<MongoResilienceService> logger,
     IOptionsMonitor<ResilienceOptions> options)
-    : BaseResilienceService(logger, options)
+    : BaseResilienceService(logger, options), IMongoResilienceService
 {
     protected override bool ShouldRetry(Exception exception)
     {

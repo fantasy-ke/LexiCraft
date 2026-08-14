@@ -1,6 +1,13 @@
 # BuildingBlocks.EntityFrameworkCore.Postgres
 
-该组件在 `BuildingBlocks.EntityFrameworkCore` 之上提供 Npgsql、`snake_case` 命名、启动迁移和种子数据支持。
+该组件在 `BuildingBlocks.EntityFrameworkCore` 之上提供 Npgsql、`snake_case` 命名、设计时 DbContext 工厂、启动迁移和种子数据支持。
+
+## 目录职责
+
+- `Configuration/`：`PostgresOptions`。
+- `DesignTime/`：`DbContextDesignFactoryBase<TDbContext>`。
+- `Migrations/`：迁移 worker 与委托 seeder 适配器。
+- `Extensions/`：PostgreSQL 注册和迁移扩展。
 
 ## 配置
 
@@ -23,6 +30,8 @@
 ## 注册 DbContext
 
 ```csharp
+using BuildingBlocks.EntityFrameworkCore.Postgres.Extensions;
+
 builder.AddPostgresDbContext<IdentityDbContext>(nameof(PostgresOptions));
 ```
 
@@ -39,7 +48,7 @@ builder.AddPostgresDbContext<IdentityDbContext>(nameof(PostgresOptions));
 builder.AddMigration<IdentityDbContext, IdentityDbDataSeeder>();
 ```
 
-`IDataSeeder<TContext>.SeedAsync` 接受 `CancellationToken`。迁移工作器使用异步作用域，并在迁移或种子数据失败时让应用启动失败，不再仅记录日志后继续运行。
+`IDataSeeder<TContext>.SeedAsync` 接受 `CancellationToken`。迁移工作器使用异步作用域，并在迁移或种子数据失败时让应用启动失败。
 
 也可以使用委托：
 

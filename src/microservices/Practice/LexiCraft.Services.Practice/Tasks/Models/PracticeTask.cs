@@ -1,4 +1,4 @@
-using BuildingBlocks.MongoDB;
+using BuildingBlocks.MongoDB.Entities;
 using LexiCraft.Services.Practice.Assessments.Models;
 using LexiCraft.Shared.Models;
 

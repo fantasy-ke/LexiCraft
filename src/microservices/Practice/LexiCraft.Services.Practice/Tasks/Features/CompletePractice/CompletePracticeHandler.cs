@@ -1,5 +1,5 @@
 using BuildingBlocks.MassTransit.Services;
-using BuildingBlocks.MongoDB;
+using BuildingBlocks.MongoDB.Extensions;
 using FluentValidation;
 using LexiCraft.Services.Practice.Assessments.Models;
 using LexiCraft.Services.Practice.Shared.Contracts;

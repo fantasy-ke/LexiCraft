@@ -30,7 +30,6 @@ public static class ApplicationConfiguration
         builder.Services.AddMediator<PracticeMetadata>();
         builder.AddInfrastructure();
         builder.AddTasksModuleServices();
-        builder.AddAssessmentsModuleServices();
         builder.Services.WithMapster();
         builder.Services.WithIdGen();
         return builder;

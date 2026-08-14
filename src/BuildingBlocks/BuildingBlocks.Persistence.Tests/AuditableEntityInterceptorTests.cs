@@ -1,6 +1,6 @@
 using BuildingBlocks.Authentication.Contract;
 using BuildingBlocks.Domain.Internal;
-using BuildingBlocks.EntityFrameworkCore;
+using BuildingBlocks.EntityFrameworkCore.Repositories;
 using BuildingBlocks.EntityFrameworkCore.Extensions;
 using BuildingBlocks.EntityFrameworkCore.Interceptors;
 using Microsoft.Data.Sqlite;

@@ -1,4 +1,4 @@
-using BuildingBlocks.EntityFrameworkCore;
+using BuildingBlocks.EntityFrameworkCore.Repositories;
 using LexiCraft.Services.Vocabulary.Shared.Contracts;
 using LexiCraft.Services.Vocabulary.Shared.Data;
 using LexiCraft.Services.Vocabulary.Words.Models;
@@ -16,9 +16,9 @@ public class WordRepository(VocabularyDbContext context)
 
     public async Task<List<Word>> GetByListIdAsync(long wordListId)
     {
-        return await QueryNoTracking<WordListItem>()
+        return await QuerySetNoTracking<WordListItem>()
             .Where(x => x.WordListId == wordListId)
-            .Join(QueryNoTracking<Word>(),
+            .Join(QuerySetNoTracking<Word>(),
                 li => li.WordId,
                 w => w.Id,
                 (li, w) => w)

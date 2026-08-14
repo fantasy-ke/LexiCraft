@@ -1,5 +1,6 @@
-using BuildingBlocks.EntityFrameworkCore;
-using BuildingBlocks.EntityFrameworkCore.Postgres;
+using BuildingBlocks.EntityFrameworkCore.Abstractions;
+using BuildingBlocks.EntityFrameworkCore.Postgres.Extensions;
+using BuildingBlocks.EntityFrameworkCore.Postgres.Migrations;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;

@@ -1,4 +1,4 @@
-﻿using BuildingBlocks.EntityFrameworkCore.Postgres;
+using BuildingBlocks.EntityFrameworkCore.Postgres.DesignTime;
 
 namespace LexiCraft.Services.Identity.Shared.Data;
 

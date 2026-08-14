@@ -8,6 +8,7 @@
 
     <ItemGroup>
         <ProjectReference Include="..\BuildingBlocks\BuildingBlocks.csproj"/>
+        <ProjectReference Include="..\BuildingBlocks.Persistence.Abstractions\BuildingBlocks.Persistence.Abstractions.csproj"/>
     </ItemGroup>
 
     <ItemGroup>

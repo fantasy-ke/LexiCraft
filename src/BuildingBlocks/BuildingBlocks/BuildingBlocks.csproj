@@ -15,8 +15,6 @@
         <PackageReference Include="Scrutor"/>
         <PackageReference Include="IdGen.DependencyInjection"/>
         <PackageReference Include="Lazy.Captcha.Core"/>
-        <PackageReference Include="Microsoft.EntityFrameworkCore"/>
-        <PackageReference Include="MongoDB.Driver"/>
         <PackageReference Include="Polly"/>
         <PackageReference Include="Polly.Extensions"/>
         <PackageReference Include="AgileConfig.Client"/>

@@ -1,4 +1,4 @@
-using BuildingBlocks.EntityFrameworkCore;
+using BuildingBlocks.EntityFrameworkCore.Abstractions;
 
 namespace LexiCraft.Services.Vocabulary.Shared.Data;
 

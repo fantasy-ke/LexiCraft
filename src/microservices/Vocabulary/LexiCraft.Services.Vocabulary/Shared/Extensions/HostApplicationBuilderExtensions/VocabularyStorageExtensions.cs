@@ -1,4 +1,5 @@
-using BuildingBlocks.EntityFrameworkCore.Postgres;
+using BuildingBlocks.EntityFrameworkCore.Postgres.Configuration;
+using BuildingBlocks.EntityFrameworkCore.Postgres.Extensions;
 using BuildingBlocks.Extensions;
 using BuildingBlocks.Shared;
 using LexiCraft.Services.Vocabulary.Shared.Contracts;

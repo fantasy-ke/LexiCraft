@@ -1,15 +1,17 @@
 using System.Reflection;
-using BuildingBlocks.Domain;
 using BuildingBlocks.EntityFrameworkCore.Extensions;
 using BuildingBlocks.EntityFrameworkCore.Interceptors;
+using BuildingBlocks.EntityFrameworkCore.Postgres.Configuration;
+using BuildingBlocks.EntityFrameworkCore.Transactions;
 using BuildingBlocks.Extensions;
+using BuildingBlocks.Persistence.Abstractions.Transactions;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
 using Microsoft.Extensions.Hosting;
 
-namespace BuildingBlocks.EntityFrameworkCore.Postgres;
+namespace BuildingBlocks.EntityFrameworkCore.Postgres.Extensions;
 
 public static class DependencyInjectionExtensions
 {

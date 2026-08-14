@@ -1,4 +1,5 @@
-using BuildingBlocks.Domain;
+using BuildingBlocks.Persistence.Abstractions.Repositories;
+using BuildingBlocks.Persistence.Abstractions.Transactions;
 using BuildingBlocks.Exceptions;
 using FluentValidation;
 using LexiCraft.Services.Identity.Identity.Internal.Commands;

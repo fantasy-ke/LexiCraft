@@ -1,4 +1,4 @@
-﻿﻿﻿# LexiCraft 项目长期记忆
+# LexiCraft 项目长期记忆
 
 ## 记录范围
 
@@ -69,6 +69,10 @@
 - PostgreSQL 启动迁移或 seed 失败必须终止启动并向上抛出；所有数据库、仓储、工作单元和 seed 异步调用需要向底层传播 `CancellationToken`。
 - MongoDB BSON convention/serializer 是进程级全局状态，只初始化一次，并保持嵌套文档 camelCase、枚举字符串和历史 Guid 表示兼容；传入的配置节名称必须同时用于注册与绑定。Mongo 异常 mapper 应替换默认主映射器并对非 Mongo 异常保留默认 fallback。事务内读写必须绑定同一 session，且只在提交或回滚成功后释放。
 - MongoDB 写操作重试不能替代业务幂等；具体命令仍需唯一索引、幂等键或事务保护。进程内性能指标必须有界，不能无限保留操作记录。
+- 公共持久化端口统一位于 `BuildingBlocks.Persistence.Abstractions` 的 `Repositories` / `Transactions` 命名空间；`BuildingBlocks` 根类库不引用 EF Core 或 MongoDB 驱动。业务项目若直接声明或注入仓储/工作单元，应直接引用抽象项目。
+- EF、PostgreSQL、Mongo 的类型目录与命名空间按 `Abstractions`、`Repositories`、`Transactions`、`Configuration`、`Migrations`、`Context`、`Entities`、`Resilience` 等职责组织，不再把公共类型堆放在项目根目录。
+- Mongo 只保留 `MongoQueryRepository<TEntity>` / `MongoRepository<TEntity>` 单一仓储层级：非事务读取可通过 `IMongoResilienceService` 重试，事务内操作绑定同一 session 且不局部重试，写入不做应用层盲重试。Mongo 专属 resilience 注册不能覆盖容器中的通用 `IResilienceService`。
+- Practice 以 `PracticeTask` 为 Mongo 聚合写入边界，`AnswerRecord` 和 `PracticeTaskItem` 内嵌保存；Context、仓储和索引必须共享同一个 `PracticeTasksCollectionName`，禁止分别推导单数/复数集合名；不得同时注册没有写入路径的独立集合仓储。索引必须与实际 `UserId + Status/TaskType/SourceType` 查询匹配，线上历史冗余索引通过独立运维步骤核查清理。
 ## 构建与契约陷阱
 
 - `BuildingBlocks.EventBus` 项目目录可能残留已删除子项目的 `Tests/obj` 等生成文件；父项目必须排除任意层级的 `bin/obj`，否则 SDK 默认源码通配符会编译嵌套生成的程序集属性并触发 `CS0579`。

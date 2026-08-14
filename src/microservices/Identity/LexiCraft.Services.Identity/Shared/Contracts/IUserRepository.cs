@@ -1,4 +1,4 @@
-﻿using BuildingBlocks.Domain;
+using BuildingBlocks.Persistence.Abstractions.Repositories;
 using LexiCraft.Services.Identity.Identity.Models;
 
 namespace LexiCraft.Services.Identity.Shared.Contracts;

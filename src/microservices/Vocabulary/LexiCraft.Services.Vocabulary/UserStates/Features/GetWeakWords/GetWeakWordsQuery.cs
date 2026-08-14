@@ -18,12 +18,12 @@ public class GetWeakWordsQueryHandler(
 {
     public async Task<List<WordDto>> Handle(GetWeakWordsQuery query, CancellationToken cancellationToken)
     {
-        var weakWordIds = await userWordStateRepository.QueryNoTracking<UserWordState>()
+        var weakWordIds = await userWordStateRepository.QueryNoTracking()
             .Where(x => x.UserId == query.UserId && (x.State == WordState.Vague || x.MasteryScore < 60))
             .Select(x => x.WordId)
             .ToListAsync(cancellationToken);
 
-        var words = await wordRepository.QueryNoTracking<Word>()
+        var words = await wordRepository.QueryNoTracking()
             .Where(x => weakWordIds.Contains(x.Id))
             .ToListAsync(cancellationToken);
 

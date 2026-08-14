@@ -1,14 +1,16 @@
 using System.Reflection;
-using BuildingBlocks.Abstractions;
-using BuildingBlocks.Domain;
 using BuildingBlocks.Domain.Internal;
 using BuildingBlocks.Exceptions.Problem;
 using BuildingBlocks.Extensions;
+using BuildingBlocks.MongoDB.Abstractions;
 using BuildingBlocks.MongoDB.Configuration;
+using BuildingBlocks.MongoDB.Entities;
+using BuildingBlocks.MongoDB.Errors;
 using BuildingBlocks.MongoDB.Performance;
+using BuildingBlocks.MongoDB.Repositories;
 using BuildingBlocks.MongoDB.Resilience;
 using BuildingBlocks.MongoDB.Serialization;
-using BuildingBlocks.Resilience;
+using BuildingBlocks.Persistence.Abstractions.Repositories;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
 using Microsoft.Extensions.Hosting;
@@ -47,7 +49,7 @@ public static class DependencyInjectionExtensions
             serviceProvider.GetRequiredService<IMongoClient>().GetDatabase(mongoUrl.DatabaseName));
 
         builder.Services.AddSingleton<IMongoPerformanceMonitor, MongoPerformanceMonitor>();
-        builder.Services.AddScoped<IResilienceService, MongoResilienceService>();
+        builder.Services.AddScoped<IMongoResilienceService, MongoResilienceService>();
         builder.Services.AddScoped<TContext>();
         builder.Services.AddScoped<IMongoDbContext>(serviceProvider => serviceProvider.GetRequiredService<TContext>());
         builder.Services.Replace(ServiceDescriptor.Singleton<IProblemCodeMapper, MongoDbProblemCodeMapper>());
@@ -56,6 +58,7 @@ public static class DependencyInjectionExtensions
     }
 
     public static IHostApplicationBuilder AddMongoRepository<TDbContext>(this IHostApplicationBuilder builder)
+        where TDbContext : class, IMongoDbContext
     {
         builder.Services.TryAddRepository<TDbContext>([typeof(TDbContext).Assembly]);
         return builder;
@@ -64,6 +67,7 @@ public static class DependencyInjectionExtensions
     public static IServiceCollection TryAddRepository<TDbContext>(
         this IServiceCollection services,
         IEnumerable<Assembly> assemblies)
+        where TDbContext : class, IMongoDbContext
     {
         var entityTypes = assemblies
             .Distinct()

@@ -1,4 +1,4 @@
-using BuildingBlocks.Domain;
+using BuildingBlocks.Persistence.Abstractions.Repositories;
 using BuildingBlocks.Mediator;
 using LexiCraft.Services.Identity.Identity.Models;
 using LexiCraft.Shared.Models;

@@ -1,4 +1,4 @@
-using BuildingBlocks.EntityFrameworkCore;
+using BuildingBlocks.EntityFrameworkCore.Abstractions;
 using LexiCraft.Services.Identity.Identity.Models;
 using LexiCraft.Shared.Permissions;
 using Microsoft.EntityFrameworkCore;

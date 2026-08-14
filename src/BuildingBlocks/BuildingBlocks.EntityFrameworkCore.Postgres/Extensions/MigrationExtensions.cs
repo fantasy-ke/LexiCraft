@@ -1,8 +1,10 @@
+using BuildingBlocks.EntityFrameworkCore.Abstractions;
+using BuildingBlocks.EntityFrameworkCore.Postgres.Migrations;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 
-namespace BuildingBlocks.EntityFrameworkCore.Postgres;
+namespace BuildingBlocks.EntityFrameworkCore.Postgres.Extensions;
 
 public static class MigrationExtensions
 {
@@ -41,16 +43,5 @@ public static class MigrationExtensions
             builder.Services.AddHostedService<MigrationSeedWorker<TContext>>();
             return builder;
         }
-    }
-}
-
-internal class DefaultDataSeeder<TContext>(
-    IServiceProvider serviceProvider,
-    Func<TContext, IServiceProvider, CancellationToken, Task> seeder) : IDataSeeder<TContext>
-    where TContext : DbContext
-{
-    public Task SeedAsync(TContext context, CancellationToken cancellationToken = default)
-    {
-        return seeder(context, serviceProvider, cancellationToken);
     }
 }

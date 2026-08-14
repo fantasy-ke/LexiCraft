@@ -1,7 +1,8 @@
-using BuildingBlocks.Domain;
+using BuildingBlocks.MongoDB.Entities;
+using BuildingBlocks.Persistence.Abstractions.Repositories;
 using MongoDB.Bson;
 
-namespace BuildingBlocks.MongoDB;
+namespace BuildingBlocks.MongoDB.Extensions;
 
 public static class MongoIdExtensions
 {

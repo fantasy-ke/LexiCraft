@@ -1,4 +1,4 @@
-using BuildingBlocks.Domain;
+using BuildingBlocks.Persistence.Abstractions.Repositories;
 using LexiCraft.Services.Practice.Tasks.Models;
 using LexiCraft.Shared.Models;
 

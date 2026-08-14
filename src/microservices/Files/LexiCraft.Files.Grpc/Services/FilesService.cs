@@ -1,6 +1,6 @@
 using System.Linq.Expressions;
 using System.Security.Cryptography;
-using BuildingBlocks.Domain;
+using BuildingBlocks.Persistence.Abstractions.Transactions;
 using BuildingBlocks.Extensions;
 using BuildingBlocks.Grpc.Contracts.FileGrpc;
 using BuildingBlocks.OSS;

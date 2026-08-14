@@ -47,7 +47,7 @@ builder.Services.AddIdentityApiPermissionValidation();
 builder.Services.AddCodeFirstGrpc(options => { options.EnableDetailedErrors = true; });
 builder.Services.AddEndpointsApiExplorer();
 builder.AddAspnetOpenApi();
-builder.Services.WithLexiCraftDbAccess(builder.Configuration);
+builder.Services.AddLexiCraftDbAccess(builder.Configuration);
 builder.Services.WithMapster();
 builder.Services.AddScoped<IFilesService, FilesService>();
 var app = builder.Build();
