@@ -6,8 +6,8 @@
 
 ## 稳定架构事实
 
-- 当前默认开发解决方案是 `src/LexiCraft.slnx`，包含生产项目以及 Persistence、Caching、Authorization 三个基础组件回归测试项目；`src/LexiCraft.Tests.slnx` 是补充测试解决方案且项目清单可能不完全同步。默认运行入口是 `src/LexiCraft.Aspire.Host/AppHost.cs`。
-- 根目录 `LexiCraft.sln` 属于较早的解决方案文件，项目清单与 `src/LexiCraft.slnx` 存在潜在漂移；涉及构建时优先使用 `.slnx`，并在发现差异时记录。
+- 当前默认开发解决方案是 `src/LexiCraft.slnx`，只显式包含生产项目；所有测试项目统一放入 `src/LexiCraft.Tests.slnx`。当前测试解决方案包含 Authorization、Caching、Messaging、Persistence 四个基础组件测试项目。默认运行入口是 `src/LexiCraft.Aspire.Host/AppHost.cs`。
+- 仓库当前不跟踪根目录 `LexiCraft.sln`；生产项目构建使用 `src/LexiCraft.slnx`，测试构建与执行使用 `src/LexiCraft.Tests.slnx`。
 - Aspire Host 目标框架为 `net10.0`，当前使用 `Aspire.AppHost.Sdk/13.4.6`。
 - 系统由 API Gateway、Identity、Vocabulary、Practice、Files gRPC 和 Aspire ServiceDefaults 组成；`src/BuildingBlocks/` 提供跨服务基础能力。
 - Identity 使用 PostgreSQL 与 Redis；Vocabulary 使用 PostgreSQL 与 Redis；Practice 使用 MongoDB 与 Redis；Files 使用 OSS 抽象并提供 gRPC/内容读取能力。
@@ -53,7 +53,7 @@
 3. 统一认证契约：对齐后端 `TokenResponse`、前端 `LoginResponse`/`TokenPair`、刷新令牌返回值、过期时间和错误包络；同步对齐注册密码规则。
 4. 补齐前后端契约测试：后端增加服务/网关集成测试，前端让 Vitest 依赖和测试脚本真实可执行，并覆盖 401 刷新、429、错误包络和关键业务流程。
 5. 迁移旧业务 API：核对前端仍使用的 `user/*`、`word/*`、`dict/*` 等路径，逐一映射到当前 Identity/Vocabulary/Practice API，确认后再删除或隔离旧封装。
-6. 清理解决方案漂移：统一根 `.sln` 与 `src/LexiCraft.slnx` 的职责，处理旧项目清单和活动项目清单不一致的问题。
+6. 维护解决方案边界：生产项目使用 `src/LexiCraft.slnx`，全部测试项目使用 `src/LexiCraft.Tests.slnx`；后续应在自动化门禁中校验测试项目无遗漏且不回流主解决方案。
 7. 收敛配置与凭据：连接字符串、AgileConfig 参数、OAuth、RabbitMQ 和 OSS 凭据不再提交到仓库；部署文档使用占位符，并安排已暴露凭据轮换。
 8. 分拆超大活跃文件：`MinioOssService` 已按客户端初始化、Minio 管理与策略、Bucket、Object 拆为同一 `partial` 类型，公开契约和实现逻辑保持不变；当前仍需处理后端 `CacheService.cs`（923 行）、`DistributedCacheService.cs`（841 行）及 6 个超过 800 行的前端 Vue 文件。缓存拆分前先补锁、降级、TTL、Hash 和序列化测试，前端拆分必须配合真实页面核验；不为满足行数规则进行无关重构。
 9. 评估生产探针与可观测性：当前默认健康检查端点主要在 Development 映射，生产暴露策略需要结合部署平台明确配置。
@@ -83,7 +83,7 @@
 - Identity 使用本地权威权限检查和授权 Redis；业务服务使用 Identity API 远程验证。未知权限必须先拒绝再判断管理员角色；缺失、非 Bearer 或空 Token Header 不应产生远程验证请求；依赖不可用必须关闭式失败。
 - Redis 缓存未命中必须用显式状态表达，不能依赖 `default(T)`；同一次缓存操作只解析一次选项，锁后二次读取复用同一选项，本地缓存键必须包含 Redis 实例名，调用方取消不能被 `HideErrors` 吞掉。
 - 每个命名 Redis 实例共享一个 `ConnectionMultiplexer`，不建立自定义连接池；Hash 数据和 TTL 应原子提交，内部时间戳必须参与部分字段读取时的有效性判断。分布式锁仅适合短缓存重建临界区，不是 Redlock，且当前没有自动续租。
-- 活动解决方案必须包含 Persistence、Caching、Authorization 回归测试，防止 `dotnet test src\LexiCraft.slnx --no-build` 漏掉基础组件行为。
+- 所有 `*.Tests.csproj` 必须显式加入 `src/LexiCraft.Tests.slnx`，且不得加入 `src/LexiCraft.slnx`；全量回归使用 `dotnet test src\LexiCraft.Tests.slnx`，避免主解决方案构建混入测试类库或测试解决方案漏项。
 - 真实 Redis/Aspire 多副本验证、授权链路压测、Redis 异步预热、CancellationToken 工厂重载、服务间身份、JWT 非对称签名和命名空间统一均为独立任务；构建和单元测试不能替代运行时证明。
 ## 构建与契约陷阱
 
@@ -91,4 +91,4 @@
 - Identity 前端客户端只暴露当前后端端点能够证明的能力；邮箱验证、密码重置、OAuth 绑定和会话管理等功能必须先有后端契约和测试，不能先在前端添加猜测式方法。
 - Vite 动态导入需要将忽略注释放在参数内部：`import(/* @vite-ignore */ url)`；放在调用上一行不能抑制动态 URL 分析警告。
 - 浏览器控制台中调用栈完全位于 `moz-extension://` 的错误应先按扩展问题隔离；已确认 Immersive Translate 的 `dynamic-i18n version mismatch` 不属于项目主题代码，不应向主题实现加入第三方扩展规避逻辑。
-- 常用验证命令包括 `dotnet build src\LexiCraft.slnx --no-restore`、`npm --prefix src\UIs\lexicraft-vue-frontend run build`、`npm --prefix src\UIs\lexicraft-vue-frontend run build-tsc`、`docker compose -f src\compose.yaml config --quiet` 和 `git diff --check`。应区分任务引入的失败与仓库既有警告或类型错误。
+- 常用验证命令包括 `dotnet build src\LexiCraft.slnx --no-restore`、`dotnet test src\LexiCraft.Tests.slnx --no-restore`、`npm --prefix src\UIs\lexicraft-vue-frontend run build`、`npm --prefix src\UIs\lexicraft-vue-frontend run build-tsc`、`docker compose -f src\compose.yaml config --quiet` 和 `git diff --check`。应区分任务引入的失败与仓库既有警告或类型错误。
