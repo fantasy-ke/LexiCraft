@@ -10,18 +10,13 @@ namespace BuildingBlocks.Caching.Redis;
 /// <summary>
 ///     Redis 数据访问实现，仅作为 <see cref="CacheService"/> 的内部依赖。
 /// </summary>
-internal sealed class RedisCacheStore : IRedisCacheStore
+internal sealed class RedisCacheStore(
+    IRedisConnectionFactory connectionFactory,
+    ILogger<RedisCacheStore> logger)
+    : IRedisCacheStore
 {
-    private readonly IRedisConnectionFactory _connectionFactory;
-    private readonly ILogger<RedisCacheStore> _logger;
-
-    public RedisCacheStore(
-        IRedisConnectionFactory connectionFactory,
-        ILogger<RedisCacheStore> logger)
-    {
-        _connectionFactory = connectionFactory ?? throw new ArgumentNullException(nameof(connectionFactory));
-        _logger = logger ?? throw new ArgumentNullException(nameof(logger));
-    }
+    private readonly IRedisConnectionFactory _connectionFactory = connectionFactory ?? throw new ArgumentNullException(nameof(connectionFactory));
+    private readonly ILogger<RedisCacheStore> _logger = logger ?? throw new ArgumentNullException(nameof(logger));
 
     public async Task<CacheReadResult<T>> GetAsync<T>(
         string key,

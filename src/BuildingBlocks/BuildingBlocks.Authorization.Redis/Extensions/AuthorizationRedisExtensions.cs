@@ -41,8 +41,8 @@ public static class AuthorizationRedisExtensions
         if (string.IsNullOrWhiteSpace(redisOptions.ConnectionString))
             throw new InvalidOperationException("OAuthOptions:OAuthRedis:ConnectionString is required");
 
-        if (!builder.Services.Any(descriptor => descriptor.ServiceType == typeof(ICacheService)) ||
-            !builder.Services.Any(descriptor => descriptor.ServiceType == typeof(IDistributedLockProvider)))
+        if (builder.Services.All(descriptor => descriptor.ServiceType != typeof(ICacheService)) 
+            || builder.Services.All(descriptor => descriptor.ServiceType != typeof(IDistributedLockProvider)))
         {
             throw new InvalidOperationException("AddCaching must be registered before AddAuthorizationRedis");
         }

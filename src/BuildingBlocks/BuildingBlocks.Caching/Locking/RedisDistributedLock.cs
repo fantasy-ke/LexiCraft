@@ -81,8 +81,8 @@ internal sealed class RedisDistributedLock : IDistributedLock
         {
             var result = await _database.ScriptEvaluateAsync(
                 ReleaseLockScript,
-                new RedisKey[] { LockKey },
-                new RedisValue[] { LockValue }).WaitAsync(cancellationToken);
+                [LockKey],
+                [LockValue]).WaitAsync(cancellationToken);
 
             var success = result.ToString() == "1";
             if (success)
@@ -112,6 +112,7 @@ internal sealed class RedisDistributedLock : IDistributedLock
     ///     延长锁的过期时间
     /// </summary>
     /// <param name="extendBy">延长的时间</param>
+    /// <param name="cancellationToken"></param>
     /// <returns>延长是否成功</returns>
     public async Task<bool> ExtendAsync(TimeSpan extendBy, CancellationToken cancellationToken = default)
     {
@@ -128,8 +129,8 @@ internal sealed class RedisDistributedLock : IDistributedLock
             var extendMilliseconds = (long)extendBy.TotalMilliseconds;
             var result = await _database.ScriptEvaluateAsync(
                 ExtendLockScript,
-                new RedisKey[] { LockKey },
-                new RedisValue[] { LockValue, extendMilliseconds }).WaitAsync(cancellationToken);
+                [LockKey],
+                [LockValue, extendMilliseconds]).WaitAsync(cancellationToken);
 
             var success = result.ToString() == "1";
             if (success)

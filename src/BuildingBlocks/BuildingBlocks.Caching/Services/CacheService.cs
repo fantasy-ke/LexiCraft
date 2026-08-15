@@ -99,7 +99,7 @@ internal sealed partial class CacheService : ICacheService
             }
         }
 
-            _logger.LogDebug("缓存未命中: {Key}", key);
+        _logger.LogDebug("缓存未命中: {Key}", key);
         return CacheReadResult<T>.Miss;
     }
 
