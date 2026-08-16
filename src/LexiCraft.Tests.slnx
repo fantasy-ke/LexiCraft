@@ -2,6 +2,7 @@
   <Folder Name="/Tests/">
     <Project Path="BuildingBlocks/BuildingBlocks.Authorization.Tests/BuildingBlocks.Authorization.Tests.csproj" />
     <Project Path="BuildingBlocks/BuildingBlocks.Caching.Tests/BuildingBlocks.Caching.Tests.csproj" />
+    <Project Path="BuildingBlocks/BuildingBlocks.Idempotency.Tests/BuildingBlocks.Idempotency.Tests.csproj" />
     <Project Path="BuildingBlocks/BuildingBlocks.Messaging.Tests/BuildingBlocks.Messaging.Tests.csproj" />
     <Project Path="BuildingBlocks/BuildingBlocks.Persistence.Tests/BuildingBlocks.Persistence.Tests.csproj" />
   </Folder>

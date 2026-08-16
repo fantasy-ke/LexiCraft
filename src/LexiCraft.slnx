@@ -12,6 +12,7 @@
         <Project Path="BuildingBlocks/BuildingBlocks.SerilogLogging/BuildingBlocks.SerilogLogging.csproj" />
         <Project Path="BuildingBlocks/BuildingBlocks.Validation/BuildingBlocks.Validation.csproj" />
         <Project Path="BuildingBlocks/BuildingBlocks.Caching/BuildingBlocks.Caching.csproj" />
+        <Project Path="BuildingBlocks/BuildingBlocks.Idempotency/BuildingBlocks.Idempotency.csproj" />
         <Project Path="BuildingBlocks/BuildingBlocks.EventBus/BuildingBlocks.EventBus.csproj" />
         <Project Path="BuildingBlocks/BuildingBlocks/BuildingBlocks.csproj" />
         <Project Path="BuildingBlocks/BuildingBlocks.OSS/BuildingBlocks.OSS.csproj" />

@@ -1,0 +1,9 @@
+global using System.Security.Claims;
+global using System.Text;
+global using BuildingBlocks.Idempotency;
+global using BuildingBlocks.Idempotency.Abstractions;
+global using BuildingBlocks.Idempotency.Options;
+global using Microsoft.AspNetCore.Http;
+global using Microsoft.Extensions.Logging.Abstractions;
+global using Microsoft.Extensions.Options;
+global using Xunit;
