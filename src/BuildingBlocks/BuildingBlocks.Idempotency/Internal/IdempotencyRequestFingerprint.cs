@@ -5,8 +5,21 @@ using Microsoft.AspNetCore.Http;
 
 namespace BuildingBlocks.Idempotency.Internal;
 
+/// <summary>
+///     根据请求方法、路径、查询与请求体计算稳定的 SHA-256 指纹。
+/// </summary>
+/// <remarks>
+///     指纹用于检测同一幂等键但内容不同的冲突请求。请求体过大时返回 <see langword="null"/>。
+/// </remarks>
 internal static class IdempotencyRequestFingerprint
 {
+    /// <summary>
+    ///     读取请求并计算指纹。
+    /// </summary>
+    /// <param name="request">当前 HTTP 请求。</param>
+    /// <param name="maxRequestBodyBytes">参与指纹计算的最大请求体字节数。</param>
+    /// <param name="cancellationToken">取消令牌。</param>
+    /// <returns>十六进制指纹；请求体超限时返回 <see langword="null"/>。</returns>
     public static async Task<string?> CreateAsync(
         HttpRequest request,
         long maxRequestBodyBytes,
@@ -56,6 +69,11 @@ internal static class IdempotencyRequestFingerprint
         }
     }
 
+    /// <summary>
+    ///     将一段文本追加进哈希，并以分隔符避免字段粘连。
+    /// </summary>
+    /// <param name="hash">增量哈希实例。</param>
+    /// <param name="value">待追加文本；空值仅写入分隔符。</param>
     private static void AppendText(IncrementalHash hash, string? value)
     {
         if (!string.IsNullOrEmpty(value))
