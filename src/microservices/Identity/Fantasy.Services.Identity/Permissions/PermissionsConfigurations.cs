@@ -1,3 +1,4 @@
+using BuildingBlocks.Filters;
 using Fantasy.Services.Identity.Permissions.Features.AddPermission;
 using Fantasy.Services.Identity.Permissions.Features.GetUserPermissions;
 using Fantasy.Services.Identity.Permissions.Features.RemovePermission;
@@ -27,7 +28,8 @@ internal static class PermissionsConfigurations
 
         var permissionsGroupV1 = permissionsVersionGroup
             .MapGroup(PermissionsPrefixUri)
-            .HasApiVersion(1.0);
+            .HasApiVersion(1.0)
+            .WithoutResultDto();
 
         permissionsGroupV1.MapValidatePermissionsEndpoint();
         permissionsGroupV1.MapGetUserPermissionsEndpoint();

@@ -1,4 +1,3 @@
-using BuildingBlocks.Filters;
 using Fantasy.Services.Identity.Users.Features.Captcha;
 using Fantasy.Services.Identity.Users.Features.GetUserInfo;
 using Fantasy.Services.Identity.Users.Features.RegisterUser;
@@ -28,8 +27,7 @@ internal static class UsersConfigurations
 
         var usersGroupV1 = usersVersionGroup
             .MapGroup(IdentityPrefixUri)
-            .HasApiVersion(1.0)
-            .AddEndpointFilter<ResultEndPointFilter>();
+            .HasApiVersion(1.0);
         ;
 
 

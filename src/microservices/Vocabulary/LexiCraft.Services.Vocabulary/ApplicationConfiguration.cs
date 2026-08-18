@@ -1,4 +1,5 @@
 using BuildingBlocks.Extensions;
+using BuildingBlocks.Filters;
 using BuildingBlocks.Mediator;
 using LexiCraft.Services.Vocabulary.Shared.Extensions.HostApplicationBuilderExtensions;
 using LexiCraft.Services.Vocabulary.Shared.Extensions.WebApplicationExtensions;
@@ -29,8 +30,9 @@ public static class ApplicationConfiguration
     {
         app.UseInfrastructure();
 
-        app.MapWordsModuleEndpoints();
-        app.MapUserStateModuleEndpoints();
+        var api = app.MapGroup(string.Empty).WithResultDto();
+        api.MapWordsModuleEndpoints();
+        api.MapUserStateModuleEndpoints();
 
         return app;
     }

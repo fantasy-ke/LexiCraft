@@ -20,14 +20,14 @@ public static class ReplayEventsEndpoint
             .WithDescription("根据 StreamId 重发存储在 Redis 中的事件".Humanize())
             .RequireAuthorization(IdentityPermissions.Events.Replay);
 
-        async Task<IResult> Handle(
+        async Task<string> Handle(
             [AsParameters] ReplayEventsRequestParameters requestParameters)
         {
             var (mediator, command, cancellationToken) = requestParameters;
 
             await mediator.Send(command, cancellationToken);
 
-            return Results.Ok("事件回放请求已处理");
+            return "事件回放请求已处理";
         }
     }
 }

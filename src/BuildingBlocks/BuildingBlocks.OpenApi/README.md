@@ -150,13 +150,15 @@ var wordsVersionGroup = endpoints
 var wordsGroupV1 = wordsVersionGroup
     .MapGroup("api/v{version:apiVersion}/vocabulary")
     .HasApiVersion(1.0)
-    .AddEndpointFilter<ResultEndPointFilter>();
+    .WithResultDto();
 
 wordsGroupV1.MapGet("words", Handle)
     .WithName("GetWordsV1");
 ```
 
 该端点只属于 v1，只会出现在 `v1` OpenAPI 文档中。
+
+可在业务 API 根路由组统一调用 `WithResultDto()`，单个文件流、内部服务契约或自行返回 `IResult` 的端点使用 `WithoutResultDto()` 关闭自动包装。端点过滤器只负责运行时响应，公开接口仍应通过 `Produces<ResultDto<T>>()` 或等价响应元数据声明真实 OpenAPI 契约。
 
 ### 不同版本使用不同实现
 
@@ -170,12 +172,12 @@ var identityVersionGroup = endpoints
 var identityGroupV1 = identityVersionGroup
     .MapGroup("api/v{version:apiVersion}/identity")
     .HasApiVersion(1.0)
-    .AddEndpointFilter<ResultEndPointFilter>();
+    .WithResultDto();
 
 var identityGroupV2 = identityVersionGroup
     .MapGroup("api/v{version:apiVersion}/identity")
     .HasApiVersion(2.0)
-    .AddEndpointFilter<ResultEndPointFilter>();
+    .WithResultDto();
 
 identityGroupV1.MapPost("login", HandleLoginV1)
     .WithName("LoginV1");
@@ -203,7 +205,7 @@ var identityGroup = endpoints
     .MapGroup("api/v{version:apiVersion}/identity")
     .HasApiVersion(1.0)
     .HasApiVersion(2.0)
-    .AddEndpointFilter<ResultEndPointFilter>();
+    .WithResultDto();
 
 identityGroup.MapPost("logout", HandleLogout)
     .WithName("Logout")

@@ -1,6 +1,5 @@
 // 任务模块配置
 
-using BuildingBlocks.Filters;
 using BuildingBlocks.Persistence.Abstractions.Repositories;
 using LexiCraft.Services.Practice.Tasks.Data.Repositories;
 using LexiCraft.Services.Practice.Tasks.Features.CompletePractice;
@@ -40,20 +39,19 @@ public static class TasksConfigurations
     /// </summary>
     /// <param name="app">Web应用程序实例</param>
     /// <returns>更新后的端点路由构建器</returns>
-    public static IEndpointRouteBuilder MapTasksModuleEndpoints(this WebApplication app)
+    public static IEndpointRouteBuilder MapTasksModuleEndpoints(this IEndpointRouteBuilder endpoints)
     {
-        var tasksVersionGroup = app
+        var tasksVersionGroup = endpoints
             .NewVersionedApi(Tag)
             .WithTags(Tag);
 
         var tasksGroupV1 = tasksVersionGroup
             .MapGroup(PracticePrefixUri)
-            .HasApiVersion(1.0)
-            .AddEndpointFilter<ResultEndPointFilter>();
+            .HasApiVersion(1.0);
 
         tasksGroupV1.MapCreatePracticeTaskEndpoint();
         tasksGroupV1.MapCompletePracticeEndpoint();
 
-        return app;
+        return endpoints;
     }
 }

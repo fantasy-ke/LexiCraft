@@ -1,4 +1,5 @@
 using BuildingBlocks.Extensions;
+using BuildingBlocks.Filters;
 using BuildingBlocks.Grpc.Contracts.Extensions;
 using BuildingBlocks.Grpc.Contracts.FileGrpc;
 using BuildingBlocks.Mediator;
@@ -32,9 +33,10 @@ public static class ApplicationConfiguration
     {
         app.UseInfrastructure();
 
-        app.MapIdentityModuleEndpoints();
-        app.MapUsersModuleEndpoints();
-        app.MapPermissionsModuleEndpoints();
+        var api = app.MapGroup(string.Empty).WithResultDto();
+        api.MapIdentityModuleEndpoints();
+        api.MapUsersModuleEndpoints();
+        api.MapPermissionsModuleEndpoints();
 
         return app;
     }

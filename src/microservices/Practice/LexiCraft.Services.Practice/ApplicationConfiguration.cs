@@ -1,6 +1,7 @@
 // 练习服务的应用配置
 
 using BuildingBlocks.Extensions;
+using BuildingBlocks.Filters;
 using BuildingBlocks.Mediator;
 using LexiCraft.Services.Practice.Assessments;
 using LexiCraft.Services.Practice.Shared.Extensions.HostApplicationBuilderExtensions;
@@ -44,8 +45,9 @@ public static class ApplicationConfiguration
     {
         app.UseInfrastructure();
 
-        app.MapTasksModuleEndpoints();
-        app.MapAssessmentsModuleEndpoints();
+        var api = app.MapGroup(string.Empty).WithResultDto();
+        api.MapTasksModuleEndpoints();
+        api.MapAssessmentsModuleEndpoints();
 
         return app;
     }

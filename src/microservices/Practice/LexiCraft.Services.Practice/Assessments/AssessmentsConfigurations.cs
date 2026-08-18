@@ -1,6 +1,5 @@
 // ??????
 
-using BuildingBlocks.Filters;
 using LexiCraft.Services.Practice.Assessments.Features.SubmitAnswer;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Http;
@@ -21,19 +20,18 @@ public static class AssessmentsConfigurations
     /// </summary>
     /// <param name="app">Web??????</param>
     /// <returns>???????????</returns>
-    public static IEndpointRouteBuilder MapAssessmentsModuleEndpoints(this WebApplication app)
+    public static IEndpointRouteBuilder MapAssessmentsModuleEndpoints(this IEndpointRouteBuilder endpoints)
     {
-        var assessmentsVersionGroup = app
+        var assessmentsVersionGroup = endpoints
             .NewVersionedApi(Tag)
             .WithTags(Tag);
 
         var assessmentsGroupV1 = assessmentsVersionGroup
             .MapGroup(PracticePrefixUri)
-            .HasApiVersion(1.0)
-            .AddEndpointFilter<ResultEndPointFilter>();
+            .HasApiVersion(1.0);
 
         assessmentsGroupV1.MapSubmitAnswerEndpoint();
 
-        return app;
+        return endpoints;
     }
 }

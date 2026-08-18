@@ -73,9 +73,15 @@ public class ResultDto : ResultDto<object?>
     {
     }
 
-    public static ResultDto Sucess(object? result)
+    public static ResultDto Success(object? result)
     {
         return new ResultDto(result);
+    }
+
+    [Obsolete("请使用 Success 方法。")]
+    public static ResultDto Sucess(object? result)
+    {
+        return Success(result);
     }
 
     public static ResultDto Fail(string errorMessage, int errorCode = 500)

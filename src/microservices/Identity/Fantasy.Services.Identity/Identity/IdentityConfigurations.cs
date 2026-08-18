@@ -1,4 +1,3 @@
-using BuildingBlocks.Filters;
 using Fantasy.Services.Identity.Identity.Features.Login;
 using Fantasy.Services.Identity.Identity.Features.Logout;
 using Fantasy.Services.Identity.Identity.Features.OAuthInitiate;
@@ -30,13 +29,11 @@ internal static class IdentityConfigurations
 
         var identityGroupV1 = identityVersionGroup
             .MapGroup(IdentityPrefixUri)
-            .HasApiVersion(1.0)
-            .AddEndpointFilter<ResultEndPointFilter>();
+            .HasApiVersion(1.0);
 
         var identityGroupV2 = identityVersionGroup
             .MapGroup(IdentityPrefixUri)
-            .HasApiVersion(2.0)
-            .AddEndpointFilter<ResultEndPointFilter>();
+            .HasApiVersion(2.0);
 
 
         identityGroupV1.MapOAuthInitiateEndpoint();

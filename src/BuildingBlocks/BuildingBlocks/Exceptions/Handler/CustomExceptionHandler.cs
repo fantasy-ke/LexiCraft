@@ -19,8 +19,10 @@ public class CustomExceptionHandler(
         CancellationToken cancellationToken)
     {
         logger.LogError(
-            "Error Message: {exceptionMessage}, Time of occurrence {time}",
-            exception.Message, DateTime.UtcNow);
+            exception,
+            "Unhandled exception at {RequestPath}, Time of occurrence {Time}",
+            context.Request.Path,
+            DateTime.UtcNow);
 
         var statusCode = !problemCodeMappers.Any()
             ? new DefaultProblemCodeMapper().GetMappedStatusCodes(exception)
@@ -29,11 +31,12 @@ public class CustomExceptionHandler(
         {
             { "traceId", Activity.Current?.Id ?? context.TraceIdentifier },
             { "title", exception.GetType().Name },
-            { "instance", context.Request.Path }
+            { "instance", context.Request.Path.Value ?? string.Empty }
         };
 
         if (webHostEnvironment.IsDevelopment()) extensions["stackTrace"] = exception.StackTrace;
         var response = ResultDto.FailExt(exception.Message, extensions, statusCode);
+        context.Response.StatusCode = statusCode;
         await context.Response.WriteAsJsonAsync(response, cancellationToken);
         return true;
     }
