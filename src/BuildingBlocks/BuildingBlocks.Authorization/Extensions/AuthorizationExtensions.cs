@@ -21,6 +21,11 @@ public static class AuthorizationExtensions
     /// <summary>
     ///     注册所有服务共用的授权基础设施。调用方还必须选择本地或 Identity API 权限验证模式。
     /// </summary>
+    /// <remarks>
+    ///     注册本身不提供权限数据源。Identity 应再调用 <see cref="AddLocalPermissionValidation{TPermissionStore}"/>，
+    ///     业务服务应再调用 <see cref="AddIdentityApiPermissionValidation"/>；缺少所需实现会在解析授权处理器时失败，
+    ///     避免把未配置的授权链路静默降级为允许。
+    /// </remarks>
     /// <param name="builder">应用宿主构建器。</param>
     /// <returns>当前应用宿主构建器。</returns>
     public static IHostApplicationBuilder RegisterAuthorization(this IHostApplicationBuilder builder)

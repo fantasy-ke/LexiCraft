@@ -2,7 +2,7 @@ using BuildingBlocks.Authentication;
 using BuildingBlocks.Authentication.Abstractions;
 using BuildingBlocks.Authentication.Permissions;
 using BuildingBlocks.Authentication.Options;
-using LexiCraft.Shared.Permissions;
+using Fantasy.Shared.Permissions;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Options;
@@ -131,6 +131,6 @@ public sealed class PermissionValidationTests
 
     private static IPermissionDefinitionManager CreatePermissionDefinitionManager()
     {
-        return new PermissionDefinitionManager([new LexiCraftPermissionDefinitionProvider()]);
+        return new PermissionDefinitionManager([new FantasyPermissionDefinitionProvider()]);
     }
 }

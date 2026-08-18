@@ -3,7 +3,7 @@ using BuildingBlocks.Cors;
 using BuildingBlocks.OpenApi.AspnetOpenApi.Extensions;
 using BuildingBlocks.Validation.Extensions;
 using BuildingBlocks.Validation.Pipelines;
-using LexiCraft.Shared.Permissions;
+using Fantasy.Shared.Permissions;
 using MediatR;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
@@ -20,7 +20,7 @@ public static partial class HostApplicationBuilderExtensions
 
         builder.RegisterAuthorization();
         builder.AddCustomAuthentication();
-        builder.Services.AddPermissionDefinitionProvider<LexiCraftPermissionDefinitionProvider>();
+        builder.Services.AddPermissionDefinitionProvider<FantasyPermissionDefinitionProvider>();
         builder.Services.AddIdentityApiPermissionValidation();
 
         builder.AddAspnetOpenApi();

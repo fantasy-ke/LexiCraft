@@ -9,10 +9,10 @@ public sealed record PermissionValidationRequest(string[] Permissions);
 /// <summary>
 ///     区分“无权限”“会话失效”和“验证服务不可用”的权限验证结果。
 /// </summary>
-/// <param name="Granted">是否授予访问。</param>
-/// <param name="SessionValid">当前登录会话是否有效。</param>
-/// <param name="ServiceAvailable">权限验证依赖是否可用。</param>
-/// <param name="MissingPermissions">拒绝访问时缺少的权限。</param>
+/// <param name="Granted">是否授予访问；只有会话、依赖和全部精确权限检查均通过时才为 <see langword="true"/>。</param>
+/// <param name="SessionValid">当前登录会话是否有效；为 <see langword="false"/> 时调用方应返回 401。</param>
+/// <param name="ServiceAvailable">权限验证依赖是否可用；为 <see langword="false"/> 时调用方应关闭式失败并返回 503。</param>
+/// <param name="MissingPermissions">会话有效但拒绝访问时缺少的权限；调用方应返回 403。</param>
 public sealed record PermissionValidationResult(
     bool Granted,
     bool SessionValid,

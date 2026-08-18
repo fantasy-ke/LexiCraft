@@ -14,6 +14,9 @@ internal sealed class RedisAuthorizationSynchronization(
     private static readonly TimeSpan AcquireTimeout = TimeSpan.FromSeconds(5);
 
     /// <inheritdoc />
+    /// <exception cref="ArgumentException"><paramref name="resource"/> 为空或仅包含空白字符时抛出。</exception>
+    /// <exception cref="ArgumentNullException"><paramref name="action"/> 为 <see langword="null"/> 时抛出。</exception>
+    /// <exception cref="HttpRequestException">Redis 锁依赖不可用或在限定时间内无法获取锁时抛出，状态码为 503。</exception>
     public async Task<TResult> ExecuteAsync<TResult>(
         string resource,
         Func<CancellationToken, Task<TResult>> action,

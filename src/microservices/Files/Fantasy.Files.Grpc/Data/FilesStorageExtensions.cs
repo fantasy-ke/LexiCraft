@@ -1,0 +1,47 @@
+using BuildingBlocks.EntityFrameworkCore.Extensions;
+using Microsoft.EntityFrameworkCore;
+
+namespace Fantasy.Files.Grpc.Data;
+
+/// <summary>
+///     扩展方法
+/// </summary>
+public static class FilesStorageExtensions
+{
+    /// <summary>
+    ///     添加数据库访问
+    /// </summary>
+    /// <param name="services"></param>
+    /// <param name="configuration"></param>
+    /// <returns></returns>
+    public static IServiceCollection AddFantasyDbAccess(this IServiceCollection services,
+        IConfiguration configuration)
+    {
+        // services.AddScoped<ISaveChangesInterceptor, AuditableEntityInterceptor>();
+        services.WithDbAccess<FilesDbContext>(options =>
+        {
+            options.UseSqlite(configuration.GetConnectionString("Database"));
+#if DEBUG
+            options.EnableSensitiveDataLogging();
+            options.EnableDetailedErrors();
+#endif
+        });
+        // services.Configure<ContextOption>(configuration.GetSection("DbContextOptions"));
+        services.WithRepository<FilesDbContext>();
+        return services;
+    }
+
+    /// <summary>
+    ///     应用数据库迁移
+    /// </summary>
+    /// <param name="app"></param>
+    /// <returns></returns>
+    public static async Task UseMigrationAsync(
+        this WebApplication app,
+        CancellationToken cancellationToken = default)
+    {
+        await using var scope = app.Services.CreateAsyncScope();
+        var dbContext = scope.ServiceProvider.GetRequiredService<FilesDbContext>();
+        await dbContext.Database.MigrateAsync(cancellationToken);
+    }
+}

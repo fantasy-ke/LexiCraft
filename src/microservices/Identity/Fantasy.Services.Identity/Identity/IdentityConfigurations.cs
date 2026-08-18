@@ -1,0 +1,51 @@
+using BuildingBlocks.Filters;
+using Fantasy.Services.Identity.Identity.Features.Login;
+using Fantasy.Services.Identity.Identity.Features.Logout;
+using Fantasy.Services.Identity.Identity.Features.OAuthInitiate;
+using Fantasy.Services.Identity.Identity.Features.OAuthToken;
+using Fantasy.Services.Identity.Identity.Features.RefreshToken;
+using Fantasy.Services.Identity.Identity.Features.ReplayEvents;
+using Microsoft.AspNetCore.Builder;
+using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Routing;
+
+namespace Fantasy.Services.Identity.Identity;
+
+internal static class IdentityConfigurations
+{
+    public const string Tag = "Identity";
+    private const string IdentityPrefixUri = $"{ApplicationConfiguration.IdentityModulePrefixUri}";
+
+    internal static WebApplicationBuilder AddIdentityModuleServices(this WebApplicationBuilder builder)
+    {
+        // builder.Services.AddScoped<IEventHandler<LoginLogEvent>, LoginEventHandler>();
+        return builder;
+    }
+
+    public static IEndpointRouteBuilder MapIdentityModuleEndpoints(this IEndpointRouteBuilder endpoints)
+    {
+        var identityVersionGroup = endpoints
+            .NewVersionedApi(Tag)
+            .WithTags(Tag);
+
+        var identityGroupV1 = identityVersionGroup
+            .MapGroup(IdentityPrefixUri)
+            .HasApiVersion(1.0)
+            .AddEndpointFilter<ResultEndPointFilter>();
+
+        var identityGroupV2 = identityVersionGroup
+            .MapGroup(IdentityPrefixUri)
+            .HasApiVersion(2.0)
+            .AddEndpointFilter<ResultEndPointFilter>();
+
+
+        identityGroupV1.MapOAuthInitiateEndpoint();
+        identityGroupV1.MapOAuthEndpoint();
+        identityGroupV1.MapLogoutEndpoint();
+        identityGroupV1.MapLoginEndpoint();
+        identityGroupV1.MapRefreshTokenEndpoint();
+        identityGroupV1.MapReplayEventsEndpoint();
+
+        return endpoints;
+    }
+}

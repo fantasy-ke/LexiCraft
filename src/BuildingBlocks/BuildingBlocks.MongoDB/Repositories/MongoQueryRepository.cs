@@ -8,12 +8,20 @@ using MongoDB.Driver;
 
 namespace BuildingBlocks.MongoDB.Repositories;
 
-/// <summary>
-///     MongoDB query repository with a single monitoring and read-resilience pipeline.
-/// </summary>
+/// <summary>通过统一的 session、性能监控和读取弹性管线访问 MongoDB 集合。</summary>
+/// <typeparam name="TEntity">派生自 <see cref="MongoEntity"/> 的文档类型。</typeparam>
+/// <remarks>
+///     事务外读取可由 <see cref="IMongoResilienceService"/> 重试；事务内读取必须绑定当前 session 且不局部重试。
+///     MongoDB 没有 EF Core ChangeTracker，因此 <see cref="Query"/> 与 <see cref="QueryNoTracking"/> 等价。
+/// </remarks>
 public class MongoQueryRepository<TEntity> : IQueryRepository<TEntity>
     where TEntity : MongoEntity
 {
+    /// <summary>使用显式集合名创建可供业务仓储继承的查询仓储。</summary>
+    /// <param name="context">提供数据库与当前事务 session 的作用域上下文。</param>
+    /// <param name="resilienceService">仅用于事务外读取的 MongoDB 弹性服务。</param>
+    /// <param name="performanceMonitor">仓储操作性能监控器。</param>
+    /// <param name="collectionName">集合名；为空时使用实体 CLR 类型名。</param>
     protected MongoQueryRepository(
         IMongoDbContext context,
         IMongoResilienceService resilienceService,
@@ -27,6 +35,10 @@ public class MongoQueryRepository<TEntity> : IQueryRepository<TEntity>
         Collection = context.Database.GetCollection<TEntity>(CollectionName);
     }
 
+    /// <summary>使用实体 CLR 类型名作为集合名创建查询仓储。</summary>
+    /// <param name="context">提供数据库与当前事务 session 的作用域上下文。</param>
+    /// <param name="resilienceService">仅用于事务外读取的 MongoDB 弹性服务。</param>
+    /// <param name="performanceMonitor">仓储操作性能监控器。</param>
     public MongoQueryRepository(
         IMongoDbContext context,
         IMongoResilienceService resilienceService,
@@ -35,12 +47,22 @@ public class MongoQueryRepository<TEntity> : IQueryRepository<TEntity>
     {
     }
 
+    /// <summary>获取作用域 MongoDB 上下文。</summary>
     protected IMongoDbContext Context { get; }
+
+    /// <summary>获取事务外读取弹性服务。</summary>
     protected IMongoResilienceService ResilienceService { get; }
+
+    /// <summary>获取性能监控器。</summary>
     protected IMongoPerformanceMonitor PerformanceMonitor { get; }
+
+    /// <summary>获取当前实体的 MongoDB 集合。</summary>
     protected IMongoCollection<TEntity> Collection { get; }
+
+    /// <summary>获取实际集合名称。</summary>
     protected string CollectionName { get; }
 
+    /// <inheritdoc />
     public virtual Task<List<TEntity>> GetListAsync(
         Expression<Func<TEntity, bool>> predicate,
         CancellationToken cancellationToken = default)
@@ -48,6 +70,7 @@ public class MongoQueryRepository<TEntity> : IQueryRepository<TEntity>
         return FindAsync(predicate, cancellationToken);
     }
 
+    /// <inheritdoc />
     public virtual Task<TEntity?> FirstOrDefaultAsync(
         Expression<Func<TEntity, bool>> predicate,
         CancellationToken cancellationToken = default)
@@ -59,6 +82,7 @@ public class MongoQueryRepository<TEntity> : IQueryRepository<TEntity>
             cancellationToken)!;
     }
 
+    /// <inheritdoc />
     public virtual Task<TEntity> FirstAsync(
         Expression<Func<TEntity, bool>> predicate,
         CancellationToken cancellationToken = default)
@@ -70,6 +94,7 @@ public class MongoQueryRepository<TEntity> : IQueryRepository<TEntity>
             cancellationToken);
     }
 
+    /// <inheritdoc />
     public virtual Task<TEntity?> SingleOrDefaultAsync(
         Expression<Func<TEntity, bool>> predicate,
         CancellationToken cancellationToken = default)
@@ -81,6 +106,7 @@ public class MongoQueryRepository<TEntity> : IQueryRepository<TEntity>
             cancellationToken)!;
     }
 
+    /// <inheritdoc />
     public virtual Task<TEntity> SingleAsync(
         Expression<Func<TEntity, bool>> predicate,
         CancellationToken cancellationToken = default)
@@ -92,6 +118,7 @@ public class MongoQueryRepository<TEntity> : IQueryRepository<TEntity>
             cancellationToken);
     }
 
+    /// <inheritdoc />
     public virtual async Task<int> CountAsync(
         Expression<Func<TEntity, bool>> predicate,
         CancellationToken cancellationToken = default)
@@ -103,6 +130,7 @@ public class MongoQueryRepository<TEntity> : IQueryRepository<TEntity>
         return checked((int)count);
     }
 
+    /// <inheritdoc />
     public virtual Task<bool> AnyAsync(
         Expression<Func<TEntity, bool>> predicate,
         CancellationToken cancellationToken = default)
@@ -114,6 +142,7 @@ public class MongoQueryRepository<TEntity> : IQueryRepository<TEntity>
             cancellationToken);
     }
 
+    /// <inheritdoc />
     public virtual Task<TEntity?> GetAsync(
         Expression<Func<TEntity, bool>> predicate,
         CancellationToken cancellationToken = default)
@@ -121,6 +150,7 @@ public class MongoQueryRepository<TEntity> : IQueryRepository<TEntity>
         return FirstOrDefaultAsync(predicate, cancellationToken);
     }
 
+    /// <inheritdoc />
     public virtual Task<List<TEntity>> GetListAsync(CancellationToken cancellationToken = default)
     {
         return ExecuteReadOperationAsync(
@@ -129,16 +159,20 @@ public class MongoQueryRepository<TEntity> : IQueryRepository<TEntity>
             cancellationToken);
     }
 
+    /// <inheritdoc />
     public virtual IQueryable<TEntity> Query()
     {
         return AsQueryable();
     }
 
+    /// <inheritdoc />
     public virtual IQueryable<TEntity> QueryNoTracking()
     {
         return AsQueryable();
     }
 
+    /// <inheritdoc />
+    /// <remarks>事务外并行执行计数和列表查询；事务内为遵守 session 约束而串行执行。</remarks>
     public virtual async Task<(int total, IEnumerable<TEntity> result)> GetPageListAsync(
         Expression<Func<TEntity, bool>> predicate,
         int pageIndex,
@@ -154,6 +188,10 @@ public class MongoQueryRepository<TEntity> : IQueryRepository<TEntity>
         return (checked((int)totalCount), items);
     }
 
+    /// <summary>通过统一读取管线返回满足条件的全部文档。</summary>
+    /// <param name="filter">文档筛选表达式。</param>
+    /// <param name="cancellationToken">用于取消查询和重试等待的令牌。</param>
+    /// <returns>匹配文档列表。</returns>
     protected Task<List<TEntity>> FindAsync(
         Expression<Func<TEntity, bool>> filter,
         CancellationToken cancellationToken = default)
@@ -165,6 +203,15 @@ public class MongoQueryRepository<TEntity> : IQueryRepository<TEntity>
             cancellationToken);
     }
 
+    /// <summary>通过统一读取管线查询分页文档和总数。</summary>
+    /// <param name="filter">可选筛选表达式；为空时匹配全部文档。</param>
+    /// <param name="skip">要跳过的文档数。</param>
+    /// <param name="limit">最多返回的文档数。</param>
+    /// <param name="sortBy">可选排序表达式。</param>
+    /// <param name="sortDescending">是否降序。</param>
+    /// <param name="cancellationToken">用于取消查询和重试等待的令牌。</param>
+    /// <returns>当前页文档及匹配总数。</returns>
+    /// <exception cref="ArgumentOutOfRangeException"><paramref name="skip"/> 小于 0 或 <paramref name="limit"/> 小于等于 0 时抛出。</exception>
     protected Task<(List<TEntity> Items, long TotalCount)> FindPagedAsync(
         Expression<Func<TEntity, bool>>? filter = null,
         int skip = 0,
@@ -204,9 +251,13 @@ public class MongoQueryRepository<TEntity> : IQueryRepository<TEntity>
             cancellationToken);
     }
 
-    /// <summary>
-    ///     Reads are retried only outside transactions. A transaction must be retried as one complete unit.
-    /// </summary>
+    /// <summary>执行受监控的读取，并仅在没有活动事务时应用弹性重试。</summary>
+    /// <typeparam name="TResult">读取结果类型。</typeparam>
+    /// <param name="operationName">性能指标和弹性操作名称。</param>
+    /// <param name="operation">接收当前事务 session 或 <see langword="null"/> 的读取委托。</param>
+    /// <param name="cancellationToken">用于取消读取及重试等待的令牌。</param>
+    /// <returns>读取结果。</returns>
+    /// <remarks>事务必须作为完整单元重试，不能在同一 session 内单独重试一条读取。</remarks>
     protected async Task<TResult> ExecuteReadOperationAsync<TResult>(
         string operationName,
         Func<IClientSessionHandle?, Task<TResult>> operation,
@@ -225,9 +276,13 @@ public class MongoQueryRepository<TEntity> : IQueryRepository<TEntity>
             cancellationToken);
     }
 
-    /// <summary>
-    ///     Writes rely on the MongoDB driver's retryable-write behavior and are not application-retried.
-    /// </summary>
+    /// <summary>执行返回结果的受监控写操作，不应用仓储级重试。</summary>
+    /// <typeparam name="TResult">写操作结果类型。</typeparam>
+    /// <param name="operationName">性能指标名称。</param>
+    /// <param name="operation">接收当前事务 session 或 <see langword="null"/> 的写入委托。</param>
+    /// <param name="cancellationToken">用于取消写命令的令牌。</param>
+    /// <returns>写入结果。</returns>
+    /// <remarks>写入依赖 MongoDB 驱动 retryable writes；业务仍须提供幂等键、唯一索引或事务保护。</remarks>
     protected async Task<TResult> ExecuteWriteOperationAsync<TResult>(
         string operationName,
         Func<IClientSessionHandle?, Task<TResult>> operation,
@@ -238,6 +293,12 @@ public class MongoQueryRepository<TEntity> : IQueryRepository<TEntity>
         return await operation(GetActiveSession());
     }
 
+    /// <summary>执行不返回结果的受监控写操作，不应用仓储级重试。</summary>
+    /// <param name="operationName">性能指标名称。</param>
+    /// <param name="operation">接收当前事务 session 或 <see langword="null"/> 的写入委托。</param>
+    /// <param name="cancellationToken">用于取消写命令的令牌。</param>
+    /// <returns>表示写入过程的任务。</returns>
+    /// <remarks>存在活动事务时，委托必须使用传入 session，确保事务内所有操作共享同一会话。</remarks>
     protected async Task ExecuteWriteOperationAsync(
         string operationName,
         Func<IClientSessionHandle?, Task> operation,

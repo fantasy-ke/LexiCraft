@@ -1,6 +1,6 @@
 # BuildingBlocks.OpenApi
 
-`BuildingBlocks.OpenApi` 是 LexiCraft 微服务的 OpenAPI 与 API 版本化基础类库，统一提供：
+`BuildingBlocks.OpenApi` 是 本平台微服务的 OpenAPI 与 API 版本化基础类库，统一提供：
 
 - ASP.NET Core Minimal API 版本管理；
 - 按 API 版本生成独立 OpenAPI 文档；
@@ -55,9 +55,9 @@ BuildingBlocks.OpenApi/
 ```json
 {
   "OpenApiOptions": {
-    "Title": "LexiCraft Identity API",
-    "Description": "LexiCraft 身份认证与用户管理服务",
-    "AuthorName": "LexiCraft",
+    "Title": "Fantasy Identity API",
+    "Description": "Fantasy 身份认证与用户管理服务",
+    "AuthorName": "Fantasy",
     "AuthorUrl": "https://example.com",
     "AuthorEmail": "team@example.com",
     "LicenseName": "MIT",
@@ -120,7 +120,7 @@ if (app.Environment.IsDevelopment())
 
 ### 路由约定
 
-LexiCraft 当前采用 URL 版本段作为稳定契约：
+本平台当前采用 URL 版本段作为稳定契约：
 
 ```text
 api/v{version:apiVersion}/identity
@@ -389,7 +389,7 @@ dotnet build src\BuildingBlocks\BuildingBlocks.OpenApi\BuildingBlocks.OpenApi.cs
 活动解决方案构建：
 
 ```powershell
-dotnet build src\LexiCraft.slnx
+dotnet build src\Fantasy.slnx
 ```
 
 运行服务后检查每个实际版本文档，例如：

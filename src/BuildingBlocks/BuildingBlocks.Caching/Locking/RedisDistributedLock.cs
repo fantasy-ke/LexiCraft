@@ -6,6 +6,15 @@ namespace BuildingBlocks.Caching.Locking;
 /// <summary>
 ///     基于 Redis 的分布式锁实现
 /// </summary>
+/// <remarks>
+///     锁状态就是单个 Redis 实例上的一个带 TTL 的键，键值是唯一 owner token（见
+///     <see cref="LockValue"/>）。释放与续期都通过 Lua 脚本先 <c>GET</c> 比较 owner token 再执行
+///     <c>DEL</c> 或 <c>PEXPIRE</c>，两步在 Redis 中原子完成，因此锁过期后被其他调用方重新取得时，
+///     旧句柄不会误删或误续期。这不是 Redlock，不提供多节点法定人数保证，也不会自动续期：
+///     一旦临界区耗时超过租期，锁会静默失效，之后的 <see cref="ReleaseAsync"/> 返回
+///     <see langword="false"/> 而不抛异常。除取消以外的 Redis 异常都被记录并转换为
+///     <see langword="false"/>，属于降级而非抛出。
+/// </remarks>
 internal sealed class RedisDistributedLock : IDistributedLock
 {
     /// <summary>
@@ -36,11 +45,13 @@ internal sealed class RedisDistributedLock : IDistributedLock
     /// <summary>
     ///     初始化 Redis 分布式锁
     /// </summary>
-    /// <param name="database">Redis 数据库</param>
+    /// <param name="database">已取得锁的 Redis 数据库句柄；必须与获取锁时使用的实例一致。</param>
     /// <param name="logger">日志记录器</param>
-    /// <param name="lockKey">锁键</param>
-    /// <param name="lockValue">锁值</param>
-    /// <param name="expiresAt">过期时间</param>
+    /// <param name="lockKey">含 <c>lock:</c> 前缀的完整 Redis 锁键</param>
+    /// <param name="lockValue">唯一 owner token，用于释放和续期时的原子校验</param>
+    /// <param name="expiresAt">本地记录的 UTC 到期时刻</param>
+    /// <exception cref="ArgumentNullException">任一引用参数为 <see langword="null"/> 时抛出。</exception>
+    /// <remarks>构造函数不执行任何 Redis 操作，调用方必须已经成功取得锁。</remarks>
     public RedisDistributedLock(
         IDatabase database,
         ILogger<RedisDistributedLock> logger,

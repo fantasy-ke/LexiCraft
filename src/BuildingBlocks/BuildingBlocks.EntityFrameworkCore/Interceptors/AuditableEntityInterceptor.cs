@@ -7,10 +7,18 @@ using BuildingBlocks.Contexts;
 
 namespace BuildingBlocks.EntityFrameworkCore.Interceptors;
 
+/// <summary>在 EF Core 保存前补齐实体标识、创建/更新审计信息，并把受支持的删除转换为软删除。</summary>
+/// <param name="userContext">可选当前用户上下文；缺失时创建/更新用户名回退为 <c>systemUser</c>。</param>
+/// <param name="idGenerator">可选长整型 ID 生成器；未提供时不会自动生成长整型及其强类型 ID。</param>
+/// <remarks>
+///     该拦截器必须从当前 <see cref="DbContext"/> 的依赖注入作用域解析。软删除只把删除标记和删除审计字段标记为已修改，
+///     以免附加的脱离跟踪实体覆盖其他列。直接执行的批量删除不会进入保存拦截器。
+/// </remarks>
 public class AuditableEntityInterceptor(
     IUserContext? userContext = null,
     IdGenerator? idGenerator = null) : SaveChangesInterceptor
 {
+    /// <inheritdoc />
     public override InterceptionResult<int> SavingChanges(
         DbContextEventData eventData,
         InterceptionResult<int> result)
@@ -19,6 +27,7 @@ public class AuditableEntityInterceptor(
         return base.SavingChanges(eventData, result);
     }
 
+    /// <inheritdoc />
     public override ValueTask<InterceptionResult<int>> SavingChangesAsync(
         DbContextEventData eventData,
         InterceptionResult<int> result,

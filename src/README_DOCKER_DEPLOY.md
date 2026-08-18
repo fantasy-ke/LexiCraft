@@ -13,17 +13,28 @@ LexiCraft 部署方案说明（Docker / 蓝绿 / Swarm / Kubernetes）
 一、基础说明
 ------------
 
-当前仓库根路径：`d:/A_StudyCode/APersonalProjects/LexiCraft`
+当前仓库根路径：`D:/myCode/LexiCraft`
 
-在 `src/compose.yaml` 中定义了以下服务：
+在 `src/compose.yaml` 中定义了以下服务（服务名即容器 DNS 名，改名后未变）：
 
-- `lexicraft.apigateway`：API 网关，对外暴露 HTTP 端口
-- `files-grpc`：文件服务（gRPC）
-- `identity-api`：身份认证服务
-- `vocabulary-api`：词汇服务
-- `practice-api`：练习服务
+- `lexicraft.apigateway`：API 网关，对外暴露 HTTP 端口，镜像名 `lexicraft.apigateway`
+- `files-grpc`：文件服务（gRPC），镜像名 `fantasy.files.grpc`
+- `identity-api`：身份认证服务，镜像名 `fantasy.services.identity.api`
+- `vocabulary-api`：词汇服务，镜像名 `lexicraft.services.vocabulary.api`
+- `practice-api`：练习服务，镜像名 `lexicraft.services.practice.api`
 
 所有服务都加入 `lexicraft-net` 网络，镜像由同目录下的 Dockerfile 构建。
+
+### 1.1 改名后的发布前置条件
+
+Identity 与 Files 已改名为 `Fantasy.*`，发布前必须先完成以下外部同步，否则服务会读不到配置或丢失历史数据可见性：
+
+1. AgileConfig：先复制并核对新 AppId（`fantasy-identity-api`、`fantasy-files-grpc`）下的全部配置项，确认与旧 AppId 一致后再切换应用。旧 AppId 在确认无回滚需求后再下线。
+2. Identity JWT：`OAuthOptions.Secret` 已从仓库配置中移除，必须由部署环境注入当前有效密钥（`OAuthOptions__Secret`）。空值会导致 Identity 启动失败。密钥轮换是独立的受控动作，不随本次改名执行。
+3. Files 对象存储：新对象写入 `fantasy-files` bucket。迁移期间为 `files-grpc` 配置 `FilesStorageCompatibility__LegacyBucket`（旧 bucket 名），读取与删除在新 bucket 未命中时会回退到旧 bucket。完成对象复制并确认新 bucket 覆盖全部历史对象后，移除该环境变量。
+4. 幂等组件：若某服务已启用 `BuildingBlocks.Idempotency` 且历史键前缀不同，在 `Idempotency__LegacyPrefixes__0` 等环境变量中配置旧前缀，等旧记录 TTL 全部过期后移除。
+5. 可观测性：遥测服务名已改为 `Fantasy.Identity`、`Fantasy.Files`，MongoDB ActivitySource 改为 `BuildingBlocks.MongoDB`。需要同步更新 OpenTelemetry Collector 过滤规则、Aspire/Grafana 仪表盘、Seq 查询和告警规则，否则相关面板会变空。
+6. MassTransit 对外消息：本次未改动消息 URN 契约。上线前仍需核对外部消费者以及 RabbitMQ 积压与死信队列。
 
 二、单栈 docker compose 部署
 ---------------------------
@@ -214,14 +225,14 @@ docker swarm init
 
 ```yaml
   identity-api:
-    image: lexicraft.services.identity.api
+    image: fantasy.services.identity.api
     build:
       context: .
       dockerfile: microservices/Identity/Dockerfile
     environment:
       ASPNETCORE_ENVIRONMENT: "Docker"
       AgileConfig__Nodes: "http://172.31.21.1:8500"
-      AgileConfig__AppId: "identity-api"
+      AgileConfig__AppId: "fantasy-identity-api"
       AgileConfig__Secret: "bb123456"
       AgileConfig__ENV: "TEST"
     restart: unless-stopped

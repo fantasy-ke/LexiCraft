@@ -18,7 +18,15 @@ public sealed class IdempotencyOptions
     /// <summary>
     ///     获取或设置 Redis 租约键和完成结果键的公共前缀。
     /// </summary>
-    public string Prefix { get; set; } = "lexicraft:idempotency";
+    public string Prefix { get; set; } = "fantasy:idempotency";
+
+    /// <summary>
+    ///     获取或设置迁移期间只读的历史 Redis 键前缀。新租约和完成结果始终写入 <see cref="Prefix"/>。
+    /// </summary>
+    /// <remarks>
+    ///     部署新版本前应停止仍使用历史前缀的写入方；等待最长保留期结束后可移除此配置。
+    /// </remarks>
+    public List<string> LegacyPrefixes { get; set; } = [];
 
     /// <summary>
     ///     获取或设置缓存组件中的命名 Redis 实例；空值表示使用默认实例。

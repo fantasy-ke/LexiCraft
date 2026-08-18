@@ -25,7 +25,7 @@
     <FrameworkReference Include="Microsoft.AspNetCore.App" />
     <ProjectReference Include="..\BuildingBlocks.Authorization\BuildingBlocks.Authorization.csproj" />
     <ProjectReference Include="..\BuildingBlocks.Authorization.Redis\BuildingBlocks.Authorization.Redis.csproj" />
-    <ProjectReference Include="..\..\microservices\Shared\LexiCraft.Shared\LexiCraft.Shared.csproj" />
+    <ProjectReference Include="..\..\microservices\Shared\Fantasy.Shared\Fantasy.Shared.csproj" />
   </ItemGroup>
 
 </Project>

@@ -1,0 +1,42 @@
+using BuildingBlocks.Mediator;
+using Fantasy.Services.Identity.Shared.Contracts;
+using Fantasy.Shared.Models;
+using Microsoft.EntityFrameworkCore;
+
+namespace Fantasy.Services.Identity.Users.Features.GetUserInfo;
+
+public record GetUserInfoQuery(UserId UserId) : IQuery<GetUserInfoResult>;
+
+public record GetUserInfoResult(
+    UserId UserId,
+    string UserName,
+    string Email,
+    string? Phone,
+    string Avatar
+);
+
+public class GetUserInfoQueryHandler(IUserRepository userRepository)
+    : IQueryHandler<GetUserInfoQuery, GetUserInfoResult>
+{
+    public async Task<GetUserInfoResult> Handle(GetUserInfoQuery query, CancellationToken cancellationToken)
+    {
+        var user = await userRepository.QueryNoTracking()
+            .Where(p => p.Id == query.UserId)
+            .Select(p => new GetUserInfoResult(
+                UserId: p.Id,
+                UserName: p.Username,
+                Email: p.Email,
+                Phone: p.Phone,
+                Avatar: p.Avatar
+            ))
+            .FirstOrDefaultAsync(cancellationToken);
+
+        return user ?? new GetUserInfoResult(
+            UserId.Empty,
+            string.Empty,
+            string.Empty,
+            null,
+            string.Empty
+        );
+    }
+}

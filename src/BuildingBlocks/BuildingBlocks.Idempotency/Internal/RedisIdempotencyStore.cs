@@ -47,6 +47,13 @@ internal sealed class RedisIdempotencyStore(
     /// </summary>
     private static readonly JsonSerializerOptions SerializerOptions = new(JsonSerializerDefaults.Web);
     private readonly IdempotencyOptions _options = options.Value;
+    private readonly string _currentPrefix = NormalizePrefix(options.Value.Prefix);
+    private readonly string[] _legacyPrefixes = options.Value.LegacyPrefixes
+        .Where(prefix => !string.IsNullOrWhiteSpace(prefix))
+        .Select(NormalizePrefix)
+        .Where(prefix => !string.Equals(prefix, NormalizePrefix(options.Value.Prefix), StringComparison.Ordinal))
+        .Distinct(StringComparer.Ordinal)
+        .ToArray();
 
     /// <summary>
     ///     尝试获取租约或读取已完成响应，最多重试 3 次以容忍并发竞争。
@@ -66,14 +73,25 @@ internal sealed class RedisIdempotencyStore(
         ArgumentException.ThrowIfNullOrWhiteSpace(fingerprint);
 
         var database = GetDatabase();
-        var leaseKey = BuildKey(key, "lease");
-        var resultKey = BuildKey(key, "result");
+        var leaseKey = BuildKey(_currentPrefix, key, "lease");
+        var resultKey = BuildKey(_currentPrefix, key, "result");
+        var legacyKeys = _legacyPrefixes
+            .Select(prefix => new KeyPair(
+                BuildKey(prefix, key, "lease"),
+                BuildKey(prefix, key, "result")))
+            .ToArray();
 
         for (var attempt = 0; attempt < 3; attempt++)
         {
-            var completed = await ReadCompletedAsync(database, resultKey, fingerprint, cancellationToken);
+            var completed = await ReadCompletedFromAnyPrefixAsync(
+                database, resultKey, legacyKeys, fingerprint, cancellationToken);
             if (completed != null)
                 return completed;
+
+            var legacyLease = await ReadLegacyLeaseAsync(
+                database, legacyKeys, fingerprint, cancellationToken);
+            if (legacyLease != null)
+                return legacyLease;
 
             var ownerToken = Guid.NewGuid().ToString("N");
             var leaseValue = BuildLeaseValue(fingerprint, ownerToken);
@@ -83,8 +101,12 @@ internal sealed class RedisIdempotencyStore(
 
             if (acquired)
             {
-                completed = await ReadCompletedAsync(database, resultKey, fingerprint, cancellationToken);
-                if (completed == null)
+                completed = await ReadCompletedFromAnyPrefixAsync(
+                    database, resultKey, legacyKeys, fingerprint, cancellationToken);
+                var legacyLeaseAfterAcquire = completed == null
+                    ? await ReadLegacyLeaseAsync(database, legacyKeys, fingerprint, cancellationToken)
+                    : null;
+                if (completed == null && legacyLeaseAfterAcquire == null)
                 {
                     return new IdempotencyAcquireResult(
                         IdempotencyAcquireStatus.Acquired,
@@ -92,12 +114,18 @@ internal sealed class RedisIdempotencyStore(
                 }
 
                 await DeleteLeaseIfOwnedAsync(database, leaseKey, leaseValue, cancellationToken);
-                return completed;
+                return completed ?? legacyLeaseAfterAcquire!;
             }
 
-            completed = await ReadCompletedAsync(database, resultKey, fingerprint, cancellationToken);
+            completed = await ReadCompletedFromAnyPrefixAsync(
+                database, resultKey, legacyKeys, fingerprint, cancellationToken);
             if (completed != null)
                 return completed;
+
+            var legacyLeaseAfterFailedAcquire = await ReadLegacyLeaseAsync(
+                database, legacyKeys, fingerprint, cancellationToken);
+            if (legacyLeaseAfterFailedAcquire != null)
+                return legacyLeaseAfterFailedAcquire;
 
             var currentLease = await database.StringGetAsync(leaseKey).WaitAsync(cancellationToken);
             if (currentLease.IsNull)
@@ -128,8 +156,8 @@ internal sealed class RedisIdempotencyStore(
         CancellationToken cancellationToken = default)
     {
         var database = GetDatabase();
-        var leaseKey = BuildKey(lease.Key, "lease");
-        var resultKey = BuildKey(lease.Key, "result");
+        var leaseKey = BuildKey(_currentPrefix, lease.Key, "lease");
+        var resultKey = BuildKey(_currentPrefix, lease.Key, "result");
         var leaseValue = BuildLeaseValue(lease.Fingerprint, lease.OwnerToken);
         var envelope = new StoredResponseEnvelope(
             lease.Fingerprint,
@@ -161,10 +189,56 @@ internal sealed class RedisIdempotencyStore(
         CancellationToken cancellationToken = default)
     {
         var database = GetDatabase();
-        var leaseKey = BuildKey(lease.Key, "lease");
+        var leaseKey = BuildKey(_currentPrefix, lease.Key, "lease");
         var leaseValue = BuildLeaseValue(lease.Fingerprint, lease.OwnerToken);
 
         return await DeleteLeaseIfOwnedAsync(database, leaseKey, leaseValue, cancellationToken);
+    }
+
+    private async Task<IdempotencyAcquireResult?> ReadCompletedFromAnyPrefixAsync(
+        IDatabase database,
+        RedisKey currentResultKey,
+        IReadOnlyList<KeyPair> legacyKeys,
+        string fingerprint,
+        CancellationToken cancellationToken)
+    {
+        var completed = await ReadCompletedAsync(
+            database, currentResultKey, fingerprint, cancellationToken);
+        if (completed != null)
+            return completed;
+
+        foreach (var legacyKey in legacyKeys)
+        {
+            completed = await ReadCompletedAsync(
+                database, legacyKey.ResultKey, fingerprint, cancellationToken);
+            if (completed != null)
+                return completed;
+        }
+
+        return null;
+    }
+
+    private static async Task<IdempotencyAcquireResult?> ReadLegacyLeaseAsync(
+        IDatabase database,
+        IReadOnlyList<KeyPair> legacyKeys,
+        string fingerprint,
+        CancellationToken cancellationToken)
+    {
+        foreach (var legacyKey in legacyKeys)
+        {
+            var leaseValue = await database
+                .StringGetAsync(legacyKey.LeaseKey)
+                .WaitAsync(cancellationToken);
+            if (leaseValue.IsNull)
+                continue;
+
+            return new IdempotencyAcquireResult(
+                string.Equals(ReadLeaseFingerprint(leaseValue!), fingerprint, StringComparison.Ordinal)
+                    ? IdempotencyAcquireStatus.InProgress
+                    : IdempotencyAcquireStatus.FingerprintMismatch);
+        }
+
+        return null;
     }
 
     /// <summary>
@@ -238,13 +312,15 @@ internal sealed class RedisIdempotencyStore(
     /// <param name="key">服务端生成的幂等存储键。</param>
     /// <param name="suffix">键用途后缀（lease/result）。</param>
     /// <returns>完整的 Redis 键。</returns>
-    private RedisKey BuildKey(string key, string suffix)
+    private static RedisKey BuildKey(string prefix, string key, string suffix)
     {
-        var prefix = string.IsNullOrWhiteSpace(_options.Prefix)
-            ? "lexicraft:idempotency"
-            : _options.Prefix.Trim().TrimEnd(':');
         var keyHash = Convert.ToHexString(SHA256.HashData(Encoding.UTF8.GetBytes(key)));
         return $"{prefix}:{{{keyHash}}}:{suffix}";
+    }
+
+    private static string NormalizePrefix(string prefix)
+    {
+        return prefix.Trim().TrimEnd(':');
     }
 
     /// <summary>
@@ -271,6 +347,8 @@ internal sealed class RedisIdempotencyStore(
 
         return leaseValue[(separatorIndex + 1)..];
     }
+
+    private readonly record struct KeyPair(RedisKey LeaseKey, RedisKey ResultKey);
 
     /// <summary>
     ///     完成响应在 Redis 中的存储信封，附加指纹以支持冲突检测。

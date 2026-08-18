@@ -1,6 +1,6 @@
 # BuildingBlocks.EventBus
 
-`BuildingBlocks.EventBus` 是 LexiCraft 的轻量事件分发组件，提供：
+`BuildingBlocks.EventBus` 是本平台的轻量事件分发组件，提供：
 
 - 基于有界 `Channel` 的进程内事件队列；
 - 基于 Redis Pub/Sub 的跨进程事件通知；

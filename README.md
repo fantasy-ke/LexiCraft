@@ -210,7 +210,7 @@ graph TB
    cd LexiCraft/src
    ```
 
-2. 在您首选的 IDE 中打开 `LexiCraft.slnx` 解决方案文件。
+2. 在您首选的 IDE 中打开 `Fantasy.slnx` 解决方案文件（测试项目在 `Fantasy.Tests.slnx`）。
 
 3. 将 `LexiCraft.Aspire.Host` 设置为启动项目。
 
@@ -269,15 +269,19 @@ src/
 │   ├── BuildingBlocks.SerilogLogging/ # 日志记录
 │   └── BuildingBlocks.Validation/ # 验证组件
 ├── LexiCraft.Aspire.Host/         # .NET Aspire 主机项目
-├── LexiCraft.Aspire.ServiceDefaults/ # Aspire 服务默认配置
+├── Fantasy.Aspire.ServiceDefaults/ # Aspire 服务默认配置
 ├── microservices/                 # 微服务集合
-│   ├── Identity/                  # 身份认证服务
-│   ├── Vocabulary/                # 词汇服务
-│   └── Practice/                  # 练习服务
+│   ├── Identity/                  # 身份认证服务（Fantasy.Services.Identity{,.Api}）
+│   ├── Vocabulary/                # 词汇服务（LexiCraft.Services.Vocabulary*）
+│   ├── Practice/                  # 练习服务（LexiCraft.Services.Practice*）
+│   ├── Files/                     # 文件 gRPC 服务（Fantasy.Files.Grpc）
+│   └── Shared/                    # 微服务共享模型与权限定义（Fantasy.Shared）
 ├── UIs/                           # 前端应用程序
 ├── compose.yaml                   # Docker Compose 配置
 ├── Directory.Build.props          # 全局 MSBuild 属性
 ├── Directory.Packages.props       # 集中包管理
+├── Fantasy.slnx                   # 生产解决方案
+├── Fantasy.Tests.slnx             # 测试解决方案
 └── global.json                    # .NET SDK 版本规范
 ```
 

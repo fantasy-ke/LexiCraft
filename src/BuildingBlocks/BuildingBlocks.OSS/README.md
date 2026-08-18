@@ -54,7 +54,7 @@ OpenAPI、数据库等其他模块不需要感知具体 OSS SDK。
         "AccessKey": "${MINIO_ACCESS_KEY}",
         "SecretKey": "${MINIO_SECRET_KEY}",
         "Region": "us-east-1",
-        "DefaultBucket": "lexicraft-files",
+        "DefaultBucket": "fantasy-files",
         "IsEnableHttps": false,
         "IsEnableCache": true
       },
@@ -63,7 +63,7 @@ OpenAPI、数据库等其他模块不需要感知具体 OSS SDK。
         "Endpoint": "https://oss-cn-hangzhou.aliyuncs.com",
         "AccessKey": "${ALIYUN_ACCESS_KEY}",
         "SecretKey": "${ALIYUN_SECRET_KEY}",
-        "DefaultBucket": "lexicraft-archive",
+        "DefaultBucket": "fantasy-archive",
         "IsEnableHttps": true
       }
     }

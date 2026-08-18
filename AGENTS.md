@@ -8,11 +8,21 @@ LexiCraft 是一个以 .NET 微服务为后端、Vue 3 为前端的英语词汇�
 
 ### 1.1 默认入口与解决方案
 
-- 当前主要解决方案：`src/LexiCraft.slnx`。
+- 生产解决方案：`src/Fantasy.slnx`；测试解决方案：`src/Fantasy.Tests.slnx`。两者拆分维护，构建生产代码用前者，跑测试用后者。
+- 仓库中已不存在根目录 `LexiCraft.sln`，`src/LexiCraft.sln.DotSettings.user` 只是 Rider 的个人设置残留，不是解决方案。
 - 默认编排入口：`src/LexiCraft.Aspire.Host/AppHost.cs`。
-- 根目录 `LexiCraft.sln` 是较早的解决方案文件，项目清单与 `src/LexiCraft.slnx` 可能不一致。修改或验证前必须明确使用哪一个；默认使用 `src/LexiCraft.slnx`。
 - API 网关入口：`src/ApiGateway/LexiCraft.ApiGateway/`。
 - 前端入口：`src/UIs/lexicraft-vue-frontend/`。
+
+### 1.1.1 命名边界（2026-08-18 起生效）
+
+命名迁移是分阶段的，当前真实状态如下，不要按“全仓统一品牌”的假设改名：
+
+- 已改为 `Fantasy.*`：`src/microservices/Identity/Fantasy.Services.Identity{,.Api}`、`src/microservices/Files/Fantasy.Files.Grpc`、`src/microservices/Shared/Fantasy.Shared`、`src/Fantasy.Aspire.ServiceDefaults`、两个 `.slnx`。
+- 保持 `LexiCraft.*` 不变：`src/microservices/Vocabulary/`、`src/microservices/Practice/`（目录、项目名、程序集名、命名空间、Aspire 资源名）、`src/LexiCraft.Aspire.Host/`、`src/ApiGateway/LexiCraft.ApiGateway/`、前端 `lexicraft-vue-frontend`。
+- `src/BuildingBlocks/` 保持品牌中性的 `BuildingBlocks.*`，且其受控源码、项目文件和 README 中不得出现任意大小写的 `LexiCraft`；Identity 与 Files 目录同样适用该零命中要求。
+- Aspire 资源名与 AgileConfig AppId：Identity 为 `fantasy-identity-api`，Files 为 `fantasy-files-grpc`；Vocabulary、Practice、Gateway 的资源名未变。
+- Compose 服务 DNS 名（`identity-api`、`files-grpc`）、HTTP 路由前缀和 Code First gRPC 契约都未随改名变化。
 
 ### 1.2 技术栈与服务边界
 
@@ -20,7 +30,7 @@ LexiCraft 是一个以 .NET 微服务为后端、Vue 3 为前端的英语词汇�
 - 网关：YARP 反向代理，附带限流、安全响应头和 CORS。
 - 数据：Identity 与 Vocabulary 使用 PostgreSQL；Practice 使用 MongoDB；Redis 用于缓存及部分分布式能力。
 - 通信：服务默认配置提供服务发现、HttpClient resilience、健康检查和 OpenTelemetry；项目同时存在 `BuildingBlocks.EventBus` 与 `BuildingBlocks.MassTransit`，新增跨服务消息前先确认使用的总线和幂等策略。
-- 文件：`LexiCraft.Files.Grpc` 通过 gRPC 契约和 OSS 抽象处理文件，并提供内容读取和静态文件入口。
+- 文件：`Fantasy.Files.Grpc` 通过 gRPC 契约和 OSS 抽象处理文件，并提供内容读取和静态文件入口。
 - 认证：JWT Bearer、权限定义和 OAuth 提供商由 Identity 及 `BuildingBlocks.Authorization` 负责。
 - 日志与可观测性：Serilog、OpenTelemetry、Aspire 默认能力。
 - 前端：Vue 3、TypeScript、Vite、Vue Router、Pinia、Axios、UnoCSS、Vue Macros、自动图标/组件导入。
@@ -28,14 +38,14 @@ LexiCraft 是一个以 .NET 微服务为后端、Vue 3 为前端的英语词汇�
 主要目录：
 
 - `src/LexiCraft.Aspire.Host/`：本地/容器服务编排。
-- `src/LexiCraft.Aspire.ServiceDefaults/`：服务发现、弹性、健康检查和 OpenTelemetry 公共配置。
+- `src/Fantasy.Aspire.ServiceDefaults/`：服务发现、弹性、健康检查和 OpenTelemetry 公共配置。
 - `src/ApiGateway/`：YARP 网关、限流、安全头和 CORS。
-- `src/microservices/Identity/`：登录、注册、刷新令牌、OAuth、用户资料、头像和权限。
-- `src/microservices/Vocabulary/`：词库、单词查询、导入和用户单词状态。
-- `src/microservices/Practice/`：练习任务、提交答案和完成练习。
-- `src/microservices/Files/`：文件 gRPC 服务、内容读取、上传目录和 OSS。
-- `src/microservices/Shared/`：微服务共享模型和权限常量。
-- `src/BuildingBlocks/`：认证、缓存、EF Core、PostgreSQL、MongoDB、事件、OSS、OpenAPI、日志和验证等基础组件。
+- `src/microservices/Identity/`：登录、注册、刷新令牌、OAuth、用户资料、头像和权限（`Fantasy.Services.Identity` 与 `Fantasy.Services.Identity.Api`）。
+- `src/microservices/Vocabulary/`：词库、单词查询、导入和用户单词状态（保持 `LexiCraft.Services.Vocabulary*`）。
+- `src/microservices/Practice/`：练习任务、提交答案和完成练习（保持 `LexiCraft.Services.Practice*`）。
+- `src/microservices/Files/`：文件 gRPC 服务、内容读取、上传目录和 OSS（`Fantasy.Files.Grpc`）。
+- `src/microservices/Shared/`：微服务共享模型和权限常量（`Fantasy.Shared`，权限定义为 `FantasyPermissionDefinitionProvider`）。
+- `src/BuildingBlocks/`：授权、缓存、持久化抽象、EF Core、EF Core Postgres、MongoDB、事件、消息、幂等、OSS、OpenAPI、日志和验证等基础组件。
 - `src/UIs/lexicraft-vue-frontend/src/apis/`：前端 API 模块；`auth.ts` 是较新的 Identity 客户端，部分其他模块仍保留旧接口封装。
 - `src/UIs/lexicraft-vue-frontend/src/utils/http.ts` 与 `authHttp.ts`：两套 Axios 客户端，新增接口必须先判断是否应合并或迁移，不能继续复制第三套。
 - `.agents/MEMORY.md`：长期项目记忆。
@@ -102,14 +112,13 @@ LexiCraft 是一个以 .NET 微服务为后端、Vue 3 为前端的英语词汇�
 
 - 新增或修改的代码文件目标不超过 800 行，绝对上限不超过 1200 行；接近上限时优先按真实职责拆分，不创建只有一层转发的空抽象。
 - Markdown/配置/测试应归属对应模块；API 契约和联调说明优先放在服务或前端 API 模块附近。
-- 当前已知超过 800 行的活跃文件必须作为技术债跟踪，不能为了满足检查而无关重构：
-  - `src/BuildingBlocks/BuildingBlocks.Caching/Services/CacheService.cs`（813 行）
-  - `src/BuildingBlocks/BuildingBlocks.OSS/Services/MinioOSSService.cs`（949 行）
-  - `src/UIs/lexicraft-vue-frontend/src/components/article/components/EditArticle.vue`（834 行）
-  - `src/UIs/lexicraft-vue-frontend/src/components/article/components/TypingArticle.vue`（963 行）
-  - `src/UIs/lexicraft-vue-frontend/src/components/word/components/TypeWord.vue`（803 行）
-  - `src/UIs/lexicraft-vue-frontend/src/pages/(words)/practice-words/[id].vue`（902 行）
-  - `src/UIs/lexicraft-vue-frontend/src/pages/(words)/dict-detail.vue`（1187 行）
+- 当前已知超过 800 行的活跃文件必须作为技术债跟踪，不能为了满足检查而无关重构（行数按 2026-08-18 实测，`src/BuildingBlocks/` 已无超限文件）：
+  - `src/UIs/lexicraft-vue-frontend/src/pages/(words)/dict-detail.vue`（1316 行）
+  - `src/UIs/lexicraft-vue-frontend/src/components/article/components/TypingArticle.vue`（1055 行）
+  - `src/UIs/lexicraft-vue-frontend/src/pages/(words)/practice-words/[id].vue`（987 行）
+  - `src/UIs/lexicraft-vue-frontend/src/components/article/components/EditArticle.vue`（913 行）
+  - `src/UIs/lexicraft-vue-frontend/src/components/word/components/TypeWord.vue`（884 行）
+  - `src/UIs/lexicraft-vue-frontend/src/pages/(articles)/book-detail.vue`（862 行）
 - 扫描行数时排除依赖包、生成目录和大型静态数据文件，并在交付记录中区分历史超限与本次新增。
 
 ## 7. 验证要求
@@ -117,7 +126,8 @@ LexiCraft 是一个以 .NET 微服务为后端、Vue 3 为前端的英语词汇�
 按改动范围执行，失败时必须注明是否为本次改动引入：
 
 ```powershell
-dotnet build src\LexiCraft.slnx
+dotnet build src\Fantasy.slnx
+dotnet test src\Fantasy.Tests.slnx
 git diff --check
 npm --prefix src\UIs\lexicraft-vue-frontend run build-tsc
 npm --prefix src\UIs\lexicraft-vue-frontend run build
@@ -130,6 +140,7 @@ npm --prefix src\UIs\lexicraft-vue-frontend run build
 - 涉及认证时，至少验证验证码、注册/登录、获取资料、刷新令牌、401 重试和登出。
 - 涉及词汇/练习/文件时，补充最小 API 冒烟测试或契约测试。
 - 当前前端 `npm test` 脚本为空；在它被修复前，不得把 `npm test` 的退出码当作测试覆盖证明。
+- 涉及 `src/BuildingBlocks/`、Identity 或 Files 时，必须执行大小写不敏感的旧品牌零命中扫描（排除生成目录与 `fliesdb*` 数据文件）。
 - 交付前再次执行 `git status --short`、`git diff --check`，确认没有临时文件、生成物或无关改动。
 
 ## 8. 项目记忆

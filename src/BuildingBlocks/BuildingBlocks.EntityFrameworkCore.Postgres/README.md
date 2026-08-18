@@ -19,8 +19,8 @@
 ```json
 {
   "PostgresOptions": {
-    "ConnectionString": "Host=localhost;Database=lexicraft;Username=postgres;Password=<secret>",
-    "MigrationAssembly": "LexiCraft.Services.Identity"
+    "ConnectionString": "Host=localhost;Database=fantasy_identity;Username=postgres;Password=<secret>",
+    "MigrationAssembly": "Fantasy.Services.Identity"
   }
 }
 ```

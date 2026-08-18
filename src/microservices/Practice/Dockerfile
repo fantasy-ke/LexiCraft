@@ -20,8 +20,8 @@ COPY ["BuildingBlocks/BuildingBlocks.EventBus/BuildingBlocks.EventBus.csproj", "
 COPY ["BuildingBlocks/BuildingBlocks.OpenApi/BuildingBlocks.OpenApi.csproj", "BuildingBlocks/BuildingBlocks.OpenApi/"]
 COPY ["BuildingBlocks/BuildingBlocks.Validation/BuildingBlocks.Validation.csproj", "BuildingBlocks/BuildingBlocks.Validation/"]
 COPY ["BuildingBlocks/BuildingBlocks.SerilogLogging/BuildingBlocks.SerilogLogging.csproj", "BuildingBlocks/BuildingBlocks.SerilogLogging/"]
-COPY ["microservices/Shared/LexiCraft.Shared/LexiCraft.Shared.csproj", "microservices/Shared/LexiCraft.Shared/"]
-COPY ["LexiCraft.Aspire.ServiceDefaults/LexiCraft.Aspire.ServiceDefaults.csproj", "LexiCraft.Aspire.ServiceDefaults/"]
+COPY ["microservices/Shared/Fantasy.Shared/Fantasy.Shared.csproj", "microservices/Shared/Fantasy.Shared/"]
+COPY ["Fantasy.Aspire.ServiceDefaults/Fantasy.Aspire.ServiceDefaults.csproj", "Fantasy.Aspire.ServiceDefaults/"]
 RUN dotnet restore "microservices/Practice/LexiCraft.Services.Practice.Api/LexiCraft.Services.Practice.Api.csproj"
 COPY . .
 WORKDIR "/src/microservices/Practice/LexiCraft.Services.Practice.Api"

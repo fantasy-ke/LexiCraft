@@ -10,6 +10,7 @@ public abstract class PermissionDefinitionProvider
     /// <summary>
     ///     向上下文注册根权限及其子权限。
     /// </summary>
+    /// <param name="context">当前服务的权限定义上下文。</param>
     public abstract void Define(PermissionDefinitionContext context);
 }
 
@@ -25,6 +26,8 @@ public sealed class PermissionDefinitionContext
     public ImmutableList<PermissionDefinition> RootPermissions => _rootPermissions.ToImmutableList();
 
     /// <summary>添加根权限；同名但非同一实例时抛出异常。</summary>
+    /// <param name="permission">要注册的根权限。</param>
+    /// <exception cref="InvalidOperationException">已存在同名但不同实例的根权限时抛出。</exception>
     public void AddRootPermission(PermissionDefinition permission)
     {
         if (_permissions.TryGetValue(permission.Name, out var existing))
@@ -38,7 +41,9 @@ public sealed class PermissionDefinitionContext
         _permissions.Add(permission.Name, permission);
     }
 
-    /// <summary>从全部根权限和后代权限中查找指定名称。</summary>
+    /// <summary>从全部根权限和后代权限中按区分大小写名称查找权限。</summary>
+    /// <param name="name">权限完整名称。</param>
+    /// <returns>匹配的权限定义；未找到时返回 <see langword="null"/>。</returns>
     public PermissionDefinition? GetPermissionOrNull(string name)
     {
         if (_permissions.TryGetValue(name, out var permission))
@@ -53,6 +58,10 @@ public sealed class PermissionDefinitionContext
     }
 
     /// <summary>创建或获取根权限。</summary>
+    /// <param name="name">唯一且区分大小写的权限完整名称。</param>
+    /// <param name="displayName">展示名称；为空时使用权限名称。</param>
+    /// <param name="description">权限说明；为空时使用权限名称。</param>
+    /// <returns>新建或已存在的同名权限。</returns>
     public PermissionDefinition CreatePermission(string name, string? displayName, string? description)
     {
         var existingPermission = GetPermissionOrNull(name);
@@ -65,6 +74,7 @@ public sealed class PermissionDefinitionContext
     }
 
     /// <summary>枚举全部根权限和后代权限。</summary>
+    /// <returns>按根节点及其后代顺序排列的权限定义。</returns>
     public IEnumerable<PermissionDefinition> GetAllPermissions()
     {
         return _rootPermissions.Concat(_rootPermissions.SelectMany(permission => permission.GetAllChildren()));

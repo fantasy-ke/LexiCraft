@@ -4,6 +4,7 @@ using BuildingBlocks.Extensions.System;
 using BuildingBlocks.MassTransit.Abstractions;
 using BuildingBlocks.MassTransit.EventSourcing.Abstractions;
 using BuildingBlocks.MassTransit.Options;
+using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using StackExchange.Redis;
 
@@ -14,13 +15,21 @@ namespace BuildingBlocks.MassTransit.EventSourcing.Store;
 /// </summary>
 public sealed class RedisEventStore : IEventStore
 {
+    private readonly IEventTypeResolver _eventTypeResolver;
     private readonly int _readBatchSize;
+    private readonly ILogger<RedisEventStore> _logger;
     private readonly EventStoreRedisConnection _redisConnection;
     private readonly string _streamPrefix;
 
-    public RedisEventStore(EventStoreRedisConnection redisConnection, IOptions<MassTransitOptions> options)
+    public RedisEventStore(
+        EventStoreRedisConnection redisConnection,
+        IEventTypeResolver eventTypeResolver,
+        IOptions<MassTransitOptions> options,
+        ILogger<RedisEventStore> logger)
     {
         _redisConnection = redisConnection;
+        _eventTypeResolver = eventTypeResolver;
+        _logger = logger;
         var eventSourcingOptions = options.Value.EventSourcing;
         _streamPrefix = eventSourcingOptions.StreamPrefix;
         _readBatchSize = eventSourcingOptions.ReadBatchSize;
@@ -124,10 +133,18 @@ public sealed class RedisEventStore : IEventStore
         await foreach (var storedEvent in StreamStoredEventsAsync(
                            streamId, fromVersion, toVersion, cancellationToken))
         {
-            var eventType = Type.GetType(storedEvent.EventType);
-            if (eventType == null) continue;
+            var resolution = _eventTypeResolver.Resolve(storedEvent.EventType);
+            if (resolution.Type == null)
+            {
+                _logger.LogWarning(
+                    resolution.IsAmbiguous
+                        ? "Stored event type {EventType} matched multiple registered event types"
+                        : "Stored event type {EventType} could not be resolved from registered event assemblies",
+                    storedEvent.EventType);
+                continue;
+            }
 
-            var @event = storedEvent.Data.FromJson(eventType);
+            var @event = storedEvent.Data.FromJson(resolution.Type);
             if (@event != null) events.Add(@event);
         }
 

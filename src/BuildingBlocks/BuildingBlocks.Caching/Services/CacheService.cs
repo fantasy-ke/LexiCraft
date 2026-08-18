@@ -335,8 +335,9 @@ internal sealed partial class CacheService : ICacheService
     /// <summary>
     ///     获取本地缓存键
     /// </summary>
-    /// <param name="key">原始键</param>
-    /// <returns>本地缓存键</returns>
+    /// <param name="key">原始业务键。</param>
+    /// <param name="options">用于隔离命名 Redis 实例的本次调用选项。</param>
+    /// <returns>包含实例名的本地缓存键。</returns>
     private static string GetLocalCacheKey(string key, CacheServiceOptions options)
     {
         var instanceName = string.IsNullOrWhiteSpace(options.RedisInstanceName)

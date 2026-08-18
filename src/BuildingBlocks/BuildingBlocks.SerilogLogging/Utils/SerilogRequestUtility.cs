@@ -9,7 +9,7 @@ namespace BuildingBlocks.SerilogLogging.Utils;
 public static class SerilogRequestUtility
 {
     public const string HttpMessageTemplate =
-        "RequestIp:{RequestIp}  HTTP {RequestMethod} {RequestPath} QueryString:{QueryString} Body:{Body}  responded {StatusCode} in {Elapsed:0.0000} ms  LexiCraft";
+        "RequestIp:{RequestIp}  HTTP {RequestMethod} {RequestPath} QueryString:{QueryString} Body:{Body}  responded {StatusCode} in {Elapsed:0.0000} ms";
 
 
     public static LogEventLevel GetRequestLevel(HttpContext ctx, double _, Exception? ex)

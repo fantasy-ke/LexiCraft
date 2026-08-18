@@ -5,7 +5,7 @@
     </ItemGroup>
 
     <ItemGroup>
-        <ProjectReference Include="..\..\LexiCraft.Aspire.ServiceDefaults\LexiCraft.Aspire.ServiceDefaults.csproj"/>
+        <ProjectReference Include="..\..\Fantasy.Aspire.ServiceDefaults\Fantasy.Aspire.ServiceDefaults.csproj"/>
         <ProjectReference Include="..\..\BuildingBlocks\BuildingBlocks.SerilogLogging\BuildingBlocks.SerilogLogging.csproj"/>
     </ItemGroup>
 

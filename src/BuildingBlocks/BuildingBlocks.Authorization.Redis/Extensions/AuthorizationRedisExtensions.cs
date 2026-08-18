@@ -26,9 +26,16 @@ public static class AuthorizationRedisExtensions
     /// <summary>
     ///     为 Identity 注册授权缓存、会话校验与同步实现。
     /// </summary>
+    /// <param name="builder">应用宿主构建器。</param>
+    /// <returns>当前应用宿主构建器。</returns>
     /// <remarks>
-    ///     调用前必须先注册 <c>BuildingBlocks.Caching</c>；业务服务不应引用此 Identity 专用适配层。
+    ///     必须按 <c>AddCaching</c>、<c>RegisterAuthorization</c>、<c>AddAuthorizationRedis</c>、
+    ///     <c>AddLocalPermissionValidation</c> 的顺序注册。业务服务不应引用此 Identity 专用适配层。
+    ///     Redis 会话或权限依赖不可用时，授权链路按关闭式失败返回 503，不会放行请求。
     /// </remarks>
+    /// <exception cref="InvalidOperationException">
+    ///     配置未启用、连接字符串缺失，或尚未注册 <c>ICacheService</c>/<c>IDistributedLockProvider</c> 时抛出。
+    /// </exception>
     public static IHostApplicationBuilder AddAuthorizationRedis(this IHostApplicationBuilder builder)
     {
         var redisSection = builder.Configuration.GetSection(AuthorizationRedisOptions.SectionName);

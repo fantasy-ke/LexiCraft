@@ -27,7 +27,7 @@ if (useLocalAgileConfig)
 }
 
 
-var identityApi = builder.AddProject<LexiCraft_Services_Identity_Api>("lexicraft-identity-api")
+var identityApi = builder.AddProject<Fantasy_Services_Identity_Api>("fantasy-identity-api")
     .WithHttpHealthCheck("/health")
     .WithReference(postgresIdentity)
     .WithReference(redis)
@@ -51,7 +51,7 @@ var practiceApi = builder.AddProject<LexiCraft_Services_Practice_Api>("lexicraft
     .WithEnvironment("PermissionAuthorizationOptions__IdentityApiBaseAddress", identityApi.GetEndpoint("http"))
     .WithAgileConfig(agileConfig);
 
-var filesGrpc = builder.AddProject<LexiCraft_Files_Grpc>("lexicraft-files-grpc")
+var filesGrpc = builder.AddProject<Fantasy_Files_Grpc>("fantasy-files-grpc")
     .WithHttpHealthCheck("/health")
     .WithReference(identityApi)
     .WaitFor(identityApi)

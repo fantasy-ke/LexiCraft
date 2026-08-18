@@ -1,6 +1,6 @@
 # BuildingBlocks.MassTransit
 
-`BuildingBlocks.MassTransit` 封装 LexiCraft 的可靠消息能力，包含：
+`BuildingBlocks.MassTransit` 封装本平台的可靠消息能力，包含：
 
 - MassTransit 8 + RabbitMQ 的发布、Consumer 自动注册、重试和断路器；
 - 基于有界 `Channel` 与 MediatR 的进程内领域事件队列；
@@ -92,7 +92,7 @@
       "RepositoryType": "MongoDb",
       "MongoDb": {
         "ConnectionString": "${SAGA_MONGODB_CONNECTION}",
-        "DatabaseName": "lexicraft_sagas",
+        "DatabaseName": "fantasy_sagas",
         "CollectionName": "service_sagas"
       }
     },

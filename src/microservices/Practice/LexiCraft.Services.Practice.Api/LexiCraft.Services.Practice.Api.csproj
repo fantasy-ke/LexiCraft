@@ -1,7 +1,7 @@
 <Project Sdk="Microsoft.NET.Sdk.Web">
     <ItemGroup>
         <ProjectReference Include="..\..\..\BuildingBlocks\BuildingBlocks.EventBus\BuildingBlocks.EventBus.csproj"/>
-        <ProjectReference Include="..\..\..\LexiCraft.Aspire.ServiceDefaults\LexiCraft.Aspire.ServiceDefaults.csproj"/>
+        <ProjectReference Include="..\..\..\Fantasy.Aspire.ServiceDefaults\Fantasy.Aspire.ServiceDefaults.csproj"/>
         <ProjectReference Include="..\LexiCraft.Services.Practice\LexiCraft.Services.Practice.csproj"/>
         <ProjectReference Include="..\..\..\BuildingBlocks\BuildingBlocks.SerilogLogging\BuildingBlocks.SerilogLogging.csproj"/>
         <ProjectReference Include="..\..\..\BuildingBlocks\BuildingBlocks.Caching\BuildingBlocks.Caching.csproj"/>

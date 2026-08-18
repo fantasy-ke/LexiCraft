@@ -17,7 +17,7 @@ using Microsoft.Extensions.Logging.Abstractions;
 using Microsoft.Extensions.Options;
 using StackExchange.Redis;
 using BuildingBlocks.Authentication.Tokens;
-using LexiCraft.Shared.Permissions;
+using Fantasy.Shared.Permissions;
 using BuildingBlocks.Authentication.Redis.Keys;
 
 namespace BuildingBlocks.Authorization.Tests;

@@ -18,8 +18,8 @@
         <ProjectReference Include="..\..\..\BuildingBlocks\BuildingBlocks.SerilogLogging\BuildingBlocks.SerilogLogging.csproj"/>
         <ProjectReference Include="..\..\..\BuildingBlocks\BuildingBlocks.Validation\BuildingBlocks.Validation.csproj"/>
         <ProjectReference Include="..\..\..\BuildingBlocks\BuildingBlocks\BuildingBlocks.csproj"/>
-        <ProjectReference Include="..\..\..\LexiCraft.Aspire.ServiceDefaults\LexiCraft.Aspire.ServiceDefaults.csproj"/>
-        <ProjectReference Include="..\..\..\microservices\Shared\LexiCraft.Shared\LexiCraft.Shared.csproj"/>
+        <ProjectReference Include="..\..\..\Fantasy.Aspire.ServiceDefaults\Fantasy.Aspire.ServiceDefaults.csproj"/>
+        <ProjectReference Include="..\..\..\microservices\Shared\Fantasy.Shared\Fantasy.Shared.csproj"/>
     </ItemGroup>
 
     <ItemGroup>

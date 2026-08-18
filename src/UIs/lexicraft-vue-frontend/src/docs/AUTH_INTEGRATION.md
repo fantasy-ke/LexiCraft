@@ -1,6 +1,6 @@
 # 前端认证集成文档
 
-本文档说明如何使用新的认证系统，该系统直接与 LexiCraft.Services.Identity 服务集成，替换了原有的 Logto 组件。
+本文档说明如何使用新的认证系统，该系统直接与 Fantasy.Services.Identity 服务集成，替换了原有的 Logto 组件。
 
 ## 🏗️ 架构概览
 

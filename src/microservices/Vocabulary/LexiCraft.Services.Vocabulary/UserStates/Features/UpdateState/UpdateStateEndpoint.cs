@@ -1,8 +1,8 @@
 using Humanizer;
 using LexiCraft.Services.Vocabulary.UserStates.Models.Enum;
 using LexiCraft.Services.Vocabulary.Words.Models;
-using LexiCraft.Shared.Models;
-using LexiCraft.Shared.Permissions;
+using Fantasy.Shared.Models;
+using Fantasy.Shared.Permissions;
 using MediatR;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Http;

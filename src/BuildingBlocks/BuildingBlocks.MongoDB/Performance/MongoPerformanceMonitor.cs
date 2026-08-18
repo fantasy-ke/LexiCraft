@@ -6,6 +6,11 @@ using Microsoft.Extensions.Options;
 
 namespace BuildingBlocks.MongoDB.Performance;
 
+/// <summary>使用有界内存队列记录 MongoDB 仓储操作耗时并输出慢操作日志。</summary>
+/// <remarks>
+///     最多保留最近 10,000 条完成记录；超过 200 毫秒记 Warning，超过 1 秒记 Error。
+///     该监控是进程内诊断工具，不提供跨实例聚合、持久化或分位数统计，不能替代 OpenTelemetry。
+/// </remarks>
 public class MongoPerformanceMonitor : IMongoPerformanceMonitor
 {
     private const int MaxMetricCount = 10_000;
@@ -18,6 +23,9 @@ public class MongoPerformanceMonitor : IMongoPerformanceMonitor
     private readonly object _metricTrimLock = new();
     private int _metricCount;
 
+    /// <summary>创建 MongoDB 性能监控器。</summary>
+    /// <param name="logger">慢操作日志记录器。</param>
+    /// <param name="options">用于读取是否启用监控的 MongoDB 选项。</param>
     public MongoPerformanceMonitor(
         ILogger<MongoPerformanceMonitor> logger,
         IOptions<MongoOptions> options)
@@ -26,6 +34,7 @@ public class MongoPerformanceMonitor : IMongoPerformanceMonitor
         _enabled = options.Value.EnablePerformanceMonitoring;
     }
 
+    /// <inheritdoc />
     public IDisposable StartOperation(string operationName, string collectionName)
     {
         return _enabled
@@ -33,6 +42,7 @@ public class MongoPerformanceMonitor : IMongoPerformanceMonitor
             : EmptyDisposable.Instance;
     }
 
+    /// <inheritdoc />
     public Task<PerformanceMetrics> GetMetricsAsync(TimeSpan? period = null)
     {
         var selectedPeriod = period ?? TimeSpan.FromMinutes(5);
@@ -63,6 +73,7 @@ public class MongoPerformanceMonitor : IMongoPerformanceMonitor
         });
     }
 
+    /// <summary>记录完成的操作，并在并发安全的容量修剪后输出慢操作日志。</summary>
     internal void RecordOperation(string operationName, string collectionName, TimeSpan duration)
     {
         if (!_enabled) return;

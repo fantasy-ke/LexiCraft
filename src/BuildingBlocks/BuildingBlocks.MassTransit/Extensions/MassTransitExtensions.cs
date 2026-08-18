@@ -34,7 +34,7 @@ public static class MassTransitExtensions
         services.TryAddScoped<IEventPublisher, EventPublisher>();
         services.TryAddSingleton<ILocalEventBus, LocalEventBus>();
         services.AddHostedService<LocalEventBackgroundService>();
-        services.AddEventSourcing(options);
+        services.AddEventSourcing(options, assemblies);
 
         services.AddMassTransit(registration =>
         {
@@ -87,11 +87,14 @@ public static class MassTransitExtensions
 
     private static IServiceCollection AddEventSourcing(
         this IServiceCollection services,
-        MassTransitOptions options)
+        MassTransitOptions options,
+        Assembly[]? eventAssemblies)
     {
         if (!options.EventSourcing.Enabled) return services;
 
         services.TryAddSingleton<EventStoreRedisConnection>();
+        services.TryAddSingleton<IEventTypeResolver>(
+            new EventTypeResolver(eventAssemblies ?? []));
         services.TryAddSingleton<IEventStore, RedisEventStore>();
         services.TryAddScoped<IEventReplayer, EventReplayer>();
         services.TryAddScoped<IDomainEventReplayer, DomainEventReplayer>();

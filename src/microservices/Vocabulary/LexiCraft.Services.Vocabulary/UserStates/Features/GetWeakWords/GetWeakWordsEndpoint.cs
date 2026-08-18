@@ -1,7 +1,7 @@
 using Humanizer;
 using LexiCraft.Services.Vocabulary.Words.Features.SearchWord;
-using LexiCraft.Shared.Models;
-using LexiCraft.Shared.Permissions;
+using Fantasy.Shared.Models;
+using Fantasy.Shared.Permissions;
 using MediatR;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Http;

@@ -3,7 +3,7 @@ using LexiCraft.Services.Vocabulary.Shared.Contracts;
 using LexiCraft.Services.Vocabulary.Shared.Data;
 using LexiCraft.Services.Vocabulary.UserStates.Models;
 using LexiCraft.Services.Vocabulary.Words.Models;
-using LexiCraft.Shared.Models;
+using Fantasy.Shared.Models;
 
 namespace LexiCraft.Services.Vocabulary.UserStates.Data.Repositories;
 

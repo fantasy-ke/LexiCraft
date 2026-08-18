@@ -39,6 +39,14 @@ public static class IdempotencyExtensions
                 "Idempotency:HeaderName 不能为空")
             .Validate(options => !string.IsNullOrWhiteSpace(options.Prefix),
                 "Idempotency:Prefix 不能为空")
+            .Validate(options => options.LegacyPrefixes.All(prefix => !string.IsNullOrWhiteSpace(prefix)),
+                "Idempotency:LegacyPrefixes 不能包含空值")
+            .Validate(options => options.LegacyPrefixes
+                    .Select(NormalizePrefix)
+                    .Append(NormalizePrefix(options.Prefix))
+                    .Distinct(StringComparer.Ordinal)
+                    .Count() == options.LegacyPrefixes.Count + 1,
+                "Idempotency:LegacyPrefixes 不能重复或包含当前 Prefix")
             .Validate(options => options.Retention >= TimeSpan.FromMilliseconds(1),
                 "Idempotency:Retention 必须至少为 1 毫秒")
             .Validate(options => options.ProcessingTimeout >= TimeSpan.FromMilliseconds(1),
@@ -66,5 +74,10 @@ public static class IdempotencyExtensions
     {
         ArgumentNullException.ThrowIfNull(app);
         return app.UseMiddleware<IdempotencyMiddleware>();
+    }
+
+    private static string NormalizePrefix(string prefix)
+    {
+        return prefix.Trim().TrimEnd(':');
     }
 }

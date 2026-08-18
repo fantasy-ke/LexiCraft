@@ -3,8 +3,8 @@ namespace BuildingBlocks.Authentication.Abstractions;
 /// <summary>
 ///     表示当前访问令牌会话的验证结果。
 /// </summary>
-/// <param name="SessionValid">当前令牌是否仍对应用户的有效会话。</param>
-/// <param name="ServiceAvailable">会话验证依赖是否可用。</param>
+/// <param name="SessionValid">当前令牌是否仍对应用户的有效会话；为 <see langword="false"/> 时调用方应返回 401。</param>
+/// <param name="ServiceAvailable">会话验证依赖是否可用；为 <see langword="false"/> 时调用方应关闭式失败并返回 503。</param>
 public sealed record AccessTokenValidationResult(bool SessionValid, bool ServiceAvailable)
 {
     /// <summary>会话有效且验证服务可用。</summary>

@@ -1,7 +1,7 @@
 using BuildingBlocks.Persistence.Abstractions.Repositories;
 using LexiCraft.Services.Vocabulary.UserStates.Models;
 using LexiCraft.Services.Vocabulary.Words.Models;
-using LexiCraft.Shared.Models;
+using Fantasy.Shared.Models;
 
 namespace LexiCraft.Services.Vocabulary.Shared.Contracts;
 

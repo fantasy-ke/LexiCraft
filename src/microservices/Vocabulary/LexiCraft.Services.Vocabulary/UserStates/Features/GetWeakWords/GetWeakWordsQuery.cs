@@ -4,7 +4,7 @@ using LexiCraft.Services.Vocabulary.UserStates.Models;
 using LexiCraft.Services.Vocabulary.UserStates.Models.Enum;
 using LexiCraft.Services.Vocabulary.Words.Features.SearchWord;
 using LexiCraft.Services.Vocabulary.Words.Models;
-using LexiCraft.Shared.Models;
+using Fantasy.Shared.Models;
 using Microsoft.EntityFrameworkCore;
 
 namespace LexiCraft.Services.Vocabulary.UserStates.Features.GetWeakWords;

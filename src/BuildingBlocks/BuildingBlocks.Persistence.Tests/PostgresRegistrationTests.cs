@@ -42,7 +42,7 @@ public class PostgresRegistrationTests
     [Fact]
     public async Task Migration_worker_propagates_seeding_failure()
     {
-        var databasePath = Path.Combine(Path.GetTempPath(), $"lexicraft-{Guid.NewGuid():N}.db");
+        var databasePath = Path.Combine(Path.GetTempPath(), $"persistence-tests-{Guid.NewGuid():N}.db");
         var services = new ServiceCollection();
         services.AddLogging();
         services.AddDbContext<TestDbContext>(options => options.UseSqlite($"Data Source={databasePath};Pooling=False"));

@@ -87,7 +87,8 @@ app.Run();
 {
   "Idempotency": {
     "HeaderName": "Idempotency-Key",
-    "Prefix": "lexicraft:idempotency",
+    "Prefix": "fantasy:idempotency",
+    "LegacyPrefixes": [],
     "RedisInstanceName": null,
     "Retention": "00:10:00",
     "ProcessingTimeout": "00:02:00",
@@ -103,7 +104,8 @@ app.Run();
 | 选项 | 默认值 | 说明 |
 | --- | --- | --- |
 | `HeaderName` | `Idempotency-Key` | 客户端传递幂等键的请求头名称。 |
-| `Prefix` | `lexicraft:idempotency` | Redis 键的公共前缀。 |
+| `Prefix` | `fantasy:idempotency` | Redis 键的公共前缀，所有新租约和完成结果只写入该前缀。 |
+| `LegacyPrefixes` | 空数组 | 迁移期间**只读**的历史前缀列表。切换 `Prefix` 后，旧前缀下仍在 TTL 内的租约和完成结果可继续命中；不得包含空白项、重复项或与 `Prefix` 相同的值，否则注册时抛出 `OptionsValidationException`。旧记录全部过期后应移除该配置。 |
 | `RedisInstanceName` | `null` | 命名 Redis 实例；空表示默认实例。 |
 | `Retention` | 10 分钟 | 成功记录的默认保留时间。 |
 | `ProcessingTimeout` | 2 分钟 | 执行租约的默认有效期。 |

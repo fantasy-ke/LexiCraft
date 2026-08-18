@@ -1,7 +1,7 @@
 // 创建练习任务端点
 
 using Humanizer;
-using LexiCraft.Shared.Permissions;
+using Fantasy.Shared.Permissions;
 using MediatR;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Http;

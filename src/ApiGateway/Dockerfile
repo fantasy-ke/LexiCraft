@@ -10,7 +10,7 @@ WORKDIR /src
 COPY ["Directory.Packages.props", "."]
 COPY ["Directory.Build.props", "."]
 COPY ["ApiGateway/LexiCraft.ApiGateway/LexiCraft.ApiGateway.csproj", "ApiGateway/LexiCraft.ApiGateway/"]
-COPY ["LexiCraft.Aspire.ServiceDefaults/LexiCraft.Aspire.ServiceDefaults.csproj", "LexiCraft.Aspire.ServiceDefaults/"]
+COPY ["Fantasy.Aspire.ServiceDefaults/Fantasy.Aspire.ServiceDefaults.csproj", "Fantasy.Aspire.ServiceDefaults/"]
 COPY ["BuildingBlocks/BuildingBlocks.SerilogLogging/BuildingBlocks.SerilogLogging.csproj", "BuildingBlocks/BuildingBlocks.SerilogLogging/"]
 COPY ["BuildingBlocks/BuildingBlocks/BuildingBlocks.csproj", "BuildingBlocks/BuildingBlocks/"]
 RUN dotnet restore "ApiGateway/LexiCraft.ApiGateway/LexiCraft.ApiGateway.csproj"

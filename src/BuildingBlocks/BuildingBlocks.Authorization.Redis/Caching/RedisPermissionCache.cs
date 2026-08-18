@@ -65,6 +65,7 @@ internal sealed class RedisPermissionCache(
     }
 
     /// <inheritdoc />
+    /// <exception cref="HttpRequestException">Redis 缓存失效失败时抛出，状态码为 503；调用方必须中止权限变更。</exception>
     public async Task RemoveUserPermissionsAsync(
         Guid userId,
         CancellationToken cancellationToken = default)

@@ -1,6 +1,6 @@
 /**
  * 认证 API 客户端
- * 提供与 LexiCraft.Services.Identity 服务通信的所有认证相关方法
+ * 提供与 Fantasy.Services.Identity 服务通信的所有认证相关方法
  */
 
 import {

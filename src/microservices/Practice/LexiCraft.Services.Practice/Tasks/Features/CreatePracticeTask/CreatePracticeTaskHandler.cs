@@ -1,7 +1,7 @@
 using BuildingBlocks.Persistence.Abstractions.Repositories;
 using FluentValidation;
 using LexiCraft.Services.Practice.Tasks.Models;
-using LexiCraft.Shared.Models;
+using Fantasy.Shared.Models;
 using MediatR;
 
 namespace LexiCraft.Services.Practice.Tasks.Features.CreatePracticeTask;
