@@ -1,7 +1,7 @@
 using BuildingBlocks.Cors;
 using BuildingBlocks.SerilogLogging.Extensions;
-using LexiCraft.ApiGateway.Extensions;
-using LexiCraft.ApiGateway.Middlewares;
+using Fantasy.ApiGateway.Extensions;
+using Fantasy.ApiGateway.Middlewares;
 
 var builder = WebApplication.CreateBuilder(args);
 

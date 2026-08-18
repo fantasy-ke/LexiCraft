@@ -1,4 +1,4 @@
-namespace LexiCraft.ApiGateway.Configuration;
+namespace Fantasy.ApiGateway.Configuration;
 
 /// <summary>
 ///     安全头策略配置

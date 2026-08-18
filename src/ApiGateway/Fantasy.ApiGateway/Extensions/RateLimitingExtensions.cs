@@ -1,8 +1,8 @@
 using System.Threading.RateLimiting;
-using LexiCraft.ApiGateway.Configuration;
-using LexiCraft.ApiGateway.Utilities;
+using Fantasy.ApiGateway.Configuration;
+using Fantasy.ApiGateway.Utilities;
 
-namespace LexiCraft.ApiGateway.Extensions;
+namespace Fantasy.ApiGateway.Extensions;
 
 /// <summary>
 ///     速率限制扩展方法

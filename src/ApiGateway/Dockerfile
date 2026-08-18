@@ -9,20 +9,20 @@ ARG BUILD_CONFIGURATION=Release
 WORKDIR /src
 COPY ["Directory.Packages.props", "."]
 COPY ["Directory.Build.props", "."]
-COPY ["ApiGateway/LexiCraft.ApiGateway/LexiCraft.ApiGateway.csproj", "ApiGateway/LexiCraft.ApiGateway/"]
+COPY ["ApiGateway/Fantasy.ApiGateway/Fantasy.ApiGateway.csproj", "ApiGateway/Fantasy.ApiGateway/"]
 COPY ["Fantasy.Aspire.ServiceDefaults/Fantasy.Aspire.ServiceDefaults.csproj", "Fantasy.Aspire.ServiceDefaults/"]
 COPY ["BuildingBlocks/BuildingBlocks.SerilogLogging/BuildingBlocks.SerilogLogging.csproj", "BuildingBlocks/BuildingBlocks.SerilogLogging/"]
 COPY ["BuildingBlocks/BuildingBlocks/BuildingBlocks.csproj", "BuildingBlocks/BuildingBlocks/"]
-RUN dotnet restore "ApiGateway/LexiCraft.ApiGateway/LexiCraft.ApiGateway.csproj"
+RUN dotnet restore "ApiGateway/Fantasy.ApiGateway/Fantasy.ApiGateway.csproj"
 COPY . .
-WORKDIR "/src/ApiGateway/LexiCraft.ApiGateway"
-RUN dotnet build "./LexiCraft.ApiGateway.csproj" -c $BUILD_CONFIGURATION -o /app/build
+WORKDIR "/src/ApiGateway/Fantasy.ApiGateway"
+RUN dotnet build "./Fantasy.ApiGateway.csproj" -c $BUILD_CONFIGURATION -o /app/build
 
 FROM build AS publish
 ARG BUILD_CONFIGURATION=Release
-RUN dotnet publish "./LexiCraft.ApiGateway.csproj" -c $BUILD_CONFIGURATION -o /app/publish /p:UseAppHost=false
+RUN dotnet publish "./Fantasy.ApiGateway.csproj" -c $BUILD_CONFIGURATION -o /app/publish /p:UseAppHost=false
 
 FROM base AS final
 WORKDIR /app
 COPY --from=publish /app/publish .
-ENTRYPOINT ["dotnet", "LexiCraft.ApiGateway.dll"]
+ENTRYPOINT ["dotnet", "Fantasy.ApiGateway.dll"]

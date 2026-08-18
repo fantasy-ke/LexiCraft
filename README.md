@@ -254,7 +254,7 @@ LexiCraft 支持多种部署策略：
 
 ```
 src/
-├── ApiGateway/                    # 基于 YARP 的 API 网关
+├── ApiGateway/                    # 基于 YARP 的 API 网关（Fantasy.ApiGateway）
 ├── BuildingBlocks/                # 共享库和组件
 │   ├── BuildingBlocks/            # 核心领域逻辑
 │   ├── BuildingBlocks.Authorization/ # 授权组件

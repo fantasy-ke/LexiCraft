@@ -1,4 +1,4 @@
-namespace LexiCraft.ApiGateway.Configuration;
+namespace Fantasy.ApiGateway.Configuration;
 
 /// <summary>
 ///     速率限制配置选项

@@ -1,9 +1,9 @@
 using System.Globalization;
 using BuildingBlocks.Extensions.System;
-using LexiCraft.ApiGateway.Configuration;
+using Fantasy.ApiGateway.Configuration;
 using Microsoft.Extensions.Options;
 
-namespace LexiCraft.ApiGateway.Middlewares;
+namespace Fantasy.ApiGateway.Middlewares;
 
 /// <summary>
 ///     限流信息传递中间件

@@ -1,7 +1,7 @@
-using LexiCraft.ApiGateway.Configuration;
-using LexiCraft.ApiGateway.Utilities;
+using Fantasy.ApiGateway.Configuration;
+using Fantasy.ApiGateway.Utilities;
 
-namespace LexiCraft.ApiGateway.Middlewares;
+namespace Fantasy.ApiGateway.Middlewares;
 
 /// <summary>
 ///     安全头中间件

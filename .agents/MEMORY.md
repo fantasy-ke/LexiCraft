@@ -7,7 +7,7 @@
 ## 稳定架构事实
 
 - 当前生产解决方案是 `src/Fantasy.slnx`，测试解决方案是 `src/Fantasy.Tests.slnx`；测试解决方案包含 Authorization、Caching、Idempotency、Messaging、Persistence 五个基础组件测试项目。默认运行入口仍是 `src/LexiCraft.Aspire.Host/AppHost.cs`。
-- 命名迁移采用分阶段边界：Identity、Files、Shared、Aspire ServiceDefaults 和两个解决方案为 `Fantasy.*`；Vocabulary、Practice、ApiGateway、Aspire Host 与前端保持现有 `LexiCraft.*` / `lexicraft-*` 名称。`src/BuildingBlocks/` 保持品牌中性的 `BuildingBlocks.*`。
+- 命名迁移采用分阶段边界：Identity、Files、Shared、Aspire ServiceDefaults、ApiGateway 和两个解决方案为 `Fantasy.*`；Vocabulary、Practice、Aspire Host 与前端保持现有 `LexiCraft.*` / `lexicraft-*` 名称。`src/BuildingBlocks/` 保持品牌中性的 `BuildingBlocks.*`。Aspire 资源名使用 `fantasy-*`，但 AgileConfig AppId 作为外部兼容契约继续使用 `lexicraft-identity-api`、`lexicraft-files-grpc`、`lexicraft-api-gateway`。
 - Aspire Host 目标框架为 `net10.0`，当前使用 `Aspire.AppHost.Sdk/13.4.6`。
 - 系统由 API Gateway、Identity、Vocabulary、Practice、Files gRPC 和 Aspire ServiceDefaults 组成；`src/BuildingBlocks/` 提供跨服务基础能力。
 - Identity 使用 PostgreSQL 与 Redis；Vocabulary 使用 PostgreSQL 与 Redis；Practice 使用 MongoDB 与 Redis；Files 使用 OSS 抽象并提供 gRPC/内容读取能力。

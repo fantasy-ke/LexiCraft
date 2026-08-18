@@ -11,18 +11,18 @@ LexiCraft 是一个以 .NET 微服务为后端、Vue 3 为前端的英语词汇�
 - 生产解决方案：`src/Fantasy.slnx`；测试解决方案：`src/Fantasy.Tests.slnx`。两者拆分维护，构建生产代码用前者，跑测试用后者。
 - 仓库中已不存在根目录 `LexiCraft.sln`，`src/LexiCraft.sln.DotSettings.user` 只是 Rider 的个人设置残留，不是解决方案。
 - 默认编排入口：`src/LexiCraft.Aspire.Host/AppHost.cs`。
-- API 网关入口：`src/ApiGateway/LexiCraft.ApiGateway/`。
+- API 网关入口：`src/ApiGateway/Fantasy.ApiGateway/`。
 - 前端入口：`src/UIs/lexicraft-vue-frontend/`。
 
 ### 1.1.1 命名边界（2026-08-18 起生效）
 
 命名迁移是分阶段的，当前真实状态如下，不要按“全仓统一品牌”的假设改名：
 
-- 已改为 `Fantasy.*`：`src/microservices/Identity/Fantasy.Services.Identity{,.Api}`、`src/microservices/Files/Fantasy.Files.Grpc`、`src/microservices/Shared/Fantasy.Shared`、`src/Fantasy.Aspire.ServiceDefaults`、两个 `.slnx`。
-- 保持 `LexiCraft.*` 不变：`src/microservices/Vocabulary/`、`src/microservices/Practice/`（目录、项目名、程序集名、命名空间、Aspire 资源名）、`src/LexiCraft.Aspire.Host/`、`src/ApiGateway/LexiCraft.ApiGateway/`、前端 `lexicraft-vue-frontend`。
-- `src/BuildingBlocks/` 保持品牌中性的 `BuildingBlocks.*`，且其受控源码、项目文件和 README 中不得出现任意大小写的 `LexiCraft`；Identity 与 Files 目录同样适用该零命中要求。
-- Aspire 资源名与 AgileConfig AppId：Identity 为 `fantasy-identity-api`，Files 为 `fantasy-files-grpc`；Vocabulary、Practice、Gateway 的资源名未变。
-- Compose 服务 DNS 名（`identity-api`、`files-grpc`）、HTTP 路由前缀和 Code First gRPC 契约都未随改名变化。
+- 已改为 `Fantasy.*`：`src/microservices/Identity/Fantasy.Services.Identity{,.Api}`、`src/microservices/Files/Fantasy.Files.Grpc`、`src/microservices/Shared/Fantasy.Shared`、`src/Fantasy.Aspire.ServiceDefaults`、`src/ApiGateway/Fantasy.ApiGateway`、两个 `.slnx`。
+- 保持 `LexiCraft.*` 不变：`src/microservices/Vocabulary/`、`src/microservices/Practice/`（目录、项目名、程序集名、命名空间、Aspire 资源名）、`src/LexiCraft.Aspire.Host/`、前端 `lexicraft-vue-frontend`。
+- `src/BuildingBlocks/` 保持品牌中性的 `BuildingBlocks.*`。BuildingBlocks、Identity、Files 和 Gateway 的受控源码、项目文件及 README 不得保留旧项目、程序集或命名空间；唯一允许的旧品牌标识是兼容配置 AppId：`lexicraft-identity-api`、`lexicraft-files-grpc`、`lexicraft-api-gateway`。
+- Aspire 资源名分别为 `fantasy-identity-api`、`fantasy-files-grpc`、`fantasy-api-gateway`；AgileConfig AppId 是独立的外部配置契约，继续使用上一条列出的旧值，不随资源名或程序集改名。
+- Compose 服务名为 `fantasy.apigateway`、`identity-api`、`files-grpc`、`vocabulary-api`、`practice-api`；后四者的 DNS、HTTP 路由前缀和 Code First gRPC 契约都未随改名变化。
 
 ### 1.2 技术栈与服务边界
 
@@ -61,7 +61,7 @@ LexiCraft 是一个以 .NET 微服务为后端、Vue 3 为前端的英语词汇�
 
 端点返回值通常经过 `BuildingBlocks.Filters.ResultEndPointFilter` 包装为 `ResultDto`；文件流端点是例外。前端对字段命名、错误包络和令牌字段的假设必须通过 OpenAPI、实际响应或服务端 DTO 验证，不得仅凭 TypeScript 类型推断。
 
-网关的 `ReverseProxy` 配置通过 `LoadFromConfig` 读取。当前仓库中的 `src/ApiGateway/LexiCraft.ApiGateway/appsettings.json` 只保留空的 `ReverseProxy` 节点，实际路由可能来自 AgileConfig 或运行环境；任何前端联调前必须确认真实路由转换，不能把 README 或猜测当作路由契约。
+网关的 `ReverseProxy` 配置通过 `LoadFromConfig` 读取。当前仓库中的 `src/ApiGateway/Fantasy.ApiGateway/appsettings.json` 只保留空的 `ReverseProxy` 节点，实际路由可能来自 AgileConfig 或运行环境；任何前端联调前必须确认真实路由转换，不能把 README 或猜测当作路由契约。
 
 ## 2. 开始修改前
 

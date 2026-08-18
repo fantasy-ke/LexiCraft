@@ -58,7 +58,7 @@ var filesGrpc = builder.AddProject<Fantasy_Files_Grpc>("fantasy-files-grpc")
     .WithEnvironment("PermissionAuthorizationOptions__IdentityApiBaseAddress", identityApi.GetEndpoint("http"))
     .WithAgileConfig(agileConfig);
 
-var apiGateway = builder.AddProject<LexiCraft_ApiGateway>("lexicraft-api-gateway")
+var apiGateway = builder.AddProject<Fantasy_ApiGateway>("fantasy-api-gateway")
     .WithHttpHealthCheck("/health")
     .WithExternalHttpEndpoints()
     .WaitFor(identityApi)

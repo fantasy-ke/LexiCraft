@@ -1,6 +1,6 @@
 services:
-  lexicraft.apigateway:
-    image: lexicraft.apigateway
+  fantasy.apigateway:
+    image: fantasy.apigateway
     build:
       context: .
       dockerfile: ApiGateway/Dockerfile
@@ -29,7 +29,7 @@ services:
     environment:
       ASPNETCORE_ENVIRONMENT: "Docker"
       AgileConfig__Nodes: "http://172.31.21.1:8500"
-      AgileConfig__AppId: "fantasy-files-grpc"
+      AgileConfig__AppId: "lexicraft-files-grpc"
       AgileConfig__Secret: "bb123456"
       AgileConfig__ENV: "TEST"
       PermissionAuthorizationOptions__IdentityApiBaseAddress: "http://identity-api:8080"
@@ -48,7 +48,7 @@ services:
     environment:
       ASPNETCORE_ENVIRONMENT: "Docker"
       AgileConfig__Nodes: "http://172.31.21.1:8500"
-      AgileConfig__AppId: "fantasy-identity-api"
+      AgileConfig__AppId: "lexicraft-identity-api"
       AgileConfig__Secret: "bb123456"
       AgileConfig__ENV: "TEST"
     restart: unless-stopped

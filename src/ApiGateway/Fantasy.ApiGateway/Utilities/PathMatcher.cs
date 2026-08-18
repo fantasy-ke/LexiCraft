@@ -1,4 +1,4 @@
-namespace LexiCraft.ApiGateway.Utilities;
+namespace Fantasy.ApiGateway.Utilities;
 
 /// <summary>
 ///     路径匹配工具类
