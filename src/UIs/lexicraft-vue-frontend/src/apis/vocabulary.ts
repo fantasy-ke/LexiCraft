@@ -1,5 +1,6 @@
 import type {ResultDto} from '@/types/api'
-import {serviceGet, servicePost} from '@/utils/authHttp'
+import {serviceGet, servicePost} from '@/utils/apiClient'
+import {API_ROUTES} from '@/config/apiRoutes'
 
 export interface WordListDto {
     id: number
@@ -66,28 +67,28 @@ export interface UpdateWordStateRequest {
 }
 
 export function getWordLists(category?: string): Promise<ResultDto<WordListDto[]>> {
-    return serviceGet<WordListDto[]>('/vocabulary/v1/word-lists', category ? {category} : undefined)
+    return serviceGet<WordListDto[]>(API_ROUTES.vocabulary.wordLists, category ? {category} : undefined)
 }
 
 export function getWordsByList(
     wordListId: number,
     params: {pageIndex?: number; pageSize?: number; seed?: string} = {}
 ): Promise<ResultDto<PagedWordResult>> {
-    return serviceGet<PagedWordResult>(`/vocabulary/v1/word-lists/${wordListId}/words`, params)
+    return serviceGet<PagedWordResult>(API_ROUTES.vocabulary.wordsByList(wordListId), params)
 }
 
 export function searchWords(keyword: string): Promise<ResultDto<WordDto[]>> {
-    return serviceGet<WordDto[]>('/vocabulary/v1/words', {keyword})
+    return serviceGet<WordDto[]>(API_ROUTES.vocabulary.words, {keyword})
 }
 
 export function getWeakWords(userId: string): Promise<ResultDto<WordDto[]>> {
-    return serviceGet<WordDto[]>('/vocabulary/v1/user-words/weak', {userId})
+    return serviceGet<WordDto[]>(API_ROUTES.vocabulary.weakWords, {userId})
 }
 
 export function updateWordState(request: UpdateWordStateRequest): Promise<ResultDto<boolean>> {
-    return servicePost<boolean>('/vocabulary/v1/user-words/state', request)
+    return servicePost<boolean>(API_ROUTES.vocabulary.wordState, request)
 }
 
 export function importWords(request: ImportWordsRequest): Promise<ResultDto<WordImportResult>> {
-    return servicePost<WordImportResult>('/vocabulary/v1/word-lists/import', request)
+    return servicePost<WordImportResult>(API_ROUTES.vocabulary.importWords, request)
 }

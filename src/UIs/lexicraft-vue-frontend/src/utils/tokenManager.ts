@@ -4,7 +4,8 @@
  */
 
 import {AuthConfig, ITokenManager} from '@/types/auth'
-import {ENV} from '@/config/env'
+import {resolveGatewayUrl} from '@/config/env'
+import {API_PREFIXES} from '@/config/apiRoutes'
 
 class TokenManager implements ITokenManager {
     private config: AuthConfig
@@ -231,7 +232,7 @@ class TokenManager implements ITokenManager {
 
 // 默认配置
 const defaultAuthConfig: AuthConfig = {
-    identityApiUrl: ENV.IDENTITY_API, // Identity gateway endpoint
+    identityApiUrl: resolveGatewayUrl(API_PREFIXES.identity), // Identity gateway endpoint
     tokenStorageKey: 'lexicraft_access_token',
     refreshTokenStorageKey: 'lexicraft_refresh_token',
     autoRefreshThreshold: 300 // 提前 5 分钟刷新

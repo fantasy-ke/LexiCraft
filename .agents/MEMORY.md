@@ -342,3 +342,11 @@
 - [2026-08-17] ## Git 提交信息
 - [2026-08-17] 提交：`480a1bd`
 - [2026-08-17] 消息：`feat: 新增幂等处理基础组件`
+
+# 2026-08-19 网关与前端 API 长期契约
+- 前端现代服务客户端统一为 `src/UIs/lexicraft-vue-frontend/src/utils/apiClient.ts`，Identity、Vocabulary、Practice、Files 必须共用 `VITE_API_BASE_URL` 指向的网关基址，不再新增服务直连基址或第三套 Axios 客户端。
+- 浏览器未配置 `VITE_API_BASE_URL` 时使用同源 `/`；本地开发网关目标只在 Vite 的 `VITE_DEV_GATEWAY_TARGET` 中配置，默认 `http://localhost:5000`。
+- 公开路由集中在 `src/UIs/lexicraft-vue-frontend/src/config/apiRoutes.ts`：`/identity/v1`、`/vocabulary/v1`、`/practice/v1`、`/files`。新增或迁移 API 必须先由 Minimal API、OpenAPI 或真实网关配置证明路径和 DTO。
+- 网关路由契约由 `src/ApiGateway/Fantasy.ApiGateway/gateway-routes.contract.json` 描述，并由 `scripts/gateway/validate-route-contract.mjs` 校验 Development/Docker 配置、路径转换、目标集群及关键安全/健康管道；CI 必须运行该脚本。
+- 匿名认证只包含登录、注册、验证码、刷新令牌和 OAuth 前缀；请求拦截与 401 重试必须共用精确路径判断，受保护请求最多强制刷新并重试一次。
+- 旧 `src/utils/http.ts` 及 `user/*`、`member/*`、`dict/*`、`word/*` 仍是兼容边界，只能按真实调用者和已验证后端契约逐项迁移，不能批量猜测替换。

@@ -1,4 +1,4 @@
-﻿# AGENTS.md
+# AGENTS.md
 
 本文件适用于仓库根目录及其全部子目录。除非更深层目录存在独立的 `AGENTS.md`，否则所有自动化代理和协作者都必须遵循本规范。
 
@@ -46,8 +46,8 @@ LexiCraft 是一个以 .NET 微服务为后端、Vue 3 为前端的英语词汇�
 - `src/microservices/Files/`：文件 gRPC 服务、内容读取、上传目录和 OSS（`Fantasy.Files.Grpc`）。
 - `src/microservices/Shared/`：微服务共享模型和权限常量（`Fantasy.Shared`，权限定义为 `FantasyPermissionDefinitionProvider`）。
 - `src/BuildingBlocks/`：授权、缓存、持久化抽象、EF Core、EF Core Postgres、MongoDB、事件、消息、幂等、OSS、OpenAPI、日志和验证等基础组件。
-- `src/UIs/lexicraft-vue-frontend/src/apis/`：前端 API 模块；`auth.ts` 是较新的 Identity 客户端，部分其他模块仍保留旧接口封装。
-- `src/UIs/lexicraft-vue-frontend/src/utils/http.ts` 与 `authHttp.ts`：两套 Axios 客户端，新增接口必须先判断是否应合并或迁移，不能继续复制第三套。
+- `src/UIs/lexicraft-vue-frontend/src/apis/`：前端 API 模块；`identity.ts` 是当前 Identity 客户端，部分其他模块仍保留旧接口封装。
+- `src/UIs/lexicraft-vue-frontend/src/utils/apiClient.ts` 是统一网关 Axios 客户端；`src/utils/http.ts` 仅保留无法从当前后端确认的旧接口兼容调用，禁止新增引用或复制第三套客户端。
 - `.agents/MEMORY.md`：长期项目记忆。
 - `.agents/memory/YYYY-MM-DD.md`：每日工作记录。
 

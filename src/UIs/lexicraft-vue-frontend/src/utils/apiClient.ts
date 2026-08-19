@@ -1,6 +1,6 @@
 /**
- * 认证专用 HTTP 客户端
- * 专门用于与 Identity 服务通信，包含自动 Token 注入和刷新
+ * 网关 HTTP 客户端
+ * 所有服务域共用同一实例，并统一处理 Bearer Token、401 刷新和 ResultDto。
  */
 
 import axios, {AxiosInstance, AxiosRequestConfig, AxiosResponse} from 'axios'
@@ -8,6 +8,7 @@ import {AuthErrorCode} from '@/types/auth'
 import type {ApiErrorDomain, ResultDto} from '@/types/api'
 import {tokenManager} from './tokenManager'
 import {ENV} from '@/config/env'
+import {API_PREFIXES, API_ROUTES} from '@/config/apiRoutes'
 
 // 在开发环境中导入调试工具
 if (import.meta.env.DEV && typeof window !== 'undefined') {
@@ -15,8 +16,8 @@ if (import.meta.env.DEV && typeof window !== 'undefined') {
 }
 
 // 认证 HTTP 客户端配置
-const AUTH_API_CONFIG = {
-    baseURL: ENV.IDENTITY_API,
+const API_CLIENT_CONFIG = {
+    baseURL: ENV.API,
     timeout: 15000,
     headers: {
         'Content-Type': 'application/json',
@@ -30,10 +31,28 @@ type ApiRequestConfig = AxiosRequestConfig & {
     _retry?: boolean
 }
 
-const PUBLIC_AUTH_PATHS = ['/login', '/register', '/refresh-token', '/oauth/'] as const
+const PUBLIC_IDENTITY_PATHS = new Set([
+    API_ROUTES.identity.login,
+    API_ROUTES.identity.register,
+    API_ROUTES.identity.captcha,
+    API_ROUTES.identity.refreshToken
+])
+const PUBLIC_OAUTH_PREFIX = `${API_PREFIXES.identity}/oauth/`
 
-function isPublicAuthEndpoint(url?: string): boolean {
-    return Boolean(url && PUBLIC_AUTH_PATHS.some(path => url.includes(path)))
+function getRequestPath(url?: string): string {
+    if (!url) return ''
+
+    try {
+        const path = new URL(url, 'http://gateway.local').pathname
+        return path.length > 1 ? path.replace(/\/+$/, '') : path
+    } catch {
+        return url.split(/[?#]/, 1)[0].replace(/\/+$/, '')
+    }
+}
+
+export function isPublicIdentityEndpoint(url?: string): boolean {
+    const path = getRequestPath(url)
+    return PUBLIC_IDENTITY_PATHS.has(path) || path.startsWith(PUBLIC_OAUTH_PREFIX)
 }
 
 function normalizeJsonKeys(value: unknown): unknown {
@@ -78,17 +97,17 @@ export function normalizeResultDto<T>(data: unknown): ResultDto<T> | null {
 }
 
 /**
- * 创建认证专用的 axios 实例
+ * 创建统一网关 axios 实例
  */
-export const authHttpClient: AxiosInstance = axios.create(AUTH_API_CONFIG)
+export const apiHttpClient: AxiosInstance = axios.create(API_CLIENT_CONFIG)
 
 /**
  * 请求拦截器 - 自动注入 Token
  */
-authHttpClient.interceptors.request.use(
+apiHttpClient.interceptors.request.use(
     async (config) => {
         // 公开认证请求不携带已有访问令牌。
-        if (isPublicAuthEndpoint(config.url)) {
+        if (isPublicIdentityEndpoint(config.url)) {
             return config
         }
 
@@ -125,7 +144,7 @@ authHttpClient.interceptors.request.use(
 /**
  * 响应拦截器 - 处理认证错误和统一响应格式
  */
-authHttpClient.interceptors.response.use(
+apiHttpClient.interceptors.response.use(
     (response: AxiosResponse) => {
         // 成功响应直接返回
         return response
@@ -138,7 +157,7 @@ authHttpClient.interceptors.response.use(
             error.response?.status === 401 &&
             originalRequest &&
             !originalRequest._retry &&
-            !isPublicAuthEndpoint(originalRequest.url)
+            !isPublicIdentityEndpoint(originalRequest.url)
         ) {
             originalRequest._retry = true
 
@@ -151,7 +170,7 @@ authHttpClient.interceptors.response.use(
                     const newToken = tokenManager.getAccessToken()
                     if (newToken) {
                         originalRequest.headers.Authorization = `Bearer ${newToken}`
-                        return authHttpClient(originalRequest)
+                        return apiHttpClient(originalRequest)
                     }
                 }
             } catch (refreshError) {
@@ -290,7 +309,7 @@ async function requestWithDomain<T = any>(
             ...config,
             _errorDomain: domain
         }
-        const response = await authHttpClient(requestConfig)
+        const response = await apiHttpClient(requestConfig)
 
         // Normalize the backend response casing at the HTTP boundary
         const normalized = normalizeResultDto<T>(response.data)
@@ -316,7 +335,7 @@ async function requestWithDomain<T = any>(
     }
 }
 
-export function authRequest<T = any>(config: AxiosRequestConfig): Promise<ResultDto<T>> {
+export function identityRequest<T = any>(config: AxiosRequestConfig): Promise<ResultDto<T>> {
     return requestWithDomain<T>(config, 'identity')
 }
 
@@ -325,14 +344,11 @@ export function authRequest<T = any>(config: AxiosRequestConfig): Promise<Result
  * Use gateway paths such as `/vocabulary/v1/words`.
  */
 export function serviceRequest<T = any>(config: AxiosRequestConfig): Promise<ResultDto<T>> {
-    return requestWithDomain<T>({
-        ...config,
-        baseURL: ENV.API
-    }, 'service')
+    return requestWithDomain<T>(config, 'service')
 }
 
-export function authGet<T = any>(url: string, params?: any): Promise<ResultDto<T>> {
-    return authRequest<T>({
+export function identityGet<T = any>(url: string, params?: any): Promise<ResultDto<T>> {
+    return identityRequest<T>({
         method: 'GET',
         url,
         params
@@ -342,8 +358,8 @@ export function authGet<T = any>(url: string, params?: any): Promise<ResultDto<T
 /**
  * POST 请求
  */
-export function authPost<T = any>(url: string, data?: any): Promise<ResultDto<T>> {
-    return authRequest<T>({
+export function identityPost<T = any>(url: string, data?: any): Promise<ResultDto<T>> {
+    return identityRequest<T>({
         method: 'POST',
         url,
         data
@@ -353,8 +369,8 @@ export function authPost<T = any>(url: string, data?: any): Promise<ResultDto<T>
 /**
  * PUT 请求
  */
-export function authPut<T = any>(url: string, data?: any): Promise<ResultDto<T>> {
-    return authRequest<T>({
+export function identityPut<T = any>(url: string, data?: any): Promise<ResultDto<T>> {
+    return identityRequest<T>({
         method: 'PUT',
         url,
         data
@@ -364,8 +380,8 @@ export function authPut<T = any>(url: string, data?: any): Promise<ResultDto<T>>
 /**
  * DELETE 请求
  */
-export function authDelete<T = any>(url: string): Promise<ResultDto<T>> {
-    return authRequest<T>({
+export function identityDelete<T = any>(url: string): Promise<ResultDto<T>> {
+    return identityRequest<T>({
         method: 'DELETE',
         url
     })
@@ -384,8 +400,7 @@ export function servicePut<T = any>(url: string, data?: any): Promise<ResultDto<
 }
 
 export function serviceFileGet(url: string, params?: any): Promise<AxiosResponse<Blob>> {
-    return authHttpClient<Blob>({
-        baseURL: ENV.API,
+    return apiHttpClient<Blob>({
         method: 'GET',
         url,
         params,
@@ -395,4 +410,4 @@ export function serviceFileGet(url: string, params?: any): Promise<AxiosResponse
 }
 
 // 导出默认实例
-export default authHttpClient
+export default apiHttpClient

@@ -192,8 +192,6 @@ export interface ITokenManager {
 // 更新用户资料请求
 export interface UpdateProfileRequest {
     username?: string
-    firstName?: string
-    lastName?: string
     avatar?: string
 }
 

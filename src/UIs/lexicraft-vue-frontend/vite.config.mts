@@ -1,4 +1,4 @@
-import {defineConfig} from 'vite'
+import {defineConfig, loadEnv} from 'vite'
 import Vue from '@vitejs/plugin-vue'
 import VueJsx from "@vitejs/plugin-vue-jsx";
 import {resolve} from 'path'
@@ -20,7 +20,10 @@ const lifecycle = process.env.npm_lifecycle_event;
 let isCdnBuild = ['build-oss', 'report-oss'].includes(lifecycle)
 let isAnalyseBuild = ['report-oss', 'report'].includes(lifecycle)
 
-export default defineConfig(() => {
+export default defineConfig(({mode}) => {
+    const viteEnv = loadEnv(mode, __dirname, '')
+    const devGatewayTarget = viteEnv.VITE_DEV_GATEWAY_TARGET?.trim() || 'http://localhost:5000'
+
     return new Promise(resolve => {
         let latestCommitHash = ''
         getLastCommit((err, commit) => {
@@ -116,6 +119,10 @@ export default defineConfig(() => {
                     open: false,
                     host: '0.0.0.0',
                     proxy: {
+                        '/identity': devGatewayTarget,
+                        '/vocabulary': devGatewayTarget,
+                        '/practice': devGatewayTarget,
+                        '/files': devGatewayTarget,
                         '/baidu': 'https://api.fanyi.baidu.com/api/trans/vip/translate'
                     }
                 }

@@ -7,7 +7,8 @@ import BasePage from '@/components/BasePage.vue'
 import {APP_NAME, EMAIL} from '@/config/env.ts'
 import BaseButton from '@/components/BaseButton.vue'
 import {PASSWORD_CONFIG, PHONE_CONFIG} from '@/config/auth.ts'
-import {changeEmailApi, changePhoneApi, setPassword, updateUserInfoApi, User} from '@/apis/user.ts'
+import {changeEmailApi, changePhoneApi, setPassword} from '@/apis/user.ts'
+import type {MemberProfile} from '@/types/user'
 import BaseIcon from '@/components/BaseIcon.vue'
 import FormItem from '@/components/base/form/FormItem.vue'
 import Form from '@/components/base/form/Form.vue'
@@ -127,13 +128,13 @@ function changeUsername() {
     if (valid) {
       try {
         loading = true
-        const res = await updateUserInfoApi(changeUsernameForm)
-        if (res.success) {
+        const res = await authAPI.updateUserProfile(changeUsernameForm)
+        if (res.status) {
           Toast.success('修改成功')
           await userStore.fetchUserInfo()
           showChangeUsername = false
         } else {
-          Toast.error(res.msg || '修改失败')
+          Toast.error(res.message || '修改失败')
         }
       } catch (error) {
         Toast.error(error || '修改失败，请重试')
@@ -252,7 +253,7 @@ function changePwd() {
   })
 }
 
-const member = $computed<User['member']>(() => userStore.user?.member ?? ({} as any))
+const member = $computed<MemberProfile>(() => userStore.user?.member ?? ({} as MemberProfile))
 
 const memberEndDate = $computed(() => {
   if (member?.endDate === null) return '永久'

@@ -1,6 +1,6 @@
 # 前端认证集成文档
 
-本文档说明如何使用新的认证系统，该系统直接与 Fantasy.Services.Identity 服务集成，替换了原有的 Logto 组件。
+本文档说明如何使用新的认证系统，该系统通过 Fantasy.ApiGateway 与 Fantasy.Services.Identity 服务集成，替换了原有的 Logto 组件。
 
 ## 🏗️ 架构概览
 
@@ -13,7 +13,9 @@ Vue.js 组件
     ↓
 认证 API 客户端
     ↓
-HTTP 客户端 (Axios)
+统一网关 HTTP 客户端 (Axios)
+    ↓
+Fantasy.ApiGateway
     ↓
 Identity 服务
 ```
@@ -26,11 +28,11 @@ src/
 │   └── auth.ts                 # 认证相关类型定义
 ├── utils/
 │   ├── tokenManager.ts         # JWT Token 管理
-│   ├── authHttp.ts            # 认证专用 HTTP 客户端
+│   ├── apiClient.ts            # 统一网关 HTTP 客户端
 │   ├── authHelpers.ts         # 认证工具函数
 │   └── authValidation.ts      # 输入验证函数
 ├── apis/
-│   └── auth.ts                # 认证 API 客户端
+│   └── identity.ts            # Identity API 客户端
 ├── stores/
 │   └── auth.ts                # 认证状态管理
 ├── hooks/
@@ -178,17 +180,17 @@ const refreshed = await tokenManager.refreshTokenIfNeeded()
 
 ### 环境配置
 
-在 `src/config/env.ts` 中配置 Identity 服务地址：
+在 `src/config/env.ts` 中配置统一网关基址。未设置时使用同源 `/`；本地开发由 Vite 代理到 `VITE_DEV_GATEWAY_TARGET`：
 
 ```typescript
-const gatewayBaseUrl = import.meta.env.VITE_API_BASE_URL || 'http://localhost:5000'
-const map = {
-  DEV: {
-    IDENTITY_API: `${gatewayBaseUrl}/identity`,
-    // 其他配置...
-  }
-}
+const configuredGatewayBaseUrl = import.meta.env.VITE_API_BASE_URL?.trim()
+const gatewayBaseUrl = configuredGatewayBaseUrl
+  ? configuredGatewayBaseUrl.replace(/\/+$/, '')
+  : ''
+const gatewayApiBaseUrl = gatewayBaseUrl ? `${gatewayBaseUrl}/` : '/'
 ```
+
+Identity 路径由 `src/config/apiRoutes.ts` 统一生成，例如 `/identity/v1/login`。
 
 ### 认证配置
 

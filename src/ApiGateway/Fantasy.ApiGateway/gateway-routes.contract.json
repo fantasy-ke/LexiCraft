@@ -1,0 +1,49 @@
+{
+  "schemaVersion": 1,
+  "routes": {
+    "files-route": {
+      "clusterId": "files-cluster",
+      "publicPath": "/files/{**catch-all}",
+      "upstreamPath": "/{**catch-all}",
+      "forwardedPrefix": "/files"
+    },
+    "identity-route": {
+      "clusterId": "identity-cluster",
+      "publicPath": "/identity/{version:regex(^v\\d+)}/{**catch-all}",
+      "upstreamPath": "/api/{version}/identity/{**catch-all}",
+      "forwardedPrefix": "/identity/{version}"
+    },
+    "vocabulary-route": {
+      "clusterId": "vocabulary-cluster",
+      "publicPath": "/vocabulary/{version:regex(^v\\d+)}/{**catch-all}",
+      "upstreamPath": "/api/{version}/vocabulary/{**catch-all}",
+      "forwardedPrefix": "/vocabulary/{version}"
+    },
+    "practice-route": {
+      "clusterId": "practice-cluster",
+      "publicPath": "/practice/{version:regex(^v\\d+)}/{**catch-all}",
+      "upstreamPath": "/api/{version}/practice/{**catch-all}",
+      "forwardedPrefix": "/practice/{version}"
+    }
+  },
+  "profiles": {
+    "Development": {
+      "config": "src/ApiGateway/Fantasy.ApiGateway/appsettings.Development.json",
+      "destinations": {
+        "files-cluster": "http://localhost:5001",
+        "identity-cluster": "http://localhost:5002",
+        "vocabulary-cluster": "http://localhost:5003",
+        "practice-cluster": "http://localhost:5004"
+      }
+    },
+    "Docker": {
+      "config": "src/ApiGateway/Fantasy.ApiGateway/appsettings.Docker.json",
+      "destinations": {
+        "files-cluster": "http://files-grpc:8080",
+        "identity-cluster": "http://identity-api:8080",
+        "vocabulary-cluster": "http://vocabulary-api:8080",
+        "practice-cluster": "http://practice-api:8080"
+      }
+    }
+  }
+}

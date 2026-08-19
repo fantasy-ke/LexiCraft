@@ -3,7 +3,7 @@ import BasePage from '@/components/BasePage.vue'
 import BaseButton from '@/components/BaseButton.vue'
 import {useRouter} from 'vue-router'
 import {useUserStore} from '@/stores/user.ts'
-import {User} from '@/apis/user.ts'
+import type {MemberProfile} from '@/types/user'
 import {onMounted, onUnmounted, watch} from 'vue'
 import Header from '@/components/Header.vue'
 import {
@@ -40,7 +40,7 @@ let loading = $ref(false)
 let selectedPaymentMethod = $ref('alipay')
 let selectedPlanId = $ref('')
 let duration = $ref(1)
-const member = $computed<User['member']>(() => userStore.user?.member ?? ({} as any))
+const member = $computed<MemberProfile>(() => userStore.user?.member ?? ({} as MemberProfile))
 
 const memberEndDate = $computed(() => {
   if (member?.endDate === null) return '永久'

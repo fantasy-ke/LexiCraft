@@ -3,7 +3,8 @@
  */
 
 import {AuthErrorCode, ResultDto} from '@/types/auth'
-import {ENV} from '@/config/env'
+import {resolveGatewayUrl} from '@/config/env'
+import {API_ROUTES} from '@/config/apiRoutes'
 import {AUTH_ERROR_MESSAGES} from '@/config/auth.config'
 
 /**
@@ -322,7 +323,7 @@ export function getUserAvatarUrl(user: {
         if (/^https?:\/\//i.test(value) || value.startsWith('//')) {
             return value
         }
-        return `${ENV.FILES_API}/content?relativePath=${encodeURIComponent(value)}`
+        return `${resolveGatewayUrl(API_ROUTES.files.content)}?relativePath=${encodeURIComponent(value)}`
     }
 
     return getDefaultAvatarUrl(user)

@@ -1,11 +1,11 @@
 import {defineStore} from 'pinia'
 import {ref} from 'vue'
-import {getUserInfo, User} from '@/apis/user'
+import type {UserViewModel} from '@/types/user'
 import {AppEnv} from "@/config/env";
 import {useAuthStore} from '@/stores/auth'
 
 export const useUserStore = defineStore('user', () => {
-    const user = ref<User | null>(null)
+    const user = ref<UserViewModel | null>(null)
     const isLogin = ref<boolean>(false)
 
     // 获取新的认证 store
@@ -32,7 +32,7 @@ export const useUserStore = defineStore('user', () => {
     }
 
     // 设置用户信息 - 兼容旧代码
-    const setUser = (userInfo: User | any) => {
+    const setUser = (userInfo: UserViewModel) => {
         user.value = userInfo
         authStore.setUser(userInfo)
         isLogin.value = true
@@ -65,7 +65,7 @@ export const useUserStore = defineStore('user', () => {
             try {
                 await authStore.fetchUserProfile()
                 if (authStore.user) {
-                    user.value = authStore.user as any
+                    user.value = authStore.user
                     isLogin.value = true
                     return true
                 }
@@ -74,19 +74,7 @@ export const useUserStore = defineStore('user', () => {
             }
         }
 
-        // 回退到旧的 API
-        if (!AppEnv.CAN_REQUEST) return false
-        try {
-            const res = await getUserInfo()
-            if (res.success) {
-                setUser(res.data)
-                return true
-            }
-            return false
-        } catch (error) {
-            console.error('Get user info error:', error)
-            return false
-        }
+        return false
     }
 
     // 初始化用户状态 - 使用新的认证系统
@@ -104,7 +92,6 @@ export const useUserStore = defineStore('user', () => {
             console.error('Auth store init error:', error)
         }
 
-        // 回退到旧的方式
         const success = await fetchUserInfo()
         if (!success) {
             clearToken()

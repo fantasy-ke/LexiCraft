@@ -1,9 +1,11 @@
 /**
- * 认证 HTTP 客户端测试
+ * 统一网关 HTTP 客户端测试
  */
 
 import {beforeEach, describe, expect, it, vi} from 'vitest'
-import {authHttpClient} from '../authHttp'
+import {API_ROUTES} from '@/config/apiRoutes'
+import {ENV} from '@/config/env'
+import {apiHttpClient, isPublicIdentityEndpoint} from '../apiClient'
 
 vi.mock('../tokenManager', () => ({
     tokenManager: {
@@ -24,52 +26,61 @@ const successResponse = config => ({
     config
 })
 
-describe('authHttp', () => {
+describe('apiClient', () => {
     beforeEach(() => {
         vi.clearAllMocks()
     })
 
-    it('should not add Authorization header for login endpoint', async () => {
+    it('uses the single gateway base URL', () => {
+        expect(apiHttpClient.defaults.baseURL).toBe(ENV.API)
+    })
+
+    it('recognizes only verified anonymous Identity routes', () => {
+        expect(isPublicIdentityEndpoint(API_ROUTES.identity.login)).toBe(true)
+        expect(isPublicIdentityEndpoint(API_ROUTES.identity.captcha)).toBe(true)
+        expect(isPublicIdentityEndpoint(API_ROUTES.identity.oauthInitiate('github'))).toBe(true)
+        expect(isPublicIdentityEndpoint('/vocabulary/v1/login-history')).toBe(false)
+    })
+
+    it('does not add Authorization for login', async () => {
         const {tokenManager} = await import('../tokenManager')
         tokenManager.getAccessToken = vi.fn().mockReturnValue('mock-token')
         const adapter = vi.fn(async config => successResponse(config))
-        authHttpClient.defaults.adapter = adapter
+        apiHttpClient.defaults.adapter = adapter
 
-        await authHttpClient.post('/v1/login', {userAccount: 'test', password: 'test'})
+        await apiHttpClient.post(API_ROUTES.identity.login, {userAccount: 'test', password: 'test'})
 
-        expect(adapter).toHaveBeenCalledOnce()
         expect(adapter.mock.calls[0][0].headers.get('Authorization')).toBeUndefined()
         expect(tokenManager.getAccessToken).not.toHaveBeenCalled()
     })
 
-    it('should add Authorization header for protected endpoint', async () => {
+    it('adds Authorization for protected service routes even when the path contains login', async () => {
         const {tokenManager} = await import('../tokenManager')
         tokenManager.getAccessToken = vi.fn().mockReturnValue('mock-token')
         tokenManager.isTokenExpired = vi.fn().mockReturnValue(false)
         const adapter = vi.fn(async config => successResponse(config))
-        authHttpClient.defaults.adapter = adapter
+        apiHttpClient.defaults.adapter = adapter
 
-        await authHttpClient.get('/v1/users/info')
+        await apiHttpClient.get('/vocabulary/v1/login-history')
 
         expect(adapter.mock.calls[0][0].headers.get('Authorization')).toBe('Bearer mock-token')
-        expect(tokenManager.getAccessToken).toHaveBeenCalled()
     })
 
-    it('should not retry login request on 401 error', async () => {
+    it('does not retry an anonymous Identity request on 401', async () => {
         const {tokenManager} = await import('../tokenManager')
         tokenManager.refreshTokenIfNeeded = vi.fn().mockResolvedValue(true)
-        authHttpClient.defaults.adapter = vi.fn(async config => {
+        apiHttpClient.defaults.adapter = vi.fn(async config => {
             throw {
                 response: {status: 401, data: {message: 'Invalid credentials'}},
                 config
             }
         })
 
-        await expect(authHttpClient.post('/v1/login', {userAccount: 'test', password: 'wrong'})).rejects.toBeTruthy()
+        await expect(apiHttpClient.post(API_ROUTES.identity.login, {})).rejects.toBeTruthy()
         expect(tokenManager.refreshTokenIfNeeded).not.toHaveBeenCalled()
     })
 
-    it('should retry protected request on 401 error', async () => {
+    it('retries a protected service request once after forced refresh', async () => {
         const {tokenManager} = await import('../tokenManager')
         tokenManager.refreshTokenIfNeeded = vi.fn().mockResolvedValue(true)
         tokenManager.getAccessToken = vi.fn().mockReturnValue('new-token')
@@ -84,15 +95,14 @@ describe('authHttp', () => {
                 }
             }
 
-            return {...successResponse(config), data: {status: true, data: {id: '1', username: 'test'}}}
+            return successResponse(config)
         })
-        authHttpClient.defaults.adapter = adapter
+        apiHttpClient.defaults.adapter = adapter
 
-        const result = await authHttpClient.get('/v1/users/info')
+        await apiHttpClient.get(API_ROUTES.vocabulary.words)
 
         expect(tokenManager.refreshTokenIfNeeded).toHaveBeenCalledWith(true)
         expect(callCount).toBe(2)
         expect(adapter.mock.calls[1][0].headers.get('Authorization')).toBe('Bearer new-token')
-        expect(result.data.status).toBe(true)
     })
 })

@@ -20,7 +20,8 @@ import {
     UserPermissionsResponse,
     UserProfile
 } from '@/types/auth'
-import {authGet, authPost, authPut, authRequest} from '@/utils/authHttp'
+import {identityGet, identityPost, identityPut, identityRequest} from '@/utils/apiClient'
+import {API_ROUTES} from '@/config/apiRoutes'
 
 export function normalizeUserId(userId: unknown): string {
     if (typeof userId === 'string' && userId.trim()) {
@@ -46,7 +47,7 @@ class AuthAPI implements IAuthAPI {
      * 用户登录
      */
     async login(credentials: LoginRequest): Promise<ResultDto<LoginResponse>> {
-        return authPost<LoginResponse>('/v1/login', credentials)
+        return identityPost<LoginResponse>(API_ROUTES.identity.login, credentials)
     }
 
     /**
@@ -62,44 +63,44 @@ class AuthAPI implements IAuthAPI {
             captchaCode: userData.captchaCode
         }
 
-        return authPost<RegisterResponse>('/v1/register', registerData)
+        return identityPost<RegisterResponse>(API_ROUTES.identity.register, registerData)
     }
 
     /**
      * 获取验证码
      */
     async getCaptcha(): Promise<ResultDto<CaptchaResponse>> {
-        return authGet<CaptchaResponse>('/v1/users/captcha')
+        return identityGet<CaptchaResponse>(API_ROUTES.identity.captcha)
     }
 
     /**
      * 用户登出
      */
     async logout(): Promise<ResultDto<void>> {
-        return authPost<void>('/v1/logout')
+        return identityPost<void>(API_ROUTES.identity.logout)
     }
 
     /**
      * 获取用户资料
      */
     async getUserProfile(): Promise<ResultDto<UserProfile>> {
-        return authGet<UserProfile>('/v1/users/info')
+        return identityGet<UserProfile>(API_ROUTES.identity.profile)
     }
 
     /**
      * 更新用户资料
      */
     async updateUserProfile(profile: UpdateProfileRequest): Promise<ResultDto<UserProfile>> {
-        return authPut<UserProfile>('/v1/users/info', profile)
+        return identityPut<UserProfile>(API_ROUTES.identity.profile, profile)
     }
 
     async uploadAvatar(file: File): Promise<ResultDto<UploadAvatarResponse>> {
         const formData = new FormData()
         formData.append('Avatar', file)
 
-        return authRequest<UploadAvatarResponse>({
+        return identityRequest<UploadAvatarResponse>({
             method: 'POST',
-            url: '/v1/uploadAvatar',
+            url: API_ROUTES.identity.uploadAvatar,
             data: formData,
             headers: {
                 'Content-Type': 'multipart/form-data'
@@ -111,14 +112,14 @@ class AuthAPI implements IAuthAPI {
      * 初始化 OAuth 登录
      */
     async initiateOAuth(provider: OAuthProvider): Promise<ResultDto<OAuthInitResponse>> {
-        return authGet<OAuthInitResponse>(`/v1/oauth/${provider}/initiate`)
+        return identityGet<OAuthInitResponse>(API_ROUTES.identity.oauthInitiate(provider))
     }
 
     /**
      * 处理 OAuth 回调
      */
     async handleOAuthCallback(params: OAuthCallbackParams): Promise<ResultDto<LoginResponse>> {
-        return authPost<LoginResponse>(`/v1/oauth/${params.provider}/callback`, {
+        return identityPost<LoginResponse>(API_ROUTES.identity.oauthCallback(params.provider), {
             code: params.code,
             state: params.state
         })
@@ -128,7 +129,7 @@ class AuthAPI implements IAuthAPI {
      * 刷新访问令牌
      */
     async refreshToken(refreshToken: string): Promise<ResultDto<TokenPair>> {
-        return authPost<TokenPair>('/v1/refresh-token', {refreshToken})
+        return identityPost<TokenPair>(API_ROUTES.identity.refreshToken, {refreshToken})
     }
 
     /**
@@ -136,7 +137,7 @@ class AuthAPI implements IAuthAPI {
      */
     async getUserPermissions(userId: string): Promise<ResultDto<UserPermissionsResponse>> {
         const normalizedUserId = normalizeUserId(userId)
-        return authGet<UserPermissionsResponse>(`/v1/permissions/${encodeURIComponent(normalizedUserId)}`)
+        return identityGet<UserPermissionsResponse>(API_ROUTES.identity.permissions(normalizedUserId))
     }
 }
 

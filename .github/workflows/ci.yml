@@ -30,6 +30,9 @@ jobs:
       - name: Scan tracked files for secrets
         run: node scripts/security/scan-secrets.mjs
 
+      - name: Validate gateway route contract
+        run: node scripts/gateway/validate-route-contract.mjs
+
       - name: Build production solution
         run: dotnet build src/Fantasy.slnx --configuration Release
 

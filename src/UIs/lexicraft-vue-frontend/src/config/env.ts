@@ -7,25 +7,30 @@ export const EMAIL = 'zyronon@163.com'
 export const Origin = `https://${Host}`
 export const APP_NAME = 'LexionCraft'
 
-const gatewayBaseUrl = (import.meta.env.VITE_API_BASE_URL || 'http://localhost:5000')
-    .trim()
-    .replace(/\/+$/, '')
+const configuredGatewayBaseUrl = import.meta.env.VITE_API_BASE_URL?.trim()
+const gatewayBaseUrl = configuredGatewayBaseUrl
+    ? configuredGatewayBaseUrl.replace(/\/+$/, '')
+    : ''
+const gatewayApiBaseUrl = gatewayBaseUrl ? `${gatewayBaseUrl}/` : '/'
 
 const common = {
     word_dict_list_version: 1,
 }
 const map = {
     DEV: {
-        API: `${gatewayBaseUrl}/`,
+        API: gatewayApiBaseUrl,
         // RESOURCE_URL: 'https://dicts.2study.top/',
         RESOURCE_URL: '/',
-        // Identity and Files are accessed through the same gateway base.
-        IDENTITY_API: `${gatewayBaseUrl}/identity`,
-        FILES_API: `${gatewayBaseUrl}/files`,
     },
 }
 
-export const API_BASE_URL = gatewayBaseUrl
+export const API_BASE_URL = gatewayBaseUrl || '/'
+
+export function resolveGatewayUrl(path: string): string {
+    const normalizedPath = path.startsWith('/') ? path : `/${path}`
+    return gatewayBaseUrl ? `${gatewayBaseUrl}${normalizedPath}` : normalizedPath
+}
+
 export const ENV = Object.assign(map['DEV'], common)
 
 export let AppEnv = {
