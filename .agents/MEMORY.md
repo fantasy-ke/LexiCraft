@@ -1,4 +1,4 @@
-﻿# LexiCraft 项目长期记忆
+# LexiCraft 项目长期记忆
 
 ## 记录范围
 
@@ -350,3 +350,8 @@
 - 网关路由契约由 `src/ApiGateway/Fantasy.ApiGateway/gateway-routes.contract.json` 描述，并由 `scripts/gateway/validate-route-contract.mjs` 校验 Development/Docker 配置、路径转换、目标集群及关键安全/健康管道；CI 必须运行该脚本。
 - 匿名认证只包含登录、注册、验证码、刷新令牌和 OAuth 前缀；请求拦截与 401 重试必须共用精确路径判断，受保护请求最多强制刷新并重试一次。
 - 旧 `src/utils/http.ts` 及 `user/*`、`member/*`、`dict/*`、`word/*` 仍是兼容边界，只能按真实调用者和已验证后端契约逐项迁移，不能批量猜测替换。
+
+# 2026-08-19 缓存门面职责拆分与行为基线
+- `BuildingBlocks.Caching` 当前以内部 `CacheService` 作为业务门面，内部 `IRedisCacheStore`/`RedisCacheStore` 作为 Redis 端口与适配器；不要按旧文档猜测新增 `DistributedCacheService.cs`。
+- `CacheService` 已拆为 `CacheService.Operations.cs`、`CacheService.Options.cs`、`CacheService.Fallback.cs`、`CacheService.Locking.cs` 和既有 `CacheService.Hash.cs`，公共 `ICacheService`、配置字段和 `AddCaching` 注册保持不变。
+- 缓存门面行为基线由 `BuildingBlocks.Caching.Tests/CacheServiceTests.cs` 的 15 个确定性测试覆盖两级缓存、实例隔离、TTL、锁失败降级、异常传播和取消；真实 Redis 连接/事务/锁并发仍需集成环境验证。

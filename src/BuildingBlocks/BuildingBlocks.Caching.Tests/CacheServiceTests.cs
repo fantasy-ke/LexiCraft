@@ -5,6 +5,7 @@ using BuildingBlocks.Caching.Redis;
 using BuildingBlocks.Caching.Services;
 using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.Logging.Abstractions;
+using Microsoft.Extensions.Primitives;
 using Xunit;
 
 namespace BuildingBlocks.Caching.Tests;
@@ -180,13 +181,186 @@ public sealed class CacheServiceTests
             cancellationSource.Token));
     }
 
+    [Fact]
+    public async Task GetAsync_DistributedHit_PopulatesLocalCacheWithLocalExpiry()
+    {
+        var store = new FakeRedisCacheStore();
+        store.EnqueueHit("distributed");
+        var memoryCache = new RecordingMemoryCache();
+        var service = CreateService(store, new SuccessfulLockProvider(), memoryCache);
+        var localExpiry = TimeSpan.FromMinutes(4);
+
+        var configure = HybridOptions("secondary", TimeSpan.FromHours(1), localExpiry);
+        var first = await service.GetAsync<string>("cache-key", configure);
+        var second = await service.GetAsync<string>("cache-key", configure);
+
+        Assert.Equal("distributed", first);
+        Assert.Equal("distributed", second);
+        Assert.Equal(1, store.GetCalls);
+        Assert.Equal(localExpiry, memoryCache.GetExpiry("local:secondary:cache-key"));
+    }
+
+    [Fact]
+    public async Task SetAsync_WritesDistributedAndLocalCachesWithIndependentExpiry()
+    {
+        var store = new FakeRedisCacheStore();
+        var memoryCache = new RecordingMemoryCache();
+        var service = CreateService(store, new SuccessfulLockProvider(), memoryCache);
+        var distributedExpiry = TimeSpan.FromMinutes(30);
+        var localExpiry = TimeSpan.FromMinutes(3);
+
+        await service.SetAsync(
+            "cache-key",
+            "value",
+            HybridOptions("secondary", distributedExpiry, localExpiry));
+
+        Assert.Equal(1, store.SetCalls);
+        Assert.Equal("value", store.LastSetValue);
+        Assert.Equal(distributedExpiry, store.LastSetExpiry);
+        Assert.Equal(localExpiry, memoryCache.GetExpiry("local:secondary:cache-key"));
+    }
+
+    [Fact]
+    public async Task RemoveAsync_RemovesLocalCacheWhenDistributedRemovalMisses()
+    {
+        var store = new FakeRedisCacheStore { RemoveResult = false };
+        var memoryCache = new RecordingMemoryCache();
+        var service = CreateService(store, new SuccessfulLockProvider(), memoryCache);
+        await service.SetAsync("cache-key", "value", LocalOptions("secondary"));
+
+        var removed = await service.RemoveAsync(
+            "cache-key",
+            HybridOptions("secondary", TimeSpan.FromMinutes(30), TimeSpan.FromMinutes(3)));
+
+        Assert.False(removed);
+        Assert.Equal(1, store.RemoveCalls);
+        Assert.Contains("local:secondary:cache-key", memoryCache.RemovedKeys);
+        Assert.False(memoryCache.Contains("local:secondary:cache-key"));
+    }
+
+    [Fact]
+    public async Task ExistsAsync_LocalHit_DoesNotQueryDistributedCache()
+    {
+        var store = new FakeRedisCacheStore { ExistsResult = false };
+        var memoryCache = new RecordingMemoryCache();
+        var service = CreateService(store, new SuccessfulLockProvider(), memoryCache);
+        await service.SetAsync("cache-key", "value", LocalOptions("secondary"));
+
+        var exists = await service.ExistsAsync(
+            "cache-key",
+            HybridOptions("secondary", TimeSpan.FromMinutes(30), TimeSpan.FromMinutes(3)));
+
+        Assert.True(exists);
+        Assert.Equal(0, store.ExistsCalls);
+    }
+
+    [Fact]
+    public async Task SetExpirationAsync_ForwardsExplicitExpiryAndRedisInstance()
+    {
+        var store = new FakeRedisCacheStore { SetExpirationResult = true };
+        var service = CreateService(store, new SuccessfulLockProvider());
+        var expiry = TimeSpan.FromMinutes(12);
+
+        var result = await service.SetExpirationAsync(
+            "cache-key",
+            expiry,
+            options =>
+            {
+                options.UseDistributed = true;
+                options.RedisInstanceName = "secondary";
+            });
+
+        Assert.True(result);
+        Assert.Equal(expiry, store.LastExpiration);
+        Assert.Equal("secondary", store.LastExpirationInstanceName);
+    }
+
+    [Fact]
+    public async Task GetOrSetAsync_LockFailure_FallsBackToFactoryAndCachesValue()
+    {
+        var store = new FakeRedisCacheStore();
+        store.EnqueueMiss();
+        var service = CreateService(store, new FailingLockProvider());
+        var factoryCalls = 0;
+
+        var result = await service.GetOrSetAsync(
+            "cache-key",
+            () =>
+            {
+                factoryCalls++;
+                return Task.FromResult("factory");
+            },
+            options =>
+            {
+                options.UseLocal = false;
+                options.UseDistributed = true;
+                options.EnableLock = true;
+                options.FallbackToFactory = true;
+            });
+
+        Assert.Equal("factory", result);
+        Assert.Equal(1, factoryCalls);
+        Assert.Equal(1, store.SetCalls);
+        Assert.Equal("factory", store.LastSetValue);
+    }
+
+    [Fact]
+    public async Task GetOrSetAsync_LockFailure_UsesDefaultFallbackWithoutCallingFactory()
+    {
+        var store = new FakeRedisCacheStore();
+        store.EnqueueMiss();
+        var service = CreateService(store, new FailingLockProvider());
+        var factoryCalls = 0;
+
+        var result = await service.GetOrSetAsync(
+            "cache-key",
+            () =>
+            {
+                factoryCalls++;
+                return Task.FromResult("factory");
+            },
+            options =>
+            {
+                options.UseLocal = false;
+                options.UseDistributed = true;
+                options.EnableLock = true;
+                options.FallbackToFactory = false;
+                options.FallbackToDefault = true;
+                options.DefaultValue = "fallback";
+            });
+
+        Assert.Equal("fallback", result);
+        Assert.Equal(0, factoryCalls);
+        Assert.Equal(0, store.SetCalls);
+    }
+
+    [Fact]
+    public async Task GetAsync_WhenErrorsAreVisible_WrapsStoreException()
+    {
+        var dependencyException = new InvalidOperationException("redis unavailable");
+        var store = new FakeRedisCacheStore { GetException = dependencyException };
+        var service = CreateService(store, new SuccessfulLockProvider());
+
+        var exception = await Assert.ThrowsAsync<InvalidOperationException>(() => service.GetAsync<string>(
+            "cache-key",
+            options =>
+            {
+                options.UseLocal = false;
+                options.UseDistributed = true;
+                options.HideErrors = false;
+            }));
+
+        Assert.Same(dependencyException, exception.InnerException);
+    }
+
     private static CacheService CreateService(
         IRedisCacheStore store,
-        IDistributedLockProvider lockProvider)
+        IDistributedLockProvider lockProvider,
+        IMemoryCache? memoryCache = null)
     {
         return new CacheService(
             store,
-            new MemoryCache(new MemoryCacheOptions()),
+            memoryCache ?? new MemoryCache(new MemoryCacheOptions()),
             lockProvider,
             NullLogger<CacheService>.Instance);
     }
@@ -201,6 +375,22 @@ public sealed class CacheServiceTests
         };
     }
 
+
+    private static Action<CacheServiceOptions> HybridOptions(
+        string instanceName,
+        TimeSpan distributedExpiry,
+        TimeSpan localExpiry)
+    {
+        return options =>
+        {
+            options.UseDistributed = true;
+            options.UseLocal = true;
+            options.RedisInstanceName = instanceName;
+            options.Expiry = distributedExpiry;
+            options.LocalExpiry = localExpiry;
+        };
+    }
+
     private sealed class FakeRedisCacheStore : IRedisCacheStore
     {
         private readonly Queue<(bool Found, object? Value)> _getResults = new();
@@ -210,6 +400,16 @@ public sealed class CacheServiceTests
         public Exception? GetException { get; init; }
         public Dictionary<string, string>? HashValues { get; init; }
         public TimeSpan? LastSetExpiry { get; private set; }
+        public object? LastSetValue { get; private set; }
+        public int GetCalls { get; private set; }
+        public int SetCalls { get; private set; }
+        public int RemoveCalls { get; private set; }
+        public int ExistsCalls { get; private set; }
+        public bool RemoveResult { get; init; }
+        public bool ExistsResult { get; init; }
+        public bool SetExpirationResult { get; init; }
+        public TimeSpan? LastExpiration { get; private set; }
+        public string? LastExpirationInstanceName { get; private set; }
 
         public void EnqueueMiss() => _getResults.Enqueue((false, null));
 
@@ -220,6 +420,7 @@ public sealed class CacheServiceTests
             CacheServiceOptions options,
             CancellationToken cancellationToken = default)
         {
+            GetCalls++;
             ObservedInstanceNames.Add(options.RedisInstanceName);
             if (GetException != null)
                 return Task.FromException<CacheReadResult<T>>(GetException);
@@ -237,6 +438,8 @@ public sealed class CacheServiceTests
             TimeSpan? expiry = null,
             CancellationToken cancellationToken = default)
         {
+            SetCalls++;
+            LastSetValue = value;
             LastSetExpiry = expiry;
             return Task.CompletedTask;
         }
@@ -244,18 +447,31 @@ public sealed class CacheServiceTests
         public Task<bool> RemoveAsync(
             string key,
             CacheServiceOptions options,
-            CancellationToken cancellationToken = default) => Task.FromResult(false);
+            CancellationToken cancellationToken = default)
+        {
+            RemoveCalls++;
+            return Task.FromResult(RemoveResult);
+        }
 
         public Task<bool> ExistsAsync(
             string key,
             CacheServiceOptions options,
-            CancellationToken cancellationToken = default) => Task.FromResult(false);
+            CancellationToken cancellationToken = default)
+        {
+            ExistsCalls++;
+            return Task.FromResult(ExistsResult);
+        }
 
         public Task<bool> SetExpirationAsync(
             string key,
             TimeSpan expiry,
             CacheServiceOptions options,
-            CancellationToken cancellationToken = default) => Task.FromResult(false);
+            CancellationToken cancellationToken = default)
+        {
+            LastExpiration = expiry;
+            LastExpirationInstanceName = options.RedisInstanceName;
+            return Task.FromResult(SetExpirationResult);
+        }
 
         public Task<Dictionary<string, string>?> HashGetAsync(
             string key,
@@ -280,6 +496,33 @@ public sealed class CacheServiceTests
             CacheServiceOptions options,
             TimeSpan? expiry = null,
             CancellationToken cancellationToken = default) => Task.CompletedTask;
+    }
+
+    private sealed class FailingLockProvider : IDistributedLockProvider
+    {
+        public Task<IDistributedLock?> TryAcquireLockAsync(
+            string lockKey,
+            TimeSpan lockTimeout,
+            TimeSpan acquireTimeout,
+            string? redisInstanceName = null,
+            CancellationToken cancellationToken = default) => Task.FromResult<IDistributedLock?>(null);
+
+        public Task<IDistributedLock> AcquireLockAsync(
+            string lockKey,
+            TimeSpan lockTimeout,
+            TimeSpan acquireTimeout,
+            string? redisInstanceName = null,
+            CancellationToken cancellationToken = default) => throw new NotSupportedException();
+
+        public Task<bool> IsLockHeldAsync(
+            string lockKey,
+            string? redisInstanceName = null,
+            CancellationToken cancellationToken = default) => Task.FromResult(false);
+
+        public Task<bool> ForceReleaseLockAsync(
+            string lockKey,
+            string? redisInstanceName = null,
+            CancellationToken cancellationToken = default) => Task.FromResult(false);
     }
 
     private sealed class SuccessfulLockProvider : IDistributedLockProvider
@@ -314,6 +557,63 @@ public sealed class CacheServiceTests
             string lockKey,
             string? redisInstanceName = null,
             CancellationToken cancellationToken = default) => Task.FromResult(false);
+    }
+
+    private sealed class RecordingMemoryCache : IMemoryCache
+    {
+        private readonly Dictionary<object, RecordedEntry> _entries = new();
+
+        public List<object> RemovedKeys { get; } = new();
+
+        public ICacheEntry CreateEntry(object key) => new RecordingCacheEntry(key, Save);
+
+        public void Remove(object key)
+        {
+            RemovedKeys.Add(key);
+            _entries.Remove(key);
+        }
+
+        public bool TryGetValue(object key, out object? value)
+        {
+            if (_entries.TryGetValue(key, out var entry))
+            {
+                value = entry.Value;
+                return true;
+            }
+
+            value = null;
+            return false;
+        }
+
+        public TimeSpan? GetExpiry(object key) => _entries[key].AbsoluteExpirationRelativeToNow;
+
+        public bool Contains(object key) => _entries.ContainsKey(key);
+
+        public void Dispose()
+        {
+        }
+
+        private void Save(RecordingCacheEntry entry)
+        {
+            _entries[entry.Key] = new RecordedEntry(entry.Value, entry.AbsoluteExpirationRelativeToNow);
+        }
+
+        private sealed record RecordedEntry(object? Value, TimeSpan? AbsoluteExpirationRelativeToNow);
+    }
+
+    private sealed class RecordingCacheEntry(object key, Action<RecordingCacheEntry> save) : ICacheEntry
+    {
+        public object Key { get; } = key;
+        public object? Value { get; set; }
+        public DateTimeOffset? AbsoluteExpiration { get; set; }
+        public TimeSpan? AbsoluteExpirationRelativeToNow { get; set; }
+        public TimeSpan? SlidingExpiration { get; set; }
+        public IList<IChangeToken> ExpirationTokens { get; } = new List<IChangeToken>();
+        public IList<PostEvictionCallbackRegistration> PostEvictionCallbacks { get; } = new List<PostEvictionCallbackRegistration>();
+        public CacheItemPriority Priority { get; set; }
+        public long? Size { get; set; }
+
+        public void Dispose() => save(this);
     }
 
     private sealed class FakeDistributedLock(string lockKey) : IDistributedLock
