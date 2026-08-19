@@ -46,6 +46,10 @@ export function parseAuthError(error: any): string {
         }
     }
 
+    if (typeof error?.message === 'string') {
+        return error.message
+    }
+
     // 默认错误消息
     return '操作失败，请重试'
 }

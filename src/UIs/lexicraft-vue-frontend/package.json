@@ -5,16 +5,19 @@
   "scripts": {
     "start": "vite",
     "dev": "vite",
-    "test": "",
+    "test": "vitest run",
     "build": "vite build",
     "build-oss": "vite build && node scripts/do.js",
-    "build-tsc": "vue-tsc && vite build",
+    "build-tsc": "npm run typecheck && vite build",
     "report": "vite build",
     "report-oss": "vite build",
     "preview": "vite preview",
     "commit": "git-cz",
     "i18n:write": "gulp i18nwrite",
-    "deploy-oss": "node scripts/deploy-oss.js"
+    "deploy-oss": "node scripts/deploy-oss.js",
+    "test:watch": "vitest",
+    "typecheck": "vue-tsc --noEmit",
+    "check:legacy-http": "node scripts/check-legacy-http-imports.mjs"
   },
   "dependencies": {
     "@floating-ui/dom": "^1.7.4",
@@ -82,6 +85,7 @@
     "unplugin-vue-macros": "^2.14.5",
     "vite": "^7.0.3",
     "vite-plugin-externals": "^0.6.2",
+    "vitest": "^4.1.11",
     "vue-tsc": "^3.0.1",
     "xlsx": "^0.18.5"
   },

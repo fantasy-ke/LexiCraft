@@ -1,0 +1,57 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  verify:
+    runs-on: windows-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '10.0.x'
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+          cache-dependency-path: src/UIs/lexicraft-vue-frontend/package-lock.json
+
+      - name: Scan tracked files for secrets
+        run: node scripts/security/scan-secrets.mjs
+
+      - name: Build production solution
+        run: dotnet build src/Fantasy.slnx --configuration Release
+
+      - name: Run backend tests
+        run: dotnet test src/Fantasy.Tests.slnx --configuration Release
+
+      - name: Install frontend dependencies
+        run: npm ci
+        working-directory: src/UIs/lexicraft-vue-frontend
+
+      - name: Guard legacy HTTP client
+        run: npm run check:legacy-http
+        working-directory: src/UIs/lexicraft-vue-frontend
+
+      - name: Type-check frontend
+        run: npm run typecheck
+        working-directory: src/UIs/lexicraft-vue-frontend
+
+      - name: Run frontend tests
+        run: npm test
+        working-directory: src/UIs/lexicraft-vue-frontend
+
+      - name: Build frontend
+        run: npm run build
+        working-directory: src/UIs/lexicraft-vue-frontend

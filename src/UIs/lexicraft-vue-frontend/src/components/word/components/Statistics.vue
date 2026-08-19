@@ -64,6 +64,7 @@ watch(model, async newVal => {
       wrong: statStore.wrong,
       new: statStore.newWordNumber,
       review: statStore.reviewWordNumber + statStore.writeWordNumber,
+      title: store.sdict.name,
     }
     window.umami?.track('endStudyWord', {
       name: store.sdict.name,

@@ -142,7 +142,7 @@ onMounted(() => {
           :class="{ 'is-disabled': disabled }"
           class="custom-slider"
           @mousedown="onClickTrack"
-          @touchstart.prevent="onClickTrack"
+          @touchstart.prevent="onTouchStart"
       >
         <div class="custom-slider__track"></div>
         <div

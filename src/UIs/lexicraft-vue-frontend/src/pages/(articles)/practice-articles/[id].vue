@@ -265,7 +265,7 @@ async function complete() {
   }, 1500)
 
   //todo 有空了改成实时保存
-  let data: Partial<Statistics> & { title: string; articleId: number } = {
+  let data: Partial<Statistics> & { title: string; articleId: Article['id'] } = {
     articleId: articleData.article.id,
     title: articleData.article.title,
     spend: statStore.spend,

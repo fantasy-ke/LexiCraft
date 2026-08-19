@@ -64,6 +64,10 @@ function jumpToTarget() {
   }
 }
 
+function onPageSizeChange(event: Event) {
+  handleSizeChange(Number((event.target as HTMLSelectElement).value))
+}
+
 // 处理每页条数变化
 function handleSizeChange(val: number) {
   internalPageSize.value = val
@@ -154,7 +158,7 @@ function next() {
 
       <!-- 每页条数选择器 -->
       <div v-if="layout.includes('sizes')" class="sizes">
-        <select :value="internalPageSize" @change="handleSizeChange(Number($event.target.value))">
+        <select :value="internalPageSize" @change="onPageSizeChange">
           <option v-for="item in pageSizes" :key="item" :value="item">{{ item }}条/页</option>
         </select>
       </div>

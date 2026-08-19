@@ -11,7 +11,7 @@ const props = withDefaults(
       static?: boolean
     }>(),
     {
-      list: [],
+      list: () => [],
       activeIndex: -1,
       activeId: '',
       isActive: false,

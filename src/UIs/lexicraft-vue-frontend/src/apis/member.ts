@@ -64,8 +64,12 @@ export function testPay() {
     return http('/member/testPay', null, null, 'get')
 }
 
+export type OrderStatus = {
+    payment_status: string
+}
+
 export function orderStatus(params) {
-    return http('/member/orderStatus', null, params, 'get')
+    return http<OrderStatus>('/member/orderStatus', null, params, 'get')
 }
 
 export function couponInfo(params) {

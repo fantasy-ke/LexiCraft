@@ -8,7 +8,7 @@ import Checkbox from "@/components/base/checkbox/Checkbox.vue";
 
 const Dialog = defineAsyncComponent(() => import('@/components/dialog/Dialog.vue'))
 
-const model = defineModel()
+const model = defineModel<boolean>({default: false})
 defineProps<{
   data: TaskWords
 }>()

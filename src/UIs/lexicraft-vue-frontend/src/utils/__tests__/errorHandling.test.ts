@@ -2,27 +2,12 @@
  * 错误处理测试 - 确保错误提示只出现一次
  */
 
-import {beforeEach, describe, expect, it, vi} from 'vitest'
+import {describe, expect, it} from 'vitest'
 import {parseAuthError} from '../authHelpers'
 import {AuthErrorCode} from '@/types/auth'
 
-// Mock Toast
-const mockToast = {
-    error: vi.fn(),
-    success: vi.fn(),
-    warning: vi.fn(),
-    info: vi.fn()
-}
-
-vi.mock('@/components/base/toast/Toast', () => ({
-    default: mockToast
-}))
 
 describe('错误处理', () => {
-    beforeEach(() => {
-        vi.clearAllMocks()
-    })
-
     it('应该正确解析网络错误', () => {
         const networkError = {
             message: 'Network Error',

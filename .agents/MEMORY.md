@@ -25,6 +25,7 @@
 - HTTP 响应 DTO 不应直接暴露 `UserId` 等领域值对象；用户 ID 在传输层使用基础 `Guid`。前端归一化逻辑暂时兼容旧 `{ value }` 或 `{ Value }` 结构，并在路径参数中进行 URL 编码。
 - OAuth 创建的用户仍须满足 `PasswordHash` 非空约束：未提供本地密码时生成不可知随机值并写入 BCrypt 哈希，不修改数据库约束，也不向客户端返回随机明文。
 - 前端是独立的 Vue 3/Vite 工程，使用 TypeScript、Pinia、Vue Router、Axios、UnoCSS、Vue Macros 和自动组件/图标导入；前端同时存在新认证客户端与旧业务 API 封装。
+- 仓库 CI 位于 `.github/workflows/ci.yml`，当前门禁包括受控文件敏感信息扫描、生产解决方案构建、测试解决方案、前端旧 HTTP 客户端防扩散、类型检查、Vitest 和生产构建。
 - 前端主题由 `src/UIs/lexicraft-vue-frontend/src/assets/css/themes.scss` 的语义变量统一管理，支持 Editorial、Zen、Playful Ink 三种内部主题及明亮、暗色、跟随系统模式；主题状态由 setting store 的 `themeStyle` 和 `src/hooks/theme.ts` 应用到根元素属性。
 - 首页和登录页固定使用 Editorial 视觉，不随内部主题切换。内部布局中 Editorial 使用左侧书签式导航，Zen 使用顶部命令栏，仅 Playful Ink 使用底部浮动托盘。
 - Vue scoped 样式结合根主题属性时，完整选择器必须放入 `:global(...)`，例如 `:global(html[data-theme-style=...] .selector)`；拆写为 `:global(html[...]) .selector` 会错误影响根元素的 opacity 或 transform。
@@ -51,13 +52,13 @@
 1. 收敛网关路由配置：为 AgileConfig 路由建立脱敏、可审查的版本化结构或导出校验，确保前缀、路径转换、目标服务名和容器编排一致。
 2. 统一前端 API 基址：集中管理网关地址，移除新旧客户端之间分散的 `localhost` 回退和直接服务地址，建立按服务域划分的 API 模块。
 3. 统一认证契约：对齐后端 `TokenResponse`、前端 `LoginResponse`/`TokenPair`、刷新令牌返回值、过期时间和错误包络；同步对齐注册密码规则。
-4. 补齐前后端契约测试：后端增加服务/网关集成测试，前端让 Vitest 依赖和测试脚本真实可执行，并覆盖 401 刷新、429、错误包络和关键业务流程。
+4. 补齐前后端契约测试：前端 Vitest 已可执行并覆盖现有认证/错误/密码校验单测；后续仍需增加服务/网关集成测试，并扩展 401 刷新、429、错误包络和关键业务流程覆盖。
 5. 迁移旧业务 API：核对前端仍使用的 `user/*`、`word/*`、`dict/*` 等路径，逐一映射到当前 Identity/Vocabulary/Practice API，确认后再删除或隔离旧封装。
 6. 维护解决方案边界：生产项目使用 `src/Fantasy.slnx`，全部测试项目使用 `src/Fantasy.Tests.slnx`；后续应在自动化门禁中校验测试项目无遗漏且不回流主解决方案。
-7. 收敛配置与凭据：连接字符串、AgileConfig 参数、OAuth、RabbitMQ 和 OSS 凭据不再提交到仓库；部署文档使用占位符，并安排已暴露凭据轮换。
+7. 完成已暴露凭据处置：当前受控配置已清空连接字符串、AgileConfig Secret、OAuth、RabbitMQ 和 OSS 明文并建立扫描门禁；仍需在外部平台轮换历史暴露凭据，并评估 Git 历史清理。
 8. 分拆超大活跃文件：后端 `CacheService` 与 `MinioOssService` 已按真实职责拆分，`src/BuildingBlocks/` 当前没有超过 800 行的代码文件；仍有 6 个超过 800 行的前端 Vue 文件，拆分必须配合真实页面核验，不为满足行数规则进行无关重构。
 9. 评估生产探针与可观测性：当前默认健康检查端点主要在 Development 映射，生产暴露策略需要结合部署平台明确配置。
-10. 清理前端既有构建债务：`build-tsc` 当前受多处 Vue/TypeScript 类型错误和缺失的 `vitest` 类型阻塞；Vite 仍存在静态/动态重复导入和主分块过大的提示。
+10. 清理前端既有构建债务：`typecheck`、Vitest 与 `build-tsc` 已恢复通过；Vite 仍存在静态/动态重复导入和约 755 kB 主分块过大的提示。
 11. 授权长期应从多服务共享对称 JWT 密钥迁移到 Identity 私钥签名、业务服务仅持公钥的非对称方案，降低单个业务服务泄漏后伪造令牌的风险。
 12. Identity 权限验证端点必须限制为服务网络访问；生产环境还需为 Identity 和授权 Redis 提供高可用、延迟/503 监控与故障演练，因为受保护业务请求同步依赖该链路。
 13. 授权发布前必须在真实 Aspire/部署环境完成登录、并发刷新、旧令牌失效、赋权撤权、多实例缓存一致性和 Redis/Identity 故障的端到端验收。

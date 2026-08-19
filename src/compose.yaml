@@ -8,10 +8,10 @@ services:
       - "${APIGATEWAY_PORT:-5000}:8080"
     environment:
       ASPNETCORE_ENVIRONMENT: "Docker"
-      AgileConfig__Nodes: "http://172.31.21.1:8500"
+      AgileConfig__Nodes: ${AGILECONFIG_NODES:?AGILECONFIG_NODES is required}
       AgileConfig__AppId: "lexicraft-api-gateway"
-      AgileConfig__Secret: "bb123456"
-      AgileConfig__ENV: "TEST"
+      AgileConfig__Secret: ${AGILECONFIG_SECRET:?AGILECONFIG_SECRET is required}
+      AgileConfig__ENV: ${AGILECONFIG_ENV:-TEST}
     restart: unless-stopped
     depends_on:
       - files-grpc
@@ -28,10 +28,10 @@ services:
       dockerfile: microservices/Files/Dockerfile
     environment:
       ASPNETCORE_ENVIRONMENT: "Docker"
-      AgileConfig__Nodes: "http://172.31.21.1:8500"
+      AgileConfig__Nodes: ${AGILECONFIG_NODES:?AGILECONFIG_NODES is required}
       AgileConfig__AppId: "lexicraft-files-grpc"
-      AgileConfig__Secret: "bb123456"
-      AgileConfig__ENV: "TEST"
+      AgileConfig__Secret: ${AGILECONFIG_SECRET:?AGILECONFIG_SECRET is required}
+      AgileConfig__ENV: ${AGILECONFIG_ENV:-TEST}
       PermissionAuthorizationOptions__IdentityApiBaseAddress: "http://identity-api:8080"
       FilesStorageCompatibility__LegacyBucket: "lexicraft-files"
     restart: unless-stopped
@@ -47,10 +47,10 @@ services:
       dockerfile: microservices/Identity/Dockerfile
     environment:
       ASPNETCORE_ENVIRONMENT: "Docker"
-      AgileConfig__Nodes: "http://172.31.21.1:8500"
+      AgileConfig__Nodes: ${AGILECONFIG_NODES:?AGILECONFIG_NODES is required}
       AgileConfig__AppId: "lexicraft-identity-api"
-      AgileConfig__Secret: "bb123456"
-      AgileConfig__ENV: "TEST"
+      AgileConfig__Secret: ${AGILECONFIG_SECRET:?AGILECONFIG_SECRET is required}
+      AgileConfig__ENV: ${AGILECONFIG_ENV:-TEST}
     restart: unless-stopped
     networks:
       - lexicraft-net
@@ -62,10 +62,10 @@ services:
       dockerfile: microservices/Vocabulary/Dockerfile
     environment:
       ASPNETCORE_ENVIRONMENT: "Docker"
-      AgileConfig__Nodes: "http://172.31.21.1:8500"
+      AgileConfig__Nodes: ${AGILECONFIG_NODES:?AGILECONFIG_NODES is required}
       AgileConfig__AppId: "vocabulary-api"
-      AgileConfig__Secret: "bb123456"
-      AgileConfig__ENV: "TEST"
+      AgileConfig__Secret: ${AGILECONFIG_SECRET:?AGILECONFIG_SECRET is required}
+      AgileConfig__ENV: ${AGILECONFIG_ENV:-TEST}
       PermissionAuthorizationOptions__IdentityApiBaseAddress: "http://identity-api:8080"
     restart: unless-stopped
     depends_on:
@@ -80,10 +80,10 @@ services:
       dockerfile: microservices/Practice/Dockerfile
     environment:
       ASPNETCORE_ENVIRONMENT: "Docker"
-      AgileConfig__Nodes: "http://172.31.21.1:8500"
+      AgileConfig__Nodes: ${AGILECONFIG_NODES:?AGILECONFIG_NODES is required}
       AgileConfig__AppId: "practice-api"
-      AgileConfig__Secret: "bb123456"
-      AgileConfig__ENV: "TEST"
+      AgileConfig__Secret: ${AGILECONFIG_SECRET:?AGILECONFIG_SECRET is required}
+      AgileConfig__ENV: ${AGILECONFIG_ENV:-TEST}
       PermissionAuthorizationOptions__IdentityApiBaseAddress: "http://identity-api:8080"
     restart: unless-stopped
     depends_on:

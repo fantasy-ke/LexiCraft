@@ -8,7 +8,7 @@ const Dialog = defineAsyncComponent(() => import('@/components/dialog/Dialog.vue
 
 const store = useBaseStore()
 
-const model = defineModel()
+const model = defineModel<boolean>({default: false})
 
 const emit = defineEmits<{
   ok: [val: number];

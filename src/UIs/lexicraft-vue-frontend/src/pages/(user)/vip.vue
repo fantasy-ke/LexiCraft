@@ -258,11 +258,15 @@ async function handlePayment() {
   console.log('res', res)
   if (res.success) {
     _nextTick(() => {
-      const iframe = document.getElementById('payFrame')
+      const iframe = document.querySelector<HTMLIFrameElement>('#payFrame')
+      if (!iframe) return
+
       // 强制重置为 about:blank，让 document 可写
       iframe.src = 'about:blank'
       iframe.onload = () => {
-        const doc = iframe.contentWindow.document
+        const doc = iframe.contentWindow?.document
+        if (!doc) return
+
         doc.open()
         doc.write(res.data.result) // 写入 form
         doc.close() // form 会自动提交

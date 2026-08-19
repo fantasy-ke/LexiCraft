@@ -20,7 +20,7 @@
         class="flex-1 h-8 px-2 text-center border-none outline-none bg-transparent input-inner w-14"
         inputmode="decimal"
         @blur="onBlur"
-        @input="e => displayValue = e.target.value"
+        @input="onInput"
         @keydown.up.prevent="change(1)"
         @keydown.down.prevent="change(-1)"
     />
@@ -139,6 +139,10 @@ function onRelease() {
     clearInterval(holdInterval);
     holdInterval = null
   }
+}
+
+function onInput(event: Event) {
+  displayValue.value = (event.target as HTMLInputElement).value
 }
 
 function onBlur() {

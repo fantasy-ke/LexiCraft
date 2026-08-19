@@ -8,10 +8,10 @@ import {validatePassword} from '../authValidation'
 describe('密码验证', () => {
     it('应该接受有效的密码长度', () => {
         const validPasswords = [
-            '12345678',     // 8位
-            '123456789012345678901', // 20位
-            'password123',  // 11位
-            'MyPass@123'    // 10位
+            'Aa123456', // 8 位
+            'Aa123456789012345678', // 20 位
+            'Password123',
+            'MyPass@123'
         ]
 
         validPasswords.forEach(password => {
@@ -22,9 +22,8 @@ describe('密码验证', () => {
 
     it('应该拒绝过短的密码', () => {
         const shortPasswords = [
-            '',           // 空
-            '1',          // 1位
-            '1234567'     // 7位
+            'Aa1',
+            'Aa12345'
         ]
 
         shortPasswords.forEach(password => {
@@ -36,8 +35,8 @@ describe('密码验证', () => {
 
     it('应该拒绝过长的密码', () => {
         const longPasswords = [
-            '123456789012345678901',  // 21位
-            '1234567890123456789012345678901234567890' // 40位
+            'Aa1234567890123456789', // 21 位
+            'Aa12345678901234567890123456789012345678'
         ]
 
         longPasswords.forEach(password => {

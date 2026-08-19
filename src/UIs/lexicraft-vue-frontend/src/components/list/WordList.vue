@@ -9,7 +9,7 @@ withDefaults(defineProps<{
   showTranslate?: boolean
   showWord?: boolean
 }>(), {
-  list: [],
+  list: () => [],
   showTranslate: true,
   showWord: true
 })

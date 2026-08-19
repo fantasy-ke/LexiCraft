@@ -47,24 +47,42 @@ import {ref, useTemplateRef} from 'vue'
 import QuestionItem from './QuestionItem.vue'
 import Toast from '@/components/base/toast/Toast.ts'
 
+interface Question {
+  stem: string
+  options: string[]
+  correctAnswer: string[]
+  explanation: string
+}
+
+interface QuestionResult {
+  index: number
+  selected: string[]
+  isCorrect: boolean
+}
+
+interface QuestionItemExpose {
+  submit: () => void
+  getResult: () => QuestionResult
+}
+
 interface IProps {
-  questions: Array,
-  duration: Number,
-  immediateFeedback: Boolean,
-  randomize: Boolean
+  questions: Question[]
+  duration: number
+  immediateFeedback: boolean
+  randomize: boolean
 }
 
 const props = withDefaults(defineProps<IProps>(), {
-  questions: [],
+  questions: () => [],
   duration: 300,
   immediateFeedback: false,
   randomize: false
 })
 
-const questionRefs = useTemplateRef('questionRefs1')
+const questionRefs = useTemplateRef<QuestionItemExpose[]>('questionRefs1')
 const started = ref(false)
 const timeLeft = ref(props.duration || 300)
-let timer = null
+let timer: ReturnType<typeof setInterval> | undefined
 
 const startExam = () => {
   started.value = true
@@ -73,20 +91,22 @@ const startExam = () => {
     timeLeft.value--
     if (timeLeft.value <= 0) {
       clearInterval(timer)
+      timer = undefined
       submitAll()
     }
   }, 1000)
 }
 
-const onAnswered = (res) => {
+const onAnswered = (res: QuestionResult) => {
   console.log('Answered:', res)
   // 可收集中间过程（非必须）
 }
 
 const submitAll = () => {
   console.log(questionRefs)
-  questionRefs.value.forEach((q) => q.submit())
-  const results = questionRefs.value.map((q) => q.getResult())
+  const items = questionRefs.value ?? []
+  items.forEach(q => q.submit())
+  const results = items.map(q => q.getResult())
   const correctCount = results.filter(r => r.isCorrect).length
   const wrongCount = results.length - correctCount
 

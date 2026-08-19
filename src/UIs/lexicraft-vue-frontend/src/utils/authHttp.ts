@@ -10,7 +10,7 @@ import {tokenManager} from './tokenManager'
 import {ENV} from '@/config/env'
 
 // 在开发环境中导入调试工具
-if (import.meta.env.DEV) {
+if (import.meta.env.DEV && typeof window !== 'undefined') {
     import('./authDebug')
 }
 

@@ -1,3 +1,6 @@
+/**
+ * @deprecated 仅供现有旧接口兼容；新增接口应使用按服务域划分的客户端。
+ */
 import type {AxiosInstance} from 'axios'
 import axios from 'axios'
 import {AppEnv, ENV} from "@/config/env.ts";

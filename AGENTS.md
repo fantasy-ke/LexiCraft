@@ -139,8 +139,9 @@ npm --prefix src\UIs\lexicraft-vue-frontend run build
 - 涉及网关或配置时，至少验证健康检查、路由转发、CORS、限流和错误响应。
 - 涉及认证时，至少验证验证码、注册/登录、获取资料、刷新令牌、401 重试和登出。
 - 涉及词汇/练习/文件时，补充最小 API 冒烟测试或契约测试。
-- 当前前端 `npm test` 脚本为空；在它被修复前，不得把 `npm test` 的退出码当作测试覆盖证明。
+- 前端 `npm test` 已运行 Vitest；涉及前端逻辑时必须执行对应测试，并结合 `typecheck` / `build-tsc`，不能只依赖构建退出码。
 - 涉及 `src/BuildingBlocks/`、Identity 或 Files 时，必须执行大小写不敏感的旧品牌零命中扫描（排除生成目录与 `fliesdb*` 数据文件）。
+- 涉及配置、部署或 CI 时执行 `node scripts/security/scan-secrets.mjs`；新增前端 API 调用时执行 `npm --prefix src/UIs/lexicraft-vue-frontend run check:legacy-http`。
 - 交付前再次执行 `git status --short`、`git diff --check`，确认没有临时文件、生成物或无关改动。
 
 ## 8. 项目记忆
