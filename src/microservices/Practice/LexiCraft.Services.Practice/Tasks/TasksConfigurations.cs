@@ -1,3 +1,4 @@
+using BuildingBlocks.Filters;
 // 任务模块配置
 
 using BuildingBlocks.Persistence.Abstractions.Repositories;
@@ -47,7 +48,8 @@ public static class TasksConfigurations
 
         var tasksGroupV1 = tasksVersionGroup
             .MapGroup(PracticePrefixUri)
-            .HasApiVersion(1.0);
+            .HasApiVersion(1.0)
+            .WithResultDto();
 
         tasksGroupV1.MapCreatePracticeTaskEndpoint();
         tasksGroupV1.MapCompletePracticeEndpoint();

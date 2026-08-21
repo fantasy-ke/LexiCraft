@@ -1,3 +1,4 @@
+using BuildingBlocks.Filters;
 // ??????
 
 using LexiCraft.Services.Practice.Assessments.Features.SubmitAnswer;
@@ -28,7 +29,8 @@ public static class AssessmentsConfigurations
 
         var assessmentsGroupV1 = assessmentsVersionGroup
             .MapGroup(PracticePrefixUri)
-            .HasApiVersion(1.0);
+            .HasApiVersion(1.0)
+            .WithResultDto();
 
         assessmentsGroupV1.MapSubmitAnswerEndpoint();
 

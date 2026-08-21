@@ -45,9 +45,8 @@ public static class ApplicationConfiguration
     {
         app.UseInfrastructure();
 
-        var api = app.MapGroup(string.Empty).WithResultDto();
-        api.MapTasksModuleEndpoints();
-        api.MapAssessmentsModuleEndpoints();
+        app.MapTasksModuleEndpoints();
+        app.MapAssessmentsModuleEndpoints();
 
         return app;
     }

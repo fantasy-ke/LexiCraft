@@ -30,9 +30,8 @@ public static class ApplicationConfiguration
     {
         app.UseInfrastructure();
 
-        var api = app.MapGroup(string.Empty).WithResultDto();
-        api.MapWordsModuleEndpoints();
-        api.MapUserStateModuleEndpoints();
+        app.MapWordsModuleEndpoints();
+        app.MapUserStateModuleEndpoints();
 
         return app;
     }
