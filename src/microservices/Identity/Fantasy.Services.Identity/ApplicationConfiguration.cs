@@ -33,10 +33,9 @@ public static class ApplicationConfiguration
     {
         app.UseInfrastructure();
 
-        var api = app.MapGroup(string.Empty).WithResultDto();
-        api.MapIdentityModuleEndpoints();
-        api.MapUsersModuleEndpoints();
-        api.MapPermissionsModuleEndpoints();
+        app.MapIdentityModuleEndpoints();
+        app.MapUsersModuleEndpoints();
+        app.MapPermissionsModuleEndpoints();
 
         return app;
     }
