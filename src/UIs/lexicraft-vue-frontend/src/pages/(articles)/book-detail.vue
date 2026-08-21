@@ -222,53 +222,49 @@ watch([() => displayMode, () => selectArticle.id, () => showTranslate], () => {
         class="bg-second w-full 3xl:w-7/10 2xl:w-8/10 xl:w-full 2xl:card 2xl:h-[97vh] h-full p-3 box-border overflow-hidden mb-0"
     >
       <div v-if="showBookDetail" v-loading="loading" class="flex box-border flex-col h-full">
-        <!-- Premium Rich Header -->
-        <div class="content-header relative overflow-hidden p-8 pb-12 mb-6">
-          <div class="absolute inset-0 bg-gradient-to-br from-slate-900 via-indigo-950 to-slate-900 z-0"></div>
-          <div class="absolute -right-20 -top-20 w-80 h-80 bg-blue-500/10 rounded-full blur-3xl z-1 animate-pulse"></div>
-          <div class="absolute -left-20 -bottom-20 w-64 h-64 bg-indigo-500/10 rounded-full blur-3xl z-1"></div>
-
-          <div class="header-content relative z-10 flex flex-col lg:flex-row justify-between items-start lg:items-center gap-8">
-            <div class="left-section flex items-center gap-6">
-              <BackIcon class="back-btn !text-white/80 hover:!text-white transition-all transform hover:-translate-x-1"/>
-              <div class="info-box space-y-2">
+        <!-- Editorial detail header -->
+        <div class="content-header detail-header mb-6">
+<div class="header-content detail-header__content">
+            <div class="left-section detail-header__left">
+              <BackIcon class="back-btn detail-header__back"/>
+              <div class="info-box detail-header__info">
                 <div class="title-row flex items-center gap-3">
-                  <h1 class="dict-title text-4xl font-black text-white m-0 tracking-tight">{{ runtimeStore.editDict.name }}</h1>
-                  <span v-if="runtimeStore.editDict.custom" class="bg-amber-400 text-amber-950 font-black text-[10px] px-2 py-0.5 rounded-md uppercase tracking-widest shadow-lg shadow-amber-400/20">Custom</span>
+                  <h1 class="dict-title detail-header__title">{{ runtimeStore.editDict.name }}</h1>
+                  <span v-if="runtimeStore.editDict.custom" class="detail-badge">Custom</span>
                 </div>
 
-                <div class="meta-row flex gap-4 text-white/60 font-bold text-sm">
-                  <span class="meta-item flex items-center gap-1.5 hover:text-white/80 transition-colors">
-                    <BaseIcon class="text-blue-400"><IconFluentDocumentMultiple20Regular/></BaseIcon>
+                <div class="meta-row detail-header__meta">
+                  <span class="meta-item detail-header__meta-item">
+                    <BaseIcon class="detail-header__meta-icon"><IconFluentDocumentMultiple20Regular/></BaseIcon>
                     {{ list.length - 1 }} Articles
                   </span>
-                  <span v-if="totalSpend" class="meta-item flex items-center gap-1.5 hover:text-white/80 transition-colors">
-                    <BaseIcon class="text-emerald-400"><IconFluentClock20Regular/></BaseIcon>
+                  <span v-if="totalSpend" class="meta-item detail-header__meta-item">
+                    <BaseIcon class="detail-header__meta-icon"><IconFluentClock20Regular/></BaseIcon>
                     {{ totalSpend }} Learning
                   </span>
                 </div>
 
                 <div v-if="runtimeStore.editDict.description" :title="runtimeStore.editDict.description"
-                     class="description text-white/50 text-sm max-w-xl line-clamp-2 mt-2 font-medium italic">
+                     class="description detail-header__description">
                   {{ runtimeStore.editDict.description }}
                 </div>
               </div>
             </div>
 
-            <div class="right-section flex flex-col gap-4">
-              <div class="action-group flex gap-3">
+            <div class="right-section detail-header__right">
+              <div class="action-group detail-header__actions">
                 <BaseButton 
                   :loading="studyLoading || loading" 
-                  class="!h-14 !px-8 !rounded-2xl !bg-white !text-slate-900 !border-none font-black text-lg shadow-2xl transition-all hover:scale-[1.05] active:scale-[0.95]"
+                  class="detail-primary-action"
                   @click="startPractice"
                 >
                   <div class="flex items-center gap-3">
-                    <IconFluentHatGraduation24Filled class="text-blue-600"/>
+                    <IconFluentHatGraduation24Filled class="detail-action-icon"/>
                     <span>开始学习</span>
                   </div>
                 </BaseButton>
                 <BaseButton 
-                  class="!h-14 !px-8 !rounded-2xl !bg-white/10 !text-white !border-white/20 backdrop-blur-md font-black text-lg hover:!bg-white/20 transition-all hover:scale-[1.05] active:scale-[0.95]"
+                  class="detail-secondary-action"
                   @click="router.push('/batch-edit-article')"
                 >
                   <div class="flex items-center gap-2">
@@ -281,14 +277,14 @@ watch([() => displayMode, () => selectArticle.id, () => showTranslate], () => {
               <div class="flex justify-end gap-4">
                 <BaseButton 
                   :loading="studyLoading || loading" 
-                  class="!text-white/60 hover:!text-white font-bold transition-colors !bg-transparent border-none"
+                  class="detail-sub-action"
                   @click="isEdit = true"
                 >
                   编辑详情
                 </BaseButton>
                 <BaseButton
                     v-if="runtimeStore.editDict.custom && runtimeStore.editDict.url"
-                    class="!text-white/60 hover:!text-white font-bold transition-colors !bg-transparent border-none"
+                    class="detail-sub-action"
                     @click="reset"
                 >
                   恢复默认
@@ -524,6 +520,29 @@ watch([() => displayMode, () => selectArticle.id, () => showTranslate], () => {
 </template>
 
 <style lang="scss" scoped>
+.detail-header { position: relative; flex-shrink: 0; padding: clamp(22px, 3vw, 34px); border-bottom: 1px solid var(--border-color); background: var(--surface-card); color: var(--text-primary); }
+.detail-header__content { display: flex; align-items: flex-start; justify-content: space-between; gap: 28px; }
+.detail-header__left { display: flex; min-width: 0; align-items: flex-start; gap: 18px; }
+.detail-header__back { margin-top: 4px; color: var(--text-secondary); }
+.detail-header__back:hover { color: var(--accent); }
+.detail-header__info { min-width: 0; }
+.detail-header__title { margin: 0; color: var(--text-primary); font-family: var(--font-heading); font-size: clamp(28px, 3vw, 42px); font-weight: 500; letter-spacing: -.03em; line-height: 1.08; }
+.detail-badge { display: inline-flex; align-items: center; padding: 4px 8px; border: 1px solid var(--border-color); border-radius: 999px; color: var(--accent); background: var(--accent-soft); font-family: var(--font-mono); font-size: 9px; letter-spacing: .08em; text-transform: uppercase; }
+.detail-header__meta { display: flex; flex-wrap: wrap; gap: 14px; margin-top: 14px; color: var(--text-secondary); font-family: var(--font-mono); font-size: 10px; letter-spacing: .05em; }
+.detail-header__meta-item { display: inline-flex; align-items: center; gap: 6px; }
+.detail-header__meta-icon, .detail-action-icon { color: var(--accent); }
+.detail-header__description { max-width: 620px; margin-top: 12px; color: var(--text-secondary); font-family: var(--font-sans); font-size: 13px; font-style: normal; line-height: 1.7; }
+.detail-header__right { display: flex; flex: 0 0 auto; flex-direction: column; gap: 10px; }
+.detail-header__actions { display: flex; flex-wrap: wrap; gap: 8px; }
+.detail-primary-action, .detail-secondary-action { min-height: 42px; padding-inline: 16px; border-radius: var(--radius-control); font-family: var(--font-sans); font-size: 13px; font-weight: 650; transition: background .18s ease, border-color .18s ease, color .18s ease; }
+.detail-primary-action { border: 1px solid var(--accent); color: var(--accent-contrast); background: var(--accent); }
+.detail-primary-action:hover { border-color: var(--accent-hover); background: var(--accent-hover); }
+.detail-secondary-action { border: 1px solid var(--border-color); color: var(--text-primary); background: var(--surface-raised); }
+.detail-secondary-action:hover { border-color: var(--border-strong); background: var(--surface-muted); }
+.detail-sub-action { align-self: flex-end; padding: 3px 0; border: 0; border-bottom: 1px solid var(--border-color); color: var(--text-secondary); background: transparent; font-family: var(--font-sans); font-size: 11px; }
+.detail-sub-action:hover { color: var(--accent); border-color: var(--accent); }
+@media (max-width: 760px) { .detail-header__content { flex-direction: column; gap: 20px; } .detail-header__right { width: 100%; } .detail-header__actions > * { flex: 1; } .detail-sub-action { align-self: flex-start; } }
+
 .dict-detail-card {
   height: calc(100vh - 3rem);
 }
@@ -531,24 +550,24 @@ watch([() => displayMode, () => selectArticle.id, () => showTranslate], () => {
 /* Rich Content Header Styles */
 .content-header {
   position: relative;
-  background: linear-gradient(to bottom, var(--color-second), var(--color-primary));
-  padding: 1.5rem 2rem;
+  background: var(--surface-card);
+  padding: clamp(22px, 3vw, 34px);
   border-bottom: 1px solid var(--border-color);
-  margin-bottom: 1rem;
+  margin-bottom: 0;
 }
 
 .header-content {
   display: flex;
   justify-content: space-between;
-  align-items: center;
+  align-items: flex-start;
   position: relative;
   z-index: 2;
-  gap: 2rem;
+  gap: 28px;
 }
 
 .left-section {
   display: flex;
-  gap: 1.5rem;
+  gap: 18px;
   align-items: flex-start;
   flex: 1;
 }
@@ -578,8 +597,8 @@ watch([() => displayMode, () => selectArticle.id, () => showTranslate], () => {
     display: flex;
     align-items: center;
     justify-content: center;
-    background: linear-gradient(135deg, #e0e7ff 0%, #c7d2fe 100%);
-    color: #4f46e5;
+    background: var(--accent-soft);
+    color: var(--accent);
     font-size: 2.5rem;
     font-weight: 700;
   }
@@ -820,7 +839,7 @@ $article-lh: 2.4;
   .article-content {
     article {
       .section {
-        margin-bottom: 1rem;
+        margin-bottom: 0;
 
         .sentence {
           font-size: 1rem;

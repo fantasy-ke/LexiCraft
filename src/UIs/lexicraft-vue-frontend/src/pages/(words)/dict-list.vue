@@ -118,35 +118,30 @@ watch(dict_list, (val) => {
 
 <template>
   <BasePage>
-    <div v-loading="isFetching" class="min-h-200 dict-list-page p-8! overflow-hidden relative">
-      <!-- Decorator Background -->
-      <div class="absolute -right-20 -top-20 w-80 h-80 bg-blue-500/5 rounded-full blur-3xl pointer-events-none"></div>
-      <div class="absolute -left-20 bottom-20 w-64 h-64 bg-indigo-500/5 rounded-full blur-3xl pointer-events-none"></div>
+    <div v-loading="isFetching" class="catalog-page dict-list-page">
+      <div class="catalog-header">
+        <BackIcon class="catalog-back" @click="router.back"/>
+        
+        <div v-if="showSearchInput" class="catalog-search">
+          <div class="catalog-search__field">
+            <BaseInput v-model="searchKey" autofocus clearable placeholder="搜索想学习的词典"/>
+            <IconFluentSearch24Regular aria-hidden="true"/>
+          </div>
+          <BaseButton type="info" class="catalog-cancel" @click="showSearchInput = false, searchKey = ''">取消</BaseButton>
+        </div>
 
-      <div class="flex items-center relative gap-6 header-section mb-10">
-        <div class="z-10">
-          <BackIcon class="transition-transform hover:-translate-x-1" @click='router.back'/>
-        </div>
-        
-        <div v-if="showSearchInput" class="flex flex-1 gap-4 items-center z-10">
-          <div class="flex-1 relative">
-            <BaseInput v-model="searchKey" autofocus class="w-full !rounded-2xl !bg-slate-50 dark:!bg-slate-800/40 border-none shadow-inner" clearable placeholder="搜索您想学习的词典..."/>
-            <IconFluentSearch24Regular class="absolute right-4 top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none"/>
+        <div v-else class="catalog-heading">
+          <div>
+            <p class="catalog-kicker">AVAILABLE DICTIONARIES</p>
+            <h1>词典列表</h1>
           </div>
-          <BaseButton type="info" class="rounded-xl px-6 h-11 bg-white/50 dark:bg-slate-800/50" @click="showSearchInput = false, searchKey = ''">取消</BaseButton>
-        </div>
-        
-        <div v-else class="flex flex-1 items-center justify-between z-10">
-          <div class="page-title-group">
-            <h1 class="text-3xl font-black grad-text m-0 leading-tight">词典列表</h1>
-            <p class="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] mt-1">AVAILABLE DICTIONARIES</p>
-          </div>
-          <div class="w-12 h-12 rounded-2xl bg-slate-50 dark:bg-slate-800/40 border border-slate-100 dark:border-slate-800 center cursor-pointer hover:bg-white dark:hover:bg-slate-800 transition-all duration-300 shadow-sm group" @click="showSearchInput = true">
-            <IconFluentSearch24Regular class="text-xl text-slate-600 dark:text-slate-300 group-hover:scale-110 transition-transform"/>
-          </div>
+          <button class="catalog-search-button" type="button" aria-label="打开搜索" @click="showSearchInput = true">
+            <IconFluentSearch24Regular aria-hidden="true"/>
+            <span>搜索</span>
+          </button>
         </div>
       </div>
-      <div v-if="searchKey" class="mt-4">
+      <div v-if="searchKey" class="catalog-results">
         <DictList
             v-if="searchList.length "
             :list="searchList"
@@ -155,7 +150,7 @@ watch(dict_list, (val) => {
             @selectDict="selectDict"/>
         <Empty v-else text="没有相关词典"/>
       </div>
-      <div v-else class="w-full">
+      <div v-else class="catalog-results">
         <DictGroup
             v-for="item in groupedByCategoryAndTag"
             :category="item[0]"
@@ -170,75 +165,30 @@ watch(dict_list, (val) => {
 </template>
 
 <style lang="scss" scoped>
-// 移动端适配
-@media (max-width: 768px) {
-  .dict-list-page {
-    padding: 0.8rem;
-    margin-bottom: 1rem;
-
-    .header-section {
-      flex-direction: column;
-      gap: 0.5rem;
-
-      .flex.flex-1.gap-4 {
-        width: 100%;
-
-        .base-input {
-          font-size: 0.9rem;
-        }
-
-        .base-button {
-          padding: 0.5rem 0.8rem;
-          font-size: 0.9rem;
-        }
-      }
-
-      .py-1.flex.flex-1.justify-end {
-        width: 100%;
-
-        .page-title {
-          font-size: 1.2rem;
-        }
-
-        .base-icon {
-          font-size: 1.2rem;
-        }
-      }
-    }
-
-    .mt-4 {
-      margin-top: 0.8rem;
-    }
-  }
+.catalog-page { min-height: 200px; padding: clamp(18px, 3vw, 34px) !important; overflow: hidden; color: var(--text-primary); }
+.catalog-header { display: flex; align-items: flex-start; gap: 20px; margin-bottom: 34px; }
+.catalog-back { flex: 0 0 auto; margin-top: 3px; color: var(--text-secondary); }
+.catalog-back:hover { color: var(--accent); }
+.catalog-heading, .catalog-search { display: flex; min-width: 0; flex: 1; align-items: center; justify-content: space-between; gap: 20px; }
+.catalog-kicker { margin: 0 0 8px; color: var(--accent); font-family: var(--font-mono); font-size: 10px; letter-spacing: .14em; }
+.catalog-heading h1 { margin: 0; color: var(--text-primary); font-family: var(--font-heading); font-size: clamp(28px, 3vw, 42px); font-weight: 500; line-height: 1.08; }
+.catalog-search__field { position: relative; min-width: 0; flex: 1; }
+.catalog-search__field :deep(.base-input) { width: 100%; border-width: 0 0 1px; border-radius: 0; background: transparent; }
+.catalog-search__field > svg { position: absolute; top: 50%; right: 2px; color: var(--text-tertiary); pointer-events: none; transform: translateY(-50%); }
+.catalog-cancel { flex: 0 0 auto; }
+.catalog-search-button { display: inline-flex; align-items: center; gap: 8px; padding: 8px 0; border: 0; border-bottom: 1px solid var(--border-strong); color: var(--text-secondary); background: transparent; cursor: pointer; font: inherit; font-size: 12px; }
+.catalog-search-button:hover { color: var(--accent); border-color: var(--accent); }
+.catalog-search-button svg { width: 16px; height: 16px; }
+.catalog-results { min-width: 0; }
+@media (max-width: 640px) {
+  .catalog-page { padding: 16px !important; }
+  .catalog-header { gap: 12px; margin-bottom: 26px; }
+  .catalog-heading, .catalog-search { align-items: flex-start; flex-direction: column; gap: 14px; }
+  .catalog-search { flex-direction: row; align-items: center; }
+  .catalog-cancel { padding-inline: 8px; }
 }
-
-// 超小屏幕适配
-@media (max-width: 480px) {
-  .dict-list-page {
-    padding: 0.5rem;
-
-    .header-section {
-      .flex.flex-1.gap-4 {
-        .base-input {
-          font-size: 0.8rem;
-        }
-
-        .base-button {
-          padding: 0.4rem 0.6rem;
-          font-size: 0.8rem;
-        }
-      }
-
-      .py-1.flex.flex-1.justify-end {
-        .page-title {
-          font-size: 1rem;
-        }
-
-        .base-icon {
-          font-size: 1rem;
-        }
-      }
-    }
-  }
+@media (max-width: 420px) {
+  .catalog-search { align-items: stretch; flex-direction: column; }
+  .catalog-cancel { align-self: flex-end; }
 }
 </style>
